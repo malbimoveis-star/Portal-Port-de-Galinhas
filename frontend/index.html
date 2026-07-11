@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal Porto de Galinhas - Turismo, Comercios e Passeios</title>
+  <meta name="description" content="Descubra os melhores passeios, hoteis, restaurantes e comercios de Porto de Galinhas. Cadastre seu negocio ou aproveite como turista." />
+  <link rel="icon" href="../assets/icons/logo-tucano.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div id="layout-header"></div>
+
+  <section class="hero">
+    <div class="container">
+      <h1 data-i18n="home.hero_titulo">Descubra as Melhores Experiencias de Porto de Galinhas!</h1>
+    </div>
+  </section>
+
+  <section class="destaques container">
+    <h2 data-i18n="home.destaques_titulo">Destaques Premium para Voce</h2>
+    <div class="destaques__grid" id="destaquesGrid">
+      <!-- preenchido via JS -->
+    </div>
+  </section>
+
+  <section class="categorias">
+    <div class="container">
+      <h2 data-i18n="categorias.titulo">Servicos & Turismo</h2>
+      <div class="carousel">
+        <button class="carousel__seta" id="setaEsquerda" aria-label="Anterior">&#10094;</button>
+        <div class="carousel__track" id="categoriasTrack">
+          <!-- preenchido via JS -->
+        </div>
+        <button class="carousel__seta" id="setaDireita" aria-label="Proximo">&#10095;</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="container">
+      <h2 data-i18n="home.cta_titulo">Fique por dentro das Melhores Opcoes em Porto!</h2>
+      <p data-i18n="home.cta_subtitulo">Desbloqueie uma jornada tropical e agil moderna a Porto de Galinhas!</p>
+      <div class="cta__botoes">
+        <a class="btn btn--primario" style="background: var(--azul-primario); color: #fff;" href="pages/planos-turista.html" data-i18n="home.btn_sou_turista">Sou Turista</a>
+        <a class="btn btn--vermelho" href="pages/cadastro-comerciante.html" data-i18n="home.btn_cadastrar_negocio">Cadastre seu negocio</a>
+      </div>
+    </div>
+  </section>
+
+  <div id="layout-rodape"></div>
+
+  <script src="js/config.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/home.js"></script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comerciante - Portal Porto de Galinhas</title>
+  <link rel="icon" href="../assets/icons/logo-tucano.svg" />
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+  <div id="layout-header"></div>
+
+  <div class="pagina" id="paginaComerciante">
+    <div class="card">
+      <div class="comerciante-header">
+        <div>
+          <h1 id="nomeComerciante">Carregando...</h1>
+          <span id="statusBadge" class="status-badge"></span>
+        </div>
+      </div>
+      <p id="statusMensagem" style="margin-top: 10px;"></p>
+    </div>
+
+    <div class="card">
+      <h2 data-i18n="comerciante_pagina.sobre">Sobre</h2>
+      <p id="comercianteInfo"></p>
+      <div id="contatoWrapper"></div>
+    </div>
+
+    <div class="card">
+      <h2 data-i18n="comerciante_pagina.galeria">Galeria de Fotos</h2>
+      <div class="galeria" id="galeriaAnuncios"></div>
+    </div>
+
+    <div id="listaAnunciosComerciante"></div>
+  </div>
+
+  <div id="layout-rodape"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/i18n.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/comerciante.js"></script>
+</body>
+</html>

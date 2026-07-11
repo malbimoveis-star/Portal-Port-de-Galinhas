@@ -1,0 +1,13 @@
+# Configuracao de deploy do FRONTEND (site estatico) no Netlify.
+# O backend (API Node/Express) deve ser publicado separadamente
+# (Render, Railway, Fly.io, etc.) -- ajuste API_BASE_URL em
+# frontend/js/config.js para apontar para a URL publica do backend.
+
+[build]
+  base = "frontend"
+  publish = "."
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 404

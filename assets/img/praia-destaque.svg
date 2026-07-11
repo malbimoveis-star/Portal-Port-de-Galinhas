@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 260" width="400" height="260">
+  <rect width="400" height="260" fill="#7fd4e0"/>
+  <rect y="150" width="400" height="110" fill="#f3e2b3"/>
+  <path d="M0 150 Q100 130 200 150 T400 150 V160 H0 Z" fill="#2f9fd6"/>
+  <circle cx="330" cy="50" r="28" fill="#ffe066"/>
+  <path d="M60 150 C60 100 40 70 20 60 C55 55 85 80 90 120 Z" fill="#2e7d32"/>
+  <path d="M60 150 C60 100 80 70 100 60 C65 55 35 80 30 120 Z" fill="#388e3c"/>
+  <rect x="55" y="120" width="10" height="45" fill="#8d6e63"/>
+  <text x="200" y="230" font-family="Arial, sans-serif" font-size="20" fill="#0b5fa5" text-anchor="middle" font-weight="bold">Porto de Galinhas</text>
+</svg>

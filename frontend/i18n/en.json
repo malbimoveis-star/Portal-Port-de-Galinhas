@@ -1,0 +1,98 @@
+{
+  "menu": {
+    "home": "Home",
+    "blog": "Blog",
+    "como_funciona": "How It Works",
+    "contato": "Contact",
+    "sou_comerciante": "I'm a Merchant",
+    "sou_turista": "I'm a Tourist",
+    "idioma": "Language"
+  },
+  "categorias": {
+    "titulo": "Services & Tourism",
+    "hoteis-pousadas": "Hotels & Inns",
+    "resorts": "Resorts",
+    "passeios-de-barco": "Boat Tours",
+    "buggys-traslados": "Buggies & Transfers",
+    "restaurantes-bares": "Restaurants & Bars",
+    "comercios-regionais": "Local Shops",
+    "mergulho": "Diving",
+    "jet-ski": "Jet Ski",
+    "servicos-de-praia": "Beach Services"
+  },
+  "home": {
+    "hero_titulo": "Discover the Best Experiences in Porto de Galinhas!",
+    "destaques_titulo": "Premium Highlights for You",
+    "saiba_mais": "Learn more",
+    "cta_titulo": "Stay Updated on the Best Options in Porto!",
+    "cta_subtitulo": "Unlock a modern tropical journey to Porto de Galinhas!",
+    "btn_sou_turista": "I'm a Tourist",
+    "btn_cadastrar_negocio": "Register your business"
+  },
+  "comerciante_pagina": {
+    "sobre": "About",
+    "galeria": "Photo Gallery",
+    "contato": "Contact",
+    "whatsapp": "WhatsApp",
+    "status_ativo": "Active listing",
+    "status_degustacao": "Free trial period",
+    "status_expirado": "This listing is currently unavailable.",
+    "sem_whatsapp": "WhatsApp contact is only available for advertisers with an active plan."
+  },
+  "painel": {
+    "titulo": "Merchant Dashboard",
+    "plano_atual": "Current Plan",
+    "status": "Status",
+    "degustacao_restante": "Trial time remaining",
+    "dias": "days",
+    "horas": "hours",
+    "renovar_plano": "Renew plan",
+    "meus_anuncios": "My Listings",
+    "novo_anuncio": "New Listing",
+    "editar": "Edit",
+    "excluir": "Delete",
+    "salvar": "Save",
+    "cancelar": "Cancel",
+    "alerta_expirado": "Your plan has expired. Renew now to appear in public listings again.",
+    "login": "Sign in",
+    "cadastro": "Sign up",
+    "email": "Email",
+    "senha": "Password",
+    "nome": "Name",
+    "telefone": "Phone",
+    "sair": "Log out",
+    "nao_tenho_conta": "I don't have an account, sign me up",
+    "ja_tenho_conta": "I already have an account, sign me in"
+  },
+  "planos": {
+    "turista": "Tourist",
+    "comerciante_basico": "Basic Merchant",
+    "comerciante_premium": "Premium Merchant",
+    "mes": "/month"
+  },
+  "rodape_mobile": {
+    "cadastre_negocio": "Register your business",
+    "assine_ja": "Subscribe now"
+  },
+  "rodape": {
+    "termos": "Terms of Use",
+    "privacidade": "Privacy Policy",
+    "suporte": "24h Support",
+    "direitos": "All rights reserved"
+  },
+  "paginas_legais": {
+    "termos_titulo": "Terms of Use",
+    "privacidade_titulo": "Privacy Policy",
+    "suporte_titulo": "24h Support"
+  },
+  "pagamento": {
+    "sucesso_titulo": "Payment approved!",
+    "sucesso_texto": "Your payment has been confirmed. Your plan is now active.",
+    "pendente_titulo": "Payment pending",
+    "pendente_texto": "We are waiting for confirmation of your payment from Mercado Pago.",
+    "erro_titulo": "Payment not completed",
+    "erro_texto": "There was a problem processing your payment. Please try again.",
+    "voltar_home": "Back to Home",
+    "ir_painel": "Go to Dashboard"
+  }
+}

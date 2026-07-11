@@ -1,0 +1,98 @@
+{
+  "menu": {
+    "home": "Accueil",
+    "blog": "Blog",
+    "como_funciona": "Comment ca Marche",
+    "contato": "Contact",
+    "sou_comerciante": "Je suis Commercant",
+    "sou_turista": "Je suis Touriste",
+    "idioma": "Langue"
+  },
+  "categorias": {
+    "titulo": "Services & Tourisme",
+    "hoteis-pousadas": "Hotels & Auberges",
+    "resorts": "Resorts",
+    "passeios-de-barco": "Excursions en Bateau",
+    "buggys-traslados": "Buggies & Transferts",
+    "restaurantes-bares": "Restaurants & Bars",
+    "comercios-regionais": "Commerces Locaux",
+    "mergulho": "Plongee",
+    "jet-ski": "Jet Ski",
+    "servicos-de-praia": "Services de Plage"
+  },
+  "home": {
+    "hero_titulo": "Decouvrez les Meilleures Experiences de Porto de Galinhas!",
+    "destaques_titulo": "Points Forts Premium pour Vous",
+    "saiba_mais": "En savoir plus",
+    "cta_titulo": "Restez Informe des Meilleures Options a Porto!",
+    "cta_subtitulo": "Debloquez un voyage tropical et moderne a Porto de Galinhas!",
+    "btn_sou_turista": "Je suis Touriste",
+    "btn_cadastrar_negocio": "Enregistrez votre entreprise"
+  },
+  "comerciante_pagina": {
+    "sobre": "A propos",
+    "galeria": "Galerie de Photos",
+    "contato": "Contact",
+    "whatsapp": "WhatsApp",
+    "status_ativo": "Annonce active",
+    "status_degustacao": "Periode d'essai gratuit",
+    "status_expirado": "Cette annonce n'est actuellement pas disponible.",
+    "sem_whatsapp": "Le contact WhatsApp est disponible uniquement pour les annonceurs avec un plan actif."
+  },
+  "painel": {
+    "titulo": "Tableau de Bord du Commercant",
+    "plano_atual": "Plan Actuel",
+    "status": "Statut",
+    "degustacao_restante": "Temps d'essai restant",
+    "dias": "jours",
+    "horas": "heures",
+    "renovar_plano": "Renouveler le plan",
+    "meus_anuncios": "Mes Annonces",
+    "novo_anuncio": "Nouvelle Annonce",
+    "editar": "Modifier",
+    "excluir": "Supprimer",
+    "salvar": "Enregistrer",
+    "cancelar": "Annuler",
+    "alerta_expirado": "Votre plan a expire. Renouvelez maintenant pour reapparaitre dans les listes publiques.",
+    "login": "Se connecter",
+    "cadastro": "S'inscrire",
+    "email": "E-mail",
+    "senha": "Mot de passe",
+    "nome": "Nom",
+    "telefone": "Telephone",
+    "sair": "Se deconnecter",
+    "nao_tenho_conta": "Je n'ai pas de compte, je veux m'inscrire",
+    "ja_tenho_conta": "J'ai deja un compte, je veux me connecter"
+  },
+  "planos": {
+    "turista": "Touriste",
+    "comerciante_basico": "Commercant Basique",
+    "comerciante_premium": "Commercant Premium",
+    "mes": "/mois"
+  },
+  "rodape_mobile": {
+    "cadastre_negocio": "Enregistrez votre entreprise",
+    "assine_ja": "Abonnez-vous"
+  },
+  "rodape": {
+    "termos": "Conditions d'Utilisation",
+    "privacidade": "Politique de Confidentialite",
+    "suporte": "Support 24h",
+    "direitos": "Tous droits reserves"
+  },
+  "paginas_legais": {
+    "termos_titulo": "Conditions d'Utilisation",
+    "privacidade_titulo": "Politique de Confidentialite",
+    "suporte_titulo": "Support 24h"
+  },
+  "pagamento": {
+    "sucesso_titulo": "Paiement approuve!",
+    "sucesso_texto": "Votre paiement a ete confirme. Votre plan est maintenant actif.",
+    "pendente_titulo": "Paiement en attente",
+    "pendente_texto": "Nous attendons la confirmation de votre paiement par Mercado Pago.",
+    "erro_titulo": "Paiement non termine",
+    "erro_texto": "Un probleme est survenu lors du traitement de votre paiement. Veuillez reessayer.",
+    "voltar_home": "Retour a l'Accueil",
+    "ir_painel": "Aller au Tableau de Bord"
+  }
+}

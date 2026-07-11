@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pagamento Pendente - Portal Porto de Galinhas</title>
+  <link rel="icon" href="../assets/icons/logo-tucano.svg" />
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+  <div id="layout-header"></div>
+
+  <div class="pagina" style="text-align:center;">
+    <div class="card">
+      <h1 style="color: var(--laranja-escuro);" data-i18n="pagamento.pendente_titulo">Pagamento pendente</h1>
+      <p data-i18n="pagamento.pendente_texto">Estamos aguardando a confirmacao do seu pagamento pelo Mercado Pago.</p>
+      <div style="display:flex; gap:12px; justify-content:center; margin-top:20px; flex-wrap:wrap;">
+        <a class="btn btn--primario" style="background: var(--azul-primario); color:#fff;" href="../index.html" data-i18n="pagamento.voltar_home">Voltar para a Home</a>
+        <a class="btn btn--laranja" href="painel-comerciante.html" data-i18n="pagamento.ir_painel">Ir para o Painel</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="layout-rodape"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/i18n.js"></script>
+  <script src="../js/layout.js"></script>
+</body>
+</html>

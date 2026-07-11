@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadastro de Comerciante - Portal Porto de Galinhas</title>
+  <link rel="icon" href="../assets/icons/logo-tucano.svg" />
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+  <div id="layout-header"></div>
+
+  <div class="pagina" style="max-width: 480px;">
+    <div class="card">
+      <h1 id="formTitulo" data-i18n="painel.cadastro">Cadastrar</h1>
+
+      <div id="mensagemErro" class="alerta alerta--erro" style="display:none;"></div>
+
+      <form id="formCadastro">
+        <div class="form-grupo">
+          <label data-i18n="painel.nome">Nome</label>
+          <input type="text" id="campoNome" required />
+        </div>
+        <div class="form-grupo">
+          <label data-i18n="painel.email">E-mail</label>
+          <input type="email" id="campoEmail" required />
+        </div>
+        <div class="form-grupo">
+          <label data-i18n="painel.telefone">Telefone</label>
+          <input type="text" id="campoTelefone" placeholder="5581999990000" />
+        </div>
+        <div class="form-grupo">
+          <label data-i18n="painel.senha">Senha</label>
+          <input type="password" id="campoSenha" required minlength="6" />
+        </div>
+        <button type="submit" class="btn btn--laranja" style="width:100%;" data-i18n="painel.cadastro">Cadastrar</button>
+      </form>
+
+      <p style="text-align:center; margin-top:16px;">
+        <a href="login-comerciante.html" data-i18n="painel.ja_tenho_conta">Ja tenho conta, quero entrar</a>
+      </p>
+    </div>
+  </div>
+
+  <div id="layout-rodape"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/i18n.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/auth-comerciante.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => window.authComerciante.initCadastro());
+  </script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 260" width="400" height="260">
+  <rect width="400" height="260" fill="#0b5fa5"/>
+  <rect y="180" width="400" height="80" fill="#ffffff"/>
+  <path d="M140 180 L200 100 L260 180 Z" fill="#e14b4b"/>
+  <rect x="196" y="130" width="8" height="50" fill="#f5a623"/>
+  <text x="200" y="230" font-family="Arial, sans-serif" font-size="18" fill="#0b5fa5" text-anchor="middle" font-weight="bold">Passeio de Lancha</text>
+</svg>

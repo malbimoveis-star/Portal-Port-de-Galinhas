@@ -1,0 +1,11 @@
+node_modules/
+backend/data/*.db
+backend/data/*.db-journal
+backend/data/*.db-wal
+backend/data/*.db-shm
+backend/.env
+assets/uploads/*
+!assets/uploads/.gitkeep
+.DS_Store
+Thumbs.db
+*.log

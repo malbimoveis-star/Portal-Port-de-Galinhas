@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel do Comerciante - Portal Porto de Galinhas</title>
+  <link rel="icon" href="../assets/icons/logo-tucano.svg" />
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+  <div id="layout-header"></div>
+
+  <div class="pagina" style="max-width: 1000px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+      <h1 data-i18n="painel.titulo">Painel do Comerciante</h1>
+      <button class="btn btn--vermelho" id="btnSair" data-i18n="painel.sair">Sair</button>
+    </div>
+
+    <div id="alertaExpirado" class="alerta alerta--erro" style="display:none;" data-i18n="painel.alerta_expirado"></div>
+
+    <div class="painel-grid">
+      <div class="painel-stat">
+        <div class="valor" id="statPlano">-</div>
+        <div data-i18n="painel.plano_atual">Plano Atual</div>
+      </div>
+      <div class="painel-stat">
+        <div class="valor" id="statStatus">-</div>
+        <div data-i18n="painel.status">Status</div>
+      </div>
+      <div class="painel-stat" id="statDegustacaoWrapper" style="display:none;">
+        <div class="valor" id="statDegustacao">-</div>
+        <div data-i18n="painel.degustacao_restante">Tempo restante de degustacao</div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="ativo" data-tab="anuncios" data-i18n="painel.meus_anuncios">Meus Anuncios</button>
+      <button data-tab="planos" data-i18n="painel.renovar_plano">Renovar plano</button>
+    </div>
+
+    <div id="tabAnuncios">
+      <div class="card">
+        <h2 data-i18n="painel.novo_anuncio">Novo Anuncio</h2>
+        <form id="formAnuncio">
+          <input type="hidden" id="anuncioId" />
+          <div class="form-grupo">
+            <label data-i18n="painel.titulo">Titulo</label>
+            <input type="text" id="campoTitulo" required />
+          </div>
+          <div class="form-grupo">
+            <label>Descricao</label>
+            <textarea id="campoDescricao"></textarea>
+          </div>
+          <div class="form-grupo">
+            <label>Categoria</label>
+            <select id="campoCategoria"></select>
+          </div>
+          <div class="form-grupo">
+            <label>Tags (separadas por virgula)</label>
+            <input type="text" id="campoTags" placeholder="passeio, aventura, familia" />
+          </div>
+          <div class="form-grupo">
+            <label>Fotos (ate 6)</label>
+            <input type="file" id="campoFotos" multiple accept="image/*" />
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button type="submit" class="btn btn--laranja" data-i18n="painel.salvar">Salvar</button>
+            <button type="button" class="btn btn--outline" style="color:#333; border-color:#ccc;" id="btnCancelarEdicao" data-i18n="painel.cancelar">Cancelar</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="listaMeusAnuncios"></div>
+    </div>
+
+    <div id="tabPlanos" style="display:none;">
+      <div class="planos-grid" id="planosGrid"></div>
+    </div>
+  </div>
+
+  <div id="layout-rodape"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/i18n.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/auth-comerciante.js"></script>
+  <script src="../js/painel-comerciante.js"></script>
+</body>
+</html>

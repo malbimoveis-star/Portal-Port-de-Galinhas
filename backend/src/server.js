@@ -1,0 +1,53 @@
+'use strict';
+
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+
+const migrate = require('./db/migrate');
+const categoriasRouter = require('./routes/categorias');
+const comerciantesRouter = require('./routes/comerciantes');
+const anunciosRouter = require('./routes/anuncios');
+const pagamentosRouter = require('./routes/pagamentos');
+
+migrate();
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Serve os arquivos estaticos de /assets (imagens, icones, uploads de fotos de anuncios)
+app.use('/assets', express.static(path.join(__dirname, '..', '..', 'assets')));
+
+// Rotas da API
+app.use('/api/categorias', categoriasRouter);
+app.use('/api/comerciantes', comerciantesRouter);
+app.use('/api/anuncios', anunciosRouter);
+app.use('/api/pagamentos', pagamentosRouter);
+
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', servico: 'Portal Porto de Galinhas API', timestamp: new Date().toISOString() });
+});
+
+// Handler de erros do multer/upload
+app.use((err, req, res, next) => {
+  if (err) {
+    console.error('[erro]', err.message);
+    return res.status(400).json({ erro: err.message });
+  }
+  next();
+});
+
+app.use((req, res) => {
+  res.status(404).json({ erro: 'Rota nao encontrada.' });
+});
+
+app.listen(PORT, () => {
+  console.log(`[server] Portal Porto de Galinhas API rodando em http://localhost:${PORT}`);
+});
+
+module.exports = app;
