@@ -65,5 +65,7 @@ app.use((req, res) => {
 app.listen(PORT, () => {
   console.log(`[server] Portal Porto de Galinhas API rodando em http://localhost:${PORT}`);
 });
+const blogRouter = require('../blog');
+app.use('/admin/blog', blogRouter);
 
 module.exports = app;
