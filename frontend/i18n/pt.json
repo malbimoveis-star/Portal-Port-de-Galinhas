@@ -68,7 +68,8 @@
     "turista": "Turista",
     "comerciante_basico": "Comerciante Basico",
     "comerciante_premium": "Comerciante Premium",
-    "mes": "/mes"
+    "mes": "/mes",
+     "assinar": "Assinar"
   },
   "rodape_mobile": {
     "cadastre_negocio": "Cadastre seu negocio",
