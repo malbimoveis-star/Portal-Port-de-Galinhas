@@ -91,10 +91,10 @@
 
       menu.innerHTML = IDIOMAS_DISPONIVEIS.map(
         (idioma) => `
-          <div class="lang-selector__item" data-idioma="${idioma}">
-            <span>${BANDEIRAS[idioma]}</span>
-            <span>${NOMES_IDIOMA[idioma]}</span>
-          </div>`
+        <div class="lang-selector__item" data-idioma="${idioma}">
+          <span>${BANDEIRAS[idioma]}</span>
+          <span>${NOMES_IDIOMA[idioma]}</span>
+        </div>`
       ).join('');
 
       btn.addEventListener('click', (e) => {
@@ -102,11 +102,11 @@
         menu.classList.toggle('aberto');
       });
 
-      menu.querySelectorAll('.lang-selector__item').forEach((item) => {
-        item.addEventListener('click', () => {
-          trocarIdioma(item.getAttribute('data-idioma'));
-          menu.classList.remove('aberto');
-        });
+      menu.addEventListener('click', (e) => {
+        const item = e.target.closest('.lang-selector__item');
+        if (!item) return;
+        trocarIdioma(item.getAttribute('data-idioma'));
+        menu.classList.remove('aberto');
       });
 
       document.addEventListener('click', () => menu.classList.remove('aberto'));

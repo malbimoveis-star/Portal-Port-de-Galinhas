@@ -12,7 +12,7 @@ comerciantes/anuncios e assinar um plano Turista com beneficios exclusivos.
 portal-porto-galinhas/
 ├── backend/            # API Node.js + Express + SQLite (node:sqlite nativo)
 │   ├── src/
-│   │   ├── server.js        # entrypoint da API
+│   │   ├── server.js        # entrypoint: API + serve o frontend estatico (mesma porta)
 │   │   ├── db/               # conexao, migrations e seed do SQLite
 │   │   ├── routes/           # categorias, comerciantes, anuncios, pagamentos
 │   │   ├── middleware/        # autenticacao JWT e upload (multer)
@@ -44,15 +44,19 @@ portal-porto-galinhas/
 
 ## Como rodar localmente
 
-### 1. Backend (API)
+Backend e frontend rodam juntos, na mesma porta (o Express serve a API em
+`/api/*` e os arquivos estaticos do frontend em todas as outras rotas).
 
 ```bash
 cd backend
 npm install
 copy .env.example .env      # (Windows) ou: cp .env.example .env (Linux/Mac)
 npm run seed                 # cria o banco SQLite e popula com dados de exemplo
-npm start                    # inicia a API em http://localhost:3000
+npm start                    # inicia tudo em http://localhost:3000
 ```
+
+Abra `http://localhost:3000` no navegador para o site, e
+`http://localhost:3000/api/health` para confirmar que a API responde.
 
 Edite o arquivo `.env` para configurar:
 - `MP_ACCESS_TOKEN`: seu Access Token de **sandbox** do Mercado Pago
@@ -63,22 +67,9 @@ Edite o arquivo `.env` para configurar:
 - `FRONTEND_URL` / `BACKEND_URL`: usados para montar as URLs de retorno do
   Mercado Pago (`back_urls`) e o `notification_url` do webhook.
 
-### 2. Frontend (site estatico)
-
-Em outro terminal:
-
-```bash
-cd frontend
-node serve.js                 # inicia em http://localhost:5500
-```
-
-Abra `http://localhost:5500` no navegador. O frontend consome a API em
-`http://localhost:3000` (configuravel em `frontend/js/config.js`).
-
-> O frontend nao possui build step (HTML/CSS/JS puro), entao qualquer
-> servidor estatico funciona (Live Server do VS Code, `npx serve`, etc.),
-> desde que a pasta `assets/` (irma de `frontend/`) tambem seja acessivel em
-> `/assets/*`. O `serve.js` incluso ja resolve isso automaticamente.
+> `frontend/serve.js` continua disponivel caso queira rodar o frontend
+> isolado (sem backend) durante o desenvolvimento visual, mas nao e mais
+> necessario para o fluxo normal nem para producao.
 
 ## Contas de teste (apos rodar `npm run seed`)
 
@@ -130,73 +121,56 @@ Senha para todas: `senha123`
   `/api/pagamentos/simular-aprovacao`), o comerciante e ativado por 30 dias
   (`status = ativo`, `plano` atualizado, `data_expiracao` definida).
 
-## Deploy no Railway
+## Deploy (Railway)
 
-O projeto e composto por **dois servicos separados** no Railway: um para o
-backend (API Node/Express) e outro para o frontend (site estatico). Cada
-servico deve apontar para um diretorio raiz diferente dentro deste
-repositorio.
+O projeto roda como **um unico servico Node** (backend + frontend juntos, ver
+`backend/src/server.js`), o que combina bem com o modelo de servidor
+persistente + disco persistente do Railway (diferente da Vercel, que espera
+funcoes serverless/stateless e nao oferece disco persistente para o SQLite).
 
-### Backend (servico Node)
-
-1. No Railway, crie um servico a partir deste repositorio e configure o
-   **Root Directory** como `backend/`.
-2. **Start Command**: `node src/server.js` (ou `npm start`, que executa o
-   mesmo script -- ver `backend/package.json`).
-3. **Build Command**: nenhum necessario alem de `npm install` (o Railway
-   detecta e executa automaticamente antes do start).
-4. Configure as variaveis de ambiente (aba *Variables*), com base em
+1. **Conectar o repositorio**: crie um novo projeto no Railway e aponte para
+   este repositorio Git (branch `main`).
+2. **Start command**: o `package.json` na raiz do repo tem um script
+   `start` que instala as dependencias do backend e inicia o servidor
+   (`npm start` -> `npm start --prefix backend`, que por sua vez executa
+   `node src/server.js`), entao o Railway consegue detectar e rodar o
+   projeto sem configuracao adicional de "Root Directory".
+3. **Volume persistente**: adicione um Volume no servico (ex: montado em
+   `/data`) para o arquivo do SQLite sobreviver a redeploys -- sem isso, o
+   banco e recriado do zero a cada deploy.
+4. **Variaveis de ambiente** (painel do Railway, aba "Variables"), baseadas em
    `backend/.env.example`:
-   - `PORT` (o Railway injeta a sua propria porta automaticamente; o
-     `server.js` ja usa `process.env.PORT`)
+   - `DB_PATH=/data/portal.db` (caminho absoluto dentro do Volume montado)
+   - `JWT_SECRET=<segredo forte>`
+   - `MP_ACCESS_TOKEN=<token do Mercado Pago>` (sandbox ou producao)
+   - `FRONTEND_URL` / `BACKEND_URL=<URL publica gerada pelo Railway>`
    - `NODE_ENV=production`
-   - `JWT_SECRET` (segredo forte, usado para tokens de comerciante)
-   - `DB_PATH=./data/portal.db`
-   - `MP_ACCESS_TOKEN` (token de producao ou sandbox do Mercado Pago)
-   - `FRONTEND_URL` (URL publica do servico de frontend no Railway)
-   - `BACKEND_URL` (URL publica deste proprio servico de backend no Railway)
    - `DIAS_DEGUSTACAO=5`
    - `ADMIN_USER` e `ADMIN_PASS` (credenciais do painel `/admin`; troque os
      valores padrao `admin`/`admin123` antes de ir para producao)
-5. **Persistencia do SQLite**: o banco (`data/portal.db`) e um arquivo local.
-   No Railway, anexe um **Volume** montado em `backend/data` para que o
-   banco nao seja perdido a cada redeploy. Sem volume, os dados sao
-   resetados sempre que o container reinicia.
-6. Rode a migration/seed uma vez (via *Railway Shell* ou como parte do
-   deploy): `npm run seed` (cria as tabelas e os dados de exemplo apenas se
-   ainda nao existirem).
-
-### Frontend (servico estatico)
-
-1. Crie um segundo servico apontando para o **mesmo repositorio**, com
-   **Root Directory** = `frontend/`.
-2. Nao ha build step (HTML/CSS/JS puro, sem bundler/framework) -- o Railway
-   so precisa servir os arquivos estaticos.
-3. **Start Command**: `node serve.js` (o servidor estatico incluso, que ja
-   resolve o acesso a pasta `assets/` irma de `frontend/` em `/assets/*`).
-4. Antes do deploy, ajuste `frontend/js/config.js` (`API_BASE_URL`) para a
-   URL publica do servico de backend gerado pelo Railway.
-5. Certifique-se de que a pasta `assets/` (na raiz do repo, fora de
-   `frontend/`) esteja acessivel ao `serve.js` -- como o Root Directory do
-   Railway e `frontend/`, o `serve.js` sobe um nivel (`../assets`) para
-   servir os arquivos, entao a estrutura de pastas do repositorio deve ser
-   preservada tal como esta.
+   - `PORT`: o Railway injeta automaticamente; o `server.js` ja usa
+     `process.env.PORT || 3000`.
+5. **Seed inicial**: rode `npm run seed --prefix backend` uma vez (via
+   Railway CLI/shell do servico) para popular categorias e comerciantes de
+   exemplo, se desejar dados iniciais em producao.
 
 ### Painel administrativo
 
-- Apos o deploy do backend, o painel fica disponivel em
-  `https://<url-do-backend>/admin` (servido como estatico pelo proprio
-  Express, ver `app.use('/admin', ...)` em `backend/src/server.js`).
+- O painel fica disponivel em `https://<url-do-servico>/admin` (servido como
+  estatico pelo proprio Express, ver `app.use('/admin', ...)` em
+  `backend/src/server.js`).
 - Login em `/admin` usa `POST /api/login` com as credenciais definidas em
   `ADMIN_USER`/`ADMIN_PASS`.
 
-### Alternativa: Vercel / Netlify (apenas frontend)
+### Alternativa: frontend separado (Vercel/Netlify) + backend no Railway
 
-- Se preferir hospedar somente o frontend na Vercel/Netlify (mantendo o
-  backend no Railway), aponte o "Publish/Build directory" para `frontend/`
-  (sem comando de build) e ajuste `API_BASE_URL` para a URL do backend no
-  Railway. A pasta `assets/` deve ser publicada junto (ou servida pelo
-  backend via `/assets/*`, ja implementado).
+- Se preferir hospedar somente o frontend na Vercel/Netlify e manter o
+  backend no Railway como servico independente, aponte o "Publish/Build
+  directory" para `frontend/` (sem comando de build), rode o backend com
+  **Root Directory** = `backend/` e **Start Command** = `node src/server.js`,
+  e ajuste `frontend/js/config.js` (`API_BASE_URL`) para a URL publica do
+  backend no Railway. A pasta `assets/` deve ser publicada junto (ou servida
+  pelo backend via `/assets/*`, ja implementado).
 - Atencao: o SQLite baseado em arquivo (`node:sqlite`) exige filesystem
   persistente -- **nao** publique o backend como Serverless Function
   (Vercel) sem migrar para um banco gerenciado (Postgres, Turso, etc.), pois
