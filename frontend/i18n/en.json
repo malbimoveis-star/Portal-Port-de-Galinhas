@@ -68,7 +68,8 @@
     "turista": "Tourist",
     "comerciante_basico": "Basic Merchant",
     "comerciante_premium": "Premium Merchant",
-    "mes": "/month"
+    "mes": "/month",
+"assinar": "Subscribe"
   },
   "rodape_mobile": {
     "cadastre_negocio": "Register your business",
