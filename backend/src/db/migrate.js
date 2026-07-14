@@ -73,6 +73,23 @@ function migrate() {
     );
   `);
 
+  // Corrige anuncios de exemplo (seed) que ficaram com fotos placeholder SVG
+  // em vez das fotos reais em /assets/comerciantes/ (bug de versoes anteriores
+  // do seed). Idempotente: so atualiza se o titulo bater E a foto ainda for
+  // um placeholder, nunca sobrescreve fotos reais ja customizadas pelo usuario.
+  const correcoesFotos = [
+    { titulo: 'Passeio de Lancha pelas Piscinas Naturais', foto: '/assets/comerciantes/passeio-lancha.jpg' },
+    { titulo: 'Mergulho Guiado nos Corais', foto: '/assets/comerciantes/mergulho-corais.jpg' },
+    { titulo: 'Buggy pelas Dunas com Paradas para Banho', foto: '/assets/comerciantes/buggy-dunas.jpg' },
+    { titulo: 'Frutos do Mar Frescos a Beira-Mar', foto: '/assets/comerciantes/restaurante-mar-azul.jpg' },
+  ];
+  const updateFotos = db.prepare(
+    "UPDATE anuncios SET fotos = ? WHERE titulo = ? AND (fotos LIKE '%placeholder%' OR fotos LIKE '%destaque-%')"
+  );
+  for (const item of correcoesFotos) {
+    updateFotos.run(JSON.stringify([item.foto]), item.titulo);
+  }
+
   console.log('[db] migrations aplicadas com sucesso.');
 }
 
