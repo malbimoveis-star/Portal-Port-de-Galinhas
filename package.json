@@ -1,0 +1,14 @@
+{
+  "name": "portal-porto-galinhas",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Portal Porto de Galinhas - servico unico (backend Express + frontend estatico) para deploy no Railway",
+  "scripts": {
+    "postinstall": "npm install --prefix backend",
+    "start": "npm start --prefix backend",
+    "seed": "npm run seed --prefix backend"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  }
+}
