@@ -91,13 +91,14 @@
             <span>${NOMES_IDIOMA[idioma]}</span>
           </div>`
       ).join('');
+if (container.dataset.i18nBound === 'true') return;
+container.dataset.i18nBound = 'true';
 
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        menu.classList.toggle('aberto');
-      });
-
-      menu.querySelectorAll('.lang-selector__item').forEach((item) => {
+btn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  menu.classList.toggle('aberto');
+});
+            menu.querySelectorAll('.lang-selector__item').forEach((item) => {
         item.addEventListener('click', () => {
           trocarIdioma(item.getAttribute('data-idioma'));
           menu.classList.remove('aberto');
