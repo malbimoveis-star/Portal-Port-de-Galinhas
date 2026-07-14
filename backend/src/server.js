@@ -5,7 +5,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 
-const migrate = require('./db/migrate');
+const { seedSeNecessario } = require('./db/seed');
 const categoriasRouter = require('./routes/categorias');
 const comerciantesRouter = require('./routes/comerciantes');
 const anunciosRouter = require('./routes/anuncios');
@@ -13,7 +13,9 @@ const pagamentosRouter = require('./routes/pagamentos');
 const loginRouter = require('./routes/login');
 const adminRouter = require('./routes/admin');
 
-migrate();
+// Garante que o banco tenha ao menos os dados iniciais (categorias/comerciantes/
+// anuncios de exemplo) em um deploy novo/volume vazio, sem apagar dados existentes.
+seedSeNecessario();
 
 const app = express();
 const PORT = process.env.PORT || 3000;

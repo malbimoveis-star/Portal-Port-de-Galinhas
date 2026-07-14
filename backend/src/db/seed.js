@@ -5,8 +5,6 @@ const bcrypt = require('bcryptjs');
 const migrate = require('./migrate');
 const db = require('./connection');
 
-migrate();
-
 function limparTabelas() {
   db.exec('DELETE FROM anuncios;');
   db.exec('DELETE FROM pagamentos;');
@@ -195,4 +193,24 @@ function seed() {
   console.log('  - contato@pousadamarazul.com.br (ativo, fotos reais)');
 }
 
-seed();
+// Roda o seed apenas se o banco estiver vazio (sem categorias cadastradas).
+// Usado no startup do servidor (server.js) para garantir que um banco novo
+// (ex: primeiro deploy no Railway, volume vazio) nao fique sem dados, sem
+// jamais apagar dados ja existentes em producao.
+function seedSeNecessario() {
+  migrate();
+  const { total } = db.prepare('SELECT COUNT(*) AS total FROM categorias').get();
+  if (total === 0) {
+    console.log('[seed] Banco de dados vazio detectado - populando dados iniciais...');
+    seed();
+  } else {
+    console.log(`[seed] Banco de dados ja possui dados (${total} categorias) - seed automatico ignorado.`);
+  }
+}
+
+module.exports = { seed, seedSeNecessario };
+
+if (require.main === module) {
+  migrate();
+  seed();
+}
