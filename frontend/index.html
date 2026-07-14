@@ -19,8 +19,13 @@
 
   <section class="destaques container">
     <h2 data-i18n="home.destaques_titulo">Destaques Premium para Voce</h2>
-    <div class="destaques__grid" id="destaquesGrid">
-      <!-- preenchido via JS -->
+    <div class="swiper" id="destaquesSwiper">
+      <div class="swiper-wrapper" id="destaquesGrid">
+        <!-- preenchido via JS -->
+      </div>
+      <div class="swiper-pagination"></div>
+      <div class="swiper-button-prev"></div>
+      <div class="swiper-button-next"></div>
     </div>
   </section>
 
@@ -42,7 +47,7 @@
       <h2 data-i18n="home.cta_titulo">Fique por dentro das Melhores Opcoes em Porto!</h2>
       <p data-i18n="home.cta_subtitulo">Desbloqueie uma jornada tropical e agil moderna a Porto de Galinhas!</p>
       <div class="cta__botoes">
-        <a class="btn btn--primario" style="background: var(--azul-primario); color: #fff;" href="pages/planos-turista.html" data-i18n="home.btn_sou_turista">Sou Turista</a>
+        <a class="btn btn--primario sou-turista-btn" href="pages/planos-turista.html" data-i18n="home.btn_sou_turista">Sou Turista</a>
         <a class="btn btn--vermelho" href="pages/cadastro-comerciante.html" data-i18n="home.btn_cadastrar_negocio">Cadastre seu negocio</a>
       </div>
     </div>
@@ -50,6 +55,8 @@
 
   <div id="layout-rodape"></div>
 
+  <link rel="stylesheet" href="https://unpkg.com/swiper@11/swiper-bundle.min.css" />
+  <script src="https://unpkg.com/swiper@11/swiper-bundle.min.js"></script>
   <script src="js/config.js"></script>
   <script src="js/i18n.js"></script>
   <script src="js/layout.js"></script>

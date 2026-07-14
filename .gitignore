@@ -9,3 +9,5 @@ assets/uploads/*
 .DS_Store
 Thumbs.db
 *.log
+backend_log.txt
+frontend_log.txt

@@ -102,8 +102,8 @@ function seed() {
   );
 
   const insertAnuncio = db.prepare(`
-    INSERT INTO anuncios (titulo, descricao, categoria_id, fotos, tags, id_comerciante)
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT INTO anuncios (titulo, descricao, categoria_id, fotos, tags, id_comerciante, latitude, longitude, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'ativo')
   `);
 
   insertAnuncio.run(
@@ -112,7 +112,9 @@ function seed() {
     categoriaIds['passeios-de-barco'],
     JSON.stringify(['/assets/img/destaque-lancha.svg', '/assets/img/placeholder-anuncio.svg']),
     JSON.stringify(['lancha', 'piscinas naturais', 'passeio']),
-    com1.lastInsertRowid
+    com1.lastInsertRowid,
+    -8.5057,
+    -34.9976
   );
 
   insertAnuncio.run(
@@ -121,7 +123,9 @@ function seed() {
     categoriaIds['mergulho'],
     JSON.stringify(['/assets/img/destaque-mergulho.svg']),
     JSON.stringify(['mergulho', 'snorkel', 'corais']),
-    com1.lastInsertRowid
+    com1.lastInsertRowid,
+    -8.503,
+    -34.9955
   );
 
   insertAnuncio.run(
@@ -130,7 +134,9 @@ function seed() {
     categoriaIds['buggys-traslados'],
     JSON.stringify(['/assets/img/destaque-buggy.svg']),
     JSON.stringify(['buggy', 'dunas', 'aventura']),
-    com2.lastInsertRowid
+    com2.lastInsertRowid,
+    -8.4931,
+    -35.0206
   );
 
   insertAnuncio.run(
@@ -139,7 +145,9 @@ function seed() {
     categoriaIds['restaurantes-bares'],
     JSON.stringify(['/assets/img/placeholder-anuncio.svg']),
     JSON.stringify(['restaurante', 'frutos do mar']),
-    com3.lastInsertRowid
+    com3.lastInsertRowid,
+    -8.5115,
+    -35.0031
   );
 
   insertAnuncio.run(
@@ -148,7 +156,9 @@ function seed() {
     categoriaIds['hoteis-pousadas'],
     JSON.stringify(['/assets/comerciantes/pousada-mar-azul-piscina.jpg']),
     JSON.stringify(['pousada', 'piscina', 'hospedagem']),
-    com4.lastInsertRowid
+    com4.lastInsertRowid,
+    -8.5121,
+    -35.0042
   );
 
   insertAnuncio.run(
@@ -157,7 +167,9 @@ function seed() {
     categoriaIds['restaurantes-bares'],
     JSON.stringify(['/assets/comerciantes/restaurante-mar-azul.jpg']),
     JSON.stringify(['restaurante', 'frutos do mar', 'gastronomia']),
-    com4.lastInsertRowid
+    com4.lastInsertRowid,
+    -8.5117,
+    -35.0038
   );
 
   insertAnuncio.run(
@@ -166,7 +178,9 @@ function seed() {
     categoriaIds['comercios-regionais'],
     JSON.stringify(['/assets/comerciantes/rua-comercio-artesanato.jpg']),
     JSON.stringify(['artesanato', 'comercio local', 'lembrancas']),
-    com4.lastInsertRowid
+    com4.lastInsertRowid,
+    -8.5125,
+    -35.0045
   );
 
   console.log('[seed] Dados de exemplo inseridos com sucesso:');

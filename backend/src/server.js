@@ -10,6 +10,8 @@ const categoriasRouter = require('./routes/categorias');
 const comerciantesRouter = require('./routes/comerciantes');
 const anunciosRouter = require('./routes/anuncios');
 const pagamentosRouter = require('./routes/pagamentos');
+const loginRouter = require('./routes/login');
+const adminRouter = require('./routes/admin');
 
 migrate();
 
@@ -23,11 +25,16 @@ app.use(express.urlencoded({ extended: true }));
 // Serve os arquivos estaticos de /assets (imagens, icones, uploads de fotos de anuncios)
 app.use('/assets', express.static(path.join(__dirname, '..', '..', 'assets')));
 
+// Pagina administrativa (HTML+JS simples, protegida por login no proprio front)
+app.use('/admin', express.static(path.join(__dirname, '..', 'admin')));
+
 // Rotas da API
 app.use('/api/categorias', categoriasRouter);
 app.use('/api/comerciantes', comerciantesRouter);
 app.use('/api/anuncios', anunciosRouter);
 app.use('/api/pagamentos', pagamentosRouter);
+app.use('/api/login', loginRouter);
+app.use('/api/admin', adminRouter);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', servico: 'Portal Porto de Galinhas API', timestamp: new Date().toISOString() });

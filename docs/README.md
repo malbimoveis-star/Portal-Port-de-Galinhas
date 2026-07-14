@@ -109,6 +109,14 @@ Senha para todas: `senha123`
 | POST | `/api/pagamentos/checkout` | Cria preferencia de pagamento (Mercado Pago Checkout Pro) |
 | POST | `/api/pagamentos/webhook` | Recebe notificacoes do Mercado Pago |
 | POST | `/api/pagamentos/simular-aprovacao` | Aprova um pagamento manualmente (uso local/teste) |
+| POST | `/api/login` | Login do admin (usuario/senha via `ADMIN_USER`/`ADMIN_PASS`), retorna JWT |
+| GET | `/api/admin/anuncios` | Lista anuncios pendentes de revisao (protegido, token admin) |
+| GET | `/api/admin/anuncios/todos` | Lista todos os anuncios, qualquer status (protegido) |
+| PUT | `/api/admin/anuncios/:id/aprovar` | Aprova anuncio pendente -> status `ativo` (protegido) |
+| PUT | `/api/admin/anuncios/:id/rejeitar` | Rejeita anuncio pendente -> status `rejeitado` (protegido) |
+| PUT | `/api/admin/anuncios/:id` | Edicao completa do anuncio pelo admin (fotos, localizacao, status) |
+| DELETE | `/api/admin/anuncios/:id` | Remove anuncio (protegido) |
+| GET/POST/PUT/DELETE | `/api/admin/categorias` | CRUD de categorias via painel admin (protegido) |
 
 ## Regras de negocio
 
@@ -122,22 +130,77 @@ Senha para todas: `senha123`
   `/api/pagamentos/simular-aprovacao`), o comerciante e ativado por 30 dias
   (`status = ativo`, `plano` atualizado, `data_expiracao` definida).
 
-## Deploy (Vercel / Netlify)
+## Deploy no Railway
 
-- **Frontend**: aponte o "Publish/Build directory" para a pasta `frontend/`.
-  Como e site 100% estatico (sem bundler), nenhum comando de build e
-  necessario. Ajuste `frontend/js/config.js` (`API_BASE_URL`) para a URL do
-  backend em producao.
-- **Assets**: publique a pasta `assets/` tambem, ou configure o backend para
-  servir `/assets/*` (ja implementado em `backend/src/server.js` via
-  `express.static`) e aponte o frontend para consumir os assets a partir do
-  backend em producao.
-- **Backend**: pode ser publicado como Serverless Function (Vercel) ou
-  Node App (Netlify Functions / Render / Railway). Configure as variaveis de
-  ambiente do `.env.example` no painel do provedor. Atencao: o SQLite baseado
-  em arquivo (`node:sqlite`) exige um filesystem persistente -- em ambientes
-  serverless efemeros, considere migrar para um banco gerenciado (Postgres,
-  Turso, etc.) antes de escalar em producao.
+O projeto e composto por **dois servicos separados** no Railway: um para o
+backend (API Node/Express) e outro para o frontend (site estatico). Cada
+servico deve apontar para um diretorio raiz diferente dentro deste
+repositorio.
+
+### Backend (servico Node)
+
+1. No Railway, crie um servico a partir deste repositorio e configure o
+   **Root Directory** como `backend/`.
+2. **Start Command**: `node src/server.js` (ou `npm start`, que executa o
+   mesmo script -- ver `backend/package.json`).
+3. **Build Command**: nenhum necessario alem de `npm install` (o Railway
+   detecta e executa automaticamente antes do start).
+4. Configure as variaveis de ambiente (aba *Variables*), com base em
+   `backend/.env.example`:
+   - `PORT` (o Railway injeta a sua propria porta automaticamente; o
+     `server.js` ja usa `process.env.PORT`)
+   - `NODE_ENV=production`
+   - `JWT_SECRET` (segredo forte, usado para tokens de comerciante)
+   - `DB_PATH=./data/portal.db`
+   - `MP_ACCESS_TOKEN` (token de producao ou sandbox do Mercado Pago)
+   - `FRONTEND_URL` (URL publica do servico de frontend no Railway)
+   - `BACKEND_URL` (URL publica deste proprio servico de backend no Railway)
+   - `DIAS_DEGUSTACAO=5`
+   - `ADMIN_USER` e `ADMIN_PASS` (credenciais do painel `/admin`; troque os
+     valores padrao `admin`/`admin123` antes de ir para producao)
+5. **Persistencia do SQLite**: o banco (`data/portal.db`) e um arquivo local.
+   No Railway, anexe um **Volume** montado em `backend/data` para que o
+   banco nao seja perdido a cada redeploy. Sem volume, os dados sao
+   resetados sempre que o container reinicia.
+6. Rode a migration/seed uma vez (via *Railway Shell* ou como parte do
+   deploy): `npm run seed` (cria as tabelas e os dados de exemplo apenas se
+   ainda nao existirem).
+
+### Frontend (servico estatico)
+
+1. Crie um segundo servico apontando para o **mesmo repositorio**, com
+   **Root Directory** = `frontend/`.
+2. Nao ha build step (HTML/CSS/JS puro, sem bundler/framework) -- o Railway
+   so precisa servir os arquivos estaticos.
+3. **Start Command**: `node serve.js` (o servidor estatico incluso, que ja
+   resolve o acesso a pasta `assets/` irma de `frontend/` em `/assets/*`).
+4. Antes do deploy, ajuste `frontend/js/config.js` (`API_BASE_URL`) para a
+   URL publica do servico de backend gerado pelo Railway.
+5. Certifique-se de que a pasta `assets/` (na raiz do repo, fora de
+   `frontend/`) esteja acessivel ao `serve.js` -- como o Root Directory do
+   Railway e `frontend/`, o `serve.js` sobe um nivel (`../assets`) para
+   servir os arquivos, entao a estrutura de pastas do repositorio deve ser
+   preservada tal como esta.
+
+### Painel administrativo
+
+- Apos o deploy do backend, o painel fica disponivel em
+  `https://<url-do-backend>/admin` (servido como estatico pelo proprio
+  Express, ver `app.use('/admin', ...)` em `backend/src/server.js`).
+- Login em `/admin` usa `POST /api/login` com as credenciais definidas em
+  `ADMIN_USER`/`ADMIN_PASS`.
+
+### Alternativa: Vercel / Netlify (apenas frontend)
+
+- Se preferir hospedar somente o frontend na Vercel/Netlify (mantendo o
+  backend no Railway), aponte o "Publish/Build directory" para `frontend/`
+  (sem comando de build) e ajuste `API_BASE_URL` para a URL do backend no
+  Railway. A pasta `assets/` deve ser publicada junto (ou servida pelo
+  backend via `/assets/*`, ja implementado).
+- Atencao: o SQLite baseado em arquivo (`node:sqlite`) exige filesystem
+  persistente -- **nao** publique o backend como Serverless Function
+  (Vercel) sem migrar para um banco gerenciado (Postgres, Turso, etc.), pois
+  o filesystem efemero apagaria o banco a cada invocacao fria.
 
 ## Integracao com Mercado Pago
 

@@ -80,6 +80,11 @@
   function montarSeletorIdioma() {
     const containers = document.querySelectorAll('.lang-selector');
     containers.forEach((container) => {
+      // Evita registrar listeners duplicados quando init() e chamado mais de uma vez
+      // (layout.js chama no carregamento e cada pagina chama de novo apos renderizar conteudo dinamico).
+      if (container.dataset.i18nMontado === '1') return;
+      container.dataset.i18nMontado = '1';
+
       const btn = container.querySelector('.lang-selector__btn');
       const menu = container.querySelector('.lang-selector__menu');
       if (!btn || !menu) return;

@@ -37,10 +37,27 @@ function migrate() {
       tags TEXT DEFAULT '[]', -- json array
       id_comerciante INTEGER NOT NULL,
       criado_em TEXT NOT NULL DEFAULT (datetime('now')),
+      latitude REAL,
+      longitude REAL,
+      status TEXT NOT NULL DEFAULT 'pendente', -- pendente | ativo | rejeitado
       FOREIGN KEY (categoria_id) REFERENCES categorias(id),
       FOREIGN KEY (id_comerciante) REFERENCES comerciantes(id) ON DELETE CASCADE
     );
   `);
+
+  // Migracoes incrementais (adiciona colunas em bancos ja existentes sem perder dados)
+  const colunasAnuncios = db.prepare('PRAGMA table_info(anuncios)').all().map((c) => c.name);
+  if (!colunasAnuncios.includes('latitude')) {
+    db.exec('ALTER TABLE anuncios ADD COLUMN latitude REAL;');
+  }
+  if (!colunasAnuncios.includes('longitude')) {
+    db.exec('ALTER TABLE anuncios ADD COLUMN longitude REAL;');
+  }
+  if (!colunasAnuncios.includes('status')) {
+    db.exec("ALTER TABLE anuncios ADD COLUMN status TEXT NOT NULL DEFAULT 'pendente';");
+    // Anuncios ja existentes (criados antes da moderacao existir) permanecem visiveis.
+    db.exec("UPDATE anuncios SET status = 'ativo' WHERE status IS NULL OR status = 'pendente';");
+  }
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS pagamentos (

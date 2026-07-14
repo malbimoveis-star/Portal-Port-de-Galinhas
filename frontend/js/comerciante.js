@@ -81,6 +81,8 @@
           </div>`
           )
           .join('');
+
+        renderMapa(dataAnuncios.anuncios, comerciante.nome);
       }
 
       if (window.i18nPortal) window.i18nPortal.init();
@@ -88,6 +90,29 @@
       document.getElementById('paginaComerciante').innerHTML = '<p>Nao foi possivel carregar os dados deste comerciante.</p>';
       console.error(err);
     }
+  }
+
+  function renderMapa(anuncios, nomeComerciante) {
+    const anunciosComCoordenadas = anuncios.filter((a) => a.latitude != null && a.longitude != null);
+    if (anunciosComCoordenadas.length === 0 || typeof window.L === 'undefined') return;
+
+    const mapaCard = document.getElementById('mapaCard');
+    const mapaEl = document.getElementById('mapaComerciante');
+    if (!mapaCard || !mapaEl) return;
+    mapaCard.style.display = 'block';
+
+    const centro = [anunciosComCoordenadas[0].latitude, anunciosComCoordenadas[0].longitude];
+    const mapa = window.L.map(mapaEl).setView(centro, 14);
+
+    window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors',
+    }).addTo(mapa);
+
+    anunciosComCoordenadas.forEach((a) => {
+      window.L.marker([a.latitude, a.longitude])
+        .addTo(mapa)
+        .bindPopup(`<strong>${a.titulo}</strong><br/>${nomeComerciante}`);
+    });
   }
 
   document.addEventListener('DOMContentLoaded', init);

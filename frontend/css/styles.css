@@ -151,6 +151,16 @@ button {
   color: var(--branco);
 }
 
+.sou-turista-btn {
+  background-color: #ff6600 !important;
+  color: #fff !important;
+  font-size: 1.2em;
+  display: block;
+  margin: 0 auto;
+  text-align: center;
+  padding: 14px 32px;
+}
+
 .lang-selector {
   position: relative;
 }
@@ -238,11 +248,25 @@ button {
   gap: 20px;
 }
 
+#destaquesSwiper {
+  padding-bottom: 40px;
+}
+
+#destaquesSwiper .swiper-slide {
+  height: auto;
+}
+
+#destaquesSwiper .swiper-button-next,
+#destaquesSwiper .swiper-button-prev {
+  color: var(--azul-primario);
+}
+
 .card-destaque {
   background: var(--branco);
   border-radius: var(--raio);
   overflow: hidden;
   box-shadow: var(--sombra);
+  height: 100%;
   transition: transform 0.2s ease;
 }
 

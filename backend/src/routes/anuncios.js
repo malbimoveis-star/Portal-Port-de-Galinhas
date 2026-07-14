@@ -16,18 +16,18 @@ function parseAnuncio(anuncio) {
   };
 }
 
-// GET /api/anuncios - lista publica (somente comerciantes ativo/degustacao valida)
-// filtros opcionais: ?categoria_id=
+// GET /api/anuncios - lista publica (somente comerciantes ativo/degustacao valida e anuncios com status "ativo")
+// filtros opcionais: ?categoria_id= | ?destaque=1 (retorna todos os anuncios ativos, sem limite fixo)
 router.get('/', (req, res) => {
   const { categoria_id } = req.query;
 
   let anuncios;
   if (categoria_id) {
     anuncios = db
-      .prepare('SELECT * FROM anuncios WHERE categoria_id = ? ORDER BY criado_em DESC')
+      .prepare("SELECT * FROM anuncios WHERE categoria_id = ? AND status = 'ativo' ORDER BY criado_em DESC")
       .all(categoria_id);
   } else {
-    anuncios = db.prepare('SELECT * FROM anuncios ORDER BY criado_em DESC').all();
+    anuncios = db.prepare("SELECT * FROM anuncios WHERE status = 'ativo' ORDER BY criado_em DESC").all();
   }
 
   const visiveis = anuncios.filter((anuncio) => {
@@ -41,7 +41,9 @@ router.get('/', (req, res) => {
 // GET /api/anuncios/:id - detalhe publico (respeita regra de visibilidade)
 router.get('/:id', (req, res) => {
   const anuncio = db.prepare('SELECT * FROM anuncios WHERE id = ?').get(req.params.id);
-  if (!anuncio) return res.status(404).json({ erro: 'Anuncio nao encontrado.' });
+  if (!anuncio || anuncio.status !== 'ativo') {
+    return res.status(404).json({ erro: 'Anuncio nao encontrado.' });
+  }
 
   const comerciante = db.prepare('SELECT * FROM comerciantes WHERE id = ?').get(anuncio.id_comerciante);
   if (!comerciante || !comercianteVisivelPublicamente(comerciante)) {
@@ -59,7 +61,7 @@ router.get('/comerciante/:id_comerciante', (req, res) => {
   if (!comerciante) return res.status(404).json({ erro: 'Comerciante nao encontrado.' });
 
   const anuncios = db
-    .prepare('SELECT * FROM anuncios WHERE id_comerciante = ? ORDER BY criado_em DESC')
+    .prepare("SELECT * FROM anuncios WHERE id_comerciante = ? AND status = 'ativo' ORDER BY criado_em DESC")
     .all(req.params.id_comerciante);
 
   const visivel = comercianteVisivelPublicamente(comerciante);
@@ -78,8 +80,9 @@ router.get('/meus/lista', autenticar, (req, res) => {
 });
 
 // POST /api/anuncios - cria anuncio (autenticado), com upload de ate 6 fotos
+// Novo anuncio sempre entra com status "pendente", aguardando aprovacao do admin.
 router.post('/', autenticar, upload.array('fotos', 6), (req, res) => {
-  const { titulo, descricao, categoria_id, tags } = req.body;
+  const { titulo, descricao, categoria_id, tags, latitude, longitude } = req.body;
   if (!titulo) return res.status(400).json({ erro: 'Campo "titulo" e obrigatorio.' });
 
   const fotos = (req.files || []).map((f) => `/assets/uploads/${f.filename}`);
@@ -89,8 +92,8 @@ router.post('/', autenticar, upload.array('fotos', 6), (req, res) => {
 
   const info = db
     .prepare(
-      `INSERT INTO anuncios (titulo, descricao, categoria_id, fotos, tags, id_comerciante)
-       VALUES (?, ?, ?, ?, ?, ?)`
+      `INSERT INTO anuncios (titulo, descricao, categoria_id, fotos, tags, id_comerciante, latitude, longitude, status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pendente')`
     )
     .run(
       titulo,
@@ -98,7 +101,9 @@ router.post('/', autenticar, upload.array('fotos', 6), (req, res) => {
       categoria_id || null,
       JSON.stringify(fotos),
       JSON.stringify(tagsArray),
-      req.comerciante.id
+      req.comerciante.id,
+      latitude || null,
+      longitude || null
     );
 
   const anuncio = db.prepare('SELECT * FROM anuncios WHERE id = ?').get(info.lastInsertRowid);
@@ -113,7 +118,7 @@ router.put('/:id', autenticar, upload.array('fotos', 6), (req, res) => {
     return res.status(403).json({ erro: 'Voce nao tem permissao para editar este anuncio.' });
   }
 
-  const { titulo, descricao, categoria_id, tags } = req.body;
+  const { titulo, descricao, categoria_id, tags, latitude, longitude } = req.body;
   const novasFotos = (req.files || []).map((f) => `/assets/uploads/${f.filename}`);
   const fotosFinal = novasFotos.length > 0 ? novasFotos : JSON.parse(anuncio.fotos || '[]');
   const tagsArray = tags
@@ -121,13 +126,15 @@ router.put('/:id', autenticar, upload.array('fotos', 6), (req, res) => {
     : JSON.parse(anuncio.tags || '[]');
 
   db.prepare(
-    `UPDATE anuncios SET titulo = ?, descricao = ?, categoria_id = ?, fotos = ?, tags = ? WHERE id = ?`
+    `UPDATE anuncios SET titulo = ?, descricao = ?, categoria_id = ?, fotos = ?, tags = ?, latitude = ?, longitude = ? WHERE id = ?`
   ).run(
     titulo || anuncio.titulo,
     descricao !== undefined ? descricao : anuncio.descricao,
     categoria_id !== undefined ? categoria_id : anuncio.categoria_id,
     JSON.stringify(fotosFinal),
     JSON.stringify(tagsArray),
+    latitude !== undefined ? latitude : anuncio.latitude,
+    longitude !== undefined ? longitude : anuncio.longitude,
     req.params.id
   );
 
