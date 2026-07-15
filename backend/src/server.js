@@ -72,7 +72,8 @@ app.listen(PORT, () => {
   console.log(`[server] Portal Porto de Galinhas API rodando em http://localhost:${PORT}`);
 });
 
-const blogRouter = require('../blog');
+const blogRouter = require('./blog');
+
 app.use('/admin/blog', blogRouter);
 
 // Handler de erros do multer/upload
@@ -90,8 +91,5 @@ app.use((req, res) => {
   }
   res.status(404).sendFile(path.join(FRONTEND_DIR, 'index.html'));
 });
-
 module.exports = app;
 
-
-module.exports = app;
