@@ -11,6 +11,9 @@ app.use('/api/blog', blogRouter);
 // Servindo arquivos estáticos da pasta frontend
 app.use(express.static(path.join(__dirname)));
 
+// Servindo também a pasta assets (imagens, CSS, JS)
+app.use('/assets', express.static(path.join(__dirname, '../assets')));
+
 // Rotas amigáveis para páginas
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
