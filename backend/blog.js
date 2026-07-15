@@ -4,15 +4,15 @@ const router = express.Router();
 
 // Página principal do blog
 router.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../front-end/blog.html'));
+    res.sendFile(path.join(__dirname, '../frontend/blog.html'));
 });
 
 // Criar novo artigo (exemplo simples)
-router.post('/new', (req, res) => {
-  const { title, content } = req.body;
-  // Aqui futuramente você vai salvar no banco de dados
-  console.log('Nova postagem:', title, content);
-  res.redirect('/admin/blog');
+router.post('/novo', (req, res) => {
+    const { titulo, conteudo } = req.body;
+    // Aqui futuramente você salvará no banco de dados
+    console.log('Nova postagem:', titulo, conteudo);
+    res.redirect('/admin/blog');
 });
 
 module.exports = router;
