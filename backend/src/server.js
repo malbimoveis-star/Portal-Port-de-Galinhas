@@ -2,8 +2,10 @@ const express = require('express');
 const path = require('path');
 const app = express();
 
-// Importa e usa o blogRouter apenas uma vez
-const blogRouter = require('./blog');
+const PORT = process.env.PORT || 3000;
+
+// Importa e usa o blogRouter (caminho corrigido)
+const blogRouter = require('../blog');
 app.use('/admin/blog', blogRouter);
 
 // Inicializa o servidor
