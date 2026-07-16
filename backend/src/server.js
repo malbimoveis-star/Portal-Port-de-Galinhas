@@ -2,8 +2,11 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
-const app = express();
+const { seedSeNecessario } = require('./db/seed');
 
+seedSeNecessario();
+
+const app = express();
 const PORT = process.env.PORT || 3000;
 
 const FRONTEND_DIR = path.join(__dirname, '..', '..', 'frontend');
@@ -56,7 +59,6 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
   console.log(`[server] Portal Porto de Galinhas rodando em http://localhost:${PORT}`);
-  console.log('FRONTEND_DIR:', FRONTEND_DIR);
 });
 
 module.exports = app;
