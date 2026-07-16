@@ -5,7 +5,7 @@
   "description": "Portal Porto de Galinhas - servico unico (backend Express + frontend estatico) para deploy no Railway",
   "scripts": {
     "postinstall": "npm install --prefix backend",
-    "start": "node backend/src/server.js"
+    "start": "node backend/src/server.js",
     "seed": "npm run seed --prefix backend"
   },
   "engines": {
