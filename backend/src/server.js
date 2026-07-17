@@ -3,30 +3,24 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const { seedSeNecessario } = require('./db/seed');
-
 seedSeNecessario();
-
 const app = express();
 const PORT = process.env.PORT || 3000;
-
 const FRONTEND_DIR = path.join(__dirname, '..', '..', 'frontend');
 const PAGES_DIR = path.join(FRONTEND_DIR, 'pages');
 const ASSETS_DIR = path.join(__dirname, '..', '..', 'assets');
-
 app.use(express.json());
 app.use(express.static(FRONTEND_DIR));
 app.use('/assets', express.static(ASSETS_DIR));
-
+app.use('/admin', express.static(path.join(__dirname, '..', 'admin')));
 app.use('/api/categorias', require('./routes/categorias'));
 app.use('/api/comerciantes', require('./routes/comerciantes'));
 app.use('/api/anuncios', require('./routes/anuncios'));
 app.use('/api/pagamentos', require('./routes/pagamentos'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/login', require('./routes/login'));
-
 const blogRouter = require('../blog');
 app.use('/admin/blog', blogRouter);
-
 app.get('/', (req, res) => res.sendFile(path.join(FRONTEND_DIR, 'index.html')));
 app.get('/contato', (req, res) => res.sendFile(path.join(PAGES_DIR, 'contato.html')));
 app.get('/blog', (req, res) => res.sendFile(path.join(PAGES_DIR, 'blog.html')));
@@ -43,22 +37,17 @@ app.get('/pagamento-erro', (req, res) => res.sendFile(path.join(PAGES_DIR, 'paga
 app.get('/privacidade', (req, res) => res.sendFile(path.join(PAGES_DIR, 'privacidade.html')));
 app.get('/termos', (req, res) => res.sendFile(path.join(PAGES_DIR, 'termos.html')));
 app.get('/suporte', (req, res) => res.sendFile(path.join(PAGES_DIR, 'suporte.html')));
-
 app.use('/api', (req, res) => {
   res.status(404).json({ erro: 'Rota da API nao encontrada.' });
 });
-
 app.use((req, res) => {
   res.status(404).sendFile(path.join(FRONTEND_DIR, 'index.html'));
 });
-
 app.use((err, req, res, next) => {
   console.error('[erro]', err.message);
   res.status(400).json({ erro: err.message });
 });
-
 app.listen(PORT, () => {
   console.log(`[server] Portal Porto de Galinhas rodando em http://localhost:${PORT}`);
 });
-
 module.exports = app;
