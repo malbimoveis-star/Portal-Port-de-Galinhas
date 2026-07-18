@@ -38,7 +38,6 @@
   </style>
 </head>
 <body>
-
   <div id="telaLogin">
     <form class="login-form" id="formLogin">
       <h2 style="text-align:center; color:#0a5c8a;">Painel Administrativo</h2>
@@ -54,34 +53,21 @@
       <h1>Painel Administrativo - Portal Porto de Galinhas</h1>
       <button id="btnSair">Sair</button>
     </header>
-
     <main>
       <div class="tabs">
         <button data-tab="pendentes" class="ativa">Anuncios Pendentes</button>
         <button data-tab="todos">Todos os Anuncios</button>
         <button data-tab="categorias">Categorias</button>
+        <button data-tab="blog">Blog</button>
       </div>
-
       <section id="tabPendentes" class="card">
         <h2>Anuncios Pendentes de Aprovacao</h2>
-        <table>
-          <thead>
-            <tr><th>ID</th><th>Titulo</th><th>Comerciante</th><th>Status</th><th>Acoes</th></tr>
-          </thead>
-          <tbody id="listaPendentes"></tbody>
-        </table>
+        <div id="listaPendentes"></div>
       </section>
-
       <section id="tabTodos" class="card escondido">
         <h2>Todos os Anuncios</h2>
-        <table>
-          <thead>
-            <tr><th>ID</th><th>Titulo</th><th>Status</th><th>Lat/Lng</th><th>Acoes</th></tr>
-          </thead>
-          <tbody id="listaTodos"></tbody>
-        </table>
+        <table><thead><tr><th>ID</th><th>Titulo</th><th>Status</th><th>Lat/Lng</th><th>Acoes</th></tr></thead><tbody id="listaTodos"></tbody></table>
       </section>
-
       <section id="tabCategorias" class="card escondido">
         <h2>Categorias</h2>
         <div class="form-inline">
@@ -89,16 +75,11 @@
           <input type="text" id="novaCategoriaIcone" placeholder="/assets/icons/exemplo.svg" />
           <button class="btn btn--salvar" id="btnAddCategoria">Adicionar</button>
         </div>
-        <table>
-          <thead>
-            <tr><th>ID</th><th>Nome</th><th>Icone</th><th>Slug</th><th>Acoes</th></tr>
-          </thead>
-          <tbody id="listaCategorias"></tbody>
-        </table>
+        <table><thead><tr><th>ID</th><th>Nome</th><th>Icone</th><th>Slug</th><th>Acoes</th></tr></thead><tbody id="listaCategorias"></tbody></table>
       </section>
-    </main>
-  </div>
-
-  <script src="admin.js"></script>
-</body>
-</html>
+      <section id="tabBlog" class="card escondido">
+        <h2>Blog - Novo Artigo</h2>
+        <div style="display:flex;flex-direction:column;gap:10px;max-width:600px">
+          <input type="text" id="blogTitulo" placeholder="Titulo do artigo" style="padding:8px;border:1px solid #ccc;border-radius:6px" />
+          <input type="text" id="blogResumo" placeholder="Resumo curto (aparece na listagem)" style="padding:8px;border:1px solid #ccc;border-radius:6px" />
+          <input type="text" id="blogCapa" placeholder="URL da imagem de capa (opcional)" style="padding:8px;border:1px solid #ccc;border-radius:6px" />
