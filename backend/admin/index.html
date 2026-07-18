@@ -83,3 +83,16 @@
           <input type="text" id="blogTitulo" placeholder="Titulo do artigo" style="padding:8px;border:1px solid #ccc;border-radius:6px" />
           <input type="text" id="blogResumo" placeholder="Resumo curto (aparece na listagem)" style="padding:8px;border:1px solid #ccc;border-radius:6px" />
           <input type="text" id="blogCapa" placeholder="URL da imagem de capa (opcional)" style="padding:8px;border:1px solid #ccc;border-radius:6px" />
+          <textarea id="blogConteudo" placeholder="Conteudo completo do artigo" rows="8" style="padding:8px;border:1px solid #ccc;border-radius:6px;font-family:inherit"></textarea>
+          <label><input type="checkbox" id="blogPublicado" checked /> Publicar imediatamente</label>
+          <button class="btn btn--salvar" id="btnSalvarArtigo" style="width:fit-content;background:#0a5c8a;color:#fff;padding:8px 16px;border:none;border-radius:6px;cursor:pointer">Salvar artigo</button>
+          <p class="erro" id="erroBlog"></p>
+        </div>
+        <h2 style="margin-top:28px">Artigos</h2>
+        <table><thead><tr><th>ID</th><th>Titulo</th><th>Status</th><th>Criado em</th><th>Acoes</th></tr></thead><tbody id="listaArtigos"></tbody></table>
+      </section>
+    </main>
+  </div>
+  <script src="admin.js"></script>
+</body>
+</html>
