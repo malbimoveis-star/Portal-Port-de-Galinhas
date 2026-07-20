@@ -34,6 +34,7 @@ app.use('/api/blog', require('./routes/blogRoutes'));
 app.get('/', (req, res) => res.sendFile(path.join(FRONTEND_DIR, 'index.html')));
 app.get('/contato', (req, res) => res.sendFile(path.join(PAGES_DIR, 'contato.html')));
 app.get('/blog', (req, res) => res.sendFile(path.join(PAGES_DIR, 'blog.html')));
+app.get('/artigo', (req, res) => res.sendFile(path.join(PAGES_DIR, 'artigo.html')));
 app.get('/categoria', (req, res) => res.sendFile(path.join(PAGES_DIR, 'categoria.html')));
 app.get('/comerciante', (req, res) => res.sendFile(path.join(PAGES_DIR, 'comerciante.html')));
 app.get('/como-funciona', (req, res) => res.sendFile(path.join(PAGES_DIR, 'como-funciona.html')));
