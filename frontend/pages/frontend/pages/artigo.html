@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artigo — Portal Porto de Galinhas</title>
+<style>
+  * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
+  body { margin: 0; background: #f2f5f8; color: #1c2b36; }
+  header { background: #0a5c8a; padding: 18px 24px; }
+  header a { color: #fff; text-decoration: none; font-weight: bold; font-size: 1.1em; }
+  main { max-width: 760px; margin: 30px auto; padding: 0 16px 60px; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  #conteudo { padding: 30px; line-height: 1.65; }
+  #conteudo img { max-width: 100%; border-radius: 8px; margin: 12px 0; }
+  #conteudo h1 { color: #0a5c8a; }
+  #conteudo h2, #conteudo h3 { color: #0a5c8a; margin-top: 28px; }
+  #conteudo a { color: #0a5c8a; }
+  #conteudo p { margin: 14px 0; }
+  .capa { width: 100%; height: 280px; object-fit: cover; border-radius: 10px 10px 0 0; }
+</style>
+</head>
+<body>
+<header><a href="/">← Portal Porto de Galinhas</a></header>
+<main>
+  <img id="capa" class="capa" style="display:none">
+  <div id="conteudo">Carregando...</div>
+</main>
+<script>
+  const params = new URLSearchParams(location.search);
+  const id = params.get('id');
+
+  fetch(`/api/blog/${id}`).then(r => {
+    if (!r.ok) throw new Error('nao encontrado');
+    return r.json();
+  }).then(artigo => {
+    document.title = artigo.titulo + ' — Portal Porto de Galinhas';
+    if (artigo.capa_url) {
+      const capa = document.getElementById('capa');
+      capa.src = artigo.capa_url;
+      capa.style.display = 'block';
+    }
+    document.getElementById('conteudo').innerHTML = artigo.conteudo;
+    if (window.adsbygoogle) {
+      document.querySelectorAll('#conteudo .adsbygoogle').forEach(() => {
+        try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
+      });
+    }
+  }).catch(() => {
+    document.getElementById('conteudo').innerHTML = '<p>Artigo não encontrado. <a href="/blog">Voltar ao blog</a>.</p>';
+  });
+</script>
+</body>
+</html>
