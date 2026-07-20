@@ -1,35 +1,49 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Blog - Portal Porto de Galinhas</title>
-  <link rel="icon" href="../assets/icons/logo-tucano.svg" />
-  <link rel="stylesheet" href="../css/styles.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog — Portal Porto de Galinhas</title>
+<style>
+  * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
+  body { margin: 0; background: #f2f5f8; color: #1c2b36; }
+  header { background: #0a5c8a; padding: 18px 24px; }
+  header a { color: #fff; text-decoration: none; font-weight: bold; font-size: 1.1em; }
+  main { max-width: 900px; margin: 30px auto; padding: 0 16px; }
+  h1 { color: #0a5c8a; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; margin-top: 20px; }
+  .card { background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-decoration: none; color: inherit; display: block; }
+  .card img { width: 100%; height: 160px; object-fit: cover; display: block; background: #dde5ea; }
+  .card .conteudo { padding: 14px; }
+  .card h2 { font-size: 1.05em; margin: 0 0 8px; color: #0a5c8a; }
+  .card p { font-size: 0.9em; color: #55707f; margin: 0; }
+  .vazio { color: #55707f; margin-top: 30px; }
+</style>
 </head>
 <body>
-  <div id="layout-header"></div>
-
-  <div class="pagina">
-    <h1 data-i18n="menu.blog">Blog</h1>
-    <div class="card">
-      <h3>5 passeios imperdiveis em Porto de Galinhas</h3>
-      <p>Conheca as piscinas naturais, passeios de jangada, mergulho nos corais e muito mais nesta selecao especial.</p>
-    </div>
-    <div class="card">
-      <h3>Melhor epoca para visitar Porto de Galinhas</h3>
-      <p>Descubra qual periodo do ano oferece a mare mais favoravel para aproveitar as piscinas naturais.</p>
-    </div>
-    <div class="card">
-      <h3>Onde comer frutos do mar frescos na regiao</h3>
-      <p>Uma lista com os melhores restaurantes de frutos do mar cadastrados em nosso portal.</p>
-    </div>
-  </div>
-
-  <div id="layout-rodape"></div>
-
-  <script src="../js/config.js"></script>
-  <script src="../js/i18n.js"></script>
-  <script src="../js/layout.js"></script>
+<header><a href="/">← Portal Porto de Galinhas</a></header>
+<main>
+  <h1>Blog</h1>
+  <div id="lista" class="grid"></div>
+  <p id="vazio" class="vazio" style="display:none">Ainda não temos artigos publicados.</p>
+</main>
+<script>
+  fetch('/api/blog').then(r => r.json()).then(artigos => {
+    const lista = document.getElementById('lista');
+    if (!artigos.length) { document.getElementById('vazio').style.display = 'block'; return; }
+    lista.innerHTML = artigos.map(a => `
+      <a class="card" href="/artigo?id=${a.id}">
+        <img src="${a.capa_url || ''}" alt="" onerror="this.style.display='none'">
+        <div class="conteudo">
+          <h2>${a.titulo}</h2>
+          <p>${a.resumo || ''}</p>
+        </div>
+      </a>
+    `).join('');
+  }).catch(() => {
+    document.getElementById('vazio').textContent = 'Não foi possível carregar os artigos agora.';
+    document.getElementById('vazio').style.display = 'block';
+  });
+</script>
 </body>
 </html>
