@@ -1,47 +1,135 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login de Comerciante - Portal Porto de Galinhas</title>
-  <link rel="icon" href="../assets/icons/logo-tucano.svg" />
-  <link rel="stylesheet" href="../css/styles.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comerciante — Portal Porto de Galinhas</title>
+<style>
+  * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
+  body { margin: 0; background: #eef2f5; color: #1c2b36; }
+  header.topo { background: #0a5c8a; padding: 14px 24px; }
+  header.topo a { color: #fff; text-decoration: none; font-weight: bold; }
+  .capa { height: 260px; background-size: cover; background-position: center; background-color: #cfd9e0; position: relative; }
+  .perfil-bar { max-width: 900px; margin: 0 auto; padding: 0 20px; position: relative; }
+  .avatar {
+    width: 96px; height: 96px; border-radius: 50%; border: 4px solid #fff; background: #0a5c8a; color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 2em; font-weight: bold;
+    position: absolute; top: -48px; left: 20px; box-shadow: 0 2px 8px rgba(0,0,0,.15);
+  }
+  .info-negocio { background: #fff; padding: 60px 20px 20px; border-radius: 0 0 10px 10px; max-width: 900px; margin: 0 auto; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+  .info-negocio h1 { margin: 0 0 4px; color: #0a5c8a; }
+  .info-negocio .categoria { color: #55707f; margin-bottom: 14px; }
+  .badge-plano { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: .78em; color: #fff; margin-left: 8px; vertical-align: middle; }
+  .badge--ativo { background: #2e9e5b; }
+  .badge--degustacao { background: #e0a020; }
+  .badge--expirado { background: #999; }
+  .acoes { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+  .btn-acao { text-decoration: none; padding: 10px 18px; border-radius: 8px; color: #fff; font-weight: bold; font-size: .92em; }
+  .btn-whats { background: #25d366; }
+  .btn-ligar { background: #ff6600; }
+  .aviso-contato { color: #888; font-size: .88em; margin-top: 14px; }
+  main { max-width: 900px; margin: 24px auto; padding: 0 20px 60px; }
+  .anuncio-card { background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.06); margin-bottom: 24px; overflow: hidden; }
+  .anuncio-card .galeria { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 4px; }
+  .anuncio-card .galeria img { width: 100%; height: 140px; object-fit: cover; display: block; }
+  .anuncio-card .corpo { padding: 18px; }
+  .anuncio-card h2 { margin: 0 0 8px; color: #0a5c8a; font-size: 1.15em; }
+  .anuncio-card p { color: #33454f; line-height: 1.5; }
+  .tags { margin-top: 10px; }
+  .tag { display: inline-block; background: #eef2f5; color: #55707f; padding: 3px 10px; border-radius: 12px; font-size: .8em; margin: 2px 4px 2px 0; }
+  .mapa-link { display: inline-block; margin-top: 12px; color: #0a5c8a; text-decoration: none; font-weight: bold; }
+  .vazio { text-align: center; color: #888; padding: 40px; }
+</style>
 </head>
 <body>
-  <div id="layout-header"></div>
+<header class="topo"><a href="/">← Portal Porto de Galinhas</a></header>
+<div id="capa" class="capa"></div>
+<div class="perfil-bar">
+  <div id="avatar" class="avatar">?</div>
+</div>
+<div class="info-negocio">
+  <h1 id="nome">Carregando...</h1>
+  <div class="categoria" id="statusLinha"></div>
+  <div class="acoes" id="acoesContato"></div>
+  <p class="aviso-contato" id="avisoContato" style="display:none">
+    Este comerciante ainda não tem um plano pago ativo, por isso o contato direto não está disponível.
+  </p>
+</div>
+<main id="listaAnuncios">
+  <p class="vazio">Carregando anúncios...</p>
+</main>
 
-  <div class="pagina" style="max-width: 480px;">
-    <div class="card">
-      <h1 data-i18n="painel.login">Entrar</h1>
+<script>
+  const params = new URLSearchParams(location.search);
+  const id = params.get('id');
+  const API = window.location.origin;
 
-      <div id="mensagemErro" class="alerta alerta--erro" style="display:none;"></div>
+  const LABEL_STATUS = { degustacao: 'Em período de degustação', ativo: 'Plano ativo', expirado: 'Plano expirado' };
 
-      <form id="formLogin">
-        <div class="form-grupo">
-          <label data-i18n="painel.email">E-mail</label>
-          <input type="email" id="campoEmail" required />
-        </div>
-        <div class="form-grupo">
-          <label data-i18n="painel.senha">Senha</label>
-          <input type="password" id="campoSenha" required />
-        </div>
-        <button type="submit" class="btn btn--laranja" style="width:100%;" data-i18n="painel.login">Entrar</button>
-      </form>
+  function iniciais(nome) {
+    return (nome || '?').split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase();
+  }
 
-      <p style="text-align:center; margin-top:16px;">
-        <a href="cadastro-comerciante.html" data-i18n="painel.nao_tenho_conta">Nao tenho conta, quero me cadastrar</a>
-      </p>
-    </div>
-  </div>
+  async function carregar() {
+    if (!id) { document.getElementById('nome').textContent = 'Comerciante não informado.'; return; }
 
-  <div id="layout-rodape"></div>
+    const [perfilResp, anunciosResp] = await Promise.all([
+      fetch(`${API}/api/comerciantes/${id}`),
+      fetch(`${API}/api/anuncios/comerciante/${id}`)
+    ]);
 
-  <script src="../js/config.js"></script>
-  <script src="../js/i18n.js"></script>
-  <script src="../js/layout.js"></script>
-  <script src="../js/auth-comerciante.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => window.authComerciante.initLogin());
-  </script>
+    if (!perfilResp.ok) { document.getElementById('nome').textContent = 'Comerciante não encontrado.'; return; }
+
+    const { comerciante } = await perfilResp.json();
+    const { visivel_publicamente, anuncios } = await anunciosResp.json();
+
+    document.title = comerciante.nome + ' — Portal Porto de Galinhas';
+    document.getElementById('nome').textContent = comerciante.nome;
+    document.getElementById('avatar').textContent = iniciais(comerciante.nome);
+
+    const badgeClasse = comerciante.status === 'ativo' ? 'badge--ativo' : comerciante.status === 'degustacao' ? 'badge--degustacao' : 'badge--expirado';
+    document.getElementById('statusLinha').innerHTML = `<span class="badge-plano ${badgeClasse}">${LABEL_STATUS[comerciante.status] || comerciante.status}</span>`;
+
+    if (anuncios.length && anuncios[0].fotos && anuncios[0].fotos[0]) {
+      document.getElementById('capa').style.backgroundImage = `url('${anuncios[0].fotos[0]}')`;
+    }
+
+    if (comerciante.status === 'ativo') {
+      const tel = (comerciante.telefone || '').replace(/\D/g, '');
+      document.getElementById('acoesContato').innerHTML = `
+        ${tel ? `<a class="btn-acao btn-whats" href="https://wa.me/55${tel}" target="_blank" rel="noopener">💬 Chamar no WhatsApp</a>` : ''}
+        ${tel ? `<a class="btn-acao btn-ligar" href="tel:+55${tel}">📞 Ligar agora</a>` : ''}
+      `;
+    } else {
+      document.getElementById('avisoContato').style.display = 'block';
+    }
+
+    const container = document.getElementById('listaAnuncios');
+    if (!visivel_publicamente || !anuncios.length) {
+      container.innerHTML = '<p class="vazio">Nenhum anúncio publicado no momento.</p>';
+      return;
+    }
+
+    container.innerHTML = anuncios.map(a => {
+      const galeria = (a.fotos || []).map(f => `<img src="${f}" alt="${a.titulo}">`).join('');
+      const tags = (a.tags || []).map(t => `<span class="tag">${t}</span>`).join('');
+      const mapa = (a.latitude && a.longitude)
+        ? `<a class="mapa-link" href="https://www.google.com/maps?q=${a.latitude},${a.longitude}" target="_blank" rel="noopener">📍 Ver localização no mapa</a>`
+        : '';
+      return `
+        <div class="anuncio-card">
+          ${galeria ? `<div class="galeria">${galeria}</div>` : ''}
+          <div class="corpo">
+            <h2>${a.titulo}</h2>
+            <p>${a.descricao || ''}</p>
+            <div class="tags">${tags}</div>
+            ${mapa}
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  carregar();
+</script>
 </body>
 </html>
