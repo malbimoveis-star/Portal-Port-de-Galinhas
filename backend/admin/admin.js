@@ -99,10 +99,17 @@
       telaAdmin.classList.remove('escondido');
     }
 
-    await carregarPendentes();
-    await carregarTodos();
-    await carregarCategorias();
-    await carregarArtigos();
+    try {
+      await carregarPendentes();
+      await carregarTodos();
+      await carregarCategorias();
+      await carregarArtigos();
+    } catch (erro) {
+      console.error(
+        '[ADMIN] Erro ao carregar painel:',
+        erro
+      );
+    }
   }
 
   // =========================================================
@@ -305,6 +312,7 @@
         botao.addEventListener(
           'click',
           async function () {
+
             document
               .querySelectorAll('.tabs button')
               .forEach(
@@ -398,6 +406,7 @@
                   border-bottom:1px solid #ddd;
                 "
               >
+
                 <strong>
                   ${escapeHtml(anuncio.titulo || '')}
                 </strong>
@@ -426,6 +435,7 @@
                 >
                   Rejeitar
                 </button>
+
               </div>
             `;
           }
@@ -435,9 +445,11 @@
         .querySelectorAll('[data-acao]')
         .forEach(
           function (botao) {
+
             botao.addEventListener(
               'click',
               async function () {
+
                 const id =
                   botao.dataset.id;
 
@@ -445,6 +457,7 @@
                   botao.dataset.acao;
 
                 try {
+
                   botao.disabled = true;
 
                   await apiFetch(
@@ -458,6 +471,7 @@
                   await carregarTodos();
 
                 } catch (erro) {
+
                   alert(
                     erro.message
                   );
@@ -470,6 +484,7 @@
         );
 
     } catch (erro) {
+
       console.error(
         erro
       );
@@ -496,6 +511,7 @@
     }
 
     try {
+
       const anuncios =
         await apiFetch(
           '/api/admin/anuncios/todos'
@@ -505,6 +521,7 @@
         !Array.isArray(anuncios) ||
         anuncios.length === 0
       ) {
+
         tbody.innerHTML =
           '<tr><td colspan="5">Nenhum anúncio cadastrado.</td></tr>';
 
@@ -514,8 +531,10 @@
       tbody.innerHTML =
         anuncios.map(
           function (anuncio) {
+
             return `
               <tr>
+
                 <td>
                   ${escapeHtml(anuncio.id)}
                 </td>
@@ -535,6 +554,7 @@
                 </td>
 
                 <td>
+
                   <button
                     type="button"
                     class="btn btn--excluir"
@@ -542,7 +562,9 @@
                   >
                     Excluir
                   </button>
+
                 </td>
+
               </tr>
             `;
           }
@@ -552,9 +574,11 @@
         .querySelectorAll('.btn--excluir')
         .forEach(
           function (botao) {
+
             botao.addEventListener(
               'click',
               async function () {
+
                 if (
                   !confirm(
                     'Excluir este anúncio?'
@@ -564,6 +588,7 @@
                 }
 
                 try {
+
                   botao.disabled = true;
 
                   await apiFetch(
@@ -577,6 +602,7 @@
                   await carregarPendentes();
 
                 } catch (erro) {
+
                   alert(
                     erro.message
                   );
@@ -589,6 +615,7 @@
         );
 
     } catch (erro) {
+
       tbody.innerHTML =
         `<tr>
           <td colspan="5">
@@ -613,6 +640,7 @@
     }
 
     try {
+
       const categorias =
         await apiFetch(
           '/api/admin/categorias'
@@ -622,6 +650,7 @@
         !Array.isArray(categorias) ||
         categorias.length === 0
       ) {
+
         tbody.innerHTML =
           '<tr><td colspan="5">Nenhuma categoria cadastrada.</td></tr>';
 
@@ -631,8 +660,10 @@
       tbody.innerHTML =
         categorias.map(
           function (categoria) {
+
             return `
               <tr>
+
                 <td>
                   ${escapeHtml(categoria.id)}
                 </td>
@@ -650,6 +681,7 @@
                 </td>
 
                 <td>
+
                   <button
                     type="button"
                     class="btn btn--excluir"
@@ -657,7 +689,9 @@
                   >
                     Excluir
                   </button>
+
                 </td>
+
               </tr>
             `;
           }
@@ -667,9 +701,11 @@
         .querySelectorAll('.btn--excluir')
         .forEach(
           function (botao) {
+
             botao.addEventListener(
               'click',
               async function () {
+
                 if (
                   !confirm(
                     'Excluir esta categoria?'
@@ -679,6 +715,7 @@
                 }
 
                 try {
+
                   await apiFetch(
                     `/api/admin/categorias/${botao.dataset.id}`,
                     {
@@ -689,6 +726,7 @@
                   await carregarCategorias();
 
                 } catch (erro) {
+
                   alert(
                     erro.message
                   );
@@ -699,6 +737,7 @@
         );
 
     } catch (erro) {
+
       tbody.innerHTML =
         `<tr>
           <td colspan="5">
@@ -718,9 +757,11 @@
     );
 
   if (btnAddCategoria) {
+
     btnAddCategoria.addEventListener(
       'click',
       async function () {
+
         const campoNome =
           document.getElementById(
             'novaCategoriaNome'
@@ -742,6 +783,7 @@
             : '';
 
         if (!nome) {
+
           alert(
             'Digite o nome da categoria.'
           );
@@ -750,6 +792,7 @@
         }
 
         try {
+
           btnAddCategoria.disabled = true;
 
           await apiFetch(
@@ -776,11 +819,13 @@
           await carregarCategorias();
 
         } catch (erro) {
+
           alert(
             erro.message
           );
 
         } finally {
+
           btnAddCategoria.disabled = false;
         }
       }
@@ -793,7 +838,15 @@
 
   let ultimaSelecao = null;
 
+  function editorEstaAtivo() {
+    return (
+      blogEditor &&
+      document.activeElement === blogEditor
+    );
+  }
+
   function salvarSelecao() {
+
     if (!blogEditor) {
       return;
     }
@@ -808,6 +861,7 @@
         selecao.anchorNode
       )
     ) {
+
       ultimaSelecao =
         selecao
           .getRangeAt(0)
@@ -816,11 +870,13 @@
   }
 
   function restaurarSelecao() {
+
     if (!ultimaSelecao) {
       return;
     }
 
     try {
+
       const selecao =
         window.getSelection();
 
@@ -831,23 +887,38 @@
       );
 
     } catch (erro) {
+
       console.warn(
-        '[EDITOR] Não foi possível restaurar seleção.'
+        '[EDITOR] Não foi possível restaurar seleção.',
+        erro
       );
     }
+  }
+
+  function focarEditor() {
+
+    if (!blogEditor) {
+      return;
+    }
+
+    blogEditor.focus();
   }
 
   function comandoEditor(
     comando,
     valor = null
   ) {
+
     if (!blogEditor) {
       return;
     }
 
-    blogEditor.focus();
+    restaurarSelecao();
+
+    focarEditor();
 
     try {
+
       document.execCommand(
         comando,
         false,
@@ -857,6 +928,7 @@
       salvarSelecao();
 
     } catch (erro) {
+
       console.error(
         '[EDITOR]',
         erro
@@ -865,12 +937,57 @@
   }
 
   function formatar(tipo) {
+
     restaurarSelecao();
 
-    comandoEditor(
-      'formatBlock',
-      tipo
-    );
+    focarEditor();
+
+    try {
+
+      document.execCommand(
+        'formatBlock',
+        false,
+        tipo
+      );
+
+      salvarSelecao();
+
+    } catch (erro) {
+
+      console.error(
+        '[EDITOR FORMAT]',
+        erro
+      );
+    }
+  }
+
+  // =========================================================
+  // TAMANHO DO TEXTO
+  // =========================================================
+
+  function alterarTamanhoTexto(tamanho) {
+
+    restaurarSelecao();
+
+    focarEditor();
+
+    try {
+
+      document.execCommand(
+        'fontSize',
+        false,
+        String(tamanho)
+      );
+
+      salvarSelecao();
+
+    } catch (erro) {
+
+      console.error(
+        '[EDITOR FONT SIZE]',
+        erro
+      );
+    }
   }
 
   // =========================================================
@@ -880,37 +997,52 @@
   const inputImagem =
     document.createElement('input');
 
-  inputImagem.type = 'file';
-  inputImagem.accept = 'image/*';
-  inputImagem.multiple = true;
-  inputImagem.style.display = 'none';
+  inputImagem.type =
+    'file';
+
+  inputImagem.accept =
+    'image/*';
+
+  inputImagem.multiple =
+    true;
+
+  inputImagem.style.display =
+    'none';
 
   document.body.appendChild(
     inputImagem
   );
 
-  function inserirImagem(src, alt) {
+  function inserirImagem(
+    src,
+    alt
+  ) {
+
     if (!blogEditor) {
       return;
     }
 
     restaurarSelecao();
 
-    blogEditor.focus();
+    focarEditor();
 
     const imagem =
       document.createElement('img');
 
-    imagem.src = src;
+    imagem.src =
+      src;
 
     imagem.alt =
-      alt || 'Imagem';
+      alt || 'Imagem do artigo';
 
     imagem.className =
       'editor-imagem';
 
     imagem.style.maxWidth =
       '100%';
+
+    imagem.style.width =
+      'auto';
 
     imagem.style.height =
       'auto';
@@ -926,8 +1058,12 @@
 
     if (
       selecao &&
-      selecao.rangeCount > 0
+      selecao.rangeCount > 0 &&
+      blogEditor.contains(
+        selecao.anchorNode
+      )
     ) {
+
       const range =
         selecao.getRangeAt(0);
 
@@ -952,6 +1088,7 @@
       );
 
     } else {
+
       blogEditor.appendChild(
         imagem
       );
@@ -961,9 +1098,11 @@
   }
 
   function escolherImagemComputador() {
+
     salvarSelecao();
 
-    inputImagem.value = '';
+    inputImagem.value =
+      '';
 
     inputImagem.click();
   }
@@ -971,6 +1110,7 @@
   inputImagem.addEventListener(
     'change',
     function () {
+
       const arquivos =
         Array.from(
           inputImagem.files || []
@@ -984,8 +1124,11 @@
 
       arquivos.forEach(
         function (arquivo) {
+
           if (
-            !arquivo.type.startsWith('image/')
+            !arquivo.type.startsWith(
+              'image/'
+            )
           ) {
             return;
           }
@@ -995,6 +1138,7 @@
 
           leitor.onload =
             function (evento) {
+
               inserirImagem(
                 evento.target.result,
                 arquivo.name
@@ -1010,6 +1154,7 @@
   );
 
   function inserirImagemURL() {
+
     salvarSelecao();
 
     const url =
@@ -1032,6 +1177,7 @@
   // =========================================================
 
   function inserirLink() {
+
     salvarSelecao();
 
     restaurarSelecao();
@@ -1061,9 +1207,11 @@
     )
     .forEach(
       function (botao) {
+
         botao.addEventListener(
           'mousedown',
           function (event) {
+
             event.preventDefault();
 
             salvarSelecao();
@@ -1073,6 +1221,7 @@
         botao.addEventListener(
           'click',
           function () {
+
             const acao =
               botao.dataset.editorAction;
 
@@ -1115,16 +1264,36 @@
             if (acao === 'quote') {
               formatar('BLOCKQUOTE');
             }
+
+            if (acao === 'fontSmall') {
+              alterarTamanhoTexto(2);
+            }
+
+            if (acao === 'fontNormal') {
+              alterarTamanhoTexto(3);
+            }
+
+            if (acao === 'fontLarge') {
+              alterarTamanhoTexto(5);
+            }
+
+            if (acao === 'fontHuge') {
+              alterarTamanhoTexto(7);
+            }
           }
         );
       }
     );
 
   // =========================================================
-  // MENU BOTÃO DIREITO
+  // MENU DO BOTÃO DIREITO
   // =========================================================
 
-  function mostrarMenu(x, y) {
+  function mostrarMenu(
+    x,
+    y
+  ) {
+
     if (!editorContextMenu) {
       return;
     }
@@ -1158,6 +1327,7 @@
       x + largura >
       window.innerWidth
     ) {
+
       editorContextMenu.style.left =
         (
           window.innerWidth -
@@ -1170,6 +1340,7 @@
       y + altura >
       window.innerHeight
     ) {
+
       editorContextMenu.style.top =
         (
           window.innerHeight -
@@ -1180,6 +1351,7 @@
   }
 
   function esconderMenu() {
+
     if (!editorContextMenu) {
       return;
     }
@@ -1196,9 +1368,11 @@
     blogEditor &&
     editorContextMenu
   ) {
+
     blogEditor.addEventListener(
       'contextmenu',
       function (event) {
+
         event.preventDefault();
 
         salvarSelecao();
@@ -1212,22 +1386,28 @@
   }
 
   if (editorContextMenu) {
+
     editorContextMenu
       .querySelectorAll(
         '[data-context-action]'
       )
       .forEach(
         function (botao) {
+
           botao.addEventListener(
             'mousedown',
             function (event) {
+
               event.preventDefault();
+
+              salvarSelecao();
             }
           );
 
           botao.addEventListener(
             'click',
             function (event) {
+
               event.preventDefault();
 
               const acao =
@@ -1274,21 +1454,43 @@
               if (acao === 'quote') {
                 formatar('BLOCKQUOTE');
               }
+
+              if (acao === 'fontSmall') {
+                alterarTamanhoTexto(2);
+              }
+
+              if (acao === 'fontNormal') {
+                alterarTamanhoTexto(3);
+              }
+
+              if (acao === 'fontLarge') {
+                alterarTamanhoTexto(5);
+              }
+
+              if (acao === 'fontHuge') {
+                alterarTamanhoTexto(7);
+              }
             }
           );
         }
       );
   }
 
+  // =========================================================
+  // FECHAR MENU
+  // =========================================================
+
   document.addEventListener(
     'click',
     function (event) {
+
       if (
         editorContextMenu &&
         !editorContextMenu.contains(
           event.target
         )
       ) {
+
         esconderMenu();
       }
     }
@@ -1304,7 +1506,12 @@
     esconderMenu
   );
 
+  // =========================================================
+  // SALVAR SELEÇÃO DO EDITOR
+  // =========================================================
+
   if (blogEditor) {
+
     blogEditor.addEventListener(
       'mouseup',
       salvarSelecao
@@ -1312,6 +1519,11 @@
 
     blogEditor.addEventListener(
       'keyup',
+      salvarSelecao
+    );
+
+    blogEditor.addEventListener(
+      'focus',
       salvarSelecao
     );
   }
@@ -1351,11 +1563,6 @@
             'blogResumo'
           );
 
-        const campoCapa =
-          document.getElementById(
-            'blogCapa'
-          );
-
         const campoPublicado =
           document.getElementById(
             'blogPublicado'
@@ -1369,11 +1576,6 @@
         const resumo =
           campoResumo
             ? campoResumo.value.trim()
-            : '';
-
-        const capa =
-          campoCapa
-            ? campoCapa.value.trim()
             : '';
 
         const publicado =
@@ -1391,13 +1593,18 @@
           {
             titulo,
             resumo,
-            capa,
             publicado,
-            conteudo
+            tamanhoConteudo:
+              conteudo.length
           }
         );
 
+        // =====================================================
+        // VALIDAÇÕES
+        // =====================================================
+
         if (!titulo) {
+
           mostrarErro(
             erroBlog,
             'Digite o título do artigo.'
@@ -1411,6 +1618,7 @@
           conteudo === '<br>' ||
           conteudo === '<div><br></div>'
         ) {
+
           mostrarErro(
             erroBlog,
             'Digite o conteúdo do artigo.'
@@ -1418,6 +1626,10 @@
 
           return;
         }
+
+        // =====================================================
+        // BOTÃO SALVANDO
+        // =====================================================
 
         btnSalvarArtigo.disabled =
           true;
@@ -1428,7 +1640,7 @@
         try {
 
           console.log(
-            '[BLOG] Enviando POST /api/blog'
+            '[BLOG] Enviando artigo para API.'
           );
 
           const resultado =
@@ -1450,9 +1662,6 @@
                     resumo:
                       resumo,
 
-                    capa_url:
-                      capa || null,
-
                     conteudo:
                       conteudo,
 
@@ -1471,16 +1680,16 @@
             'Artigo salvo com sucesso!'
           );
 
+          // ===================================================
+          // LIMPAR FORMULÁRIO
+          // ===================================================
+
           if (campoTitulo) {
             campoTitulo.value = '';
           }
 
           if (campoResumo) {
             campoResumo.value = '';
-          }
-
-          if (campoCapa) {
-            campoCapa.value = '';
           }
 
           if (blogEditor) {
@@ -1491,7 +1700,8 @@
             campoPublicado.checked = true;
           }
 
-          ultimaSelecao = null;
+          ultimaSelecao =
+            null;
 
           esconderMenu();
 
@@ -1685,8 +1895,11 @@
   );
 
   if (getToken()) {
+
     mostrarAdmin();
+
   } else {
+
     mostrarLogin();
   }
 
