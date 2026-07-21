@@ -48,8 +48,15 @@ const ASSETS_DIR = path.join(
 );
 
 // Pasta do painel administrativo
-// IMPORTANTE:
-// backend/admin/
+// Estrutura esperada:
+//
+// backend/
+// ├── server.js
+// └── admin/
+//     ├── admin.html
+//     ├── admin.css
+//     └── admin.js
+
 const ADMIN_DIR = path.join(
   __dirname,
   '..',
@@ -85,12 +92,55 @@ app.use(
 // PAINEL ADMINISTRATIVO
 // =========================================================
 
-// O painel será acessado por:
-// https://seu-dominio.com/admin/
+// Arquivos estáticos do admin.
+//
+// Exemplo:
+// /admin/admin.css
+// /admin/admin.js
 
 app.use(
   '/admin',
   express.static(ADMIN_DIR)
+);
+
+// =========================================================
+// ROTA PRINCIPAL DO PAINEL ADMIN
+// =========================================================
+
+// Acesso:
+//
+// https://seu-dominio.com/admin
+//
+// ou
+//
+// https://seu-dominio.com/admin/
+
+app.get(
+  '/admin',
+  (req, res) => {
+
+    res.sendFile(
+      path.join(
+        ADMIN_DIR,
+        'admin.html'
+      )
+    );
+
+  }
+);
+
+app.get(
+  '/admin/',
+  (req, res) => {
+
+    res.sendFile(
+      path.join(
+        ADMIN_DIR,
+        'admin.html'
+      )
+    );
+
+  }
 );
 
 // =========================================================
@@ -144,204 +194,238 @@ app.use(
 app.get(
   '/',
   (req, res) => {
+
     res.sendFile(
       path.join(
         FRONTEND_DIR,
         'index.html'
       )
     );
+
   }
 );
 
 app.get(
   '/contato',
   (req, res) => {
+
     res.sendFile(
       path.join(
         PAGES_DIR,
         'contato.html'
       )
     );
+
   }
 );
 
 app.get(
   '/blog',
   (req, res) => {
+
     res.sendFile(
       path.join(
         PAGES_DIR,
         'blog.html'
       )
     );
+
   }
 );
 
 app.get(
   '/artigo',
   (req, res) => {
+
     res.sendFile(
       path.join(
         PAGES_DIR,
         'artigo.html'
       )
     );
+
   }
 );
 
 app.get(
   '/categoria',
   (req, res) => {
+
     res.sendFile(
       path.join(
         PAGES_DIR,
         'categoria.html'
       )
     );
+
   }
 );
 
 app.get(
   '/comerciante',
   (req, res) => {
+
     res.sendFile(
       path.join(
         PAGES_DIR,
         'comerciante.html'
       )
     );
+
   }
 );
 
 app.get(
   '/como-funciona',
   (req, res) => {
+
     res.sendFile(
       path.join(
         PAGES_DIR,
         'como-funciona.html'
       )
     );
+
   }
 );
 
 app.get(
   '/cadastro-comerciante',
   (req, res) => {
+
     res.sendFile(
       path.join(
         PAGES_DIR,
         'cadastro-comerciante.html'
       )
     );
+
   }
 );
 
 app.get(
   '/login-comerciante',
   (req, res) => {
+
     res.sendFile(
       path.join(
         PAGES_DIR,
         'login-comerciante.html'
       )
     );
+
   }
 );
 
 app.get(
   '/painel-comerciante',
   (req, res) => {
+
     res.sendFile(
       path.join(
         PAGES_DIR,
         'painel-comerciante.html'
       )
     );
+
   }
 );
 
 app.get(
   '/planos-turista',
   (req, res) => {
+
     res.sendFile(
       path.join(
         PAGES_DIR,
         'planos-turista.html'
       )
     );
+
   }
 );
 
 app.get(
   '/pagamento-sucesso',
   (req, res) => {
+
     res.sendFile(
       path.join(
         PAGES_DIR,
         'pagamento-sucesso.html'
       )
     );
+
   }
 );
 
 app.get(
   '/pagamento-pendente',
   (req, res) => {
+
     res.sendFile(
       path.join(
         PAGES_DIR,
         'pagamento-pendente.html'
       )
     );
+
   }
 );
 
 app.get(
   '/pagamento-erro',
   (req, res) => {
+
     res.sendFile(
       path.join(
         PAGES_DIR,
         'pagamento-erro.html'
       )
     );
+
   }
 );
 
 app.get(
   '/privacidade',
   (req, res) => {
+
     res.sendFile(
       path.join(
         PAGES_DIR,
         'privacidade.html'
       )
     );
+
   }
 );
 
 app.get(
   '/termos',
   (req, res) => {
+
     res.sendFile(
       path.join(
         PAGES_DIR,
         'termos.html'
       )
     );
+
   }
 );
 
 app.get(
   '/suporte',
   (req, res) => {
+
     res.sendFile(
       path.join(
         PAGES_DIR,
         'suporte.html'
       )
     );
+
   }
 );
 
@@ -368,6 +452,10 @@ app.use(
 
 // Qualquer rota que não seja API ou admin
 // volta para o site principal.
+//
+// IMPORTANTE:
+// As rotas /admin e /admin/ já foram tratadas acima,
+// então não devem cair neste fallback.
 
 app.use(
   (req, res) => {
@@ -432,6 +520,10 @@ app.listen(
 
     console.log(
       `[server] Admin: ${ADMIN_DIR}`
+    );
+
+    console.log(
+      `[server] Admin HTML: ${path.join(ADMIN_DIR, 'admin.html')}`
     );
 
   }
