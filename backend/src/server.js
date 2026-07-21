@@ -30,7 +30,7 @@ app.use('/api/admin', require('./routes/admin'));
 app.use('/api/login', require('./routes/login'));
 
 app.use('/api/blog', require('./routes/blogRoutes'));
-
+app.use('/api/interacoes', require('./routes/interacoes'));
 app.get('/', (req, res) => res.sendFile(path.join(FRONTEND_DIR, 'index.html')));
 app.get('/contato', (req, res) => res.sendFile(path.join(PAGES_DIR, 'contato.html')));
 app.get('/blog', (req, res) => res.sendFile(path.join(PAGES_DIR, 'blog.html')));
