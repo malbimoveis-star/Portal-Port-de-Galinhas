@@ -4,24 +4,28 @@ require('dotenv').config();
 
 const express = require('express');
 const path = require('path');
+
 const { seedSeNecessario } = require('./db/seed');
 
 // =========================================================
-// INICIALIZAÇÃO DO BANCO DE DADOS
+// INICIALIZAÇÃO DO BANCO
 // =========================================================
 
 seedSeNecessario();
 
+// =========================================================
+// APP
+// =========================================================
+
 const app = express();
 
-// Railway fornece a porta através de process.env.PORT
 const PORT = process.env.PORT || 3000;
 
 // =========================================================
-// CAMINHOS DO PROJETO
+// CAMINHOS
 // =========================================================
 
-// Pasta principal do frontend
+// Pasta frontend
 const FRONTEND_DIR = path.join(
   __dirname,
   '..',
@@ -29,13 +33,13 @@ const FRONTEND_DIR = path.join(
   'frontend'
 );
 
-// Pasta das páginas internas
+// Pasta das páginas internas do frontend
 const PAGES_DIR = path.join(
   FRONTEND_DIR,
   'pages'
 );
 
-// Pasta de arquivos públicos
+// Pasta de assets
 const ASSETS_DIR = path.join(
   __dirname,
   '..',
@@ -44,10 +48,12 @@ const ASSETS_DIR = path.join(
 );
 
 // Pasta do painel administrativo
+// IMPORTANTE:
+// backend/admin/
 const ADMIN_DIR = path.join(
   __dirname,
   '..',
-  'administrador'
+  'admin'
 );
 
 // =========================================================
@@ -56,12 +62,20 @@ const ADMIN_DIR = path.join(
 
 app.use(express.json());
 
-// Arquivos do frontend
+app.use(
+  express.urlencoded({
+    extended: true
+  })
+);
+
+// =========================================================
+// ARQUIVOS ESTÁTICOS DO SITE
+// =========================================================
+
 app.use(
   express.static(FRONTEND_DIR)
 );
 
-// Arquivos da pasta assets
 app.use(
   '/assets',
   express.static(ASSETS_DIR)
@@ -70,18 +84,9 @@ app.use(
 // =========================================================
 // PAINEL ADMINISTRATIVO
 // =========================================================
-//
-// Acessível em:
-// https://seu-site.up.railway.app/admin/
-//
-// Os arquivos devem estar em:
-// backend/administrador/
-//
-// Exemplo:
-// backend/administrador/index.html
-// backend/administrador/admin.css
-// backend/administrador/admin.js
-//
+
+// O painel será acessado por:
+// https://seu-dominio.com/admin/
 
 app.use(
   '/admin',
@@ -89,7 +94,7 @@ app.use(
 );
 
 // =========================================================
-// API - ROTAS
+// ROTAS DA API
 // =========================================================
 
 app.use(
@@ -133,7 +138,7 @@ app.use(
 );
 
 // =========================================================
-// PÁGINA INICIAL
+// ROTAS DO SITE
 // =========================================================
 
 app.get(
@@ -147,10 +152,6 @@ app.get(
     );
   }
 );
-
-// =========================================================
-// PÁGINAS DO SITE
-// =========================================================
 
 app.get(
   '/contato',
@@ -345,30 +346,41 @@ app.get(
 );
 
 // =========================================================
-// ROTA PARA API NÃO ENCONTRADA
+// 404 PARA API
 // =========================================================
 
 app.use(
   '/api',
   (req, res) => {
-    res.status(404).json({
-      erro: 'Rota da API nao encontrada.'
-    });
+
+    res
+      .status(404)
+      .json({
+        erro: 'Rota da API nao encontrada.'
+      });
+
   }
 );
 
 // =========================================================
-// PÁGINA NÃO ENCONTRADA
+// FALLBACK DO SITE
 // =========================================================
+
+// Qualquer rota que não seja API ou admin
+// volta para o site principal.
 
 app.use(
   (req, res) => {
-    res.status(404).sendFile(
-      path.join(
-        FRONTEND_DIR,
-        'index.html'
-      )
-    );
+
+    res
+      .status(404)
+      .sendFile(
+        path.join(
+          FRONTEND_DIR,
+          'index.html'
+        )
+      );
+
   }
 );
 
@@ -377,16 +389,27 @@ app.use(
 // =========================================================
 
 app.use(
-  (err, req, res, next) => {
+  (
+    err,
+    req,
+    res,
+    next
+  ) => {
 
     console.error(
       '[erro]',
       err.message
     );
 
-    res.status(400).json({
-      erro: err.message
-    });
+    res
+      .status(
+        err.status || 400
+      )
+      .json({
+        erro:
+          err.message ||
+          'Erro interno do servidor.'
+      });
 
   }
 );
@@ -404,14 +427,18 @@ app.listen(
     );
 
     console.log(
-      `[server] Painel administrativo: /admin/`
+      `[server] Frontend: ${FRONTEND_DIR}`
+    );
+
+    console.log(
+      `[server] Admin: ${ADMIN_DIR}`
     );
 
   }
 );
 
 // =========================================================
-// EXPORTAR APP
+// EXPORT
 // =========================================================
 
 module.exports = app;
