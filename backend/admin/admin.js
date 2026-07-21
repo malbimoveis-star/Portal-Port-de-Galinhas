@@ -113,30 +113,37 @@
   // =========================================================
 
   if (formLogin) {
-    formLogin.addEventListener('submit', async (e) => {
+    formLogin.addEventListener('submit', async function (e) {
       e.preventDefault();
 
       if (erroLogin) {
         erroLogin.textContent = '';
       }
 
+      const usuarioElement =
+        document.getElementById('usuario');
+
+      const senhaElement =
+        document.getElementById('senha');
+
       const usuario =
-        document
-          .getElementById('usuario')
-          .value
-          .trim();
+        usuarioElement
+          ? usuarioElement.value.trim()
+          : '';
 
       const senha =
-        document
-          .getElementById('senha')
-          .value;
+        senhaElement
+          ? senhaElement.value
+          : '';
 
       try {
         const resp = await fetch(`${API}/api/login`, {
           method: 'POST',
+
           headers: {
             'Content-Type': 'application/json'
           },
+
           body: JSON.stringify({
             usuario,
             senha
@@ -155,6 +162,12 @@
           return;
         }
 
+        if (!data.token) {
+          throw new Error(
+            'O servidor não retornou um token de acesso.'
+          );
+        }
+
         setToken(data.token);
 
         mostrarAdmin();
@@ -164,6 +177,7 @@
 
         if (erroLogin) {
           erroLogin.textContent =
+            err.message ||
             'Erro ao conectar com o servidor.';
         }
       }
@@ -175,25 +189,25 @@
   // =========================================================
 
   if (btnSair) {
-    btnSair.addEventListener('click', () => {
+    btnSair.addEventListener('click', function () {
       limparToken();
       mostrarLogin();
     });
   }
 
   // =========================================================
-  // ABAS
+  // TABS
   // =========================================================
 
   document
     .querySelectorAll('.tabs button')
-    .forEach((btn) => {
+    .forEach(function (btn) {
 
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', function () {
 
         document
           .querySelectorAll('.tabs button')
-          .forEach((b) => {
+          .forEach(function (b) {
             b.classList.remove('ativa');
           });
 
@@ -201,7 +215,7 @@
 
         document
           .querySelectorAll('main section')
-          .forEach((section) => {
+          .forEach(function (section) {
             section.classList.add('escondido');
           });
 
@@ -223,8 +237,13 @@
 
     });
 
-  function capitalize(s) {
-    return s.charAt(0).toUpperCase() + s.slice(1);
+  function capitalize(valor) {
+    if (!valor) {
+      return '';
+    }
+
+    return valor.charAt(0).toUpperCase() +
+      valor.slice(1);
   }
 
   // =========================================================
@@ -245,7 +264,8 @@
         return;
       }
 
-      if (!Array.isArray(pendentes)) {
+      if (!Array.isArray(pendentes) || !pendentes.length) {
+
         container.innerHTML =
           '<p>Nenhum anúncio pendente.</p>';
 
@@ -253,61 +273,61 @@
       }
 
       container.innerHTML =
-        pendentes.map((a) => `
+        pendentes.map(function (a) {
 
-          <div
-            style="
+          return `
+
+            <div style="
               padding:12px;
               border-bottom:1px solid #ddd;
-            "
-          >
+            ">
 
-            <strong>
-              ${escapeHtml(a.titulo || '')}
-            </strong>
+              <strong>
+                ${escapeHtml(a.titulo || '')}
+              </strong>
 
-            <br>
+              <br>
 
-            Comerciante:
-            ${escapeHtml(a.id_comerciante || '-')}
+              Comerciante:
+              ${escapeHtml(a.id_comerciante || '-')}
 
-            <br>
+              <br>
 
-            Status:
+              Status:
 
-            <span class="badge badge--${escapeHtml(a.status || '')}">
-              ${escapeHtml(a.status || '-')}
-            </span>
+              <span class="badge badge--${escapeHtml(a.status || '')}">
+                ${escapeHtml(a.status || '-')}
+              </span>
 
-            <br><br>
+              <br><br>
 
-            <button
-              class="btn btn--aprovar"
-              data-acao="aprovar"
-              data-id="${escapeHtml(a.id)}"
-            >
-              Aprovar
-            </button>
+              <button
+                class="btn btn--aprovar"
+                data-acao="aprovar"
+                data-id="${escapeHtml(a.id)}"
+              >
+                Aprovar
+              </button>
 
-            <button
-              class="btn btn--rejeitar"
-              data-acao="rejeitar"
-              data-id="${escapeHtml(a.id)}"
-            >
-              Rejeitar
-            </button>
+              <button
+                class="btn btn--rejeitar"
+                data-acao="rejeitar"
+                data-id="${escapeHtml(a.id)}"
+              >
+                Rejeitar
+              </button>
 
-          </div>
+            </div>
 
-        `).join('') ||
+          `;
 
-        '<p>Nenhum anúncio pendente.</p>';
+        }).join('');
 
       container
         .querySelectorAll('button[data-acao]')
-        .forEach((btn) => {
+        .forEach(function (btn) {
 
-          btn.addEventListener('click', async () => {
+          btn.addEventListener('click', async function () {
 
             const acao =
               btn.dataset.acao;
@@ -370,7 +390,7 @@
         return;
       }
 
-      if (!Array.isArray(todos)) {
+      if (!Array.isArray(todos) || !todos.length) {
 
         tbody.innerHTML =
           '<tr><td colspan="5">Nenhum anúncio cadastrado.</td></tr>';
@@ -379,53 +399,55 @@
       }
 
       tbody.innerHTML =
-        todos.map((a) => `
+        todos.map(function (a) {
 
-          <tr>
+          return `
 
-            <td>
-              ${escapeHtml(a.id)}
-            </td>
+            <tr>
 
-            <td>
-              ${escapeHtml(a.titulo || '')}
-            </td>
+              <td>
+                ${escapeHtml(a.id)}
+              </td>
 
-            <td>
+              <td>
+                ${escapeHtml(a.titulo || '')}
+              </td>
 
-              <span class="badge badge--${escapeHtml(a.status || '')}">
-                ${escapeHtml(a.status || '-')}
-              </span>
+              <td>
 
-            </td>
+                <span class="badge badge--${escapeHtml(a.status || '')}">
+                  ${escapeHtml(a.status || '-')}
+                </span>
 
-            <td>
-              ${escapeHtml(a.latitude ?? '-')},
-              ${escapeHtml(a.longitude ?? '-')}
-            </td>
+              </td>
 
-            <td>
+              <td>
+                ${escapeHtml(a.latitude ?? '-')},
+                ${escapeHtml(a.longitude ?? '-')}
+              </td>
 
-              <button
-                class="btn btn--excluir"
-                data-id="${escapeHtml(a.id)}"
-              >
-                Excluir
-              </button>
+              <td>
 
-            </td>
+                <button
+                  class="btn btn--excluir"
+                  data-id="${escapeHtml(a.id)}"
+                >
+                  Excluir
+                </button>
 
-          </tr>
+              </td>
 
-        `).join('') ||
+            </tr>
 
-        '<tr><td colspan="5">Nenhum anúncio cadastrado.</td></tr>';
+          `;
+
+        }).join('');
 
       tbody
         .querySelectorAll('button.btn--excluir')
-        .forEach((btn) => {
+        .forEach(function (btn) {
 
-          btn.addEventListener('click', async () => {
+          btn.addEventListener('click', async function () {
 
             if (!confirm('Excluir este anúncio?')) {
               return;
@@ -486,7 +508,7 @@
         return;
       }
 
-      if (!Array.isArray(categorias)) {
+      if (!Array.isArray(categorias) || !categorias.length) {
 
         tbody.innerHTML =
           '<tr><td colspan="5">Nenhuma categoria cadastrada.</td></tr>';
@@ -495,48 +517,50 @@
       }
 
       tbody.innerHTML =
-        categorias.map((c) => `
+        categorias.map(function (c) {
 
-          <tr>
+          return `
 
-            <td>
-              ${escapeHtml(c.id)}
-            </td>
+            <tr>
 
-            <td>
-              ${escapeHtml(c.nome || '')}
-            </td>
+              <td>
+                ${escapeHtml(c.id)}
+              </td>
 
-            <td>
-              ${escapeHtml(c.icone_url || '-')}
-            </td>
+              <td>
+                ${escapeHtml(c.nome || '')}
+              </td>
 
-            <td>
-              ${escapeHtml(c.slug || '-')}
-            </td>
+              <td>
+                ${escapeHtml(c.icone_url || '-')}
+              </td>
 
-            <td>
+              <td>
+                ${escapeHtml(c.slug || '-')}
+              </td>
 
-              <button
-                class="btn btn--excluir"
-                data-id="${escapeHtml(c.id)}"
-              >
-                Excluir
-              </button>
+              <td>
 
-            </td>
+                <button
+                  class="btn btn--excluir"
+                  data-id="${escapeHtml(c.id)}"
+                >
+                  Excluir
+                </button>
 
-          </tr>
+              </td>
 
-        `).join('') ||
+            </tr>
 
-        '<tr><td colspan="5">Nenhuma categoria cadastrada.</td></tr>';
+          `;
+
+        }).join('');
 
       tbody
         .querySelectorAll('button.btn--excluir')
-        .forEach((btn) => {
+        .forEach(function (btn) {
 
-          btn.addEventListener('click', async () => {
+          btn.addEventListener('click', async function () {
 
             if (!confirm('Excluir esta categoria?')) {
               return;
@@ -589,19 +613,27 @@
 
     btnAddCategoria.addEventListener(
       'click',
-      async () => {
+      async function () {
+
+        const nomeElement =
+          document.getElementById(
+            'novaCategoriaNome'
+          );
+
+        const iconeElement =
+          document.getElementById(
+            'novaCategoriaIcone'
+          );
 
         const nome =
-          document
-            .getElementById('novaCategoriaNome')
-            .value
-            .trim();
+          nomeElement
+            ? nomeElement.value.trim()
+            : '';
 
         const icone_url =
-          document
-            .getElementById('novaCategoriaIcone')
-            .value
-            .trim();
+          iconeElement
+            ? iconeElement.value.trim()
+            : '';
 
         if (!nome) {
 
@@ -631,13 +663,13 @@
             }
           );
 
-          document
-            .getElementById('novaCategoriaNome')
-            .value = '';
+          if (nomeElement) {
+            nomeElement.value = '';
+          }
 
-          document
-            .getElementById('novaCategoriaIcone')
-            .value = '';
+          if (iconeElement) {
+            iconeElement.value = '';
+          }
 
           await carregarCategorias();
 
@@ -661,16 +693,22 @@
   // =========================================================
 
   const btnSalvarArtigo =
-    document.getElementById('btnSalvarArtigo');
+    document.getElementById(
+      'btnSalvarArtigo'
+    );
 
   const erroBlog =
-    document.getElementById('erroBlog');
+    document.getElementById(
+      'erroBlog'
+    );
 
   const blogEditor =
-    document.getElementById('blogConteudo');
+    document.getElementById(
+      'blogConteudo'
+    );
 
   // =========================================================
-  // MEMÓRIA DA SELEÇÃO DO EDITOR
+  // EDITOR - SELEÇÃO
   // =========================================================
 
   let ultimaSelecao = null;
@@ -684,19 +722,14 @@
     const selecao =
       window.getSelection();
 
-    if (
-      !selecao ||
-      selecao.rangeCount === 0
-    ) {
+    if (!selecao || !selecao.rangeCount) {
       return;
     }
 
     const range =
       selecao.getRangeAt(0);
 
-    if (
-      blogEditor.contains(range.commonAncestorContainer)
-    ) {
+    if (blogEditor.contains(range.commonAncestorContainer)) {
 
       ultimaSelecao =
         range.cloneRange();
@@ -707,11 +740,7 @@
 
   function restaurarSelecao() {
 
-    if (
-      !ultimaSelecao ||
-      !blogEditor
-    ) {
-      blogEditor.focus();
+    if (!ultimaSelecao) {
       return;
     }
 
@@ -724,31 +753,10 @@
       ultimaSelecao
     );
 
-    blogEditor.focus();
-
-  }
-
-  if (blogEditor) {
-
-    blogEditor.addEventListener(
-      'mouseup',
-      salvarSelecao
-    );
-
-    blogEditor.addEventListener(
-      'keyup',
-      salvarSelecao
-    );
-
-    blogEditor.addEventListener(
-      'focus',
-      salvarSelecao
-    );
-
   }
 
   // =========================================================
-  // EXECUTAR COMANDO DO EDITOR
+  // EDITOR - EXECUTAR COMANDO
   // =========================================================
 
   function executarComando(
@@ -760,7 +768,7 @@
       return;
     }
 
-    restaurarSelecao();
+    blogEditor.focus();
 
     try {
 
@@ -772,12 +780,10 @@
 
       salvarSelecao();
 
-      blogEditor.focus();
-
     } catch (err) {
 
       console.error(
-        '[editor] Erro:',
+        '[editor]',
         err
       );
 
@@ -786,14 +792,16 @@
   }
 
   // =========================================================
-  // INSERIR HTML NA POSIÇÃO DO CURSOR
+  // EDITOR - INSERIR HTML
   // =========================================================
 
-  function inserirHtmlNoEditor(html) {
+  function inserirHtml(html) {
 
     if (!blogEditor) {
       return;
     }
+
+    blogEditor.focus();
 
     restaurarSelecao();
 
@@ -801,61 +809,124 @@
       window.getSelection();
 
     if (
-      !selecao ||
-      selecao.rangeCount === 0
+      selecao &&
+      selecao.rangeCount > 0
     ) {
 
-      blogEditor.insertAdjacentHTML(
-        'beforeend',
-        html
-      );
+      const range =
+        selecao.getRangeAt(0);
 
-      blogEditor.focus();
+      if (
+        blogEditor.contains(
+          range.commonAncestorContainer
+        )
+      ) {
 
-      return;
+        range.deleteContents();
+
+        const temp =
+          document.createElement('div');
+
+        temp.innerHTML =
+          html;
+
+        const fragment =
+          document.createDocumentFragment();
+
+        while (temp.firstChild) {
+
+          fragment.appendChild(
+            temp.firstChild
+          );
+
+        }
+
+        range.insertNode(
+          fragment
+        );
+
+        range.collapse(
+          false
+        );
+
+        selecao.removeAllRanges();
+
+        selecao.addRange(
+          range
+        );
+
+        salvarSelecao();
+
+        return;
+
+      }
 
     }
 
-    const range =
-      selecao.getRangeAt(0);
-
-    range.deleteContents();
-
-    const temp =
-      document.createElement('div');
-
-    temp.innerHTML =
-      html;
-
-    const fragment =
-      document.createDocumentFragment();
-
-    while (temp.firstChild) {
-
-      fragment.appendChild(
-        temp.firstChild
-      );
-
-    }
-
-    range.insertNode(
-      fragment
+    blogEditor.insertAdjacentHTML(
+      'beforeend',
+      html
     );
-
-    range.collapse(false);
-
-    selecao.removeAllRanges();
-
-    selecao.addRange(range);
-
-    salvarSelecao();
 
     blogEditor.focus();
 
   }
 
   // =========================================================
-  // INSERIR IMAGEM
+  // EDITOR - TÍTULOS
+  // =========================================================
+
+  function aplicarTitulo(tag) {
+
+    if (!blogEditor) {
+      return;
+    }
+
+    blogEditor.focus();
+
+    restaurarSelecao();
+
+    executarComando(
+      'formatBlock',
+      tag
+    );
+
+  }
+
+  // =========================================================
+  // EDITOR - LINK
+  // =========================================================
+
+  function inserirLink() {
+
+    if (!blogEditor) {
+      return;
+    }
+
+    salvarSelecao();
+
+    const url =
+      prompt(
+        'Digite a URL do link:'
+      );
+
+    if (!url) {
+      return;
+    }
+
+    blogEditor.focus();
+
+    restaurarSelecao();
+
+    executarComando(
+      'createLink',
+      url
+    );
+
+  }
+
+  // =========================================================
+  // EDITOR - UMA IMAGEM
   // =========================================================
 
   function inserirImagem() {
@@ -864,7 +935,7 @@
       return;
     }
 
-    restaurarSelecao();
+    salvarSelecao();
 
     const url =
       prompt(
@@ -879,30 +950,29 @@
       prompt(
         'Digite uma descrição para a imagem:',
         'Imagem do artigo'
-      ) ||
-      'Imagem do artigo';
+      ) || 'Imagem do artigo';
 
     const html = `
 
-      <p class="editor-imagem-container">
+      <img
+        src="${escapeAttribute(url)}"
+        alt="${escapeAttribute(alt)}"
+        class="editor-imagem"
+        loading="lazy"
+      >
 
-        <img
-          src="${escapeAttribute(url)}"
-          alt="${escapeAttribute(alt)}"
-          class="editor-imagem"
-          loading="lazy"
-        >
-
-      </p>
+      <p><br></p>
 
     `;
 
-    inserirHtmlNoEditor(html);
+    inserirHtml(
+      html
+    );
 
   }
 
   // =========================================================
-  // INSERIR VÁRIAS IMAGENS
+  // EDITOR - VÁRIAS IMAGENS
   // =========================================================
 
   function inserirVariasImagens() {
@@ -911,144 +981,67 @@
       return;
     }
 
-    restaurarSelecao();
+    salvarSelecao();
 
-    const quantidadeTexto =
+    const entrada =
       prompt(
-        'Quantas imagens você deseja inserir?'
+        'Cole as URLs das imagens separadas por vírgula ou uma por linha:'
       );
 
-    if (!quantidadeTexto) {
+    if (!entrada) {
       return;
     }
 
-    const quantidade =
-      parseInt(
-        quantidadeTexto,
-        10
-      );
+    const urls =
+      entrada
+        .split(/[\n,]+/)
+        .map(function (url) {
+          return url.trim();
+        })
+        .filter(Boolean);
 
-    if (
-      isNaN(quantidade) ||
-      quantidade < 1
-    ) {
-
-      alert(
-        'Digite uma quantidade válida.'
-      );
-
+    if (!urls.length) {
       return;
-
-    }
-
-    if (quantidade > 30) {
-
-      alert(
-        'Por segurança, o limite é de 30 imagens por vez.'
-      );
-
-      return;
-
     }
 
     let html = '';
 
-    for (
-      let i = 1;
-      i <= quantidade;
-      i++
-    ) {
-
-      const url =
-        prompt(
-          `URL da imagem ${i} de ${quantidade}:`
-        );
-
-      if (!url) {
-        continue;
-      }
-
-      const alt =
-        prompt(
-          `Descrição da imagem ${i}:`,
-          `Imagem ${i} do artigo`
-        ) ||
-        `Imagem ${i} do artigo`;
+    urls.forEach(function (url, index) {
 
       html += `
 
-        <p class="editor-imagem-container">
+        <img
+          src="${escapeAttribute(url)}"
+          alt="Imagem ${index + 1} do artigo"
+          class="editor-imagem"
+          loading="lazy"
+        >
 
-          <img
-            src="${escapeAttribute(url)}"
-            alt="${escapeAttribute(alt)}"
-            class="editor-imagem"
-            loading="lazy"
-          >
-
-        </p>
+        <p><br></p>
 
       `;
 
-    }
+    });
 
-    if (!html) {
-      return;
-    }
-
-    inserirHtmlNoEditor(html);
-
-  }
-
-  // =========================================================
-  // INSERIR LINK
-  // =========================================================
-
-  function inserirLink() {
-
-    if (!blogEditor) {
-      return;
-    }
-
-    restaurarSelecao();
-
-    const selecao =
-      window.getSelection();
-
-    if (
-      !selecao ||
-      selecao.toString().trim() === ''
-    ) {
-
-      alert(
-        'Selecione primeiro o texto que será transformado em link.'
-      );
-
-      return;
-
-    }
-
-    const url =
-      prompt(
-        'Digite a URL do link:'
-      );
-
-    if (!url) {
-      return;
-    }
-
-    executarComando(
-      'createLink',
-      url
+    inserirHtml(
+      html
     );
 
   }
 
   // =========================================================
-  // PARÁGRAFO
+  // EDITOR - PARÁGRAFO
   // =========================================================
 
-  function transformarParagrafo() {
+  function aplicarParagrafo() {
+
+    if (!blogEditor) {
+      return;
+    }
+
+    blogEditor.focus();
+
+    restaurarSelecao();
 
     executarComando(
       'formatBlock',
@@ -1058,10 +1051,18 @@
   }
 
   // =========================================================
-  // CITAÇÃO
+  // EDITOR - CITAÇÃO
   // =========================================================
 
-  function transformarCitacao() {
+  function aplicarCitacao() {
+
+    if (!blogEditor) {
+      return;
+    }
+
+    blogEditor.focus();
+
+    restaurarSelecao();
 
     executarComando(
       'formatBlock',
@@ -1076,22 +1077,26 @@
 
   document
     .querySelectorAll('[data-editor-action]')
-    .forEach((btn) => {
+    .forEach(function (btn) {
 
       btn.addEventListener(
         'mousedown',
-        (e) => {
+        function (e) {
 
-          // Evita que o clique retire
-          // a seleção do texto
+          /*
+           * Impede que o clique na ferramenta
+           * destrua a seleção do texto.
+           */
           e.preventDefault();
+
+          salvarSelecao();
 
         }
       );
 
       btn.addEventListener(
         'click',
-        () => {
+        function () {
 
           const acao =
             btn.dataset.editorAction;
@@ -1105,41 +1110,32 @@
 
     });
 
+  // =========================================================
+  // AÇÕES DO EDITOR
+  // =========================================================
+
   function executarAcaoEditor(acao) {
 
     switch (acao) {
 
       case 'h1':
-        executarComando(
-          'formatBlock',
-          'H1'
-        );
+        aplicarTitulo('H1');
         break;
 
       case 'h2':
-        executarComando(
-          'formatBlock',
-          'H2'
-        );
+        aplicarTitulo('H2');
         break;
 
       case 'h3':
-        executarComando(
-          'formatBlock',
-          'H3'
-        );
+        aplicarTitulo('H3');
         break;
 
       case 'bold':
-        executarComando(
-          'bold'
-        );
+        executarComando('bold');
         break;
 
       case 'italic':
-        executarComando(
-          'italic'
-        );
+        executarComando('italic');
         break;
 
       case 'link':
@@ -1155,15 +1151,14 @@
         break;
 
       case 'paragraph':
-        transformarParagrafo();
+        aplicarParagrafo();
         break;
 
       case 'quote':
-        transformarCitacao();
+        aplicarCitacao();
         break;
 
       default:
-
         console.warn(
           '[editor] Ação desconhecida:',
           acao
@@ -1174,7 +1169,7 @@
   }
 
   // =========================================================
-  // MENU DE BOTÃO DIREITO
+  // MENU DO BOTÃO DIREITO
   // =========================================================
 
   const editorContextMenu =
@@ -1182,8 +1177,8 @@
       'editorContextMenu'
     );
 
-  let menuContextoAberto =
-    false;
+  let contextoX = 0;
+  let contextoY = 0;
 
   function mostrarMenuContexto(
     x,
@@ -1194,18 +1189,24 @@
       return;
     }
 
+    contextoX = x;
+    contextoY = y;
+
     editorContextMenu.classList.remove(
       'escondido'
     );
 
-    editorContextMenu.style.display =
-      'block';
-
     editorContextMenu.style.position =
       'fixed';
 
-    const margem =
-      10;
+    editorContextMenu.style.display =
+      'block';
+
+    let posX =
+      x;
+
+    let posY =
+      y;
 
     const largura =
       editorContextMenu.offsetWidth;
@@ -1213,11 +1214,8 @@
     const altura =
       editorContextMenu.offsetHeight;
 
-    let posX =
-      x;
-
-    let posY =
-      y;
+    const margem =
+      10;
 
     if (
       posX + largura >
@@ -1249,9 +1247,6 @@
     editorContextMenu.style.top =
       `${Math.max(margem, posY)}px`;
 
-    menuContextoAberto =
-      true;
-
   }
 
   function esconderMenuContexto() {
@@ -1260,23 +1255,65 @@
       return;
     }
 
+    editorContextMenu.style.display =
+      'none';
+
     editorContextMenu.classList.add(
       'escondido'
     );
 
-    editorContextMenu.style.display =
-      'none';
+  }
 
-    menuContextoAberto =
-      false;
+  // =========================================================
+  // MENU DIREITO - AÇÕES
+  // =========================================================
+
+  if (editorContextMenu) {
+
+    editorContextMenu
+      .querySelectorAll(
+        '[data-context-action]'
+      )
+      .forEach(function (btn) {
+
+        btn.addEventListener(
+          'mousedown',
+          function (e) {
+
+            e.preventDefault();
+
+          }
+        );
+
+        btn.addEventListener(
+          'click',
+          function () {
+
+            const acao =
+              btn.dataset.contextAction;
+
+            esconderMenuContexto();
+
+            executarAcaoEditor(
+              acao
+            );
+
+          }
+        );
+
+      });
 
   }
+
+  // =========================================================
+  // EDITOR - BOTÃO DIREITO
+  // =========================================================
 
   if (blogEditor) {
 
     blogEditor.addEventListener(
       'contextmenu',
-      (e) => {
+      function (e) {
 
         e.preventDefault();
 
@@ -1290,61 +1327,48 @@
       }
     );
 
-  }
+    blogEditor.addEventListener(
+      'keyup',
+      function () {
 
-  // =========================================================
-  // AÇÕES DO MENU DE BOTÃO DIREITO
-  // =========================================================
+        salvarSelecao();
 
-  if (editorContextMenu) {
+      }
+    );
 
-    editorContextMenu
-      .querySelectorAll(
-        '[data-context-action]'
-      )
-      .forEach((btn) => {
+    blogEditor.addEventListener(
+      'mouseup',
+      function () {
 
-        btn.addEventListener(
-          'mousedown',
-          (e) => {
+        salvarSelecao();
 
-            e.preventDefault();
+      }
+    );
 
-          }
-        );
+    blogEditor.addEventListener(
+      'input',
+      function () {
 
-        btn.addEventListener(
-          'click',
-          () => {
+        salvarSelecao();
 
-            const acao =
-              btn.dataset.contextAction;
-
-            executarAcaoEditor(
-              acao
-            );
-
-            esconderMenuContexto();
-
-          }
-        );
-
-      });
+      }
+    );
 
   }
 
   // =========================================================
-  // FECHAR MENU
+  // FECHAR MENU DIREITO
   // =========================================================
 
   document.addEventListener(
     'click',
-    (e) => {
+    function (e) {
 
       if (
-        menuContextoAberto &&
         editorContextMenu &&
-        !editorContextMenu.contains(e.target)
+        !editorContextMenu.contains(
+          e.target
+        )
       ) {
 
         esconderMenuContexto();
@@ -1365,36 +1389,58 @@
   );
 
   // =========================================================
-  // BLOG - SALVAR ARTIGO
+  // SALVAR ARTIGO
   // =========================================================
 
   if (btnSalvarArtigo) {
 
     btnSalvarArtigo.addEventListener(
       'click',
-      async () => {
+      async function () {
 
         if (erroBlog) {
           erroBlog.textContent = '';
         }
 
+        const tituloElement =
+          document.getElementById(
+            'blogTitulo'
+          );
+
+        const resumoElement =
+          document.getElementById(
+            'blogResumo'
+          );
+
+        const capaElement =
+          document.getElementById(
+            'blogCapa'
+          );
+
+        const publicadoElement =
+          document.getElementById(
+            'blogPublicado'
+          );
+
         const titulo =
-          document
-            .getElementById('blogTitulo')
-            .value
-            .trim();
+          tituloElement
+            ? tituloElement.value.trim()
+            : '';
 
         const resumo =
-          document
-            .getElementById('blogResumo')
-            .value
-            .trim();
+          resumoElement
+            ? resumoElement.value.trim()
+            : '';
 
         const capa =
-          document
-            .getElementById('blogCapa')
-            .value
-            .trim();
+          capaElement
+            ? capaElement.value.trim()
+            : '';
+
+        const publicado =
+          publicadoElement
+            ? publicadoElement.checked
+            : true;
 
         let conteudo = '';
 
@@ -1405,11 +1451,6 @@
 
         }
 
-        const publicado =
-          document
-            .getElementById('blogPublicado')
-            .checked;
-
         // =====================================================
         // VALIDAÇÃO
         // =====================================================
@@ -1417,30 +1458,29 @@
         if (!titulo) {
 
           if (erroBlog) {
+
             erroBlog.textContent =
               'Digite o título do artigo.';
+
           }
 
           return;
-
         }
 
-        if (
-          !conteudo ||
-          conteudo === '<br>'
-        ) {
+        if (!conteudo) {
 
           if (erroBlog) {
+
             erroBlog.textContent =
               'Digite o conteúdo do artigo.';
+
           }
 
           return;
-
         }
 
         // =====================================================
-        // EVITA DUPLO CLIQUE
+        // EVITAR DUPLO CLIQUE
         // =====================================================
 
         btnSalvarArtigo.disabled =
@@ -1451,38 +1491,31 @@
 
         try {
 
-          const resultado =
-            await apiFetch(
-              '/api/blog',
-              {
-                method: 'POST',
+          await apiFetch(
+            '/api/blog',
+            {
+              method: 'POST',
 
-                headers: {
-                  'Content-Type':
-                    'application/json'
-                },
+              headers: {
+                'Content-Type':
+                  'application/json'
+              },
 
-                body: JSON.stringify({
+              body: JSON.stringify({
 
-                  titulo,
+                titulo,
 
-                  resumo,
+                resumo,
 
-                  capa_url:
-                    capa || null,
+                capa_url:
+                  capa || null,
 
-                  conteudo,
+                conteudo,
 
-                  publicado
+                publicado
 
-                })
-
-              }
-            );
-
-          console.log(
-            '[blog] Artigo salvo:',
-            resultado
+              })
+            }
           );
 
           alert(
@@ -1493,17 +1526,17 @@
           // LIMPAR FORMULÁRIO
           // ===================================================
 
-          document
-            .getElementById('blogTitulo')
-            .value = '';
+          if (tituloElement) {
+            tituloElement.value = '';
+          }
 
-          document
-            .getElementById('blogResumo')
-            .value = '';
+          if (resumoElement) {
+            resumoElement.value = '';
+          }
 
-          document
-            .getElementById('blogCapa')
-            .value = '';
+          if (capaElement) {
+            capaElement.value = '';
+          }
 
           if (blogEditor) {
 
@@ -1512,9 +1545,12 @@
 
           }
 
-          document
-            .getElementById('blogPublicado')
-            .checked = true;
+          if (publicadoElement) {
+
+            publicadoElement.checked =
+              true;
+
+          }
 
           ultimaSelecao =
             null;
@@ -1552,7 +1588,7 @@
   }
 
   // =========================================================
-  // BLOG - CARREGAR ARTIGOS
+  // CARREGAR ARTIGOS
   // =========================================================
 
   async function carregarArtigos() {
@@ -1573,17 +1609,19 @@
           '/api/blog/admin/todos'
         );
 
-      if (!Array.isArray(artigos)) {
+      if (
+        !Array.isArray(artigos) ||
+        !artigos.length
+      ) {
 
         tbody.innerHTML =
           '<tr><td colspan="5">Nenhum artigo cadastrado.</td></tr>';
 
         return;
-
       }
 
       tbody.innerHTML =
-        artigos.map((artigo) => {
+        artigos.map(function (artigo) {
 
           const status =
             artigo.publicado
@@ -1599,7 +1637,9 @@
               </td>
 
               <td>
-                ${escapeHtml(artigo.titulo || '')}
+                ${escapeHtml(
+                  artigo.titulo || ''
+                )}
               </td>
 
               <td>
@@ -1617,20 +1657,20 @@
               </td>
 
               <td>
-                ${
-                  escapeHtml(
-                    artigo.criado_em ||
-                    artigo.created_at ||
-                    '-'
-                  )
-                }
+                ${escapeHtml(
+                  artigo.criado_em ||
+                  artigo.created_at ||
+                  '-'
+                )}
               </td>
 
               <td>
 
                 <button
                   class="btn btn--excluir"
-                  data-blog-id="${escapeHtml(artigo.id)}"
+                  data-blog-id="${escapeHtml(
+                    artigo.id
+                  )}"
                 >
                   Excluir
                 </button>
@@ -1641,9 +1681,7 @@
 
           `;
 
-        }).join('') ||
-
-        '<tr><td colspan="5">Nenhum artigo cadastrado.</td></tr>';
+        }).join('');
 
       // =====================================================
       // EXCLUIR ARTIGO
@@ -1653,20 +1691,18 @@
         .querySelectorAll(
           'button[data-blog-id]'
         )
-        .forEach((btn) => {
+        .forEach(function (btn) {
 
           btn.addEventListener(
             'click',
-            async () => {
+            async function () {
 
               if (
                 !confirm(
                   'Excluir este artigo?'
                 )
               ) {
-
                 return;
-
               }
 
               try {
@@ -1738,38 +1774,23 @@
       valor === null ||
       valor === undefined
     ) {
-
       return '';
-
     }
 
     return String(valor)
-      .replace(
-        /&/g,
-        '&amp;'
-      )
-      .replace(
-        /</g,
-        '&lt;'
-      )
-      .replace(
-        />/g,
-        '&gt;'
-      )
-      .replace(
-        /"/g,
-        '&quot;'
-      )
-      .replace(
-        /'/g,
-        '&#039;'
-      );
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
 
   }
 
   function escapeAttribute(valor) {
 
-    return escapeHtml(valor);
+    return escapeHtml(
+      valor
+    );
 
   }
 
