@@ -10,7 +10,9 @@
     content="width=device-width, initial-scale=1.0"
   >
 
-  <title>Blog — Portal Porto de Galinhas</title>
+  <title>
+    Blog — Portal Porto de Galinhas
+  </title>
 
   <style>
 
@@ -241,10 +243,15 @@
 
 
   <!-- =====================================================
-       SCRIPTS DO SISTEMA
+       SISTEMA DE IDIOMAS
        ===================================================== -->
 
   <script src="../js/i18n.js"></script>
+
+
+  <!-- =====================================================
+       LAYOUT DO SITE
+       ===================================================== -->
 
   <script src="../js/layout.js"></script>
 
@@ -304,6 +311,38 @@
 
 
     // =====================================================
+    // TRADUÇÃO
+    // =====================================================
+
+    function traduzir(chave, padrao) {
+
+      if (
+        window.i18nPortal &&
+        typeof window.i18nPortal.t === 'function'
+      ) {
+
+        const valor =
+          window.i18nPortal.t(
+            chave
+          );
+
+        if (
+          valor &&
+          valor !== chave
+        ) {
+
+          return valor;
+
+        }
+
+      }
+
+      return padrao;
+
+    }
+
+
+    // =====================================================
     // CARREGAR BLOG
     // =====================================================
 
@@ -320,7 +359,10 @@
         );
 
 
-      if (!lista || !vazio) {
+      if (
+        !lista ||
+        !vazio
+      ) {
 
         console.error(
           '[BLOG] Elementos do Blog não encontrados.'
@@ -335,7 +377,7 @@
 
 
         // -------------------------------------------------
-        // BUSCAR ARTIGOS
+        // BUSCAR ARTIGOS NA API
         // -------------------------------------------------
 
         const resposta =
@@ -374,7 +416,14 @@
           artigos.length === 0
         ) {
 
-          lista.innerHTML = '';
+          lista.innerHTML =
+            '';
+
+          vazio.textContent =
+            traduzir(
+              'blog.vazio',
+              'Ainda não temos artigos publicados.'
+            );
 
           vazio.style.display =
             'block';
@@ -385,7 +434,7 @@
 
 
         // -------------------------------------------------
-        // ESCONDER AVISO DE VAZIO
+        // ESCONDER MENSAGEM
         // -------------------------------------------------
 
         vazio.style.display =
@@ -511,7 +560,7 @@
 
 
                 // -----------------------------------------
-                // RETORNAR CARD
+                // CARD
                 // -----------------------------------------
 
                 return `
@@ -530,9 +579,7 @@
                     >
 
                       <h2>
-
                         ${titulo}
-
                       </h2>
 
 
@@ -542,9 +589,7 @@
                           ? `
 
                             <p>
-
                               ${resumo}
-
                             </p>
 
                           `
@@ -580,13 +625,10 @@
 
 
         vazio.textContent =
-          window.i18nPortal
-
-            ? window.i18nPortal.t(
-                'blog.erro'
-              )
-
-            : 'Não foi possível carregar os artigos agora.';
+          traduzir(
+            'blog.erro',
+            'Não foi possível carregar os artigos agora.'
+          );
 
 
         vazio.classList.add(
@@ -600,6 +642,36 @@
       }
 
     }
+
+
+    // =====================================================
+    // ATUALIZAR BLOG QUANDO O IDIOMA FOR ALTERADO
+    // =====================================================
+
+    document.addEventListener(
+      'i18n:aplicado',
+      function () {
+
+        const vazio =
+          document.getElementById(
+            'vazio'
+          );
+
+        if (
+          vazio &&
+          vazio.style.display !== 'none'
+        ) {
+
+          vazio.textContent =
+            traduzir(
+              'blog.vazio',
+              'Ainda não temos artigos publicados.'
+            );
+
+        }
+
+      }
+    );
 
 
     // =====================================================
