@@ -1,14 +1,3 @@
-// =========================================================
-// PAINEL ADMINISTRATIVO
-// Portal Porto de Galinhas
-//
-// Login
-// CRUD de categorias
-// Moderação de anúncios
-// Gerenciamento do Blog
-// Editor visual de artigos
-// =========================================================
-
 (function () {
   'use strict';
 
@@ -17,430 +6,244 @@
   // =========================================================
 
   const API = window.location.origin;
-
   const TOKEN_KEY = 'portal_admin_token';
-
 
   // =========================================================
   // ELEMENTOS PRINCIPAIS
   // =========================================================
 
-  const telaLogin =
-    document.getElementById('telaLogin');
-
-  const telaAdmin =
-    document.getElementById('telaAdmin');
-
-  const formLogin =
-    document.getElementById('formLogin');
-
-  const erroLogin =
-    document.getElementById('erroLogin');
-
-  const btnSair =
-    document.getElementById('btnSair');
-
+  const telaLogin = document.getElementById('telaLogin');
+  const telaAdmin = document.getElementById('telaAdmin');
+  const formLogin = document.getElementById('formLogin');
+  const erroLogin = document.getElementById('erroLogin');
+  const btnSair = document.getElementById('btnSair');
 
   // =========================================================
   // AUTENTICAÇÃO
   // =========================================================
 
   function getToken() {
-
-    return localStorage.getItem(
-      TOKEN_KEY
-    );
-
+    return localStorage.getItem(TOKEN_KEY);
   }
-
 
   function setToken(token) {
-
-    localStorage.setItem(
-      TOKEN_KEY,
-      token
-    );
-
+    localStorage.setItem(TOKEN_KEY, token);
   }
-
 
   function limparToken() {
-
-    localStorage.removeItem(
-      TOKEN_KEY
-    );
-
+    localStorage.removeItem(TOKEN_KEY);
   }
-
 
   function mostrarLogin() {
-
     if (telaLogin) {
-
-      telaLogin.classList.remove(
-        'escondido'
-      );
-
+      telaLogin.classList.remove('escondido');
     }
 
     if (telaAdmin) {
-
-      telaAdmin.classList.add(
-        'escondido'
-      );
-
+      telaAdmin.classList.add('escondido');
     }
-
   }
 
-
   function mostrarAdmin() {
-
     if (telaLogin) {
-
-      telaLogin.classList.add(
-        'escondido'
-      );
-
+      telaLogin.classList.add('escondido');
     }
 
     if (telaAdmin) {
-
-      telaAdmin.classList.remove(
-        'escondido'
-      );
-
+      telaAdmin.classList.remove('escondido');
     }
 
     carregarPendentes();
-
     carregarTodos();
-
     carregarCategorias();
-
     carregarArtigos();
-
   }
 
-
   // =========================================================
-  // API
+  // REQUISIÇÕES PARA API
   // =========================================================
 
-  async function apiFetch(
-    path,
-    options = {}
-  ) {
-
-    const token =
-      getToken();
+  async function apiFetch(path, options = {}) {
+    const token = getToken();
 
     const headers = {
       ...(options.headers || {})
     };
 
-
     if (token) {
-
-      headers.Authorization =
-        `Bearer ${token}`;
-
+      headers.Authorization = `Bearer ${token}`;
     }
 
+    const resp = await fetch(`${API}${path}`, {
+      ...options,
+      headers
+    });
 
-    const resp =
-      await fetch(
-        `${API}${path}`,
-        {
-          ...options,
-          headers
-        }
-      );
-
-
-    let data;
-
+    let data = {};
 
     try {
-
-      data =
-        await resp.json();
-
+      data = await resp.json();
     } catch (e) {
-
       data = {};
-
     }
 
-
-    if (
-      resp.status === 401 ||
-      resp.status === 403
-    ) {
-
+    if (resp.status === 401 || resp.status === 403) {
       limparToken();
-
       mostrarLogin();
 
       throw new Error(
         data.erro ||
+        data.error ||
         'Sessão expirada. Faça login novamente.'
       );
-
     }
 
-
     if (!resp.ok) {
-
       throw new Error(
         data.erro ||
         data.error ||
         `Erro HTTP ${resp.status}`
       );
-
     }
 
-
     return data;
-
   }
-
 
   // =========================================================
   // LOGIN
   // =========================================================
 
   if (formLogin) {
+    formLogin.addEventListener('submit', async function (e) {
+      e.preventDefault();
 
-    formLogin.addEventListener(
-      'submit',
-      async (e) => {
+      if (erroLogin) {
+        erroLogin.textContent = '';
+      }
 
-        e.preventDefault();
+      const usuario = document
+        .getElementById('usuario')
+        .value
+        .trim();
 
+      const senha = document
+        .getElementById('senha')
+        .value;
 
-        if (erroLogin) {
+      try {
+        const resp = await fetch(`${API}/api/login`, {
+          method: 'POST',
 
-          erroLogin.textContent =
-            '';
+          headers: {
+            'Content-Type': 'application/json'
+          },
 
-        }
+          body: JSON.stringify({
+            usuario,
+            senha
+          })
+        });
 
-
-        const usuario =
-          document
-            .getElementById(
-              'usuario'
-            )
-            .value
-            .trim();
-
-
-        const senha =
-          document
-            .getElementById(
-              'senha'
-            )
-            .value;
-
+        let data = {};
 
         try {
-
-          const resp =
-            await fetch(
-              `${API}/api/login`,
-              {
-                method: 'POST',
-
-                headers: {
-                  'Content-Type':
-                    'application/json'
-                },
-
-                body:
-                  JSON.stringify({
-                    usuario,
-                    senha
-                  })
-              }
-            );
-
-
-          const data =
-            await resp.json();
-
-
-          if (!resp.ok) {
-
-            if (erroLogin) {
-
-              erroLogin.textContent =
-                data.erro ||
-                'Credenciais inválidas.';
-
-            }
-
-            return;
-
-          }
-
-
-          if (!data.token) {
-
-            throw new Error(
-              'O servidor não retornou um token de autenticação.'
-            );
-
-          }
-
-
-          setToken(
-            data.token
-          );
-
-
-          mostrarAdmin();
-
-
-        } catch (err) {
-
-          console.error(
-            '[login]',
-            err
-          );
-
-
-          if (erroLogin) {
-
-            erroLogin.textContent =
-              'Erro ao conectar com o servidor.';
-
-          }
-
+          data = await resp.json();
+        } catch (e) {
+          data = {};
         }
 
+        if (!resp.ok) {
+          if (erroLogin) {
+            erroLogin.textContent =
+              data.erro ||
+              data.error ||
+              'Credenciais inválidas.';
+          }
+
+          return;
+        }
+
+        if (!data.token) {
+          throw new Error(
+            'O servidor não retornou um token de acesso.'
+          );
+        }
+
+        setToken(data.token);
+
+        mostrarAdmin();
+
+      } catch (err) {
+        console.error('[login]', err);
+
+        if (erroLogin) {
+          erroLogin.textContent =
+            err.message ||
+            'Erro ao conectar com o servidor.';
+        }
       }
-    );
-
+    });
   }
-
 
   // =========================================================
   // SAIR
   // =========================================================
 
   if (btnSair) {
-
-    btnSair.addEventListener(
-      'click',
-      () => {
-
-        limparToken();
-
-        mostrarLogin();
-
-      }
-    );
-
+    btnSair.addEventListener('click', function () {
+      limparToken();
+      mostrarLogin();
+    });
   }
-
 
   // =========================================================
   // TABS
   // =========================================================
 
   document
-    .querySelectorAll(
-      '.tabs button'
-    )
-    .forEach(
-      (btn) => {
+    .querySelectorAll('.tabs button')
+    .forEach(function (btn) {
 
-        btn.addEventListener(
-          'click',
-          () => {
+      btn.addEventListener('click', function () {
 
-            document
-              .querySelectorAll(
-                '.tabs button'
-              )
-              .forEach(
-                (b) => {
+        document
+          .querySelectorAll('.tabs button')
+          .forEach(function (b) {
+            b.classList.remove('ativa');
+          });
 
-                  b.classList.remove(
-                    'ativa'
-                  );
+        btn.classList.add('ativa');
 
-                }
-              );
+        document
+          .querySelectorAll('main section')
+          .forEach(function (section) {
+            section.classList.add('escondido');
+          });
 
+        const tabId =
+          `tab${capitalize(btn.dataset.tab)}`;
 
-            btn.classList.add(
-              'ativa'
-            );
+        const tab =
+          document.getElementById(tabId);
 
+        if (tab) {
+          tab.classList.remove('escondido');
+        }
 
-            document
-              .querySelectorAll(
-                'main section'
-              )
-              .forEach(
-                (section) => {
+        if (btn.dataset.tab === 'blog') {
+          carregarArtigos();
+        }
+      });
+    });
 
-                  section.classList.add(
-                    'escondido'
-                  );
+  function capitalize(text) {
+    if (!text) {
+      return '';
+    }
 
-                }
-              );
-
-
-            const tabId =
-              `tab${capitalize(
-                btn.dataset.tab
-              )}`;
-
-
-            const tab =
-              document.getElementById(
-                tabId
-              );
-
-
-            if (tab) {
-
-              tab.classList.remove(
-                'escondido'
-              );
-
-            }
-
-
-            if (
-              btn.dataset.tab ===
-              'blog'
-            ) {
-
-              carregarArtigos();
-
-            }
-
-          }
-        );
-
-      }
-    );
-
-
-  function capitalize(s) {
-
-    return (
-      s.charAt(0).toUpperCase() +
-      s.slice(1)
-    );
-
+    return text.charAt(0).toUpperCase() +
+      text.slice(1);
   }
-
 
   // =========================================================
   // ANÚNCIOS PENDENTES
@@ -449,159 +252,108 @@
   async function carregarPendentes() {
 
     const container =
-      document.getElementById(
-        'listaPendentes'
-      );
-
+      document.getElementById('listaPendentes');
 
     if (!container) {
-
       return;
-
     }
-
 
     try {
 
       const pendentes =
-        await apiFetch(
-          '/api/admin/anuncios'
-        );
+        await apiFetch('/api/admin/anuncios');
 
-
-      if (
-        !Array.isArray(
-          pendentes
-        )
-      ) {
+      if (!Array.isArray(pendentes)) {
 
         container.innerHTML =
           '<p>Nenhum anúncio pendente.</p>';
 
         return;
-
       }
 
-
       container.innerHTML =
-        pendentes
-          .map(
-            (a) => `
+        pendentes.map(function (a) {
 
-              <div
-                style="
-                  padding:12px;
-                  border-bottom:1px solid #ddd;
-                "
-              >
+          return `
 
-                <strong>
-                  ${escapeHtml(
-                    a.titulo || ''
-                  )}
-                </strong>
+            <div style="padding:12px;border-bottom:1px solid #ddd;">
 
-                <br>
+              <strong>
+                ${escapeHtml(a.titulo || '')}
+              </strong>
 
-                Comerciante:
-                ${escapeHtml(
-                  a.id_comerciante || '-'
-                )}
+              <br>
 
-                <br>
+              Comerciante:
+              ${escapeHtml(String(a.id_comerciante || '-'))}
 
-                Status:
+              <br>
 
-                <span
-                  class="badge badge--${escapeHtml(
-                    a.status || ''
-                  )}"
-                >
-                  ${escapeHtml(
-                    a.status || '-'
-                  )}
-                </span>
+              Status:
 
-                <br><br>
+              <span class="badge badge--${escapeHtml(a.status || '')}">
+                ${escapeHtml(a.status || '-')}
+              </span>
 
-                <button
-                  class="btn btn--aprovar"
-                  data-acao="aprovar"
-                  data-id="${a.id}"
-                >
-                  Aprovar
-                </button>
+              <br><br>
 
-                <button
-                  class="btn btn--rejeitar"
-                  data-acao="rejeitar"
-                  data-id="${a.id}"
-                >
-                  Rejeitar
-                </button>
+              <button
+                class="btn btn--aprovar"
+                data-acao="aprovar"
+                data-id="${escapeHtml(String(a.id))}">
+                Aprovar
+              </button>
 
-              </div>
+              <button
+                class="btn btn--rejeitar"
+                data-acao="rejeitar"
+                data-id="${escapeHtml(String(a.id))}">
+                Rejeitar
+              </button>
 
-            `
-          )
-          .join('') ||
+            </div>
+
+          `;
+
+        }).join('') ||
 
         '<p>Nenhum anúncio pendente.</p>';
 
-
       container
-        .querySelectorAll(
-          'button[data-acao]'
-        )
-        .forEach(
-          (btn) => {
+        .querySelectorAll('button[data-acao]')
+        .forEach(function (btn) {
 
-            btn.addEventListener(
-              'click',
-              async () => {
+          btn.addEventListener('click', async function () {
 
-                const acao =
-                  btn.dataset.acao;
+            const acao =
+              btn.dataset.acao;
 
-                const id =
-                  btn.dataset.id;
+            const id =
+              btn.dataset.id;
 
+            try {
 
-                try {
-
-                  await apiFetch(
-                    `/api/admin/anuncios/${id}/${acao}`,
-                    {
-                      method: 'PUT'
-                    }
-                  );
-
-
-                  await carregarPendentes();
-
-                  await carregarTodos();
-
-
-                } catch (err) {
-
-                  console.error(
-                    '[anuncio]',
-                    err
-                  );
-
-
-                  alert(
-                    err.message
-                  );
-
+              await apiFetch(
+                `/api/admin/anuncios/${id}/${acao}`,
+                {
+                  method: 'PUT'
                 }
+              );
 
-              }
-            );
+              await carregarPendentes();
+              await carregarTodos();
 
-          }
-        );
+            } catch (err) {
 
+              console.error(
+                '[anuncio]',
+                err
+              );
+
+              alert(err.message);
+            }
+          });
+        });
 
     } catch (err) {
 
@@ -611,14 +363,9 @@
       );
 
       container.innerHTML =
-        `<p>Erro ao carregar anúncios: ${escapeHtml(
-          err.message
-        )}</p>`;
-
+        `<p>Erro ao carregar anúncios: ${escapeHtml(err.message)}</p>`;
     }
-
   }
-
 
   // =========================================================
   // TODOS OS ANÚNCIOS
@@ -627,153 +374,104 @@
   async function carregarTodos() {
 
     const tbody =
-      document.getElementById(
-        'listaTodos'
-      );
-
+      document.getElementById('listaTodos');
 
     if (!tbody) {
-
       return;
-
     }
-
 
     try {
 
       const todos =
-        await apiFetch(
-          '/api/admin/anuncios/todos'
-        );
+        await apiFetch('/api/admin/anuncios/todos');
 
-
-      if (
-        !Array.isArray(
-          todos
-        )
-      ) {
+      if (!Array.isArray(todos)) {
 
         tbody.innerHTML =
           '<tr><td colspan="5">Nenhum anúncio cadastrado.</td></tr>';
 
         return;
-
       }
 
-
       tbody.innerHTML =
-        todos
-          .map(
-            (a) => `
+        todos.map(function (a) {
 
-              <tr>
+          return `
 
-                <td>
-                  ${a.id}
-                </td>
+            <tr>
 
-                <td>
-                  ${escapeHtml(
-                    a.titulo || ''
-                  )}
-                </td>
+              <td>
+                ${escapeHtml(String(a.id))}
+              </td>
 
-                <td>
+              <td>
+                ${escapeHtml(a.titulo || '')}
+              </td>
 
-                  <span
-                    class="badge badge--${escapeHtml(
-                      a.status || ''
-                    )}"
-                  >
-                    ${escapeHtml(
-                      a.status || '-'
-                    )}
-                  </span>
+              <td>
 
-                </td>
+                <span class="badge badge--${escapeHtml(a.status || '')}">
+                  ${escapeHtml(a.status || '-')}
+                </span>
 
-                <td>
-                  ${a.latitude ?? '-'},
-                  ${a.longitude ?? '-'}
-                </td>
+              </td>
 
-                <td>
+              <td>
+                ${escapeHtml(String(a.latitude ?? '-'))},
+                ${escapeHtml(String(a.longitude ?? '-'))}
+              </td>
 
-                  <button
-                    class="btn btn--excluir"
-                    data-id="${a.id}"
-                  >
-                    Excluir
-                  </button>
+              <td>
 
-                </td>
+                <button
+                  class="btn btn--excluir"
+                  data-id="${escapeHtml(String(a.id))}">
+                  Excluir
+                </button>
 
-              </tr>
+              </td>
 
-            `
-          )
-          .join('') ||
+            </tr>
+
+          `;
+
+        }).join('') ||
 
         '<tr><td colspan="5">Nenhum anúncio cadastrado.</td></tr>';
 
-
       tbody
-        .querySelectorAll(
-          'button.btn--excluir'
-        )
-        .forEach(
-          (btn) => {
+        .querySelectorAll('button.btn--excluir')
+        .forEach(function (btn) {
 
-            btn.addEventListener(
-              'click',
-              async () => {
+          btn.addEventListener('click', async function () {
 
-                if (
-                  !confirm(
-                    'Excluir este anúncio?'
-                  )
-                ) {
+            if (!confirm('Excluir este anúncio?')) {
+              return;
+            }
 
-                  return;
+            try {
 
+              await apiFetch(
+                `/api/admin/anuncios/${btn.dataset.id}`,
+                {
+                  method: 'DELETE'
                 }
+              );
 
+              await carregarTodos();
+              await carregarPendentes();
 
-                try {
+            } catch (err) {
 
-                  await apiFetch(
-                    `/api/admin/anuncios/${btn.dataset.id}`,
-                    {
-                      method: 'DELETE'
-                    }
-                  );
+              console.error(
+                '[excluir anuncio]',
+                err
+              );
 
-
-                  await carregarTodos();
-
-                  await carregarPendentes();
-
-
-                } catch (err) {
-
-                  console.error(
-                    '[excluir anuncio]',
-                    err
-                  );
-
-
-                  alert(
-                    err.message
-                  );
-
-                }
-
-              }
-            );
-
-          }
-        );
-
+              alert(err.message);
+            }
+          });
+        });
 
     } catch (err) {
 
@@ -782,21 +480,10 @@
         err
       );
 
-
       tbody.innerHTML =
-        `<tr>
-          <td colspan="5">
-            Erro ao carregar anúncios:
-            ${escapeHtml(
-              err.message
-            )}
-          </td>
-        </tr>`;
-
+        `<tr><td colspan="5">Erro: ${escapeHtml(err.message)}</td></tr>`;
     }
-
   }
-
 
   // =========================================================
   // CATEGORIAS
@@ -805,144 +492,98 @@
   async function carregarCategorias() {
 
     const tbody =
-      document.getElementById(
-        'listaCategorias'
-      );
-
+      document.getElementById('listaCategorias');
 
     if (!tbody) {
-
       return;
-
     }
-
 
     try {
 
       const categorias =
-        await apiFetch(
-          '/api/admin/categorias'
-        );
+        await apiFetch('/api/admin/categorias');
 
-
-      if (
-        !Array.isArray(
-          categorias
-        )
-      ) {
+      if (!Array.isArray(categorias)) {
 
         tbody.innerHTML =
           '<tr><td colspan="5">Nenhuma categoria cadastrada.</td></tr>';
 
         return;
-
       }
 
-
       tbody.innerHTML =
-        categorias
-          .map(
-            (c) => `
+        categorias.map(function (c) {
 
-              <tr>
+          return `
 
-                <td>
-                  ${c.id}
-                </td>
+            <tr>
 
-                <td>
-                  ${escapeHtml(
-                    c.nome || ''
-                  )}
-                </td>
+              <td>
+                ${escapeHtml(String(c.id))}
+              </td>
 
-                <td>
-                  ${escapeHtml(
-                    c.icone_url || '-'
-                  )}
-                </td>
+              <td>
+                ${escapeHtml(c.nome || '')}
+              </td>
 
-                <td>
-                  ${escapeHtml(
-                    c.slug || '-'
-                  )}
-                </td>
+              <td>
+                ${escapeHtml(c.icone_url || '-')}
+              </td>
 
-                <td>
+              <td>
+                ${escapeHtml(c.slug || '-')}
+              </td>
 
-                  <button
-                    class="btn btn--excluir"
-                    data-id="${c.id}"
-                  >
-                    Excluir
-                  </button>
+              <td>
 
-                </td>
+                <button
+                  class="btn btn--excluir"
+                  data-id="${escapeHtml(String(c.id))}">
+                  Excluir
+                </button>
 
-              </tr>
+              </td>
 
-            `
-          )
-          .join('') ||
+            </tr>
+
+          `;
+
+        }).join('') ||
 
         '<tr><td colspan="5">Nenhuma categoria cadastrada.</td></tr>';
 
-
       tbody
-        .querySelectorAll(
-          'button.btn--excluir'
-        )
-        .forEach(
-          (btn) => {
+        .querySelectorAll('button.btn--excluir')
+        .forEach(function (btn) {
 
-            btn.addEventListener(
-              'click',
-              async () => {
+          btn.addEventListener('click', async function () {
 
-                if (
-                  !confirm(
-                    'Excluir esta categoria?'
-                  )
-                ) {
+            if (!confirm('Excluir esta categoria?')) {
+              return;
+            }
 
-                  return;
+            try {
 
+              await apiFetch(
+                `/api/admin/categorias/${btn.dataset.id}`,
+                {
+                  method: 'DELETE'
                 }
+              );
 
+              await carregarCategorias();
 
-                try {
+            } catch (err) {
 
-                  await apiFetch(
-                    `/api/admin/categorias/${btn.dataset.id}`,
-                    {
-                      method: 'DELETE'
-                    }
-                  );
+              console.error(
+                '[excluir categoria]',
+                err
+              );
 
-
-                  await carregarCategorias();
-
-
-                } catch (err) {
-
-                  console.error(
-                    '[excluir categoria]',
-                    err
-                  );
-
-
-                  alert(
-                    err.message
-                  );
-
-                }
-
-              }
-            );
-
-          }
-        );
-
+              alert(err.message);
+            }
+          });
+        });
 
     } catch (err) {
 
@@ -951,55 +592,35 @@
         err
       );
 
-
       tbody.innerHTML =
-        `<tr>
-          <td colspan="5">
-            Erro ao carregar categorias:
-            ${escapeHtml(
-              err.message
-            )}
-          </td>
-        </tr>`;
-
+        `<tr><td colspan="5">Erro: ${escapeHtml(err.message)}</td></tr>`;
     }
-
   }
-
 
   // =========================================================
   // ADICIONAR CATEGORIA
   // =========================================================
 
   const btnAddCategoria =
-    document.getElementById(
-      'btnAddCategoria'
-    );
-
+    document.getElementById('btnAddCategoria');
 
   if (btnAddCategoria) {
 
     btnAddCategoria.addEventListener(
       'click',
-      async () => {
+      async function () {
 
         const nome =
           document
-            .getElementById(
-              'novaCategoriaNome'
-            )
+            .getElementById('novaCategoriaNome')
             .value
             .trim();
-
 
         const icone_url =
           document
-            .getElementById(
-              'novaCategoriaIcone'
-            )
+            .getElementById('novaCategoriaIcone')
             .value
             .trim();
-
 
         if (!nome) {
 
@@ -1008,9 +629,7 @@
           );
 
           return;
-
         }
-
 
         try {
 
@@ -1024,31 +643,22 @@
                   'application/json'
               },
 
-              body:
-                JSON.stringify({
-                  nome,
-                  icone_url
-                })
+              body: JSON.stringify({
+                nome,
+                icone_url
+              })
             }
           );
 
-
           document
-            .getElementById(
-              'novaCategoriaNome'
-            )
+            .getElementById('novaCategoriaNome')
             .value = '';
 
-
           document
-            .getElementById(
-              'novaCategoriaIcone'
-            )
+            .getElementById('novaCategoriaIcone')
             .value = '';
-
 
           await carregarCategorias();
-
 
         } catch (err) {
 
@@ -1057,165 +667,433 @@
             err
           );
 
-
-          alert(
-            err.message
-          );
-
+          alert(err.message);
         }
-
       }
     );
-
   }
-
 
   // =========================================================
   // BLOG
   // =========================================================
 
   const btnSalvarArtigo =
-    document.getElementById(
-      'btnSalvarArtigo'
+    document.getElementById('btnSalvarArtigo');
+
+  const erroBlog =
+    document.getElementById('erroBlog');
+
+  // =========================================================
+  // EDITOR DE BLOG
+  // =========================================================
+
+  const editor =
+    document.getElementById('blogConteudoEditor');
+
+  const campoConteudo =
+    document.getElementById('blogConteudo');
+
+  // =========================================================
+  // CONFIGURA O EDITOR
+  // =========================================================
+
+  function configurarEditor() {
+
+    if (!editor) {
+      console.warn(
+        '[blog] Editor #blogConteudoEditor não encontrado.'
+      );
+
+      return;
+    }
+
+    editor.setAttribute(
+      'contenteditable',
+      'true'
     );
 
+    editor.setAttribute(
+      'spellcheck',
+      'true'
+    );
+
+    editor.setAttribute(
+      'data-placeholder',
+      'Digite o conteúdo do artigo aqui...'
+    );
+
+    // -------------------------------------------------------
+    // BOTÕES DO EDITOR
+    // -------------------------------------------------------
+
+    document
+      .querySelectorAll('[data-editor-command]')
+      .forEach(function (btn) {
+
+        btn.addEventListener('click', function () {
+
+          const command =
+            btn.dataset.editorCommand;
+
+          if (command === 'createLink') {
+
+            const url =
+              prompt(
+                'Digite a URL do link:'
+              );
+
+            if (!url) {
+              return;
+            }
+
+            document.execCommand(
+              'createLink',
+              false,
+              url
+            );
+
+            return;
+          }
+
+          if (command === 'insertImage') {
+
+            const url =
+              prompt(
+                'Digite a URL da imagem:'
+              );
+
+            if (!url) {
+              return;
+            }
+
+            document.execCommand(
+              'insertImage',
+              false,
+              url
+            );
+
+            return;
+          }
+
+          document.execCommand(
+            command,
+            false,
+            null
+          );
+
+          editor.focus();
+        });
+      });
+
+    // -------------------------------------------------------
+    // SELECT DE FORMATAÇÃO
+    // -------------------------------------------------------
+
+    const selectFormato =
+      document.getElementById('blogFormato');
+
+    if (selectFormato) {
+
+      selectFormato.addEventListener(
+        'change',
+        function () {
+
+          const valor =
+            selectFormato.value;
+
+          if (!valor) {
+            return;
+          }
+
+          document.execCommand(
+            'formatBlock',
+            false,
+            valor
+          );
+
+          editor.focus();
+
+          selectFormato.value = '';
+        }
+      );
+    }
+
+    // -------------------------------------------------------
+    // SINCRONIZA EDITOR COM TEXTAREA OCULTO
+    // -------------------------------------------------------
+
+    editor.addEventListener(
+      'input',
+      sincronizarConteudo
+    );
+
+    editor.addEventListener(
+      'blur',
+      sincronizarConteudo
+    );
+  }
+
+  // =========================================================
+  // SINCRONIZAR CONTEÚDO
+  // =========================================================
+
+  function sincronizarConteudo() {
+
+    if (!editor || !campoConteudo) {
+      return;
+    }
+
+    campoConteudo.value =
+      editor.innerHTML;
+  }
+
+  // =========================================================
+  // INSERIR IMAGEM
+  // =========================================================
+
+  function inserirImagem(url, alt) {
+
+    if (!editor || !url) {
+      return;
+    }
+
+    editor.focus();
+
+    const imagem =
+      document.createElement('img');
+
+    imagem.src = url;
+
+    imagem.alt =
+      alt ||
+      'Imagem do artigo';
+
+    imagem.style.maxWidth =
+      '100%';
+
+    imagem.style.height =
+      'auto';
+
+    imagem.style.display =
+      'block';
+
+    imagem.style.margin =
+      '20px auto';
+
+    const selecao =
+      window.getSelection();
+
+    if (
+      selecao &&
+      selecao.rangeCount > 0
+    ) {
+
+      const range =
+        selecao.getRangeAt(0);
+
+      range.deleteContents();
+
+      range.insertNode(imagem);
+
+      range.setStartAfter(imagem);
+
+      range.collapse(true);
+
+      selecao.removeAllRanges();
+
+      selecao.addRange(range);
+
+    } else {
+
+      editor.appendChild(imagem);
+
+    }
+
+    sincronizarConteudo();
+  }
+
+  // =========================================================
+  // BOTÃO INSERIR IMAGEM
+  // =========================================================
+
+  const btnInserirImagem =
+    document.getElementById(
+      'btnInserirImagem'
+    );
+
+  if (btnInserirImagem) {
+
+    btnInserirImagem.addEventListener(
+      'click',
+      function () {
+
+        const url =
+          prompt(
+            'Digite a URL da imagem:'
+          );
+
+        if (!url) {
+          return;
+        }
+
+        const alt =
+          prompt(
+            'Digite uma descrição para a imagem:'
+          ) ||
+          'Imagem do artigo';
+
+        inserirImagem(
+          url.trim(),
+          alt.trim()
+        );
+      }
+    );
+  }
+
+  // =========================================================
+  // INSERIR LINK
+  // =========================================================
+
+  const btnInserirLink =
+    document.getElementById(
+      'btnInserirLink'
+    );
+
+  if (btnInserirLink) {
+
+    btnInserirLink.addEventListener(
+      'click',
+      function () {
+
+        if (!editor) {
+          return;
+        }
+
+        editor.focus();
+
+        const selecao =
+          window.getSelection();
+
+        const textoSelecionado =
+          selecao
+            ? selecao.toString()
+            : '';
+
+        const url =
+          prompt(
+            'Digite a URL do link:'
+          );
+
+        if (!url) {
+          return;
+        }
+
+        document.execCommand(
+          'createLink',
+          false,
+          url.trim()
+        );
+
+        if (!textoSelecionado) {
+          alert(
+            'Selecione um texto no editor antes de criar o link.'
+          );
+        }
+
+        sincronizarConteudo();
+      }
+    );
+  }
+
+  // =========================================================
+  // SALVAR ARTIGO
+  // =========================================================
 
   if (btnSalvarArtigo) {
 
     btnSalvarArtigo.addEventListener(
       'click',
-      async () => {
-
-        console.log(
-          '[blog] Salvando artigo...'
-        );
-
-
-        const erroBlog =
-          document.getElementById(
-            'erroBlog'
-          );
-
+      async function () {
 
         if (erroBlog) {
-
-          erroBlog.textContent =
-            '';
-
+          erroBlog.textContent = '';
         }
 
+        // ---------------------------------------------------
+        // CAMPOS
+        // ---------------------------------------------------
 
         const titulo =
-          getValue(
-            'blogTitulo'
-          );
-
+          document
+            .getElementById('blogTitulo')
+            .value
+            .trim();
 
         const resumo =
-          getValue(
-            'blogResumo'
-          );
-
+          document
+            .getElementById('blogResumo')
+            .value
+            .trim();
 
         const capa =
-          getValue(
-            'blogCapa'
-          );
+          document
+            .getElementById('blogCapa')
+            .value
+            .trim();
 
+        // ---------------------------------------------------
+        // PEGA O CONTEÚDO DO EDITOR
+        // ---------------------------------------------------
 
-        // =====================================================
-        // NOVO EDITOR VISUAL
-        //
-        // O próximo index.html terá:
-        //
-        // <div id="blogConteudoEditor"></div>
-        //
-        // O conteúdo HTML será obtido daqui.
-        // =====================================================
+        sincronizarConteudo();
 
-        let conteudo =
-          '';
-
-
-        const editor =
-          document.getElementById(
-            'blogConteudoEditor'
-          );
-
-
-        if (editor) {
-
-          conteudo =
-            editor.innerHTML.trim();
-
-        } else {
-
-          // Compatibilidade temporária
-          // com o textarea antigo.
-
-          conteudo =
-            getValue(
-              'blogConteudo'
-            );
-
-        }
-
-
-        const publicadoElement =
-          document.getElementById(
-            'blogPublicado'
-          );
-
+        const conteudo =
+          editor
+            ? editor.innerHTML.trim()
+            : (
+                campoConteudo
+                  ? campoConteudo.value.trim()
+                  : ''
+              );
 
         const publicado =
-          publicadoElement
-            ? publicadoElement.checked
-            : true;
+          document
+            .getElementById('blogPublicado')
+            .checked;
 
-
-        // =====================================================
+        // ---------------------------------------------------
         // VALIDAÇÃO
-        // =====================================================
+        // ---------------------------------------------------
 
         if (!titulo) {
 
           if (erroBlog) {
-
             erroBlog.textContent =
               'Digite o título do artigo.';
-
           }
 
           return;
-
         }
-
 
         if (!conteudo) {
 
           if (erroBlog) {
-
             erroBlog.textContent =
               'Digite o conteúdo do artigo.';
-
           }
 
           return;
-
         }
 
-
-        // =====================================================
+        // ---------------------------------------------------
         // EVITA DUPLO CLIQUE
-        // =====================================================
+        // ---------------------------------------------------
 
         btnSalvarArtigo.disabled =
           true;
 
-
         btnSalvarArtigo.textContent =
           'Salvando...';
-
 
         try {
 
@@ -1223,7 +1101,6 @@
             '[blog] Enviando artigo para:',
             `${API}/api/blog`
           );
-
 
           const resultado =
             await apiFetch(
@@ -1236,43 +1113,65 @@
                     'application/json'
                 },
 
-                body:
-                  JSON.stringify({
+                body: JSON.stringify({
 
-                    titulo,
+                  titulo,
 
-                    resumo,
+                  resumo,
 
-                    capa_url:
-                      capa,
+                  capa_url:
+                    capa,
 
-                    // IMPORTANTE:
-                    // envia HTML do editor
-                    conteudo,
+                  conteudo,
 
-                    publicado
+                  publicado
 
-                  })
+                })
               }
             );
-
 
           console.log(
             '[blog] Artigo salvo:',
             resultado
           );
 
-
           alert(
             'Artigo salvo com sucesso!'
           );
 
+          // -------------------------------------------------
+          // LIMPA FORMULÁRIO
+          // -------------------------------------------------
 
-          limparFormularioBlog();
+          document
+            .getElementById('blogTitulo')
+            .value = '';
 
+          document
+            .getElementById('blogResumo')
+            .value = '';
+
+          document
+            .getElementById('blogCapa')
+            .value = '';
+
+          if (editor) {
+            editor.innerHTML = '';
+          }
+
+          if (campoConteudo) {
+            campoConteudo.value = '';
+          }
+
+          document
+            .getElementById('blogPublicado')
+            .checked = true;
+
+          // -------------------------------------------------
+          // ATUALIZA LISTA
+          // -------------------------------------------------
 
           await carregarArtigos();
-
 
         } catch (err) {
 
@@ -1281,115 +1180,26 @@
             err
           );
 
-
           if (erroBlog) {
-
             erroBlog.textContent =
               err.message ||
               'Erro ao salvar artigo.';
-
           }
-
 
         } finally {
 
           btnSalvarArtigo.disabled =
             false;
 
-
           btnSalvarArtigo.textContent =
             'Salvar artigo';
-
         }
-
       }
     );
-
   }
 
-
   // =========================================================
-  // LIMPAR FORMULÁRIO DO BLOG
-  // =========================================================
-
-  function limparFormularioBlog() {
-
-    const ids = [
-      'blogTitulo',
-      'blogResumo',
-      'blogCapa'
-    ];
-
-
-    ids.forEach(
-      (id) => {
-
-        const element =
-          document.getElementById(
-            id
-          );
-
-
-        if (element) {
-
-          element.value =
-            '';
-
-        }
-
-      }
-    );
-
-
-    const editor =
-      document.getElementById(
-        'blogConteudoEditor'
-      );
-
-
-    if (editor) {
-
-      editor.innerHTML =
-        '';
-
-    }
-
-
-    // Compatibilidade
-    // com textarea antigo.
-
-    const textarea =
-      document.getElementById(
-        'blogConteudo'
-      );
-
-
-    if (textarea) {
-
-      textarea.value =
-        '';
-
-    }
-
-
-    const publicado =
-      document.getElementById(
-        'blogPublicado'
-      );
-
-
-    if (publicado) {
-
-      publicado.checked =
-        true;
-
-    }
-
-  }
-
-
-  // =========================================================
-  // BLOG - CARREGAR ARTIGOS
+  // CARREGAR ARTIGOS
   // =========================================================
 
   async function carregarArtigos() {
@@ -1399,13 +1209,9 @@
         'listaArtigos'
       );
 
-
     if (!tbody) {
-
       return;
-
     }
-
 
     try {
 
@@ -1413,160 +1219,131 @@
         '[blog] Carregando artigos...'
       );
 
-
       const artigos =
         await apiFetch(
           '/api/blog/admin/todos'
         );
 
-
-      if (
-        !Array.isArray(
-          artigos
-        )
-      ) {
+      if (!Array.isArray(artigos)) {
 
         tbody.innerHTML =
           '<tr><td colspan="5">Nenhum artigo cadastrado.</td></tr>';
 
         return;
-
       }
 
-
       tbody.innerHTML =
-        artigos
-          .map(
-            (artigo) => {
+        artigos.map(function (artigo) {
 
-              const status =
-                artigo.publicado
-                  ? 'Publicado'
-                  : 'Rascunho';
+          const status =
+            artigo.publicado
+              ? 'Publicado'
+              : 'Rascunho';
 
+          return `
 
-              return `
+            <tr>
 
-                <tr>
+              <td>
+                ${escapeHtml(String(artigo.id))}
+              </td>
 
-                  <td>
-                    ${artigo.id}
-                  </td>
+              <td>
+                ${escapeHtml(artigo.titulo || '')}
+              </td>
 
-                  <td>
-                    ${escapeHtml(
-                      artigo.titulo || ''
-                    )}
-                  </td>
+              <td>
 
-                  <td>
+                <span class="badge badge--${
+                  artigo.publicado
+                    ? 'ativo'
+                    : 'pendente'
+                }">
 
-                    <span
-                      class="badge badge--${
-                        artigo.publicado
-                          ? 'ativo'
-                          : 'pendente'
-                      }"
-                    >
+                  ${status}
 
-                      ${status}
+                </span>
 
-                    </span>
+              </td>
 
-                  </td>
+              <td>
+                ${
+                  escapeHtml(
+                    String(
+                      artigo.criado_em ||
+                      artigo.created_at ||
+                      '-'
+                    )
+                  )
+                }
+              </td>
 
-                  <td>
-                    ${
-                      escapeHtml(
-                        artigo.criado_em ||
-                        artigo.created_at ||
-                        '-'
-                      )
-                    }
-                  </td>
+              <td>
 
-                  <td>
+                <button
+                  class="btn btn--excluir"
+                  data-blog-id="${escapeHtml(String(artigo.id))}">
+                  Excluir
+                </button>
 
-                    <button
-                      class="btn btn--excluir"
-                      data-blog-id="${artigo.id}"
-                    >
-                      Excluir
-                    </button>
+              </td>
 
-                  </td>
+            </tr>
 
-                </tr>
+          `;
 
-              `;
-
-            }
-          )
-          .join('') ||
+        }).join('') ||
 
         '<tr><td colspan="5">Nenhum artigo cadastrado.</td></tr>';
-
 
       tbody
         .querySelectorAll(
           'button[data-blog-id]'
         )
-        .forEach(
-          (btn) => {
+        .forEach(function (btn) {
 
-            btn.addEventListener(
-              'click',
-              async () => {
+          btn.addEventListener(
+            'click',
+            async function () {
 
-                if (
-                  !confirm(
-                    'Excluir este artigo?'
-                  )
-                ) {
-
-                  return;
-
-                }
-
-
-                try {
-
-                  await apiFetch(
-                    `/api/blog/${btn.dataset.blogId}`,
-                    {
-                      method: 'DELETE'
-                    }
-                  );
-
-
-                  alert(
-                    'Artigo excluído com sucesso!'
-                  );
-
-
-                  await carregarArtigos();
-
-
-                } catch (err) {
-
-                  console.error(
-                    '[blog] Erro ao excluir:',
-                    err
-                  );
-
-
-                  alert(
-                    err.message
-                  );
-
-                }
-
+              if (
+                !confirm(
+                  'Excluir este artigo?'
+                )
+              ) {
+                return;
               }
-            );
 
-          }
-        );
+              try {
 
+                await apiFetch(
+                  `/api/blog/${btn.dataset.blogId}`,
+                  {
+                    method: 'DELETE'
+                  }
+                );
+
+                alert(
+                  'Artigo excluído com sucesso!'
+                );
+
+                await carregarArtigos();
+
+              } catch (err) {
+
+                console.error(
+                  '[blog] Erro ao excluir:',
+                  err
+                );
+
+                alert(
+                  err.message
+                );
+              }
+            }
+          );
+
+        });
 
     } catch (err) {
 
@@ -1575,7 +1352,6 @@
         err
       );
 
-
       tbody.innerHTML = `
 
         <tr>
@@ -1583,90 +1359,41 @@
           <td colspan="5">
 
             Erro ao carregar artigos:
-            ${escapeHtml(
-              err.message
-            )}
+            ${escapeHtml(err.message)}
 
           </td>
 
         </tr>
 
       `;
-
     }
-
   }
 
-
   // =========================================================
-  // FUNÇÕES AUXILIARES
-  // =========================================================
-
-  function getValue(id) {
-
-    const element =
-      document.getElementById(
-        id
-      );
-
-
-    if (!element) {
-
-      return '';
-
-    }
-
-
-    return (
-      element.value ||
-      ''
-    ).trim();
-
-  }
-
-
-  // =========================================================
-  // SEGURANÇA
-  //
-  // Usado apenas para dados exibidos
-  // como texto nas tabelas.
-  //
-  // O conteúdo do editor do Blog NÃO passa
-  // por esta função, pois precisa manter
-  // as tags HTML de formatação.
+  // SEGURANÇA PARA TEXTO NAS TABELAS
   // =========================================================
 
   function escapeHtml(value) {
 
-    const div =
-      document.createElement(
-        'div'
-      );
-
-
-    div.textContent =
-      String(
-        value ?? ''
-      );
-
-
-    return div.innerHTML;
-
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
   }
-
 
   // =========================================================
   // INICIALIZAÇÃO
   // =========================================================
 
+  configurarEditor();
+
   console.log(
     '[admin] JavaScript administrativo carregado.'
   );
 
-
-  if (
-    getToken()
-  ) {
+  if (getToken()) {
 
     mostrarAdmin();
 
