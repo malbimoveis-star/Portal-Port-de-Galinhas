@@ -31,7 +31,7 @@
     .blog-titulo {
       color: var(--azul-primario, #0a5c8a);
       margin: 0 0 10px;
-      font-size: 2.2rem;
+      font-size: 2rem;
     }
 
     .blog-subtitulo {
@@ -39,19 +39,22 @@
       margin: 0 0 30px;
     }
 
+    /* =====================================================
+       GRID
+    ===================================================== */
+
     .blog-grid {
       display: grid;
-      grid-template-columns:
-        repeat(
-          auto-fill,
-          minmax(280px, 1fr)
-        );
+      grid-template-columns: repeat(
+        auto-fill,
+        minmax(260px, 1fr)
+      );
 
       gap: 24px;
     }
 
     /* =====================================================
-       CARD DO ARTIGO
+       CARD
     ===================================================== */
 
     .blog-card {
@@ -68,8 +71,8 @@
       color: inherit;
 
       box-shadow:
-        0 3px 12px
-        rgba(0, 0, 0, 0.10);
+        0 2px 10px
+        rgba(0, 0, 0, 0.08);
 
       transition:
         transform 0.2s ease,
@@ -77,22 +80,21 @@
     }
 
     .blog-card:hover {
-      transform:
-        translateY(-4px);
+      transform: translateY(-4px);
 
       box-shadow:
         0 8px 22px
-        rgba(0, 0, 0, 0.15);
+        rgba(0, 0, 0, 0.14);
     }
 
     /* =====================================================
-       IMAGEM DE CAPA
+       IMAGEM DA CAPA
     ===================================================== */
 
     .blog-card-imagem {
       width: 100%;
 
-      height: 210px;
+      height: 190px;
 
       object-fit: cover;
 
@@ -102,13 +104,13 @@
     }
 
     /* =====================================================
-       QUANDO NÃO EXISTE IMAGEM
+       QUANDO NÃO TEM IMAGEM
     ===================================================== */
 
     .blog-card-sem-imagem {
       width: 100%;
 
-      height: 210px;
+      height: 190px;
 
       display: flex;
 
@@ -116,9 +118,15 @@
 
       justify-content: center;
 
+      padding: 24px;
+
       text-align: center;
 
-      padding: 25px;
+      color: #ffffff;
+
+      font-size: 1.1rem;
+
+      font-weight: bold;
 
       background:
         linear-gradient(
@@ -126,12 +134,6 @@
           #0a5c8a,
           #1385bd
         );
-
-      color: #ffffff;
-
-      font-size: 1.15rem;
-
-      font-weight: bold;
     }
 
     /* =====================================================
@@ -146,12 +148,9 @@
       margin: 0 0 10px;
 
       color:
-        var(
-          --azul-primario,
-          #0a5c8a
-        );
+        var(--azul-primario, #0a5c8a);
 
-      font-size: 1.15rem;
+      font-size: 1.1rem;
 
       line-height: 1.35;
     }
@@ -163,53 +162,46 @@
 
       font-size: 0.95rem;
 
-      line-height: 1.55;
+      line-height: 1.5;
     }
 
     /* =====================================================
-       MENSAGEM VAZIA
+       ESTADOS
     ===================================================== */
 
-    .blog-vazio {
+    .blog-mensagem {
       color: #55707f;
 
       padding: 30px 0;
 
-      font-size: 1rem;
+      text-align: center;
     }
-
-    /* =====================================================
-       ERRO
-    ===================================================== */
 
     .blog-erro {
       color: #b42318;
 
       padding: 30px 0;
+
+      text-align: center;
     }
 
     /* =====================================================
        RESPONSIVO
     ===================================================== */
 
-    @media (max-width: 700px) {
+    @media (max-width: 600px) {
 
       .blog-principal {
         padding:
-          30px 15px 60px;
+          30px 16px 60px;
       }
 
       .blog-titulo {
-        font-size: 1.8rem;
+        font-size: 1.7rem;
       }
 
       .blog-grid {
         grid-template-columns: 1fr;
-      }
-
-      .blog-card-imagem,
-      .blog-card-sem-imagem {
-        height: 200px;
       }
 
     }
@@ -250,33 +242,27 @@
     </p>
 
 
-    <!-- LISTA DOS ARTIGOS -->
-
     <div
       id="lista"
       class="blog-grid"
     ></div>
 
 
-    <!-- MENSAGEM QUANDO NÃO HÁ ARTIGOS -->
-
     <p
       id="vazio"
-      class="blog-vazio"
-      data-i18n="blog.vazio"
+      class="blog-mensagem"
       style="display: none;"
+      data-i18n="blog.vazio"
     >
       Ainda não temos artigos publicados.
     </p>
 
 
-    <!-- MENSAGEM DE ERRO -->
-
     <p
       id="erro"
       class="blog-erro"
-      data-i18n="blog.erro"
       style="display: none;"
+      data-i18n="blog.erro"
     >
       Não foi possível carregar os artigos agora.
     </p>
@@ -292,13 +278,22 @@
 
 
   <!-- =====================================================
-       JAVASCRIPT
+       LAYOUT
+  ===================================================== -->
+
+  <script src="../js/layout.js"></script>
+
+
+  <!-- =====================================================
+       I18N
   ===================================================== -->
 
   <script src="../js/i18n.js"></script>
 
-  <script src="../js/layout.js"></script>
 
+  <!-- =====================================================
+       BLOG
+  ===================================================== -->
 
   <script>
 
@@ -349,57 +344,28 @@
 
 
     // =====================================================
-    // TRADUÇÃO
-    // =====================================================
-
-    function traduzir(chave, padrao) {
-
-      if (
-        window.i18nPortal &&
-        typeof window.i18nPortal.t === 'function'
-      ) {
-
-        const valor =
-          window.i18nPortal.t(chave);
-
-        if (
-          valor &&
-          valor !== chave
-        ) {
-          return valor;
-        }
-
-      }
-
-      return padrao;
-
-    }
-
-
-    // =====================================================
     // CARREGAR ARTIGOS
     // =====================================================
 
     async function carregarBlog() {
 
       const lista =
-        document.getElementById('lista');
+        document.getElementById(
+          'lista'
+        );
 
       const vazio =
-        document.getElementById('vazio');
+        document.getElementById(
+          'vazio'
+        );
 
       const erro =
-        document.getElementById('erro');
+        document.getElementById(
+          'erro'
+        );
 
 
       try {
-
-        vazio.style.display =
-          'none';
-
-        erro.style.display =
-          'none';
-
 
         const resposta =
           await fetch(
@@ -412,7 +378,7 @@
         ) {
 
           throw new Error(
-            'Erro ao carregar artigos'
+            'Erro ao carregar artigos.'
           );
 
         }
@@ -428,13 +394,14 @@
         );
 
 
+        // =================================================
+        // NENHUM ARTIGO
+        // =================================================
+
         if (
           !Array.isArray(artigos) ||
           artigos.length === 0
         ) {
-
-          lista.innerHTML =
-            '';
 
           vazio.style.display =
             'block';
@@ -444,15 +411,14 @@
         }
 
 
+        // =================================================
+        // MONTAR CARDS
+        // =================================================
+
         lista.innerHTML =
           artigos
             .map(
               function (artigo) {
-
-                const id =
-                  encodeURIComponent(
-                    artigo.id
-                  );
 
 
                 const titulo =
@@ -469,24 +435,31 @@
                   );
 
 
-                /*
-                 * A CAPA É A PRIMEIRA IMAGEM
-                 * CADASTRADA NO CAMPO capa_url.
-                 */
-
                 const capa =
                   artigo.capa_url
                     ? String(
                         artigo.capa_url
-                      ).trim()
+                      )
                     : '';
 
+
+                const id =
+                  encodeURIComponent(
+                    artigo.id
+                  );
+
+
+                // =========================================
+                // IMAGEM
+                // =========================================
 
                 let imagemHtml =
                   '';
 
 
-                if (capa) {
+                if (
+                  capa
+                ) {
 
                   imagemHtml = `
 
@@ -525,14 +498,19 @@
                 }
 
 
+                // =========================================
+                // CARD
+                // =========================================
+
                 return `
 
                   <a
                     class="blog-card"
-                    href="/artigo?id=${id}"
+                    href="artigo.html?id=${id}"
                   >
 
                     ${imagemHtml}
+
 
                     <div
                       class="blog-card-conteudo"
@@ -544,14 +522,17 @@
                         ${titulo}
                       </h2>
 
+
                       ${
                         resumo
                           ? `
+
                             <p
                               class="blog-card-resumo"
                             >
                               ${resumo}
                             </p>
+
                           `
                           : ''
                       }
@@ -569,17 +550,12 @@
 
       } catch (err) {
 
+
         console.error(
           '[BLOG] Erro ao carregar:',
           err
         );
 
-
-        lista.innerHTML =
-          '';
-
-        vazio.style.display =
-          'none';
 
         erro.style.display =
           'block';
@@ -597,39 +573,10 @@
       'DOMContentLoaded',
       function () {
 
-        /*
-         * O layout.js monta o header,
-         * o rodapé e inicializa o i18n.
-         *
-         * O blog espera o evento
-         * i18n:aplicado antes de carregar.
-         */
-
-        if (
-          window.i18nPortal
-        ) {
-
-          document.addEventListener(
-            'i18n:aplicado',
-            function () {
-
-              carregarBlog();
-
-            },
-            {
-              once: true
-            }
-          );
-
-        } else {
-
-          carregarBlog();
-
-        }
+        carregarBlog();
 
       }
     );
-
 
   </script>
 
