@@ -201,7 +201,6 @@
     <main>
 
 
-
       <!-- ===============================================
            ANÚNCIOS PENDENTES
       ================================================ -->
@@ -478,7 +477,7 @@
 
 
           <p>
-            Crie artigos com títulos, textos, links e imagens.
+            Crie artigos completos usando o editor visual.
           </p>
 
 
@@ -492,69 +491,23 @@
           <div class="blog-form">
 
 
-
             <!-- =========================================
-                 TÍTULO
+                 TÍTULO DO ARTIGO
             ========================================== -->
 
             <div class="campo">
 
 
               <label for="blogTitulo">
-                Título
+                Título do artigo
               </label>
 
 
               <input
                 type="text"
                 id="blogTitulo"
-                placeholder="Título do artigo"
-              >
-
-
-            </div>
-
-
-
-            <!-- =========================================
-                 RESUMO
-            ========================================== -->
-
-            <div class="campo">
-
-
-              <label for="blogResumo">
-                Resumo
-              </label>
-
-
-              <textarea
-                id="blogResumo"
-                rows="4"
-                placeholder="Resumo do artigo"
-              ></textarea>
-
-
-            </div>
-
-
-
-            <!-- =========================================
-                 CAPA
-            ========================================== -->
-
-            <div class="campo">
-
-
-              <label for="blogCapa">
-                URL da capa
-              </label>
-
-
-              <input
-                type="text"
-                id="blogCapa"
-                placeholder="https://..."
+                placeholder="Digite o título do artigo"
+                autocomplete="off"
               >
 
 
@@ -569,7 +522,7 @@
             <div class="campo">
 
 
-              <label for="blogConteudo">
+              <label>
                 Conteúdo do artigo
               </label>
 
@@ -585,31 +538,37 @@
               >
 
 
+                <!-- H1 -->
+
                 <button
                   type="button"
                   class="editor-btn"
                   data-editor-action="h1"
-                  title="Título H1"
+                  title="Título principal"
                 >
                   H1
                 </button>
 
 
+                <!-- H2 -->
+
                 <button
                   type="button"
                   class="editor-btn"
                   data-editor-action="h2"
-                  title="Título H2"
+                  title="Subtítulo"
                 >
                   H2
                 </button>
 
 
+                <!-- H3 -->
+
                 <button
                   type="button"
                   class="editor-btn"
                   data-editor-action="h3"
-                  title="Título H3"
+                  title="Título de seção"
                 >
                   H3
                 </button>
@@ -617,6 +576,8 @@
 
                 <span class="editor-separador"></span>
 
+
+                <!-- NEGRITO -->
 
                 <button
                   type="button"
@@ -627,6 +588,8 @@
                   <strong>B</strong>
                 </button>
 
+
+                <!-- ITÁLICO -->
 
                 <button
                   type="button"
@@ -641,6 +604,8 @@
                 <span class="editor-separador"></span>
 
 
+                <!-- LINK -->
+
                 <button
                   type="button"
                   class="editor-btn"
@@ -651,6 +616,8 @@
                 </button>
 
 
+                <!-- UMA IMAGEM -->
+
                 <button
                   type="button"
                   class="editor-btn"
@@ -660,6 +627,8 @@
                   🖼️ Imagem
                 </button>
 
+
+                <!-- VÁRIAS IMAGENS -->
 
                 <button
                   type="button"
@@ -674,21 +643,25 @@
                 <span class="editor-separador"></span>
 
 
+                <!-- PARÁGRAFO -->
+
                 <button
                   type="button"
                   class="editor-btn"
                   data-editor-action="paragraph"
-                  title="Parágrafo"
+                  title="Transformar em parágrafo"
                 >
                   ¶ Parágrafo
                 </button>
 
 
+                <!-- CITAÇÃO -->
+
                 <button
                   type="button"
                   class="editor-btn"
                   data-editor-action="quote"
-                  title="Citação"
+                  title="Transformar em citação"
                 >
                   ❝ Citação
                 </button>
@@ -708,13 +681,13 @@
                 contenteditable="true"
                 role="textbox"
                 aria-multiline="true"
-                data-placeholder="Digite o conteúdo do artigo aqui..."
+                data-placeholder="Escreva seu artigo aqui..."
               ></div>
 
 
 
               <!-- =======================================
-                   MENU BOTÃO DIREITO
+                   MENU DO BOTÃO DIREITO
               ======================================== -->
 
               <div
@@ -722,6 +695,8 @@
                 class="editor-context-menu escondido"
               >
 
+
+                <!-- H1 -->
 
                 <button
                   type="button"
@@ -731,6 +706,8 @@
                 </button>
 
 
+                <!-- H2 -->
+
                 <button
                   type="button"
                   data-context-action="h2"
@@ -738,6 +715,8 @@
                   H2 - Subtítulo
                 </button>
 
+
+                <!-- H3 -->
 
                 <button
                   type="button"
@@ -750,24 +729,32 @@
                 <div class="context-separador"></div>
 
 
+                <!-- NEGRITO -->
+
                 <button
                   type="button"
                   data-context-action="bold"
                 >
-                  <strong>B</strong> Negrito
+                  <strong>B</strong>
+                  Negrito
                 </button>
 
+
+                <!-- ITÁLICO -->
 
                 <button
                   type="button"
                   data-context-action="italic"
                 >
-                  <em>I</em> Itálico
+                  <em>I</em>
+                  Itálico
                 </button>
 
 
                 <div class="context-separador"></div>
 
+
+                <!-- LINK -->
 
                 <button
                   type="button"
@@ -777,6 +764,8 @@
                 </button>
 
 
+                <!-- IMAGEM -->
+
                 <button
                   type="button"
                   data-context-action="image"
@@ -784,6 +773,8 @@
                   🖼️ Inserir imagem
                 </button>
 
+
+                <!-- VÁRIAS IMAGENS -->
 
                 <button
                   type="button"
@@ -796,6 +787,8 @@
                 <div class="context-separador"></div>
 
 
+                <!-- PARÁGRAFO -->
+
                 <button
                   type="button"
                   data-context-action="paragraph"
@@ -803,6 +796,8 @@
                   ¶ Transformar em parágrafo
                 </button>
 
+
+                <!-- CITAÇÃO -->
 
                 <button
                   type="button"
@@ -816,12 +811,18 @@
 
 
 
+              <!-- =======================================
+                   AJUDA DO EDITOR
+              ======================================== -->
+
               <small class="editor-ajuda">
 
                 💡
-                Você pode selecionar um texto e usar a barra acima.
-                Também pode clicar com o botão direito dentro do editor
-                para abrir as opções de formatação.
+                Selecione um texto para aplicar formatação.
+                Use a barra de ferramentas para inserir títulos,
+                links, imagens e outros elementos.
+                Você também pode clicar com o botão direito
+                dentro do editor para abrir as opções de formatação.
 
               </small>
 
