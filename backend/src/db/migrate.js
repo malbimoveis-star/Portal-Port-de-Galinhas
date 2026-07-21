@@ -130,8 +130,7 @@ function migrate() {
     }
   ];
 
-  const updateFotos = db.prepare(
-    `
+  const updateFotos = db.prepare(`
     UPDATE anuncios
     SET fotos = ?
     WHERE titulo = ?
@@ -139,8 +138,7 @@ function migrate() {
         fotos LIKE '%placeholder%'
         OR fotos LIKE '%destaque-%'
       )
-    `
-  );
+  `);
 
   for (const item of correcoesFotos) {
     updateFotos.run(
@@ -157,7 +155,11 @@ function migrate() {
     CREATE TABLE IF NOT EXISTS artigos (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
 
-      slug TEXT NOT NULL UNIQUE,
+      titulo TEXT NOT NULL,
+
+      resumo TEXT DEFAULT '',
+
+      conteudo TEXT NOT NULL,
 
       capa_url TEXT,
 
@@ -170,6 +172,66 @@ function migrate() {
         DEFAULT (datetime('now'))
     );
   `);
+
+  // =========================================================
+  // CORREÇÃO DA TABELA ARTIGOS EXISTENTE
+  // =========================================================
+
+  const colunasArtigos = db
+    .prepare('PRAGMA table_info(artigos)')
+    .all()
+    .map((c) => c.name);
+
+  if (!colunasArtigos.includes('titulo')) {
+    db.exec(`
+      ALTER TABLE artigos
+      ADD COLUMN titulo TEXT NOT NULL DEFAULT '';
+    `);
+  }
+
+  if (!colunasArtigos.includes('resumo')) {
+    db.exec(`
+      ALTER TABLE artigos
+      ADD COLUMN resumo TEXT DEFAULT '';
+    `);
+  }
+
+  if (!colunasArtigos.includes('conteudo')) {
+    db.exec(`
+      ALTER TABLE artigos
+      ADD COLUMN conteudo TEXT NOT NULL DEFAULT '';
+    `);
+  }
+
+  if (!colunasArtigos.includes('capa_url')) {
+    db.exec(`
+      ALTER TABLE artigos
+      ADD COLUMN capa_url TEXT;
+    `);
+  }
+
+  if (!colunasArtigos.includes('publicado')) {
+    db.exec(`
+      ALTER TABLE artigos
+      ADD COLUMN publicado INTEGER NOT NULL DEFAULT 0;
+    `);
+  }
+
+  if (!colunasArtigos.includes('criado_em')) {
+    db.exec(`
+      ALTER TABLE artigos
+      ADD COLUMN criado_em TEXT NOT NULL
+        DEFAULT (datetime('now'));
+    `);
+  }
+
+  if (!colunasArtigos.includes('atualizado_em')) {
+    db.exec(`
+      ALTER TABLE artigos
+      ADD COLUMN atualizado_em TEXT NOT NULL
+        DEFAULT (datetime('now'));
+    `);
+  }
 
   // =========================================================
   // BLOG - TRADUÇÕES DOS ARTIGOS
