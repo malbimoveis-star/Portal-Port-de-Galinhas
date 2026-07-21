@@ -2,98 +2,120 @@
   "menu": {
     "home": "Accueil",
     "blog": "Blog",
-    "como_funciona": "Comment ca Marche",
+    "como_funciona": "Comment ça marche",
     "contato": "Contact",
-    "sou_comerciante": "Je suis Commercant",
-    "sou_turista": "Je suis Touriste",
+    "sou_comerciante": "Je suis commerçant",
+    "sou_turista": "Je suis touriste",
     "idioma": "Langue"
   },
+
   "categorias": {
-    "titulo": "Services & Tourisme",
-    "hoteis-pousadas": "Hotels & Auberges",
+    "titulo": "Services et Tourisme",
+    "hoteis-pousadas": "Hôtels et Auberges",
     "resorts": "Resorts",
     "passeios-de-barco": "Excursions en Bateau",
-    "buggys-traslados": "Buggies & Transferts",
-    "restaurantes-bares": "Restaurants & Bars",
-    "comercios-regionais": "Commerces Locaux",
-    "mergulho": "Plongee",
+    "buggys-traslados": "Buggys et Transferts",
+    "restaurantes-bares": "Restaurants et Bars",
+    "comercios-regionais": "Commerces Régionaux",
+    "mergulho": "Plongée",
     "jet-ski": "Jet Ski",
     "servicos-de-praia": "Services de Plage"
   },
+
   "home": {
-    "hero_titulo": "Decouvrez les Meilleures Experiences de Porto de Galinhas!",
-    "destaques_titulo": "Points Forts Premium pour Vous",
+    "hero_titulo": "Découvrez les Meilleures Expériences de Porto de Galinhas !",
+    "destaques_titulo": "Sélections Premium pour Vous",
     "saiba_mais": "En savoir plus",
-    "cta_titulo": "Restez Informe des Meilleures Options a Porto!",
-    "cta_subtitulo": "Debloquez un voyage tropical et moderne a Porto de Galinhas!",
+    "cta_titulo": "Découvrez les Meilleures Options à Porto !",
+    "cta_subtitulo": "Découvrez un voyage tropical et moderne à Porto de Galinhas !",
     "btn_sou_turista": "Je suis Touriste",
-    "btn_cadastrar_negocio": "Enregistrez votre entreprise"
+    "btn_cadastrar_negocio": "Enregistrez votre Entreprise"
   },
+
   "comerciante_pagina": {
-    "sobre": "A propos",
+    "sobre": "À propos",
     "galeria": "Galerie de Photos",
-    "localizacao": "Emplacement",
+    "localizacao": "Localisation",
     "contato": "Contact",
     "whatsapp": "WhatsApp",
-    "status_ativo": "Annonce active",
-    "status_degustacao": "Periode d'essai gratuit",
-    "status_expirado": "Cette annonce n'est actuellement pas disponible.",
-    "sem_whatsapp": "Le contact WhatsApp est disponible uniquement pour les annonceurs avec un plan actif."
+    "status_ativo": "Annonce Active",
+    "status_degustacao": "Période d'Essai Gratuite",
+    "status_expirado": "Cette annonce est actuellement indisponible.",
+    "sem_whatsapp": "Le contact par WhatsApp est disponible uniquement pour les annonceurs ayant un forfait actif."
   },
+
   "painel": {
-    "titulo": "Tableau de Bord du Commercant",
-    "plano_atual": "Plan Actuel",
+    "titulo": "Tableau de Bord du Commerçant",
+    "plano_atual": "Forfait Actuel",
     "status": "Statut",
-    "degustacao_restante": "Temps d'essai restant",
+    "degustacao_restante": "Temps d'Essai Restant",
     "dias": "jours",
     "horas": "heures",
-    "renovar_plano": "Renouveler le plan",
+    "renovar_plano": "Renouveler le Forfait",
     "meus_anuncios": "Mes Annonces",
     "novo_anuncio": "Nouvelle Annonce",
     "editar": "Modifier",
     "excluir": "Supprimer",
     "salvar": "Enregistrer",
     "cancelar": "Annuler",
-    "alerta_expirado": "Votre plan a expire. Renouvelez maintenant pour reapparaitre dans les listes publiques.",
-    "login": "Se connecter",
+    "alerta_expirado": "Votre forfait a expiré. Renouvelez-le maintenant pour réapparaître dans les listes publiques.",
+    "login": "Se Connecter",
     "cadastro": "S'inscrire",
     "email": "E-mail",
-    "senha": "Mot de passe",
+    "senha": "Mot de Passe",
     "nome": "Nom",
-    "telefone": "Telephone",
-    "sair": "Se deconnecter",
+    "telefone": "Téléphone",
+    "sair": "Se Déconnecter",
     "nao_tenho_conta": "Je n'ai pas de compte, je veux m'inscrire",
-    "ja_tenho_conta": "J'ai deja un compte, je veux me connecter"
+    "ja_tenho_conta": "J'ai déjà un compte, je veux me connecter"
   },
+
   "planos": {
     "turista": "Touriste",
-    "comerciante_basico": "Commercant Basique",
-    "comerciante_premium": "Commercant Premium",
-    "mes": "/mois","assinar": "S'abonner"
+    "comerciante_basico": "Commerçant Basique",
+    "comerciante_premium": "Commerçant Premium",
+    "mes": "/mois",
+    "assinar": "S'abonner"
   },
+
   "rodape_mobile": {
-    "cadastre_negocio": "Enregistrez votre entreprise",
-    "assine_ja": "Abonnez-vous"
+    "cadastre_negocio": "Enregistrez votre Entreprise",
+    "assine_ja": "Abonnez-vous Maintenant"
   },
+
   "rodape": {
     "termos": "Conditions d'Utilisation",
-    "privacidade": "Politique de Confidentialite",
-    "suporte": "Support 24h",
-    "direitos": "Tous droits reserves"
+    "privacidade": "Politique de Confidentialité",
+    "suporte": "Assistance 24h",
+    "direitos": "Tous droits réservés"
   },
+
   "paginas_legais": {
     "termos_titulo": "Conditions d'Utilisation",
-    "privacidade_titulo": "Politique de Confidentialite",
-    "suporte_titulo": "Support 24h"
+    "privacidade_titulo": "Politique de Confidentialité",
+    "suporte_titulo": "Assistance 24h"
   },
+
   "pagamento": {
-    "sucesso_titulo": "Paiement approuve!",
-    "sucesso_texto": "Votre paiement a ete confirme. Votre plan est maintenant actif.",
-    "pendente_titulo": "Paiement en attente",
+    "sucesso_titulo": "Paiement Approuvé !",
+    "sucesso_texto": "Votre paiement a été confirmé. Votre forfait est maintenant actif.",
+    "pendente_titulo": "Paiement en Attente",
     "pendente_texto": "Nous attendons la confirmation de votre paiement par Mercado Pago.",
-    "erro_titulo": "Paiement non termine",
-    "erro_texto": "Un probleme est survenu lors du traitement de votre paiement. Veuillez reessayer.",
-    "voltar_home": "Retour a l'Accueil",
+    "erro_titulo": "Paiement Non Effectué",
+    "erro_texto": "Un problème est survenu lors du traitement de votre paiement. Veuillez réessayer.",
+    "voltar_home": "Retour à l'Accueil",
     "ir_painel": "Aller au Tableau de Bord"
+  },
+
+  "blog": {
+    "titulo": "Blog",
+    "carregando": "Chargement des articles...",
+    "vazio": "Nous n'avons pas encore d'articles publiés.",
+    "erro": "Impossible de charger les articles pour le moment.",
+    "sem_titulo": "Sans titre",
+    "voltar": "Retour au Blog",
+    "artigo_nao_encontrado": "Article introuvable.",
+    "sem_conteudo": "Cet article ne contient pas encore de contenu.",
+    "sem_capa": "Article"
   }
 }
