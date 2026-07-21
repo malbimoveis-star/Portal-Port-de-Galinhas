@@ -1,6 +1,6 @@
 /* =========================================================
    PAINEL ADMINISTRATIVO
-   Portal Porto de Galinhas
+   PORTAL PORTO DE GALINHAS
 ========================================================= */
 
 * {
@@ -154,7 +154,9 @@ body {
 .campo textarea:focus,
 .campo select:focus {
   border-color: #0f766e;
-  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+  box-shadow:
+    0 0 0 3px
+    rgba(15, 118, 110, 0.12);
 }
 
 .campo textarea {
@@ -206,7 +208,9 @@ body {
   padding: 25px 40px;
   background: #ffffff;
   border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 2px 8px
+    rgba(0, 0, 0, 0.05);
 }
 
 .admin-header h1 {
@@ -271,7 +275,9 @@ main {
   padding: 25px;
   margin-bottom: 25px;
   border: 1px solid #e2e8f0;
-  box-shadow: 0 5px 20px rgba(15, 23, 42, 0.06);
+  box-shadow:
+    0 5px 20px
+    rgba(15, 23, 42, 0.06);
 }
 
 .card h2 {
@@ -385,7 +391,10 @@ tbody tr:hover {
 
 .form-categoria {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns:
+    1fr
+    1fr
+    auto;
   align-items: end;
   gap: 15px;
   padding: 20px;
@@ -416,6 +425,295 @@ tbody tr:hover {
 }
 
 /* =========================================================
+   BARRA DE FERRAMENTAS DO EDITOR
+========================================================= */
+
+.blog-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  padding: 10px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-bottom: none;
+  border-radius:
+    8px
+    8px
+    0
+    0;
+}
+
+.editor-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 7px 11px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #334155;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.editor-btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  transform: translateY(-1px);
+}
+
+.editor-btn:active {
+  transform: translateY(0);
+}
+
+.editor-separador {
+  display: block;
+  width: 1px;
+  height: 28px;
+  margin: 0 3px;
+  background: #cbd5e1;
+}
+
+/* =========================================================
+   EDITOR VISUAL
+========================================================= */
+
+.blog-editor {
+  width: 100%;
+  min-height: 420px;
+  max-height: 900px;
+  overflow-y: auto;
+  padding: 20px;
+  border:
+    1px solid
+    #cbd5e1;
+  border-radius:
+    0
+    0
+    8px
+    8px;
+  background: #ffffff;
+  color: #1e293b;
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  outline: none;
+  cursor: text;
+}
+
+.blog-editor:focus {
+  border-color: #0f766e;
+  box-shadow:
+    0 0 0 3px
+    rgba(15, 118, 110, 0.12);
+}
+
+/* =========================================================
+   PLACEHOLDER DO EDITOR
+========================================================= */
+
+.blog-editor:empty::before {
+  content: attr(data-placeholder);
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+/* =========================================================
+   ELEMENTOS DENTRO DO EDITOR
+========================================================= */
+
+.blog-editor h1 {
+  margin-top: 20px;
+  margin-bottom: 14px;
+  color: #0f172a;
+  font-size: 32px;
+  line-height: 1.25;
+}
+
+.blog-editor h2 {
+  margin-top: 20px;
+  margin-bottom: 12px;
+  color: #0f172a;
+  font-size: 26px;
+  line-height: 1.3;
+}
+
+.blog-editor h3 {
+  margin-top: 18px;
+  margin-bottom: 10px;
+  color: #0f172a;
+  font-size: 21px;
+  line-height: 1.35;
+}
+
+.blog-editor p {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.blog-editor strong {
+  font-weight: 700;
+}
+
+.blog-editor em {
+  font-style: italic;
+}
+
+.blog-editor a {
+  color: #0f766e;
+  text-decoration: underline;
+}
+
+.blog-editor a:hover {
+  color: #115e59;
+}
+
+.blog-editor blockquote {
+  margin:
+    20px
+    0;
+  padding:
+    12px
+    18px;
+  border-left:
+    4px
+    solid
+    #0f766e;
+  background: #f0fdfa;
+  color: #475569;
+  font-style: italic;
+}
+
+.blog-editor img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin:
+    20px
+    auto;
+  border-radius: 10px;
+  box-shadow:
+    0 5px 18px
+    rgba(15, 23, 42, 0.15);
+}
+
+.blog-editor ul,
+.blog-editor ol {
+  margin:
+    12px
+    0
+    18px
+    25px;
+  padding-left: 25px;
+}
+
+.blog-editor li {
+  margin-bottom: 7px;
+}
+
+/* =========================================================
+   AJUDA DO EDITOR
+========================================================= */
+
+.editor-ajuda {
+  display: block;
+  margin-top: 9px;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   MENU DO BOTÃO DIREITO
+========================================================= */
+
+.editor-context-menu {
+  position: fixed;
+  z-index: 99999;
+  min-width: 230px;
+  padding: 6px;
+  background: #ffffff;
+  border:
+    1px solid
+    #cbd5e1;
+  border-radius: 9px;
+  box-shadow:
+    0 12px 30px
+    rgba(15, 23, 42, 0.18);
+}
+
+.editor-context-menu button {
+  display: block;
+  width: 100%;
+  padding:
+    9px
+    11px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #334155;
+  text-align: left;
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.editor-context-menu button:hover {
+  background: #f1f5f9;
+  color: #0f766e;
+}
+
+.context-separador {
+  height: 1px;
+  margin:
+    5px
+    0;
+  background: #e2e8f0;
+}
+
+/* =========================================================
+   IMAGENS INSERIDAS NO EDITOR
+========================================================= */
+
+.blog-editor img.editor-imagem {
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  display: block;
+  margin:
+    20px
+    auto;
+  border-radius: 10px;
+  object-fit: contain;
+}
+
+/* =========================================================
+   LINKS INSERIDOS NO EDITOR
+========================================================= */
+
+.blog-editor a.editor-link {
+  color: #0f766e;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+/* =========================================================
+   SELEÇÃO DO TEXTO
+========================================================= */
+
+.blog-editor ::selection {
+  background: rgba(15, 118, 110, 0.25);
+}
+
+/* =========================================================
    RESPONSIVO
 ========================================================= */
 
@@ -426,11 +724,14 @@ tbody tr:hover {
   }
 
   .tabs {
-    padding: 15px 20px;
+    padding:
+      15px
+      20px;
   }
 
   main {
-    padding: 20px;
+    padding:
+      20px;
   }
 
   .form-categoria {
@@ -439,6 +740,22 @@ tbody tr:hover {
 
   .form-categoria .campo {
     margin-bottom: 0;
+  }
+
+  .blog-toolbar {
+    gap: 5px;
+  }
+
+  .editor-btn {
+    min-height: 34px;
+    padding:
+      6px
+      9px;
+  }
+
+  .blog-editor {
+    min-height: 350px;
+    padding: 15px;
   }
 
 }
@@ -450,7 +767,9 @@ tbody tr:hover {
   }
 
   .login-card {
-    padding: 25px 20px;
+    padding:
+      25px
+      20px;
   }
 
   .admin-header {
@@ -482,6 +801,41 @@ tbody tr:hover {
   .btn--aprovar,
   .btn--rejeitar {
     margin-top: 8px;
+  }
+
+  .blog-toolbar {
+    padding: 8px;
+  }
+
+  .editor-btn {
+    flex: 0 0 auto;
+  }
+
+  .editor-separador {
+    display: none;
+  }
+
+  .blog-editor {
+    min-height: 300px;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .blog-editor h1 {
+    font-size: 27px;
+  }
+
+  .blog-editor h2 {
+    font-size: 23px;
+  }
+
+  .blog-editor h3 {
+    font-size: 19px;
+  }
+
+  .editor-context-menu {
+    min-width: 210px;
+    max-width: calc(100vw - 30px);
   }
 
 }
