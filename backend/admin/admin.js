@@ -1,304 +1,607 @@
-// Painel administrativo
-// Login + CRUD categorias + moderacao de anuncios + gerenciamento do blog
+// =========================================================
+// PAINEL ADMINISTRATIVO
+// Portal Porto de Galinhas
+//
+// Login
+// CRUD de categorias
+// Moderação de anúncios
+// Gerenciamento do Blog
+// Editor visual de artigos
+// =========================================================
+
 (function () {
   'use strict';
 
+  // =========================================================
+  // CONFIGURAÇÃO
+  // =========================================================
+
   const API = window.location.origin;
+
   const TOKEN_KEY = 'portal_admin_token';
 
-  const telaLogin = document.getElementById('telaLogin');
-  const telaAdmin = document.getElementById('telaAdmin');
-  const formLogin = document.getElementById('formLogin');
-  const erroLogin = document.getElementById('erroLogin');
-  const btnSair = document.getElementById('btnSair');
 
   // =========================================================
-  // AUTENTICACAO
+  // ELEMENTOS PRINCIPAIS
+  // =========================================================
+
+  const telaLogin =
+    document.getElementById('telaLogin');
+
+  const telaAdmin =
+    document.getElementById('telaAdmin');
+
+  const formLogin =
+    document.getElementById('formLogin');
+
+  const erroLogin =
+    document.getElementById('erroLogin');
+
+  const btnSair =
+    document.getElementById('btnSair');
+
+
+  // =========================================================
+  // AUTENTICAÇÃO
   // =========================================================
 
   function getToken() {
-    return localStorage.getItem(TOKEN_KEY);
+
+    return localStorage.getItem(
+      TOKEN_KEY
+    );
+
   }
+
 
   function setToken(token) {
-    localStorage.setItem(TOKEN_KEY, token);
+
+    localStorage.setItem(
+      TOKEN_KEY,
+      token
+    );
+
   }
+
 
   function limparToken() {
-    localStorage.removeItem(TOKEN_KEY);
+
+    localStorage.removeItem(
+      TOKEN_KEY
+    );
+
   }
+
 
   function mostrarLogin() {
-    telaLogin.classList.remove('escondido');
-    telaAdmin.classList.add('escondido');
+
+    if (telaLogin) {
+
+      telaLogin.classList.remove(
+        'escondido'
+      );
+
+    }
+
+    if (telaAdmin) {
+
+      telaAdmin.classList.add(
+        'escondido'
+      );
+
+    }
+
   }
+
 
   function mostrarAdmin() {
-    telaLogin.classList.add('escondido');
-    telaAdmin.classList.remove('escondido');
+
+    if (telaLogin) {
+
+      telaLogin.classList.add(
+        'escondido'
+      );
+
+    }
+
+    if (telaAdmin) {
+
+      telaAdmin.classList.remove(
+        'escondido'
+      );
+
+    }
 
     carregarPendentes();
+
     carregarTodos();
+
     carregarCategorias();
+
     carregarArtigos();
+
   }
 
-  async function apiFetch(path, options = {}) {
-    const token = getToken();
+
+  // =========================================================
+  // API
+  // =========================================================
+
+  async function apiFetch(
+    path,
+    options = {}
+  ) {
+
+    const token =
+      getToken();
 
     const headers = {
       ...(options.headers || {})
     };
 
+
     if (token) {
-      headers.Authorization = `Bearer ${token}`;
+
+      headers.Authorization =
+        `Bearer ${token}`;
+
     }
 
-    const resp = await fetch(`${API}${path}`, {
-      ...options,
-      headers
-    });
+
+    const resp =
+      await fetch(
+        `${API}${path}`,
+        {
+          ...options,
+          headers
+        }
+      );
+
 
     let data;
 
+
     try {
-      data = await resp.json();
+
+      data =
+        await resp.json();
+
     } catch (e) {
+
       data = {};
+
     }
 
-    if (resp.status === 401 || resp.status === 403) {
+
+    if (
+      resp.status === 401 ||
+      resp.status === 403
+    ) {
+
       limparToken();
+
       mostrarLogin();
 
       throw new Error(
-        data.erro || 'Sessao expirada. Faca login novamente.'
+        data.erro ||
+        'Sessão expirada. Faça login novamente.'
       );
+
     }
 
+
     if (!resp.ok) {
+
       throw new Error(
         data.erro ||
         data.error ||
         `Erro HTTP ${resp.status}`
       );
+
     }
 
+
     return data;
+
   }
+
 
   // =========================================================
   // LOGIN
   // =========================================================
 
   if (formLogin) {
-    formLogin.addEventListener('submit', async (e) => {
-      e.preventDefault();
 
-      erroLogin.textContent = '';
+    formLogin.addEventListener(
+      'submit',
+      async (e) => {
 
-      const usuario = document
-        .getElementById('usuario')
-        .value
-        .trim();
+        e.preventDefault();
 
-      const senha = document
-        .getElementById('senha')
-        .value;
 
-      try {
-        const resp = await fetch(`${API}/api/login`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            usuario,
-            senha
-          })
-        });
+        if (erroLogin) {
 
-        const data = await resp.json();
-
-        if (!resp.ok) {
           erroLogin.textContent =
-            data.erro || 'Credenciais invalidas.';
-          return;
+            '';
+
         }
 
-        setToken(data.token);
 
-        mostrarAdmin();
+        const usuario =
+          document
+            .getElementById(
+              'usuario'
+            )
+            .value
+            .trim();
 
-      } catch (err) {
-        console.error('[login]', err);
 
-        erroLogin.textContent =
-          'Erro ao conectar com o servidor.';
+        const senha =
+          document
+            .getElementById(
+              'senha'
+            )
+            .value;
+
+
+        try {
+
+          const resp =
+            await fetch(
+              `${API}/api/login`,
+              {
+                method: 'POST',
+
+                headers: {
+                  'Content-Type':
+                    'application/json'
+                },
+
+                body:
+                  JSON.stringify({
+                    usuario,
+                    senha
+                  })
+              }
+            );
+
+
+          const data =
+            await resp.json();
+
+
+          if (!resp.ok) {
+
+            if (erroLogin) {
+
+              erroLogin.textContent =
+                data.erro ||
+                'Credenciais inválidas.';
+
+            }
+
+            return;
+
+          }
+
+
+          if (!data.token) {
+
+            throw new Error(
+              'O servidor não retornou um token de autenticação.'
+            );
+
+          }
+
+
+          setToken(
+            data.token
+          );
+
+
+          mostrarAdmin();
+
+
+        } catch (err) {
+
+          console.error(
+            '[login]',
+            err
+          );
+
+
+          if (erroLogin) {
+
+            erroLogin.textContent =
+              'Erro ao conectar com o servidor.';
+
+          }
+
+        }
+
       }
-    });
+    );
+
   }
+
 
   // =========================================================
   // SAIR
   // =========================================================
 
   if (btnSair) {
-    btnSair.addEventListener('click', () => {
-      limparToken();
-      mostrarLogin();
-    });
+
+    btnSair.addEventListener(
+      'click',
+      () => {
+
+        limparToken();
+
+        mostrarLogin();
+
+      }
+    );
+
   }
+
 
   // =========================================================
   // TABS
   // =========================================================
 
   document
-    .querySelectorAll('.tabs button')
-    .forEach((btn) => {
+    .querySelectorAll(
+      '.tabs button'
+    )
+    .forEach(
+      (btn) => {
 
-      btn.addEventListener('click', () => {
+        btn.addEventListener(
+          'click',
+          () => {
 
-        document
-          .querySelectorAll('.tabs button')
-          .forEach((b) => {
-            b.classList.remove('ativa');
-          });
+            document
+              .querySelectorAll(
+                '.tabs button'
+              )
+              .forEach(
+                (b) => {
 
-        btn.classList.add('ativa');
+                  b.classList.remove(
+                    'ativa'
+                  );
 
-        document
-          .querySelectorAll('main section')
-          .forEach((section) => {
-            section.classList.add('escondido');
-          });
-
-        const tabId =
-          `tab${capitalize(btn.dataset.tab)}`;
-
-        const tab =
-          document.getElementById(tabId);
-
-        if (tab) {
-          tab.classList.remove('escondido');
-        }
-
-        if (btn.dataset.tab === 'blog') {
-          carregarArtigos();
-        }
-
-        if (btn.dataset.tab === 'pendentes') {
-          carregarPendentes();
-        }
-
-        if (btn.dataset.tab === 'todos') {
-          carregarTodos();
-        }
-
-        if (btn.dataset.tab === 'categorias') {
-          carregarCategorias();
-        }
-      });
-    });
-
-  function capitalize(s) {
-    return s.charAt(0).toUpperCase() + s.slice(1);
-  }
-
-  // =========================================================
-  // ANUNCIOS PENDENTES
-  // =========================================================
-
-  async function carregarPendentes() {
-    try {
-      const pendentes =
-        await apiFetch('/api/admin/anuncios');
-
-      const container =
-        document.getElementById('listaPendentes');
-
-      if (!container) {
-        return;
-      }
-
-      if (!Array.isArray(pendentes)) {
-        container.innerHTML =
-          '<p>Nenhum anuncio pendente.</p>';
-        return;
-      }
-
-      container.innerHTML =
-        pendentes.map((a) => `
-          <div style="padding:12px;border-bottom:1px solid #ddd;">
-
-            <strong>${a.titulo || ''}</strong>
-
-            <br>
-
-            Comerciante:
-            ${a.id_comerciante || '-'}
-
-            <br>
-
-            Status:
-
-            <span class="badge badge--${a.status || 'pendente'}">
-              ${a.status || '-'}
-            </span>
-
-            <br><br>
-
-            <button
-              class="btn btn--aprovar"
-              data-acao="aprovar"
-              data-id="${a.id}">
-              Aprovar
-            </button>
-
-            <button
-              class="btn btn--rejeitar"
-              data-acao="rejeitar"
-              data-id="${a.id}">
-              Rejeitar
-            </button>
-
-          </div>
-        `).join('') ||
-        '<p>Nenhum anuncio pendente.</p>';
-
-      container
-        .querySelectorAll('button[data-acao]')
-        .forEach((btn) => {
-
-          btn.addEventListener('click', async () => {
-
-            const acao = btn.dataset.acao;
-            const id = btn.dataset.id;
-
-            try {
-
-              await apiFetch(
-                `/api/admin/anuncios/${id}/${acao}`,
-                {
-                  method: 'PUT'
                 }
               );
 
-              await carregarPendentes();
-              await carregarTodos();
 
-            } catch (err) {
+            btn.classList.add(
+              'ativa'
+            );
 
-              console.error(
-                '[anuncio]',
-                err
+
+            document
+              .querySelectorAll(
+                'main section'
+              )
+              .forEach(
+                (section) => {
+
+                  section.classList.add(
+                    'escondido'
+                  );
+
+                }
               );
 
-              alert(err.message);
+
+            const tabId =
+              `tab${capitalize(
+                btn.dataset.tab
+              )}`;
+
+
+            const tab =
+              document.getElementById(
+                tabId
+              );
+
+
+            if (tab) {
+
+              tab.classList.remove(
+                'escondido'
+              );
+
             }
-          });
-        });
+
+
+            if (
+              btn.dataset.tab ===
+              'blog'
+            ) {
+
+              carregarArtigos();
+
+            }
+
+          }
+        );
+
+      }
+    );
+
+
+  function capitalize(s) {
+
+    return (
+      s.charAt(0).toUpperCase() +
+      s.slice(1)
+    );
+
+  }
+
+
+  // =========================================================
+  // ANÚNCIOS PENDENTES
+  // =========================================================
+
+  async function carregarPendentes() {
+
+    const container =
+      document.getElementById(
+        'listaPendentes'
+      );
+
+
+    if (!container) {
+
+      return;
+
+    }
+
+
+    try {
+
+      const pendentes =
+        await apiFetch(
+          '/api/admin/anuncios'
+        );
+
+
+      if (
+        !Array.isArray(
+          pendentes
+        )
+      ) {
+
+        container.innerHTML =
+          '<p>Nenhum anúncio pendente.</p>';
+
+        return;
+
+      }
+
+
+      container.innerHTML =
+        pendentes
+          .map(
+            (a) => `
+
+              <div
+                style="
+                  padding:12px;
+                  border-bottom:1px solid #ddd;
+                "
+              >
+
+                <strong>
+                  ${escapeHtml(
+                    a.titulo || ''
+                  )}
+                </strong>
+
+                <br>
+
+                Comerciante:
+                ${escapeHtml(
+                  a.id_comerciante || '-'
+                )}
+
+                <br>
+
+                Status:
+
+                <span
+                  class="badge badge--${escapeHtml(
+                    a.status || ''
+                  )}"
+                >
+                  ${escapeHtml(
+                    a.status || '-'
+                  )}
+                </span>
+
+                <br><br>
+
+                <button
+                  class="btn btn--aprovar"
+                  data-acao="aprovar"
+                  data-id="${a.id}"
+                >
+                  Aprovar
+                </button>
+
+                <button
+                  class="btn btn--rejeitar"
+                  data-acao="rejeitar"
+                  data-id="${a.id}"
+                >
+                  Rejeitar
+                </button>
+
+              </div>
+
+            `
+          )
+          .join('') ||
+
+        '<p>Nenhum anúncio pendente.</p>';
+
+
+      container
+        .querySelectorAll(
+          'button[data-acao]'
+        )
+        .forEach(
+          (btn) => {
+
+            btn.addEventListener(
+              'click',
+              async () => {
+
+                const acao =
+                  btn.dataset.acao;
+
+                const id =
+                  btn.dataset.id;
+
+
+                try {
+
+                  await apiFetch(
+                    `/api/admin/anuncios/${id}/${acao}`,
+                    {
+                      method: 'PUT'
+                    }
+                  );
+
+
+                  await carregarPendentes();
+
+                  await carregarTodos();
+
+
+                } catch (err) {
+
+                  console.error(
+                    '[anuncio]',
+                    err
+                  );
+
+
+                  alert(
+                    err.message
+                  );
+
+                }
+
+              }
+            );
+
+          }
+        );
+
 
     } catch (err) {
 
@@ -306,108 +609,171 @@
         '[pendentes]',
         err
       );
+
+      container.innerHTML =
+        `<p>Erro ao carregar anúncios: ${escapeHtml(
+          err.message
+        )}</p>`;
+
     }
+
   }
 
+
   // =========================================================
-  // TODOS OS ANUNCIOS
+  // TODOS OS ANÚNCIOS
   // =========================================================
 
   async function carregarTodos() {
+
+    const tbody =
+      document.getElementById(
+        'listaTodos'
+      );
+
+
+    if (!tbody) {
+
+      return;
+
+    }
+
+
     try {
 
       const todos =
-        await apiFetch('/api/admin/anuncios/todos');
+        await apiFetch(
+          '/api/admin/anuncios/todos'
+        );
 
-      const tbody =
-        document.getElementById('listaTodos');
 
-      if (!tbody) {
-        return;
-      }
-
-      if (!Array.isArray(todos)) {
+      if (
+        !Array.isArray(
+          todos
+        )
+      ) {
 
         tbody.innerHTML =
-          '<tr><td colspan="5">Nenhum anuncio cadastrado.</td></tr>';
+          '<tr><td colspan="5">Nenhum anúncio cadastrado.</td></tr>';
 
         return;
+
       }
 
+
       tbody.innerHTML =
-        todos.map((a) => `
-          <tr>
+        todos
+          .map(
+            (a) => `
 
-            <td>
-              ${a.id}
-            </td>
+              <tr>
 
-            <td>
-              ${a.titulo || ''}
-            </td>
+                <td>
+                  ${a.id}
+                </td>
 
-            <td>
-              <span class="badge badge--${a.status || 'pendente'}">
-                ${a.status || '-'}
-              </span>
-            </td>
+                <td>
+                  ${escapeHtml(
+                    a.titulo || ''
+                  )}
+                </td>
 
-            <td>
-              ${a.latitude ?? '-'},
-              ${a.longitude ?? '-'}
-            </td>
+                <td>
 
-            <td>
+                  <span
+                    class="badge badge--${escapeHtml(
+                      a.status || ''
+                    )}"
+                  >
+                    ${escapeHtml(
+                      a.status || '-'
+                    )}
+                  </span>
 
-              <button
-                class="btn btn--excluir"
-                data-id="${a.id}">
-                Excluir
-              </button>
+                </td>
 
-            </td>
+                <td>
+                  ${a.latitude ?? '-'},
+                  ${a.longitude ?? '-'}
+                </td>
 
-          </tr>
-        `).join('') ||
-        '<tr><td colspan="5">Nenhum anuncio cadastrado.</td></tr>';
+                <td>
+
+                  <button
+                    class="btn btn--excluir"
+                    data-id="${a.id}"
+                  >
+                    Excluir
+                  </button>
+
+                </td>
+
+              </tr>
+
+            `
+          )
+          .join('') ||
+
+        '<tr><td colspan="5">Nenhum anúncio cadastrado.</td></tr>';
+
 
       tbody
-        .querySelectorAll('button.btn--excluir')
-        .forEach((btn) => {
+        .querySelectorAll(
+          'button.btn--excluir'
+        )
+        .forEach(
+          (btn) => {
 
-          btn.addEventListener('click', async () => {
+            btn.addEventListener(
+              'click',
+              async () => {
 
-            if (
-              !confirm(
-                'Excluir este anuncio?'
-              )
-            ) {
-              return;
-            }
+                if (
+                  !confirm(
+                    'Excluir este anúncio?'
+                  )
+                ) {
 
-            try {
+                  return;
 
-              await apiFetch(
-                `/api/admin/anuncios/${btn.dataset.id}`,
-                {
-                  method: 'DELETE'
                 }
-              );
 
-              await carregarTodos();
-              await carregarPendentes();
 
-            } catch (err) {
+                try {
 
-              console.error(
-                '[excluir anuncio]',
-                err
-              );
+                  await apiFetch(
+                    `/api/admin/anuncios/${btn.dataset.id}`,
+                    {
+                      method: 'DELETE'
+                    }
+                  );
 
-              alert(err.message);
-            }
-          });
-        });
+
+                  await carregarTodos();
+
+                  await carregarPendentes();
+
+
+                } catch (err) {
+
+                  console.error(
+                    '[excluir anuncio]',
+                    err
+                  );
+
+
+                  alert(
+                    err.message
+                  );
+
+                }
+
+              }
+            );
+
+          }
+        );
+
 
     } catch (err) {
 
@@ -415,104 +781,168 @@
         '[todos anuncios]',
         err
       );
+
+
+      tbody.innerHTML =
+        `<tr>
+          <td colspan="5">
+            Erro ao carregar anúncios:
+            ${escapeHtml(
+              err.message
+            )}
+          </td>
+        </tr>`;
+
     }
+
   }
+
 
   // =========================================================
   // CATEGORIAS
   // =========================================================
 
   async function carregarCategorias() {
+
+    const tbody =
+      document.getElementById(
+        'listaCategorias'
+      );
+
+
+    if (!tbody) {
+
+      return;
+
+    }
+
+
     try {
 
       const categorias =
-        await apiFetch('/api/admin/categorias');
+        await apiFetch(
+          '/api/admin/categorias'
+        );
 
-      const tbody =
-        document.getElementById('listaCategorias');
 
-      if (!tbody) {
-        return;
-      }
-
-      if (!Array.isArray(categorias)) {
+      if (
+        !Array.isArray(
+          categorias
+        )
+      ) {
 
         tbody.innerHTML =
           '<tr><td colspan="5">Nenhuma categoria cadastrada.</td></tr>';
 
         return;
+
       }
 
+
       tbody.innerHTML =
-        categorias.map((c) => `
-          <tr>
+        categorias
+          .map(
+            (c) => `
 
-            <td>
-              ${c.id}
-            </td>
+              <tr>
 
-            <td>
-              ${c.nome || ''}
-            </td>
+                <td>
+                  ${c.id}
+                </td>
 
-            <td>
-              ${c.icone_url || '-'}
-            </td>
+                <td>
+                  ${escapeHtml(
+                    c.nome || ''
+                  )}
+                </td>
 
-            <td>
-              ${c.slug || '-'}
-            </td>
+                <td>
+                  ${escapeHtml(
+                    c.icone_url || '-'
+                  )}
+                </td>
 
-            <td>
+                <td>
+                  ${escapeHtml(
+                    c.slug || '-'
+                  )}
+                </td>
 
-              <button
-                class="btn btn--excluir"
-                data-id="${c.id}">
-                Excluir
-              </button>
+                <td>
 
-            </td>
+                  <button
+                    class="btn btn--excluir"
+                    data-id="${c.id}"
+                  >
+                    Excluir
+                  </button>
 
-          </tr>
-        `).join('') ||
+                </td>
+
+              </tr>
+
+            `
+          )
+          .join('') ||
+
         '<tr><td colspan="5">Nenhuma categoria cadastrada.</td></tr>';
 
+
       tbody
-        .querySelectorAll('button.btn--excluir')
-        .forEach((btn) => {
+        .querySelectorAll(
+          'button.btn--excluir'
+        )
+        .forEach(
+          (btn) => {
 
-          btn.addEventListener('click', async () => {
+            btn.addEventListener(
+              'click',
+              async () => {
 
-            if (
-              !confirm(
-                'Excluir esta categoria?'
-              )
-            ) {
-              return;
-            }
+                if (
+                  !confirm(
+                    'Excluir esta categoria?'
+                  )
+                ) {
 
-            try {
+                  return;
 
-              await apiFetch(
-                `/api/admin/categorias/${btn.dataset.id}`,
-                {
-                  method: 'DELETE'
                 }
-              );
 
-              await carregarCategorias();
 
-            } catch (err) {
+                try {
 
-              console.error(
-                '[excluir categoria]',
-                err
-              );
+                  await apiFetch(
+                    `/api/admin/categorias/${btn.dataset.id}`,
+                    {
+                      method: 'DELETE'
+                    }
+                  );
 
-              alert(err.message);
-            }
-          });
-        });
+
+                  await carregarCategorias();
+
+
+                } catch (err) {
+
+                  console.error(
+                    '[excluir categoria]',
+                    err
+                  );
+
+
+                  alert(
+                    err.message
+                  );
+
+                }
+
+              }
+            );
+
+          }
+        );
+
 
     } catch (err) {
 
@@ -520,15 +950,32 @@
         '[categorias]',
         err
       );
+
+
+      tbody.innerHTML =
+        `<tr>
+          <td colspan="5">
+            Erro ao carregar categorias:
+            ${escapeHtml(
+              err.message
+            )}
+          </td>
+        </tr>`;
+
     }
+
   }
+
 
   // =========================================================
   // ADICIONAR CATEGORIA
   // =========================================================
 
   const btnAddCategoria =
-    document.getElementById('btnAddCategoria');
+    document.getElementById(
+      'btnAddCategoria'
+    );
+
 
   if (btnAddCategoria) {
 
@@ -538,15 +985,21 @@
 
         const nome =
           document
-            .getElementById('novaCategoriaNome')
+            .getElementById(
+              'novaCategoriaNome'
+            )
             .value
             .trim();
 
+
         const icone_url =
           document
-            .getElementById('novaCategoriaIcone')
+            .getElementById(
+              'novaCategoriaIcone'
+            )
             .value
             .trim();
+
 
         if (!nome) {
 
@@ -555,7 +1008,9 @@
           );
 
           return;
+
         }
+
 
         try {
 
@@ -569,22 +1024,31 @@
                   'application/json'
               },
 
-              body: JSON.stringify({
-                nome,
-                icone_url
-              })
+              body:
+                JSON.stringify({
+                  nome,
+                  icone_url
+                })
             }
           );
 
-          document
-            .getElementById('novaCategoriaNome')
-            .value = '';
 
           document
-            .getElementById('novaCategoriaIcone')
+            .getElementById(
+              'novaCategoriaNome'
+            )
             .value = '';
+
+
+          document
+            .getElementById(
+              'novaCategoriaIcone'
+            )
+            .value = '';
+
 
           await carregarCategorias();
+
 
         } catch (err) {
 
@@ -593,14 +1057,21 @@
             err
           );
 
-          alert(err.message);
+
+          alert(
+            err.message
+          );
+
         }
+
       }
     );
+
   }
 
+
   // =========================================================
-  // BLOG - SALVAR ARTIGO
+  // BLOG
   // =========================================================
 
   const btnSalvarArtigo =
@@ -608,70 +1079,151 @@
       'btnSalvarArtigo'
     );
 
+
   if (btnSalvarArtigo) {
 
     btnSalvarArtigo.addEventListener(
       'click',
       async () => {
 
+        console.log(
+          '[blog] Salvando artigo...'
+        );
+
+
         const erroBlog =
           document.getElementById(
             'erroBlog'
           );
 
-        erroBlog.textContent = '';
+
+        if (erroBlog) {
+
+          erroBlog.textContent =
+            '';
+
+        }
+
 
         const titulo =
-          document
-            .getElementById('blogTitulo')
-            .value
-            .trim();
+          getValue(
+            'blogTitulo'
+          );
+
 
         const resumo =
-          document
-            .getElementById('blogResumo')
-            .value
-            .trim();
+          getValue(
+            'blogResumo'
+          );
 
-        const capa_url =
-          document
-            .getElementById('blogCapa')
-            .value
-            .trim();
 
-        const conteudo =
-          document
-            .getElementById('blogConteudo')
-            .value
-            .trim();
+        const capa =
+          getValue(
+            'blogCapa'
+          );
+
+
+        // =====================================================
+        // NOVO EDITOR VISUAL
+        //
+        // O próximo index.html terá:
+        //
+        // <div id="blogConteudoEditor"></div>
+        //
+        // O conteúdo HTML será obtido daqui.
+        // =====================================================
+
+        let conteudo =
+          '';
+
+
+        const editor =
+          document.getElementById(
+            'blogConteudoEditor'
+          );
+
+
+        if (editor) {
+
+          conteudo =
+            editor.innerHTML.trim();
+
+        } else {
+
+          // Compatibilidade temporária
+          // com o textarea antigo.
+
+          conteudo =
+            getValue(
+              'blogConteudo'
+            );
+
+        }
+
+
+        const publicadoElement =
+          document.getElementById(
+            'blogPublicado'
+          );
+
 
         const publicado =
-          document
-            .getElementById('blogPublicado')
-            .checked;
+          publicadoElement
+            ? publicadoElement.checked
+            : true;
+
+
+        // =====================================================
+        // VALIDAÇÃO
+        // =====================================================
 
         if (!titulo) {
 
-          erroBlog.textContent =
-            'Digite o titulo do artigo.';
+          if (erroBlog) {
+
+            erroBlog.textContent =
+              'Digite o título do artigo.';
+
+          }
 
           return;
+
         }
+
 
         if (!conteudo) {
 
-          erroBlog.textContent =
-            'Digite o conteudo do artigo.';
+          if (erroBlog) {
+
+            erroBlog.textContent =
+              'Digite o conteúdo do artigo.';
+
+          }
 
           return;
+
         }
 
-        btnSalvarArtigo.disabled = true;
+
+        // =====================================================
+        // EVITA DUPLO CLIQUE
+        // =====================================================
+
+        btnSalvarArtigo.disabled =
+          true;
+
 
         btnSalvarArtigo.textContent =
           'Salvando...';
 
+
         try {
+
+          console.log(
+            '[blog] Enviando artigo para:',
+            `${API}/api/blog`
+          );
+
 
           const resultado =
             await apiFetch(
@@ -684,46 +1236,43 @@
                     'application/json'
                 },
 
-                body: JSON.stringify({
-                  titulo,
-                  resumo,
-                  conteudo,
-                  capa_url,
-                  publicado
-                })
+                body:
+                  JSON.stringify({
+
+                    titulo,
+
+                    resumo,
+
+                    capa_url:
+                      capa,
+
+                    // IMPORTANTE:
+                    // envia HTML do editor
+                    conteudo,
+
+                    publicado
+
+                  })
               }
             );
+
 
           console.log(
             '[blog] Artigo salvo:',
             resultado
           );
 
+
           alert(
             'Artigo salvo com sucesso!'
           );
 
-          document
-            .getElementById('blogTitulo')
-            .value = '';
 
-          document
-            .getElementById('blogResumo')
-            .value = '';
+          limparFormularioBlog();
 
-          document
-            .getElementById('blogCapa')
-            .value = '';
-
-          document
-            .getElementById('blogConteudo')
-            .value = '';
-
-          document
-            .getElementById('blogPublicado')
-            .checked = true;
 
           await carregarArtigos();
+
 
         } catch (err) {
 
@@ -732,20 +1281,112 @@
             err
           );
 
-          erroBlog.textContent =
-            err.message ||
-            'Erro ao salvar artigo.';
+
+          if (erroBlog) {
+
+            erroBlog.textContent =
+              err.message ||
+              'Erro ao salvar artigo.';
+
+          }
+
 
         } finally {
 
-          btnSalvarArtigo.disabled = false;
+          btnSalvarArtigo.disabled =
+            false;
+
 
           btnSalvarArtigo.textContent =
             'Salvar artigo';
+
         }
+
       }
     );
+
   }
+
+
+  // =========================================================
+  // LIMPAR FORMULÁRIO DO BLOG
+  // =========================================================
+
+  function limparFormularioBlog() {
+
+    const ids = [
+      'blogTitulo',
+      'blogResumo',
+      'blogCapa'
+    ];
+
+
+    ids.forEach(
+      (id) => {
+
+        const element =
+          document.getElementById(
+            id
+          );
+
+
+        if (element) {
+
+          element.value =
+            '';
+
+        }
+
+      }
+    );
+
+
+    const editor =
+      document.getElementById(
+        'blogConteudoEditor'
+      );
+
+
+    if (editor) {
+
+      editor.innerHTML =
+        '';
+
+    }
+
+
+    // Compatibilidade
+    // com textarea antigo.
+
+    const textarea =
+      document.getElementById(
+        'blogConteudo'
+      );
+
+
+    if (textarea) {
+
+      textarea.value =
+        '';
+
+    }
+
+
+    const publicado =
+      document.getElementById(
+        'blogPublicado'
+      );
+
+
+    if (publicado) {
+
+      publicado.checked =
+        true;
+
+    }
+
+  }
+
 
   // =========================================================
   // BLOG - CARREGAR ARTIGOS
@@ -758,9 +1399,13 @@
         'listaArtigos'
       );
 
+
     if (!tbody) {
+
       return;
+
     }
+
 
     try {
 
@@ -768,128 +1413,160 @@
         '[blog] Carregando artigos...'
       );
 
-      // IMPORTANTE:
-      // Esta e a rota correta existente no blogRoutes.js
+
       const artigos =
         await apiFetch(
           '/api/blog/admin/todos'
         );
 
-      if (!Array.isArray(artigos)) {
+
+      if (
+        !Array.isArray(
+          artigos
+        )
+      ) {
 
         tbody.innerHTML =
           '<tr><td colspan="5">Nenhum artigo cadastrado.</td></tr>';
 
         return;
+
       }
 
+
       tbody.innerHTML =
-        artigos.map((artigo) => {
+        artigos
+          .map(
+            (artigo) => {
 
-          const status =
-            artigo.publicado
-              ? 'Publicado'
-              : 'Rascunho';
+              const status =
+                artigo.publicado
+                  ? 'Publicado'
+                  : 'Rascunho';
 
-          const classeStatus =
-            artigo.publicado
-              ? 'ativo'
-              : 'pendente';
 
-          return `
-            <tr>
+              return `
 
-              <td>
-                ${artigo.id}
-              </td>
+                <tr>
 
-              <td>
-                ${artigo.titulo || ''}
-              </td>
+                  <td>
+                    ${artigo.id}
+                  </td>
 
-              <td>
+                  <td>
+                    ${escapeHtml(
+                      artigo.titulo || ''
+                    )}
+                  </td>
 
-                <span class="badge badge--${classeStatus}">
-                  ${status}
-                </span>
+                  <td>
 
-              </td>
+                    <span
+                      class="badge badge--${
+                        artigo.publicado
+                          ? 'ativo'
+                          : 'pendente'
+                      }"
+                    >
 
-              <td>
-                ${artigo.criado_em || '-'}
-              </td>
+                      ${status}
 
-              <td>
+                    </span>
 
-                <button
-                  class="btn btn--excluir"
-                  data-blog-id="${artigo.id}">
-                  Excluir
-                </button>
+                  </td>
 
-              </td>
+                  <td>
+                    ${
+                      escapeHtml(
+                        artigo.criado_em ||
+                        artigo.created_at ||
+                        '-'
+                      )
+                    }
+                  </td>
 
-            </tr>
-          `;
+                  <td>
 
-        }).join('') ||
+                    <button
+                      class="btn btn--excluir"
+                      data-blog-id="${artigo.id}"
+                    >
+                      Excluir
+                    </button>
+
+                  </td>
+
+                </tr>
+
+              `;
+
+            }
+          )
+          .join('') ||
+
         '<tr><td colspan="5">Nenhum artigo cadastrado.</td></tr>';
 
-      // =====================================================
-      // EXCLUIR ARTIGO
-      // =====================================================
 
       tbody
         .querySelectorAll(
           'button[data-blog-id]'
         )
-        .forEach((btn) => {
+        .forEach(
+          (btn) => {
 
-          btn.addEventListener(
-            'click',
-            async () => {
+            btn.addEventListener(
+              'click',
+              async () => {
 
-              const id =
-                btn.dataset.blogId;
+                if (
+                  !confirm(
+                    'Excluir este artigo?'
+                  )
+                ) {
 
-              if (
-                !confirm(
-                  'Excluir este artigo?'
-                )
-              ) {
-                return;
+                  return;
+
+                }
+
+
+                try {
+
+                  await apiFetch(
+                    `/api/blog/${btn.dataset.blogId}`,
+                    {
+                      method: 'DELETE'
+                    }
+                  );
+
+
+                  alert(
+                    'Artigo excluído com sucesso!'
+                  );
+
+
+                  await carregarArtigos();
+
+
+                } catch (err) {
+
+                  console.error(
+                    '[blog] Erro ao excluir:',
+                    err
+                  );
+
+
+                  alert(
+                    err.message
+                  );
+
+                }
+
               }
+            );
 
-              try {
+          }
+        );
 
-                await apiFetch(
-                  `/api/blog/${id}`,
-                  {
-                    method: 'DELETE'
-                  }
-                );
-
-                alert(
-                  'Artigo excluido com sucesso!'
-                );
-
-                await carregarArtigos();
-
-              } catch (err) {
-
-                console.error(
-                  '[blog] Erro ao excluir:',
-                  err
-                );
-
-                alert(
-                  err.message
-                );
-              }
-            }
-          );
-
-        });
 
     } catch (err) {
 
@@ -898,28 +1575,105 @@
         err
       );
 
-      tbody.innerHTML =
-        `<tr>
+
+      tbody.innerHTML = `
+
+        <tr>
+
           <td colspan="5">
+
             Erro ao carregar artigos:
-            ${err.message}
+            ${escapeHtml(
+              err.message
+            )}
+
           </td>
-        </tr>`;
+
+        </tr>
+
+      `;
+
     }
+
   }
 
+
   // =========================================================
-  // INICIALIZACAO
+  // FUNÇÕES AUXILIARES
+  // =========================================================
+
+  function getValue(id) {
+
+    const element =
+      document.getElementById(
+        id
+      );
+
+
+    if (!element) {
+
+      return '';
+
+    }
+
+
+    return (
+      element.value ||
+      ''
+    ).trim();
+
+  }
+
+
+  // =========================================================
+  // SEGURANÇA
+  //
+  // Usado apenas para dados exibidos
+  // como texto nas tabelas.
+  //
+  // O conteúdo do editor do Blog NÃO passa
+  // por esta função, pois precisa manter
+  // as tags HTML de formatação.
+  // =========================================================
+
+  function escapeHtml(value) {
+
+    const div =
+      document.createElement(
+        'div'
+      );
+
+
+    div.textContent =
+      String(
+        value ?? ''
+      );
+
+
+    return div.innerHTML;
+
+  }
+
+
+  // =========================================================
+  // INICIALIZAÇÃO
   // =========================================================
 
   console.log(
     '[admin] JavaScript administrativo carregado.'
   );
 
-  if (getToken()) {
+
+  if (
+    getToken()
+  ) {
+
     mostrarAdmin();
+
   } else {
+
     mostrarLogin();
+
   }
 
 })();
