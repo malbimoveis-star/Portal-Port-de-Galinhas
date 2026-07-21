@@ -60,7 +60,7 @@
   }
 
   // =========================================================
-  // REQUISIÇÕES PARA API
+  // API
   // =========================================================
 
   async function apiFetch(path, options = {}) {
@@ -93,7 +93,6 @@
 
       throw new Error(
         data.erro ||
-        data.error ||
         'Sessão expirada. Faça login novamente.'
       );
     }
@@ -114,7 +113,7 @@
   // =========================================================
 
   if (formLogin) {
-    formLogin.addEventListener('submit', async function (e) {
+    formLogin.addEventListener('submit', async (e) => {
       e.preventDefault();
 
       if (erroLogin) {
@@ -133,40 +132,25 @@
       try {
         const resp = await fetch(`${API}/api/login`, {
           method: 'POST',
-
           headers: {
             'Content-Type': 'application/json'
           },
-
           body: JSON.stringify({
             usuario,
             senha
           })
         });
 
-        let data = {};
-
-        try {
-          data = await resp.json();
-        } catch (e) {
-          data = {};
-        }
+        const data = await resp.json();
 
         if (!resp.ok) {
           if (erroLogin) {
             erroLogin.textContent =
               data.erro ||
-              data.error ||
               'Credenciais inválidas.';
           }
 
           return;
-        }
-
-        if (!data.token) {
-          throw new Error(
-            'O servidor não retornou um token de acesso.'
-          );
         }
 
         setToken(data.token);
@@ -178,7 +162,6 @@
 
         if (erroLogin) {
           erroLogin.textContent =
-            err.message ||
             'Erro ao conectar com o servidor.';
         }
       }
@@ -190,7 +173,7 @@
   // =========================================================
 
   if (btnSair) {
-    btnSair.addEventListener('click', function () {
+    btnSair.addEventListener('click', () => {
       limparToken();
       mostrarLogin();
     });
@@ -202,13 +185,13 @@
 
   document
     .querySelectorAll('.tabs button')
-    .forEach(function (btn) {
+    .forEach((btn) => {
 
-      btn.addEventListener('click', function () {
+      btn.addEventListener('click', () => {
 
         document
           .querySelectorAll('.tabs button')
-          .forEach(function (b) {
+          .forEach((b) => {
             b.classList.remove('ativa');
           });
 
@@ -216,7 +199,7 @@
 
         document
           .querySelectorAll('main section')
-          .forEach(function (section) {
+          .forEach((section) => {
             section.classList.add('escondido');
           });
 
@@ -234,15 +217,11 @@
           carregarArtigos();
         }
       });
+
     });
 
-  function capitalize(text) {
-    if (!text) {
-      return '';
-    }
-
-    return text.charAt(0).toUpperCase() +
-      text.slice(1);
+  function capitalize(s) {
+    return s.charAt(0).toUpperCase() + s.slice(1);
   }
 
   // =========================================================
@@ -251,17 +230,17 @@
 
   async function carregarPendentes() {
 
-    const container =
-      document.getElementById('listaPendentes');
-
-    if (!container) {
-      return;
-    }
-
     try {
 
       const pendentes =
         await apiFetch('/api/admin/anuncios');
+
+      const container =
+        document.getElementById('listaPendentes');
+
+      if (!container) {
+        return;
+      }
 
       if (!Array.isArray(pendentes)) {
 
@@ -272,58 +251,54 @@
       }
 
       container.innerHTML =
-        pendentes.map(function (a) {
+        pendentes.map((a) => `
 
-          return `
+          <div style="padding:12px;border-bottom:1px solid #ddd;">
 
-            <div style="padding:12px;border-bottom:1px solid #ddd;">
+            <strong>
+              ${escapeHtml(a.titulo || '')}
+            </strong>
 
-              <strong>
-                ${escapeHtml(a.titulo || '')}
-              </strong>
+            <br>
 
-              <br>
+            Comerciante:
+            ${escapeHtml(a.id_comerciante || '-')}
 
-              Comerciante:
-              ${escapeHtml(String(a.id_comerciante || '-'))}
+            <br>
 
-              <br>
+            Status:
 
-              Status:
+            <span class="badge badge--${escapeHtml(a.status || '')}">
+              ${escapeHtml(a.status || '-')}
+            </span>
 
-              <span class="badge badge--${escapeHtml(a.status || '')}">
-                ${escapeHtml(a.status || '-')}
-              </span>
+            <br><br>
 
-              <br><br>
+            <button
+              class="btn btn--aprovar"
+              data-acao="aprovar"
+              data-id="${escapeHtml(a.id)}">
+              Aprovar
+            </button>
 
-              <button
-                class="btn btn--aprovar"
-                data-acao="aprovar"
-                data-id="${escapeHtml(String(a.id))}">
-                Aprovar
-              </button>
+            <button
+              class="btn btn--rejeitar"
+              data-acao="rejeitar"
+              data-id="${escapeHtml(a.id)}">
+              Rejeitar
+            </button>
 
-              <button
-                class="btn btn--rejeitar"
-                data-acao="rejeitar"
-                data-id="${escapeHtml(String(a.id))}">
-                Rejeitar
-              </button>
+          </div>
 
-            </div>
-
-          `;
-
-        }).join('') ||
+        `).join('') ||
 
         '<p>Nenhum anúncio pendente.</p>';
 
       container
         .querySelectorAll('button[data-acao]')
-        .forEach(function (btn) {
+        .forEach((btn) => {
 
-          btn.addEventListener('click', async function () {
+          btn.addEventListener('click', async () => {
 
             const acao =
               btn.dataset.acao;
@@ -361,9 +336,6 @@
         '[pendentes]',
         err
       );
-
-      container.innerHTML =
-        `<p>Erro ao carregar anúncios: ${escapeHtml(err.message)}</p>`;
     }
   }
 
@@ -373,17 +345,17 @@
 
   async function carregarTodos() {
 
-    const tbody =
-      document.getElementById('listaTodos');
-
-    if (!tbody) {
-      return;
-    }
-
     try {
 
       const todos =
         await apiFetch('/api/admin/anuncios/todos');
+
+      const tbody =
+        document.getElementById('listaTodos');
+
+      if (!tbody) {
+        return;
+      }
 
       if (!Array.isArray(todos)) {
 
@@ -394,58 +366,58 @@
       }
 
       tbody.innerHTML =
-        todos.map(function (a) {
+        todos.map((a) => `
 
-          return `
+          <tr>
 
-            <tr>
+            <td>
+              ${escapeHtml(a.id)}
+            </td>
 
-              <td>
-                ${escapeHtml(String(a.id))}
-              </td>
+            <td>
+              ${escapeHtml(a.titulo || '')}
+            </td>
 
-              <td>
-                ${escapeHtml(a.titulo || '')}
-              </td>
+            <td>
 
-              <td>
+              <span class="badge badge--${escapeHtml(a.status || '')}">
+                ${escapeHtml(a.status || '-')}
+              </span>
 
-                <span class="badge badge--${escapeHtml(a.status || '')}">
-                  ${escapeHtml(a.status || '-')}
-                </span>
+            </td>
 
-              </td>
+            <td>
+              ${escapeHtml(a.latitude ?? '-')},
+              ${escapeHtml(a.longitude ?? '-')}
+            </td>
 
-              <td>
-                ${escapeHtml(String(a.latitude ?? '-'))},
-                ${escapeHtml(String(a.longitude ?? '-'))}
-              </td>
+            <td>
 
-              <td>
+              <button
+                class="btn btn--excluir"
+                data-id="${escapeHtml(a.id)}">
+                Excluir
+              </button>
 
-                <button
-                  class="btn btn--excluir"
-                  data-id="${escapeHtml(String(a.id))}">
-                  Excluir
-                </button>
+            </td>
 
-              </td>
+          </tr>
 
-            </tr>
-
-          `;
-
-        }).join('') ||
+        `).join('') ||
 
         '<tr><td colspan="5">Nenhum anúncio cadastrado.</td></tr>';
 
       tbody
         .querySelectorAll('button.btn--excluir')
-        .forEach(function (btn) {
+        .forEach((btn) => {
 
-          btn.addEventListener('click', async function () {
+          btn.addEventListener('click', async () => {
 
-            if (!confirm('Excluir este anúncio?')) {
+            if (
+              !confirm(
+                'Excluir este anúncio?'
+              )
+            ) {
               return;
             }
 
@@ -479,9 +451,6 @@
         '[todos anuncios]',
         err
       );
-
-      tbody.innerHTML =
-        `<tr><td colspan="5">Erro: ${escapeHtml(err.message)}</td></tr>`;
     }
   }
 
@@ -491,17 +460,17 @@
 
   async function carregarCategorias() {
 
-    const tbody =
-      document.getElementById('listaCategorias');
-
-    if (!tbody) {
-      return;
-    }
-
     try {
 
       const categorias =
         await apiFetch('/api/admin/categorias');
+
+      const tbody =
+        document.getElementById('listaCategorias');
+
+      if (!tbody) {
+        return;
+      }
 
       if (!Array.isArray(categorias)) {
 
@@ -512,53 +481,53 @@
       }
 
       tbody.innerHTML =
-        categorias.map(function (c) {
+        categorias.map((c) => `
 
-          return `
+          <tr>
 
-            <tr>
+            <td>
+              ${escapeHtml(c.id)}
+            </td>
 
-              <td>
-                ${escapeHtml(String(c.id))}
-              </td>
+            <td>
+              ${escapeHtml(c.nome || '')}
+            </td>
 
-              <td>
-                ${escapeHtml(c.nome || '')}
-              </td>
+            <td>
+              ${escapeHtml(c.icone_url || '-')}
+            </td>
 
-              <td>
-                ${escapeHtml(c.icone_url || '-')}
-              </td>
+            <td>
+              ${escapeHtml(c.slug || '-')}
+            </td>
 
-              <td>
-                ${escapeHtml(c.slug || '-')}
-              </td>
+            <td>
 
-              <td>
+              <button
+                class="btn btn--excluir"
+                data-id="${escapeHtml(c.id)}">
+                Excluir
+              </button>
 
-                <button
-                  class="btn btn--excluir"
-                  data-id="${escapeHtml(String(c.id))}">
-                  Excluir
-                </button>
+            </td>
 
-              </td>
+          </tr>
 
-            </tr>
-
-          `;
-
-        }).join('') ||
+        `).join('') ||
 
         '<tr><td colspan="5">Nenhuma categoria cadastrada.</td></tr>';
 
       tbody
         .querySelectorAll('button.btn--excluir')
-        .forEach(function (btn) {
+        .forEach((btn) => {
 
-          btn.addEventListener('click', async function () {
+          btn.addEventListener('click', async () => {
 
-            if (!confirm('Excluir esta categoria?')) {
+            if (
+              !confirm(
+                'Excluir esta categoria?'
+              )
+            ) {
               return;
             }
 
@@ -591,9 +560,6 @@
         '[categorias]',
         err
       );
-
-      tbody.innerHTML =
-        `<tr><td colspan="5">Erro: ${escapeHtml(err.message)}</td></tr>`;
     }
   }
 
@@ -602,23 +568,29 @@
   // =========================================================
 
   const btnAddCategoria =
-    document.getElementById('btnAddCategoria');
+    document.getElementById(
+      'btnAddCategoria'
+    );
 
   if (btnAddCategoria) {
 
     btnAddCategoria.addEventListener(
       'click',
-      async function () {
+      async () => {
 
         const nome =
           document
-            .getElementById('novaCategoriaNome')
+            .getElementById(
+              'novaCategoriaNome'
+            )
             .value
             .trim();
 
         const icone_url =
           document
-            .getElementById('novaCategoriaIcone')
+            .getElementById(
+              'novaCategoriaIcone'
+            )
             .value
             .trim();
 
@@ -651,11 +623,15 @@
           );
 
           document
-            .getElementById('novaCategoriaNome')
+            .getElementById(
+              'novaCategoriaNome'
+            )
             .value = '';
 
           document
-            .getElementById('novaCategoriaIcone')
+            .getElementById(
+              'novaCategoriaIcone'
+            )
             .value = '';
 
           await carregarCategorias();
@@ -674,190 +650,165 @@
   }
 
   // =========================================================
-  // BLOG
+  // BLOG - ELEMENTOS DO EDITOR
   // =========================================================
 
   const btnSalvarArtigo =
-    document.getElementById('btnSalvarArtigo');
+    document.getElementById(
+      'btnSalvarArtigo'
+    );
 
   const erroBlog =
-    document.getElementById('erroBlog');
+    document.getElementById(
+      'erroBlog'
+    );
+
+  // Editor novo
+  const blogEditor =
+    document.getElementById(
+      'blogEditor'
+    );
+
+  // Campo antigo de conteúdo
+  const blogConteudo =
+    document.getElementById(
+      'blogConteudo'
+    );
 
   // =========================================================
-  // EDITOR DE BLOG
+  // EDITOR VISUAL
   // =========================================================
 
-  const editor =
-    document.getElementById('blogConteudoEditor');
+  function executarComando(comando, valor = null) {
 
-  const campoConteudo =
-    document.getElementById('blogConteudo');
-
-  // =========================================================
-  // CONFIGURA O EDITOR
-  // =========================================================
-
-  function configurarEditor() {
-
-    if (!editor) {
-      console.warn(
-        '[blog] Editor #blogConteudoEditor não encontrado.'
-      );
-
+    if (!blogEditor) {
       return;
     }
 
-    editor.setAttribute(
-      'contenteditable',
-      'true'
-    );
+    blogEditor.focus();
 
-    editor.setAttribute(
-      'spellcheck',
-      'true'
-    );
+    try {
+      document.execCommand(
+        comando,
+        false,
+        valor
+      );
+    } catch (err) {
+      console.error(
+        '[editor] Erro no comando:',
+        comando,
+        err
+      );
+    }
+  }
 
-    editor.setAttribute(
-      'data-placeholder',
-      'Digite o conteúdo do artigo aqui...'
-    );
+  // =========================================================
+  // BOTÕES DA BARRA DE FERRAMENTAS
+  // =========================================================
 
-    // -------------------------------------------------------
-    // BOTÕES DO EDITOR
-    // -------------------------------------------------------
+  document
+    .querySelectorAll('[data-editor-command]')
+    .forEach((btn) => {
 
-    document
-      .querySelectorAll('[data-editor-command]')
-      .forEach(function (btn) {
+      btn.addEventListener('click', () => {
 
-        btn.addEventListener('click', function () {
+        const comando =
+          btn.dataset.editorCommand;
 
-          const command =
-            btn.dataset.editorCommand;
+        executarComando(comando);
 
-          if (command === 'createLink') {
-
-            const url =
-              prompt(
-                'Digite a URL do link:'
-              );
-
-            if (!url) {
-              return;
-            }
-
-            document.execCommand(
-              'createLink',
-              false,
-              url
-            );
-
-            return;
-          }
-
-          if (command === 'insertImage') {
-
-            const url =
-              prompt(
-                'Digite a URL da imagem:'
-              );
-
-            if (!url) {
-              return;
-            }
-
-            document.execCommand(
-              'insertImage',
-              false,
-              url
-            );
-
-            return;
-          }
-
-          document.execCommand(
-            command,
-            false,
-            null
-          );
-
-          editor.focus();
-        });
       });
 
-    // -------------------------------------------------------
-    // SELECT DE FORMATAÇÃO
-    // -------------------------------------------------------
+    });
 
-    const selectFormato =
-      document.getElementById('blogFormato');
+  // =========================================================
+  // TÍTULOS H1 H2 H3
+  // =========================================================
 
-    if (selectFormato) {
+  document
+    .querySelectorAll('[data-editor-heading]')
+    .forEach((btn) => {
 
-      selectFormato.addEventListener(
-        'change',
-        function () {
+      btn.addEventListener('click', () => {
 
-          const valor =
-            selectFormato.value;
+        const heading =
+          btn.dataset.editorHeading;
 
-          if (!valor) {
-            return;
-          }
+        executarComando(
+          'formatBlock',
+          heading
+        );
 
-          document.execCommand(
-            'formatBlock',
-            false,
-            valor
+      });
+
+    });
+
+  // =========================================================
+  // INSERIR LINK
+  // =========================================================
+
+  document
+    .querySelectorAll('[data-editor-link]')
+    .forEach((btn) => {
+
+      btn.addEventListener('click', () => {
+
+        if (!blogEditor) {
+          return;
+        }
+
+        blogEditor.focus();
+
+        const url =
+          prompt(
+            'Digite a URL do link:'
           );
 
-          editor.focus();
-
-          selectFormato.value = '';
+        if (!url) {
+          return;
         }
-      );
-    }
 
-    // -------------------------------------------------------
-    // SINCRONIZA EDITOR COM TEXTAREA OCULTO
-    // -------------------------------------------------------
+        executarComando(
+          'createLink',
+          url
+        );
 
-    editor.addEventListener(
-      'input',
-      sincronizarConteudo
-    );
+      });
 
-    editor.addEventListener(
-      'blur',
-      sincronizarConteudo
-    );
-  }
-
-  // =========================================================
-  // SINCRONIZAR CONTEÚDO
-  // =========================================================
-
-  function sincronizarConteudo() {
-
-    if (!editor || !campoConteudo) {
-      return;
-    }
-
-    campoConteudo.value =
-      editor.innerHTML;
-  }
+    });
 
   // =========================================================
   // INSERIR IMAGEM
   // =========================================================
 
-  function inserirImagem(url, alt) {
+  document
+    .querySelectorAll('[data-editor-image]')
+    .forEach((btn) => {
 
-    if (!editor || !url) {
+      btn.addEventListener('click', () => {
+
+        inserirImagem();
+
+      });
+
+    });
+
+  function inserirImagem() {
+
+    if (!blogEditor) {
       return;
     }
 
-    editor.focus();
+    blogEditor.focus();
+
+    const url =
+      prompt(
+        'Cole a URL da imagem:'
+      );
+
+    if (!url) {
+      return;
+    }
 
     const imagem =
       document.createElement('img');
@@ -865,20 +816,26 @@
     imagem.src = url;
 
     imagem.alt =
-      alt ||
       'Imagem do artigo';
 
-    imagem.style.maxWidth =
-      '100%';
+    imagem.className =
+      'editor-imagem';
 
-    imagem.style.height =
-      'auto';
+    imagem.loading =
+      'lazy';
 
-    imagem.style.display =
-      'block';
+    imagem.addEventListener(
+      'error',
+      () => {
 
-    imagem.style.margin =
-      '20px auto';
+        alert(
+          'Não foi possível carregar esta imagem. Verifique a URL.'
+        );
+
+        imagem.remove();
+
+      }
+    );
 
     const selecao =
       window.getSelection();
@@ -905,165 +862,393 @@
 
     } else {
 
-      editor.appendChild(imagem);
+      blogEditor.appendChild(
+        imagem
+      );
 
     }
 
-    sincronizarConteudo();
+    blogEditor.focus();
   }
 
   // =========================================================
-  // BOTÃO INSERIR IMAGEM
+  // BOTÃO DIREITO DO MOUSE
   // =========================================================
 
-  const btnInserirImagem =
-    document.getElementById(
-      'btnInserirImagem'
+  let editorContextMenu = null;
+
+  function criarMenuContexto() {
+
+    if (editorContextMenu) {
+      return editorContextMenu;
+    }
+
+    editorContextMenu =
+      document.createElement('div');
+
+    editorContextMenu.className =
+      'editor-context-menu';
+
+    editorContextMenu.innerHTML = `
+
+      <button type="button" data-context-action="h1">
+        Título H1
+      </button>
+
+      <button type="button" data-context-action="h2">
+        Título H2
+      </button>
+
+      <button type="button" data-context-action="h3">
+        Título H3
+      </button>
+
+      <div class="context-separador"></div>
+
+      <button type="button" data-context-action="bold">
+        Negrito
+      </button>
+
+      <button type="button" data-context-action="italic">
+        Itálico
+      </button>
+
+      <button type="button" data-context-action="underline">
+        Sublinhado
+      </button>
+
+      <div class="context-separador"></div>
+
+      <button type="button" data-context-action="link">
+        🔗 Inserir link
+      </button>
+
+      <button type="button" data-context-action="image">
+        🖼️ Inserir imagem
+      </button>
+
+      <div class="context-separador"></div>
+
+      <button type="button" data-context-action="ul">
+        Lista com marcadores
+      </button>
+
+      <button type="button" data-context-action="ol">
+        Lista numerada
+      </button>
+
+    `;
+
+    document.body.appendChild(
+      editorContextMenu
     );
 
-  if (btnInserirImagem) {
+    editorContextMenu
+      .querySelectorAll(
+        '[data-context-action]'
+      )
+      .forEach((btn) => {
 
-    btnInserirImagem.addEventListener(
-      'click',
-      function () {
+        btn.addEventListener(
+          'click',
+          () => {
 
-        const url =
-          prompt(
-            'Digite a URL da imagem:'
-          );
+            const acao =
+              btn.dataset.contextAction;
 
-        if (!url) {
-          return;
-        }
+            executarAcaoContexto(
+              acao
+            );
 
-        const alt =
-          prompt(
-            'Digite uma descrição para a imagem:'
-          ) ||
-          'Imagem do artigo';
+            esconderMenuContexto();
 
-        inserirImagem(
-          url.trim(),
-          alt.trim()
+          }
         );
-      }
-    );
+
+      });
+
+    return editorContextMenu;
   }
 
-  // =========================================================
-  // INSERIR LINK
-  // =========================================================
+  function mostrarMenuContexto(x, y) {
 
-  const btnInserirLink =
-    document.getElementById(
-      'btnInserirLink'
-    );
+    const menu =
+      criarMenuContexto();
 
-  if (btnInserirLink) {
+    menu.style.display =
+      'block';
 
-    btnInserirLink.addEventListener(
-      'click',
-      function () {
+    const largura =
+      menu.offsetWidth;
 
-        if (!editor) {
-          return;
-        }
+    const altura =
+      menu.offsetHeight;
 
-        editor.focus();
+    const margem =
+      10;
 
-        const selecao =
-          window.getSelection();
+    let posX =
+      x;
 
-        const textoSelecionado =
-          selecao
-            ? selecao.toString()
-            : '';
+    let posY =
+      y;
+
+    if (
+      posX + largura >
+      window.innerWidth - margem
+    ) {
+
+      posX =
+        window.innerWidth -
+        largura -
+        margem;
+
+    }
+
+    if (
+      posY + altura >
+      window.innerHeight - margem
+    ) {
+
+      posY =
+        window.innerHeight -
+        altura -
+        margem;
+
+    }
+
+    menu.style.left =
+      `${Math.max(margem, posX)}px`;
+
+    menu.style.top =
+      `${Math.max(margem, posY)}px`;
+
+  }
+
+  function esconderMenuContexto() {
+
+    if (editorContextMenu) {
+
+      editorContextMenu.style.display =
+        'none';
+
+    }
+
+  }
+
+  function executarAcaoContexto(acao) {
+
+    if (!blogEditor) {
+      return;
+    }
+
+    blogEditor.focus();
+
+    switch (acao) {
+
+      case 'h1':
+        executarComando(
+          'formatBlock',
+          'H1'
+        );
+        break;
+
+      case 'h2':
+        executarComando(
+          'formatBlock',
+          'H2'
+        );
+        break;
+
+      case 'h3':
+        executarComando(
+          'formatBlock',
+          'H3'
+        );
+        break;
+
+      case 'bold':
+        executarComando(
+          'bold'
+        );
+        break;
+
+      case 'italic':
+        executarComando(
+          'italic'
+        );
+        break;
+
+      case 'underline':
+        executarComando(
+          'underline'
+        );
+        break;
+
+      case 'ul':
+        executarComando(
+          'insertUnorderedList'
+        );
+        break;
+
+      case 'ol':
+        executarComando(
+          'insertOrderedList'
+        );
+        break;
+
+      case 'link': {
 
         const url =
           prompt(
             'Digite a URL do link:'
           );
 
-        if (!url) {
-          return;
-        }
+        if (url) {
 
-        document.execCommand(
-          'createLink',
-          false,
-          url.trim()
-        );
-
-        if (!textoSelecionado) {
-          alert(
-            'Selecione um texto no editor antes de criar o link.'
+          executarComando(
+            'createLink',
+            url
           );
+
         }
 
-        sincronizarConteudo();
+        break;
       }
-    );
+
+      case 'image':
+
+        inserirImagem();
+
+        break;
+
+    }
+
   }
 
+  if (blogEditor) {
+
+    blogEditor.addEventListener(
+      'contextmenu',
+      (e) => {
+
+        e.preventDefault();
+
+        mostrarMenuContexto(
+          e.clientX,
+          e.clientY
+        );
+
+      }
+    );
+
+    blogEditor.addEventListener(
+      'click',
+      () => {
+
+        esconderMenuContexto();
+
+      }
+    );
+
+  }
+
+  document.addEventListener(
+    'click',
+    (e) => {
+
+      if (
+        editorContextMenu &&
+        !editorContextMenu.contains(e.target)
+      ) {
+
+        esconderMenuContexto();
+
+      }
+
+    }
+  );
+
+  window.addEventListener(
+    'scroll',
+    esconderMenuContexto
+  );
+
+  window.addEventListener(
+    'resize',
+    esconderMenuContexto
+  );
+
   // =========================================================
-  // SALVAR ARTIGO
+  // BLOG - SALVAR ARTIGO
   // =========================================================
 
   if (btnSalvarArtigo) {
 
     btnSalvarArtigo.addEventListener(
       'click',
-      async function () {
+      async () => {
+
+        console.log(
+          '[blog] Botão Salvar artigo clicado'
+        );
 
         if (erroBlog) {
           erroBlog.textContent = '';
         }
 
-        // ---------------------------------------------------
-        // CAMPOS
-        // ---------------------------------------------------
-
         const titulo =
           document
-            .getElementById('blogTitulo')
+            .getElementById(
+              'blogTitulo'
+            )
             .value
             .trim();
 
         const resumo =
           document
-            .getElementById('blogResumo')
+            .getElementById(
+              'blogResumo'
+            )
             .value
             .trim();
 
         const capa =
           document
-            .getElementById('blogCapa')
+            .getElementById(
+              'blogCapa'
+            )
             .value
             .trim();
 
-        // ---------------------------------------------------
-        // PEGA O CONTEÚDO DO EDITOR
-        // ---------------------------------------------------
+        let conteudo = '';
 
-        sincronizarConteudo();
+        // =====================================================
+        // PEGA CONTEÚDO DO EDITOR VISUAL
+        // =====================================================
 
-        const conteudo =
-          editor
-            ? editor.innerHTML.trim()
-            : (
-                campoConteudo
-                  ? campoConteudo.value.trim()
-                  : ''
-              );
+        if (blogEditor) {
+
+          conteudo =
+            blogEditor.innerHTML.trim();
+
+        } else if (blogConteudo) {
+
+          conteudo =
+            blogConteudo.value.trim();
+
+        }
 
         const publicado =
           document
-            .getElementById('blogPublicado')
+            .getElementById(
+              'blogPublicado'
+            )
             .checked;
 
-        // ---------------------------------------------------
+        // =====================================================
         // VALIDAÇÃO
-        // ---------------------------------------------------
+        // =====================================================
 
         if (!titulo) {
 
@@ -1085,9 +1270,9 @@
           return;
         }
 
-        // ---------------------------------------------------
+        // =====================================================
         // EVITA DUPLO CLIQUE
-        // ---------------------------------------------------
+        // =====================================================
 
         btnSalvarArtigo.disabled =
           true;
@@ -1120,7 +1305,7 @@
                   resumo,
 
                   capa_url:
-                    capa,
+                    capa || null,
 
                   conteudo,
 
@@ -1139,37 +1324,51 @@
             'Artigo salvo com sucesso!'
           );
 
-          // -------------------------------------------------
+          // ===================================================
           // LIMPA FORMULÁRIO
-          // -------------------------------------------------
+          // ===================================================
 
           document
-            .getElementById('blogTitulo')
+            .getElementById(
+              'blogTitulo'
+            )
             .value = '';
 
           document
-            .getElementById('blogResumo')
+            .getElementById(
+              'blogResumo'
+            )
             .value = '';
 
           document
-            .getElementById('blogCapa')
+            .getElementById(
+              'blogCapa'
+            )
             .value = '';
 
-          if (editor) {
-            editor.innerHTML = '';
+          if (blogEditor) {
+
+            blogEditor.innerHTML =
+              '';
+
           }
 
-          if (campoConteudo) {
-            campoConteudo.value = '';
+          if (blogConteudo) {
+
+            blogConteudo.value =
+              '';
+
           }
 
           document
-            .getElementById('blogPublicado')
+            .getElementById(
+              'blogPublicado'
+            )
             .checked = true;
 
-          // -------------------------------------------------
+          // ===================================================
           // ATUALIZA LISTA
-          // -------------------------------------------------
+          // ===================================================
 
           await carregarArtigos();
 
@@ -1181,9 +1380,11 @@
           );
 
           if (erroBlog) {
+
             erroBlog.textContent =
               err.message ||
               'Erro ao salvar artigo.';
+
           }
 
         } finally {
@@ -1193,13 +1394,16 @@
 
           btnSalvarArtigo.textContent =
             'Salvar artigo';
+
         }
+
       }
     );
+
   }
 
   // =========================================================
-  // CARREGAR ARTIGOS
+  // BLOG - CARREGAR ARTIGOS
   // =========================================================
 
   async function carregarArtigos() {
@@ -1233,7 +1437,7 @@
       }
 
       tbody.innerHTML =
-        artigos.map(function (artigo) {
+        artigos.map((artigo) => {
 
           const status =
             artigo.publicado
@@ -1245,7 +1449,7 @@
             <tr>
 
               <td>
-                ${escapeHtml(String(artigo.id))}
+                ${escapeHtml(artigo.id)}
               </td>
 
               <td>
@@ -1269,11 +1473,9 @@
               <td>
                 ${
                   escapeHtml(
-                    String(
-                      artigo.criado_em ||
-                      artigo.created_at ||
-                      '-'
-                    )
+                    artigo.criado_em ||
+                    artigo.created_at ||
+                    '-'
                   )
                 }
               </td>
@@ -1282,7 +1484,7 @@
 
                 <button
                   class="btn btn--excluir"
-                  data-blog-id="${escapeHtml(String(artigo.id))}">
+                  data-blog-id="${escapeHtml(artigo.id)}">
                   Excluir
                 </button>
 
@@ -1296,15 +1498,19 @@
 
         '<tr><td colspan="5">Nenhum artigo cadastrado.</td></tr>';
 
+      // =====================================================
+      // EXCLUIR ARTIGO
+      // =====================================================
+
       tbody
         .querySelectorAll(
           'button[data-blog-id]'
         )
-        .forEach(function (btn) {
+        .forEach((btn) => {
 
           btn.addEventListener(
             'click',
-            async function () {
+            async () => {
 
               if (
                 !confirm(
@@ -1339,7 +1545,9 @@
                 alert(
                   err.message
                 );
+
               }
+
             }
           );
 
@@ -1366,28 +1574,51 @@
         </tr>
 
       `;
+
     }
+
   }
 
   // =========================================================
-  // SEGURANÇA PARA TEXTO NAS TABELAS
+  // SEGURANÇA - ESCAPAR HTML
   // =========================================================
 
-  function escapeHtml(value) {
+  function escapeHtml(valor) {
 
-    return String(value)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
+    if (
+      valor === null ||
+      valor === undefined
+    ) {
+      return '';
+    }
+
+    return String(valor)
+      .replace(
+        /&/g,
+        '&amp;'
+      )
+      .replace(
+        /</g,
+        '&lt;'
+      )
+      .replace(
+        />/g,
+        '&gt;'
+      )
+      .replace(
+        /"/g,
+        '&quot;'
+      )
+      .replace(
+        /'/g,
+        '&#039;'
+      );
+
   }
 
   // =========================================================
   // INICIALIZAÇÃO
   // =========================================================
-
-  configurarEditor();
 
   console.log(
     '[admin] JavaScript administrativo carregado.'
