@@ -67,11 +67,25 @@ const ADMIN_DIR = path.join(
 // MIDDLEWARES
 // =========================================================
 
-app.use(express.json());
+// Aumenta o limite do JSON para permitir
+// salvar artigos que contenham imagens em Base64.
+//
+// Antes:
+// app.use(express.json());
+//
+// Agora:
+// limite de até 20 MB por requisição.
+
+app.use(
+  express.json({
+    limit: '20mb'
+  })
+);
 
 app.use(
   express.urlencoded({
-    extended: true
+    extended: true,
+    limit: '20mb'
   })
 );
 
