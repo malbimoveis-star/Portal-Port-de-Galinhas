@@ -8,15 +8,26 @@
   const API = window.location.origin;
   const TOKEN_KEY = 'portal_admin_token';
 
+
   // =========================================================
   // ELEMENTOS PRINCIPAIS
   // =========================================================
 
-  const telaLogin = document.getElementById('telaLogin');
-  const telaAdmin = document.getElementById('telaAdmin');
-  const formLogin = document.getElementById('formLogin');
-  const erroLogin = document.getElementById('erroLogin');
-  const btnSair = document.getElementById('btnSair');
+  const telaLogin =
+    document.getElementById('telaLogin');
+
+  const telaAdmin =
+    document.getElementById('telaAdmin');
+
+  const formLogin =
+    document.getElementById('formLogin');
+
+  const erroLogin =
+    document.getElementById('erroLogin');
+
+  const btnSair =
+    document.getElementById('btnSair');
+
 
   // =========================================================
   // AUTENTICAÇÃO
@@ -26,241 +37,437 @@
     return localStorage.getItem(TOKEN_KEY);
   }
 
+
   function setToken(token) {
-    localStorage.setItem(TOKEN_KEY, token);
+    localStorage.setItem(
+      TOKEN_KEY,
+      token
+    );
   }
+
 
   function limparToken() {
-    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(
+      TOKEN_KEY
+    );
   }
+
 
   function mostrarLogin() {
+
     if (telaLogin) {
-      telaLogin.classList.remove('escondido');
+      telaLogin.classList.remove(
+        'escondido'
+      );
     }
 
     if (telaAdmin) {
-      telaAdmin.classList.add('escondido');
+      telaAdmin.classList.add(
+        'escondido'
+      );
     }
+
   }
 
-  function mostrarAdmin() {
+
+  async function mostrarAdmin() {
+
     if (telaLogin) {
-      telaLogin.classList.add('escondido');
+      telaLogin.classList.add(
+        'escondido'
+      );
     }
 
     if (telaAdmin) {
-      telaAdmin.classList.remove('escondido');
+      telaAdmin.classList.remove(
+        'escondido'
+      );
     }
 
-    carregarPendentes();
-    carregarTodos();
-    carregarCategorias();
-    carregarArtigos();
+    await carregarPendentes();
+    await carregarTodos();
+    await carregarCategorias();
+    await carregarArtigos();
+
   }
+
 
   // =========================================================
   // API
   // =========================================================
 
-  async function apiFetch(path, options = {}) {
-    const token = getToken();
+  async function apiFetch(
+    path,
+    options = {}
+  ) {
+
+    const token =
+      getToken();
 
     const headers = {
       ...(options.headers || {})
     };
 
+
     if (token) {
-      headers.Authorization = `Bearer ${token}`;
+
+      headers.Authorization =
+        `Bearer ${token}`;
+
     }
 
-    const resp = await fetch(`${API}${path}`, {
-      ...options,
-      headers
-    });
+
+    const resposta =
+      await fetch(
+        `${API}${path}`,
+        {
+          ...options,
+          headers
+        }
+      );
+
 
     let data = {};
 
+
     try {
-      data = await resp.json();
-    } catch (e) {
+
+      data =
+        await resposta.json();
+
+    } catch (erro) {
+
       data = {};
+
     }
 
-    if (resp.status === 401 || resp.status === 403) {
+
+    if (
+      resposta.status === 401 ||
+      resposta.status === 403
+    ) {
+
       limparToken();
+
       mostrarLogin();
 
       throw new Error(
         data.erro ||
         'Sessão expirada. Faça login novamente.'
       );
+
     }
 
-    if (!resp.ok) {
+
+    if (!resposta.ok) {
+
       throw new Error(
         data.erro ||
         data.error ||
-        `Erro HTTP ${resp.status}`
+        `Erro HTTP ${resposta.status}`
       );
+
     }
 
+
     return data;
+
   }
+
 
   // =========================================================
   // LOGIN
   // =========================================================
 
   if (formLogin) {
-    formLogin.addEventListener('submit', async function (e) {
-      e.preventDefault();
 
-      if (erroLogin) {
-        erroLogin.textContent = '';
-      }
+    formLogin.addEventListener(
+      'submit',
+      async function (e) {
 
-      const usuarioElement =
-        document.getElementById('usuario');
+        e.preventDefault();
 
-      const senhaElement =
-        document.getElementById('senha');
-
-      const usuario =
-        usuarioElement
-          ? usuarioElement.value.trim()
-          : '';
-
-      const senha =
-        senhaElement
-          ? senhaElement.value
-          : '';
-
-      try {
-        const resp = await fetch(
-          `${API}/api/login`,
-          {
-            method: 'POST',
-
-            headers: {
-              'Content-Type':
-                'application/json'
-            },
-
-            body: JSON.stringify({
-              usuario,
-              senha
-            })
-          }
-        );
-
-        let data = {};
-
-        try {
-          data = await resp.json();
-        } catch (e) {
-          data = {};
-        }
-
-        if (!resp.ok) {
-          if (erroLogin) {
-            erroLogin.textContent =
-              data.erro ||
-              'Credenciais inválidas.';
-          }
-
-          return;
-        }
-
-        if (!data.token) {
-          throw new Error(
-            'O servidor não retornou o token de acesso.'
-          );
-        }
-
-        setToken(data.token);
-
-        mostrarAdmin();
-
-      } catch (err) {
-        console.error('[login]', err);
 
         if (erroLogin) {
+
           erroLogin.textContent =
-            err.message ||
-            'Erro ao conectar com o servidor.';
+            '';
+
         }
+
+
+        const campoUsuario =
+          document.getElementById(
+            'usuario'
+          );
+
+        const campoSenha =
+          document.getElementById(
+            'senha'
+          );
+
+
+        const usuario =
+          campoUsuario
+            ? campoUsuario.value.trim()
+            : '';
+
+
+        const senha =
+          campoSenha
+            ? campoSenha.value
+            : '';
+
+
+        try {
+
+          const resposta =
+            await fetch(
+              `${API}/api/login`,
+              {
+                method: 'POST',
+
+                headers: {
+                  'Content-Type':
+                    'application/json'
+                },
+
+                body:
+                  JSON.stringify({
+                    usuario,
+                    senha
+                  })
+              }
+            );
+
+
+          const data =
+            await resposta.json();
+
+
+          if (!resposta.ok) {
+
+            if (erroLogin) {
+
+              erroLogin.textContent =
+                data.erro ||
+                'Credenciais inválidas.';
+
+            }
+
+            return;
+
+          }
+
+
+          if (!data.token) {
+
+            throw new Error(
+              'O servidor não retornou o token de acesso.'
+            );
+
+          }
+
+
+          setToken(
+            data.token
+          );
+
+
+          await mostrarAdmin();
+
+        } catch (erro) {
+
+          console.error(
+            '[login]',
+            erro
+          );
+
+
+          if (erroLogin) {
+
+            erroLogin.textContent =
+              erro.message ||
+              'Erro ao conectar com o servidor.';
+
+          }
+
+        }
+
       }
-    });
+    );
+
   }
+
 
   // =========================================================
   // SAIR
   // =========================================================
 
   if (btnSair) {
-    btnSair.addEventListener('click', function () {
-      limparToken();
-      mostrarLogin();
-    });
+
+    btnSair.addEventListener(
+      'click',
+      function () {
+
+        limparToken();
+
+        mostrarLogin();
+
+      }
+    );
+
   }
 
+
   // =========================================================
-  // TABS
+  // ABAS
   // =========================================================
 
   document
-    .querySelectorAll('.tabs button')
-    .forEach(function (btn) {
+    .querySelectorAll(
+      '.tabs button'
+    )
+    .forEach(
+      function (btn) {
 
-      btn.addEventListener('click', function () {
+        btn.addEventListener(
+          'click',
+          async function () {
 
-        document
-          .querySelectorAll('.tabs button')
-          .forEach(function (b) {
-            b.classList.remove('ativa');
-          });
+            document
+              .querySelectorAll(
+                '.tabs button'
+              )
+              .forEach(
+                function (botao) {
 
-        btn.classList.add('ativa');
+                  botao.classList.remove(
+                    'ativa'
+                  );
 
-        document
-          .querySelectorAll('main section')
-          .forEach(function (section) {
-            section.classList.add('escondido');
-          });
+                }
+              );
 
-        const tabId =
-          `tab${capitalize(btn.dataset.tab)}`;
 
-        const tab =
-          document.getElementById(tabId);
+            btn.classList.add(
+              'ativa'
+            );
 
-        if (tab) {
-          tab.classList.remove('escondido');
-        }
 
-        if (btn.dataset.tab === 'blog') {
-          carregarArtigos();
-        }
+            document
+              .querySelectorAll(
+                'main section'
+              )
+              .forEach(
+                function (section) {
 
-      });
+                  section.classList.add(
+                    'escondido'
+                  );
 
-    });
+                }
+              );
 
-  function capitalize(valor) {
-    if (!valor) {
+
+            const tabId =
+              'tab' +
+              capitalize(
+                btn.dataset.tab
+              );
+
+
+            const tab =
+              document.getElementById(
+                tabId
+              );
+
+
+            if (tab) {
+
+              tab.classList.remove(
+                'escondido'
+              );
+
+            }
+
+
+            if (
+              btn.dataset.tab ===
+              'pendentes'
+            ) {
+
+              await carregarPendentes();
+
+            }
+
+
+            if (
+              btn.dataset.tab ===
+              'todos'
+            ) {
+
+              await carregarTodos();
+
+            }
+
+
+            if (
+              btn.dataset.tab ===
+              'categorias'
+            ) {
+
+              await carregarCategorias();
+
+            }
+
+
+            if (
+              btn.dataset.tab ===
+              'blog'
+            ) {
+
+              await carregarArtigos();
+
+            }
+
+          }
+        );
+
+      }
+    );
+
+
+  function capitalize(texto) {
+
+    if (!texto) {
       return '';
     }
 
-    return valor.charAt(0).toUpperCase() +
-      valor.slice(1);
+    return (
+      texto.charAt(0).toUpperCase() +
+      texto.slice(1)
+    );
+
   }
+
 
   // =========================================================
   // ANÚNCIOS PENDENTES
   // =========================================================
 
   async function carregarPendentes() {
+
+    const container =
+      document.getElementById(
+        'listaPendentes'
+      );
+
+
+    if (!container) {
+      return;
+    }
+
 
     try {
 
@@ -269,138 +476,192 @@
           '/api/admin/anuncios'
         );
 
-      const container =
-        document.getElementById(
-          'listaPendentes'
-        );
 
-      if (!container) {
-        return;
-      }
+      if (
+        !Array.isArray(
+          pendentes
+        ) ||
+        pendentes.length === 0
+      ) {
 
-      if (!Array.isArray(pendentes)) {
         container.innerHTML =
           '<p>Nenhum anúncio pendente.</p>';
 
         return;
+
       }
 
+
       container.innerHTML =
-        pendentes.map(function (a) {
+        pendentes
+          .map(
+            function (anuncio) {
 
-          return `
+              return `
 
-            <div
-              style="
-                padding:12px;
-                border-bottom:1px solid #ddd;
-              "
-            >
+                <div
+                  style="
+                    padding:12px;
+                    border-bottom:1px solid #ddd;
+                  "
+                >
 
-              <strong>
-                ${escapeHtml(a.titulo || '')}
-              </strong>
+                  <strong>
+                    ${escapeHtml(
+                      anuncio.titulo || ''
+                    )}
+                  </strong>
 
-              <br>
+                  <br>
 
-              Comerciante:
-              ${escapeHtml(a.id_comerciante || '-')}
+                  Comerciante:
+                  ${escapeHtml(
+                    anuncio.id_comerciante || '-'
+                  )}
 
-              <br>
+                  <br>
 
-              Status:
+                  Status:
 
-              <span
-                class="badge badge--${escapeHtml(a.status || '')}"
-              >
-                ${escapeHtml(a.status || '-')}
-              </span>
+                  <span
+                    class="badge badge--${escapeHtml(
+                      anuncio.status || ''
+                    )}"
+                  >
+                    ${escapeHtml(
+                      anuncio.status || '-'
+                    )}
+                  </span>
 
-              <br><br>
+                  <br><br>
 
-              <button
-                class="btn btn--aprovar"
-                data-acao="aprovar"
-                data-id="${escapeHtml(a.id)}"
-              >
-                Aprovar
-              </button>
+                  <button
+                    type="button"
+                    class="btn btn--aprovar"
+                    data-acao="aprovar"
+                    data-id="${escapeHtml(
+                      anuncio.id
+                    )}"
+                  >
+                    Aprovar
+                  </button>
 
-              <button
-                class="btn btn--rejeitar"
-                data-acao="rejeitar"
-                data-id="${escapeHtml(a.id)}"
-              >
-                Rejeitar
-              </button>
+                  <button
+                    type="button"
+                    class="btn btn--rejeitar"
+                    data-acao="rejeitar"
+                    data-id="${escapeHtml(
+                      anuncio.id
+                    )}"
+                  >
+                    Rejeitar
+                  </button>
 
-            </div>
+                </div>
 
-          `;
+              `;
 
-        }).join('') ||
+            }
+          )
+          .join('');
 
-        '<p>Nenhum anúncio pendente.</p>';
 
       container
         .querySelectorAll(
           'button[data-acao]'
         )
-        .forEach(function (btn) {
+        .forEach(
+          function (btn) {
 
-          btn.addEventListener(
-            'click',
-            async function () {
+            btn.addEventListener(
+              'click',
+              async function () {
 
-              const acao =
-                btn.dataset.acao;
+                const acao =
+                  btn.dataset.acao;
 
-              const id =
-                btn.dataset.id;
+                const id =
+                  btn.dataset.id;
 
-              try {
 
-                await apiFetch(
-                  `/api/admin/anuncios/${id}/${acao}`,
-                  {
-                    method: 'PUT'
-                  }
-                );
+                try {
 
-                await carregarPendentes();
-                await carregarTodos();
+                  btn.disabled =
+                    true;
 
-              } catch (err) {
 
-                console.error(
-                  '[anuncio]',
-                  err
-                );
+                  await apiFetch(
+                    `/api/admin/anuncios/${id}/${acao}`,
+                    {
+                      method: 'PUT'
+                    }
+                  );
 
-                alert(err.message);
+
+                  await carregarPendentes();
+
+                  await carregarTodos();
+
+                } catch (erro) {
+
+                  console.error(
+                    '[anuncio]',
+                    erro
+                  );
+
+
+                  alert(
+                    erro.message
+                  );
+
+
+                  btn.disabled =
+                    false;
+
+                }
+
               }
+            );
 
-            }
-          );
+          }
+        );
 
-        });
-
-    } catch (err) {
+    } catch (erro) {
 
       console.error(
         '[pendentes]',
-        err
+        erro
       );
+
+
+      container.innerHTML =
+        `<p class="erro">
+          ${escapeHtml(
+            erro.message
+          )}
+        </p>`;
 
     }
 
   }
+
 
   // =========================================================
   // TODOS OS ANÚNCIOS
   // =========================================================
 
   async function carregarTodos() {
+
+    const tbody =
+      document.getElementById(
+        'listaTodos'
+      );
+
+
+    if (!tbody) {
+      return;
+    }
+
 
     try {
 
@@ -409,133 +670,189 @@
           '/api/admin/anuncios/todos'
         );
 
-      const tbody =
-        document.getElementById(
-          'listaTodos'
-        );
 
-      if (!tbody) {
-        return;
-      }
-
-      if (!Array.isArray(todos)) {
+      if (
+        !Array.isArray(todos) ||
+        todos.length === 0
+      ) {
 
         tbody.innerHTML =
           '<tr><td colspan="5">Nenhum anúncio cadastrado.</td></tr>';
 
         return;
+
       }
 
+
       tbody.innerHTML =
-        todos.map(function (a) {
+        todos
+          .map(
+            function (anuncio) {
 
-          return `
+              return `
 
-            <tr>
+                <tr>
 
-              <td>
-                ${escapeHtml(a.id)}
-              </td>
+                  <td>
+                    ${escapeHtml(
+                      anuncio.id
+                    )}
+                  </td>
 
-              <td>
-                ${escapeHtml(a.titulo || '')}
-              </td>
+                  <td>
+                    ${escapeHtml(
+                      anuncio.titulo || ''
+                    )}
+                  </td>
 
-              <td>
+                  <td>
 
-                <span
-                  class="badge badge--${escapeHtml(a.status || '')}"
-                >
-                  ${escapeHtml(a.status || '-')}
-                </span>
+                    <span
+                      class="badge badge--${escapeHtml(
+                        anuncio.status || ''
+                      )}"
+                    >
+                      ${escapeHtml(
+                        anuncio.status || '-'
+                      )}
+                    </span>
 
-              </td>
+                  </td>
 
-              <td>
-                ${escapeHtml(a.latitude ?? '-')},
-                ${escapeHtml(a.longitude ?? '-')}
-              </td>
+                  <td>
+                    ${escapeHtml(
+                      anuncio.latitude ?? '-'
+                    )},
+                    ${escapeHtml(
+                      anuncio.longitude ?? '-'
+                    )}
+                  </td>
 
-              <td>
+                  <td>
 
-                <button
-                  class="btn btn--excluir"
-                  data-id="${escapeHtml(a.id)}"
-                >
-                  Excluir
-                </button>
+                    <button
+                      type="button"
+                      class="btn btn--excluir"
+                      data-id="${escapeHtml(
+                        anuncio.id
+                      )}"
+                    >
+                      Excluir
+                    </button>
 
-              </td>
+                  </td>
 
-            </tr>
+                </tr>
 
-          `;
+              `;
 
-        }).join('') ||
+            }
+          )
+          .join('');
 
-        '<tr><td colspan="5">Nenhum anúncio cadastrado.</td></tr>';
 
       tbody
         .querySelectorAll(
           'button.btn--excluir'
         )
-        .forEach(function (btn) {
+        .forEach(
+          function (btn) {
 
-          btn.addEventListener(
-            'click',
-            async function () {
+            btn.addEventListener(
+              'click',
+              async function () {
 
-              if (
-                !confirm(
-                  'Excluir este anúncio?'
-                )
-              ) {
-                return;
+                if (
+                  !confirm(
+                    'Excluir este anúncio?'
+                  )
+                ) {
+
+                  return;
+
+                }
+
+
+                try {
+
+                  btn.disabled =
+                    true;
+
+
+                  await apiFetch(
+                    `/api/admin/anuncios/${btn.dataset.id}`,
+                    {
+                      method: 'DELETE'
+                    }
+                  );
+
+
+                  await carregarTodos();
+
+                  await carregarPendentes();
+
+                } catch (erro) {
+
+                  console.error(
+                    '[excluir anuncio]',
+                    erro
+                  );
+
+
+                  alert(
+                    erro.message
+                  );
+
+
+                  btn.disabled =
+                    false;
+
+                }
+
               }
+            );
 
-              try {
+          }
+        );
 
-                await apiFetch(
-                  `/api/admin/anuncios/${btn.dataset.id}`,
-                  {
-                    method: 'DELETE'
-                  }
-                );
-
-                await carregarTodos();
-                await carregarPendentes();
-
-              } catch (err) {
-
-                console.error(
-                  '[excluir anuncio]',
-                  err
-                );
-
-                alert(err.message);
-              }
-
-            }
-          );
-
-        });
-
-    } catch (err) {
+    } catch (erro) {
 
       console.error(
         '[todos anuncios]',
-        err
+        erro
       );
+
+
+      tbody.innerHTML =
+        `<tr>
+          <td colspan="5">
+            ${escapeHtml(
+              erro.message
+            )}
+          </td>
+        </tr>`;
 
     }
 
   }
+
 
   // =========================================================
   // CATEGORIAS
   // =========================================================
 
   async function carregarCategorias() {
+
+    const tbody =
+      document.getElementById(
+        'listaCategorias'
+      );
+
+
+    if (!tbody) {
+      return;
+    }
+
 
     try {
 
@@ -544,119 +861,153 @@
           '/api/admin/categorias'
         );
 
-      const tbody =
-        document.getElementById(
-          'listaCategorias'
-        );
 
-      if (!tbody) {
-        return;
-      }
-
-      if (!Array.isArray(categorias)) {
+      if (
+        !Array.isArray(
+          categorias
+        ) ||
+        categorias.length === 0
+      ) {
 
         tbody.innerHTML =
           '<tr><td colspan="5">Nenhuma categoria cadastrada.</td></tr>';
 
         return;
+
       }
 
+
       tbody.innerHTML =
-        categorias.map(function (c) {
+        categorias
+          .map(
+            function (categoria) {
 
-          return `
+              return `
 
-            <tr>
+                <tr>
 
-              <td>
-                ${escapeHtml(c.id)}
-              </td>
+                  <td>
+                    ${escapeHtml(
+                      categoria.id
+                    )}
+                  </td>
 
-              <td>
-                ${escapeHtml(c.nome || '')}
-              </td>
+                  <td>
+                    ${escapeHtml(
+                      categoria.nome || ''
+                    )}
+                  </td>
 
-              <td>
-                ${escapeHtml(c.icone_url || '-')}
-              </td>
+                  <td>
+                    ${escapeHtml(
+                      categoria.icone_url || '-'
+                    )}
+                  </td>
 
-              <td>
-                ${escapeHtml(c.slug || '-')}
-              </td>
+                  <td>
+                    ${escapeHtml(
+                      categoria.slug || '-'
+                    )}
+                  </td>
 
-              <td>
+                  <td>
 
-                <button
-                  class="btn btn--excluir"
-                  data-id="${escapeHtml(c.id)}"
-                >
-                  Excluir
-                </button>
+                    <button
+                      type="button"
+                      class="btn btn--excluir"
+                      data-id="${escapeHtml(
+                        categoria.id
+                      )}"
+                    >
+                      Excluir
+                    </button>
 
-              </td>
+                  </td>
 
-            </tr>
+                </tr>
 
-          `;
+              `;
 
-        }).join('') ||
+            }
+          )
+          .join('');
 
-        '<tr><td colspan="5">Nenhuma categoria cadastrada.</td></tr>';
 
       tbody
         .querySelectorAll(
           'button.btn--excluir'
         )
-        .forEach(function (btn) {
+        .forEach(
+          function (btn) {
 
-          btn.addEventListener(
-            'click',
-            async function () {
+            btn.addEventListener(
+              'click',
+              async function () {
 
-              if (
-                !confirm(
-                  'Excluir esta categoria?'
-                )
-              ) {
-                return;
+                if (
+                  !confirm(
+                    'Excluir esta categoria?'
+                  )
+                ) {
+
+                  return;
+
+                }
+
+
+                try {
+
+                  await apiFetch(
+                    `/api/admin/categorias/${btn.dataset.id}`,
+                    {
+                      method: 'DELETE'
+                    }
+                  );
+
+
+                  await carregarCategorias();
+
+                } catch (erro) {
+
+                  console.error(
+                    '[excluir categoria]',
+                    erro
+                  );
+
+
+                  alert(
+                    erro.message
+                  );
+
+                }
+
               }
+            );
 
-              try {
+          }
+        );
 
-                await apiFetch(
-                  `/api/admin/categorias/${btn.dataset.id}`,
-                  {
-                    method: 'DELETE'
-                  }
-                );
-
-                await carregarCategorias();
-
-              } catch (err) {
-
-                console.error(
-                  '[excluir categoria]',
-                  err
-                );
-
-                alert(err.message);
-              }
-
-            }
-          );
-
-        });
-
-    } catch (err) {
+    } catch (erro) {
 
       console.error(
         '[categorias]',
-        err
+        erro
       );
+
+
+      tbody.innerHTML =
+        `<tr>
+          <td colspan="5">
+            ${escapeHtml(
+              erro.message
+            )}
+          </td>
+        </tr>`;
 
     }
 
   }
+
 
   // =========================================================
   // ADICIONAR CATEGORIA
@@ -667,31 +1018,35 @@
       'btnAddCategoria'
     );
 
+
   if (btnAddCategoria) {
 
     btnAddCategoria.addEventListener(
       'click',
       async function () {
 
-        const nomeElement =
+        const campoNome =
           document.getElementById(
             'novaCategoriaNome'
           );
 
-        const iconeElement =
+        const campoIcone =
           document.getElementById(
             'novaCategoriaIcone'
           );
 
+
         const nome =
-          nomeElement
-            ? nomeElement.value.trim()
+          campoNome
+            ? campoNome.value.trim()
             : '';
 
+
         const icone_url =
-          iconeElement
-            ? iconeElement.value.trim()
+          campoIcone
+            ? campoIcone.value.trim()
             : '';
+
 
         if (!nome) {
 
@@ -700,9 +1055,15 @@
           );
 
           return;
+
         }
 
+
         try {
+
+          btnAddCategoria.disabled =
+            true;
+
 
           await apiFetch(
             '/api/admin/categorias',
@@ -714,31 +1075,46 @@
                   'application/json'
               },
 
-              body: JSON.stringify({
-                nome,
-                icone_url
-              })
+              body:
+                JSON.stringify({
+                  nome,
+                  icone_url
+                })
             }
           );
 
-          if (nomeElement) {
-            nomeElement.value = '';
+
+          if (campoNome) {
+            campoNome.value =
+              '';
           }
 
-          if (iconeElement) {
-            iconeElement.value = '';
+
+          if (campoIcone) {
+            campoIcone.value =
+              '';
           }
+
 
           await carregarCategorias();
 
-        } catch (err) {
+        } catch (erro) {
 
           console.error(
             '[adicionar categoria]',
-            err
+            erro
           );
 
-          alert(err.message);
+
+          alert(
+            erro.message
+          );
+
+        } finally {
+
+          btnAddCategoria.disabled =
+            false;
+
         }
 
       }
@@ -746,8 +1122,9 @@
 
   }
 
+
   // =========================================================
-  // BLOG - ELEMENTOS
+  // BLOG
   // =========================================================
 
   const btnSalvarArtigo =
@@ -760,87 +1137,85 @@
       'erroBlog'
     );
 
-  /*
-    IMPORTANTE:
-
-    No seu index.html atual o editor é:
-
-    <div
-      id="blogConteudo"
-      class="blog-editor"
-      contenteditable="true"
-    ></div>
-
-    Portanto usamos blogConteudo como editor visual.
-  */
-
   const blogEditor =
     document.getElementById(
       'blogConteudo'
     );
 
+  const editorContextMenu =
+    document.getElementById(
+      'editorContextMenu'
+    );
+
+
   // =========================================================
   // SELEÇÃO DO EDITOR
   // =========================================================
 
-  let ultimaSelecao = null;
+  let ultimaSelecao =
+    null;
 
-  function salvarSelecaoEditor() {
+
+  function salvarSelecao() {
 
     if (!blogEditor) {
       return;
     }
 
+
     const selecao =
       window.getSelection();
 
-    if (
-      !selecao ||
-      selecao.rangeCount === 0
-    ) {
-      return;
-    }
-
-    const range =
-      selecao.getRangeAt(0);
 
     if (
+      selecao &&
+      selecao.rangeCount > 0 &&
       blogEditor.contains(
-        range.commonAncestorContainer
+        selecao.anchorNode
       )
     ) {
 
       ultimaSelecao =
-        range.cloneRange();
+        selecao
+          .getRangeAt(0)
+          .cloneRange();
 
     }
 
   }
 
-  function restaurarSelecaoEditor() {
 
-    if (!blogEditor) {
+  function restaurarSelecao() {
+
+    if (!ultimaSelecao) {
       return;
     }
 
-    blogEditor.focus();
 
-    const selecao =
-      window.getSelection();
+    try {
 
-    if (
-      ultimaSelecao
-    ) {
+      const selecao =
+        window.getSelection();
+
 
       selecao.removeAllRanges();
+
 
       selecao.addRange(
         ultimaSelecao
       );
 
+    } catch (erro) {
+
+      console.warn(
+        '[editor] Não foi possível restaurar seleção.',
+        erro
+      );
+
     }
 
   }
+
 
   // =========================================================
   // EXECUTAR COMANDO
@@ -855,7 +1230,12 @@
       return;
     }
 
-    restaurarSelecaoEditor();
+
+    restaurarSelecao();
+
+
+    blogEditor.focus();
+
 
     try {
 
@@ -865,235 +1245,275 @@
         valor
       );
 
-      salvarSelecaoEditor();
 
-    } catch (err) {
+      salvarSelecao();
+
+    } catch (erro) {
 
       console.error(
-        '[editor] Erro:',
-        comando,
-        err
+        '[editor]',
+        erro
       );
 
     }
 
   }
 
+
   // =========================================================
-  // INSERIR HTML NO LOCAL SELECIONADO
+  // INPUT DE IMAGEM DO COMPUTADOR
   // =========================================================
 
-  function inserirHtml(html) {
+  const inputImagem =
+    document.createElement(
+      'input'
+    );
+
+
+  inputImagem.type =
+    'file';
+
+
+  inputImagem.accept =
+    'image/*';
+
+
+  inputImagem.multiple =
+    true;
+
+
+  inputImagem.style.display =
+    'none';
+
+
+  document.body.appendChild(
+    inputImagem
+  );
+
+
+  // =========================================================
+  // INSERIR IMAGEM NO EDITOR
+  // =========================================================
+
+  function inserirImagemNoEditor(
+    src,
+    alt = 'Imagem do artigo'
+  ) {
 
     if (!blogEditor) {
       return;
     }
 
-    restaurarSelecaoEditor();
+
+    restaurarSelecao();
+
+
+    blogEditor.focus();
+
+
+    const imagem =
+      document.createElement(
+        'img'
+      );
+
+
+    imagem.src =
+      src;
+
+
+    imagem.alt =
+      alt;
+
+
+    imagem.className =
+      'editor-imagem';
+
+
+    imagem.loading =
+      'lazy';
+
+
+    imagem.style.maxWidth =
+      '100%';
+
+
+    imagem.style.height =
+      'auto';
+
+
+    imagem.style.display =
+      'block';
+
+
+    imagem.style.margin =
+      '15px 0';
+
 
     const selecao =
       window.getSelection();
 
+
     if (
-      !selecao ||
-      selecao.rangeCount === 0
+      selecao &&
+      selecao.rangeCount > 0
     ) {
 
-      blogEditor.insertAdjacentHTML(
-        'beforeend',
-        html
+      const range =
+        selecao.getRangeAt(0);
+
+
+      range.deleteContents();
+
+
+      range.insertNode(
+        imagem
       );
 
-      return;
-
-    }
-
-    const range =
-      selecao.getRangeAt(0);
-
-    range.deleteContents();
-
-    const fragment =
-      range.createContextualFragment(
-        html
-      );
-
-    const ultimo =
-      fragment.lastChild;
-
-    range.insertNode(
-      fragment
-    );
-
-    if (ultimo) {
 
       range.setStartAfter(
-        ultimo
+        imagem
       );
 
-      range.collapse(true);
+
+      range.collapse(
+        true
+      );
+
 
       selecao.removeAllRanges();
+
 
       selecao.addRange(
         range
       );
 
+    } else {
+
+      blogEditor.appendChild(
+        imagem
+      );
+
     }
 
-    salvarSelecaoEditor();
+
+    salvarSelecao();
 
   }
 
+
   // =========================================================
-  // BARRA DE FERRAMENTAS
+  // IMAGEM POR URL
   // =========================================================
 
-  document
-    .querySelectorAll(
-      '[data-editor-action]'
-    )
-    .forEach(function (btn) {
+  function inserirImagemURL() {
 
-      btn.addEventListener(
-        'mousedown',
-        function (e) {
+    if (!blogEditor) {
+      return;
+    }
 
-          /*
-            Impede que o clique no botão
-            faça o editor perder a seleção.
-          */
 
-          e.preventDefault();
+    salvarSelecao();
 
-          salvarSelecaoEditor();
 
-        }
+    const url =
+      prompt(
+        'Cole a URL da imagem:'
       );
 
-      btn.addEventListener(
-        'click',
-        function () {
 
-          const acao =
-            btn.dataset.editorAction;
+    if (!url) {
+      return;
+    }
 
-          executarAcaoEditor(
-            acao
+
+    inserirImagemNoEditor(
+      url
+    );
+
+  }
+
+
+  // =========================================================
+  // IMAGEM DO COMPUTADOR
+  // =========================================================
+
+  function escolherImagemComputador() {
+
+    if (!blogEditor) {
+      return;
+    }
+
+
+    salvarSelecao();
+
+
+    inputImagem.value =
+      '';
+
+
+    inputImagem.click();
+
+  }
+
+
+  inputImagem.addEventListener(
+    'change',
+    function () {
+
+      const arquivos =
+        Array.from(
+          inputImagem.files || []
+        );
+
+
+      if (
+        arquivos.length === 0
+      ) {
+
+        return;
+
+      }
+
+
+      arquivos.forEach(
+        function (arquivo) {
+
+          if (
+            !arquivo.type.startsWith(
+              'image/'
+            )
+          ) {
+
+            return;
+
+          }
+
+
+          const leitor =
+            new FileReader();
+
+
+          leitor.onload =
+            function (evento) {
+
+              inserirImagemNoEditor(
+                evento.target.result,
+                arquivo.name
+              );
+
+            };
+
+
+          leitor.readAsDataURL(
+            arquivo
           );
 
         }
       );
 
-    });
-
-  // =========================================================
-  // EXECUTAR AÇÕES DO EDITOR
-  // =========================================================
-
-  function executarAcaoEditor(
-    acao
-  ) {
-
-    switch (acao) {
-
-      case 'h1':
-
-        executarComando(
-          'formatBlock',
-          'H1'
-        );
-
-        break;
-
-      case 'h2':
-
-        executarComando(
-          'formatBlock',
-          'H2'
-        );
-
-        break;
-
-      case 'h3':
-
-        executarComando(
-          'formatBlock',
-          'H3'
-        );
-
-        break;
-
-      case 'bold':
-
-        executarComando(
-          'bold'
-        );
-
-        break;
-
-      case 'italic':
-
-        executarComando(
-          'italic'
-        );
-
-        break;
-
-      case 'underline':
-
-        executarComando(
-          'underline'
-        );
-
-        break;
-
-      case 'paragraph':
-
-        executarComando(
-          'formatBlock',
-          'P'
-        );
-
-        break;
-
-      case 'quote':
-
-        executarComando(
-          'formatBlock',
-          'BLOCKQUOTE'
-        );
-
-        break;
-
-      case 'link':
-
-        inserirLink();
-
-        break;
-
-      case 'image':
-
-        inserirImagemUrl();
-
-        break;
-
-      case 'imageMultiple':
-
-        inserirVariasImagens();
-
-        break;
-
-      default:
-
-        console.warn(
-          '[editor] Ação desconhecida:',
-          acao
-        );
-
     }
+  );
 
-  }
 
   // =========================================================
   // INSERIR LINK
@@ -1105,486 +1525,196 @@
       return;
     }
 
-    salvarSelecaoEditor();
+
+    salvarSelecao();
+
 
     const url =
       prompt(
         'Digite a URL do link:'
       );
 
+
     if (!url) {
       return;
     }
+
 
     executarComando(
       'createLink',
-      url.trim()
+      url
     );
 
   }
 
+
   // =========================================================
-  // INPUT PARA ESCOLHER IMAGEM DO COMPUTADOR
+  // FORMATAR TÍTULO
   // =========================================================
 
-  function abrirBibliotecaImagem(
-    varias = false
+  function aplicarTitulo(
+    tipo
   ) {
 
-    if (!blogEditor) {
-      return;
-    }
-
-    salvarSelecaoEditor();
-
-    const input =
-      document.createElement(
-        'input'
-      );
-
-    input.type =
-      'file';
-
-    input.accept =
-      'image/*';
-
-    if (varias) {
-      input.multiple = true;
-    }
-
-    input.style.display =
-      'none';
-
-    document.body.appendChild(
-      input
-    );
-
-    input.addEventListener(
-      'change',
-      function () {
-
-        const arquivos =
-          Array.from(
-            input.files || []
-          );
-
-        if (!arquivos.length) {
-
-          input.remove();
-
-          return;
-
-        }
-
-        if (varias) {
-
-          arquivos.forEach(
-            function (arquivo) {
-
-              lerImagemArquivo(
-                arquivo
-              );
-
-            }
-          );
-
-        } else {
-
-          lerImagemArquivo(
-            arquivos[0]
-          );
-
-        }
-
-        input.remove();
-
-      }
-    );
-
-    input.click();
-
-  }
-
-  // =========================================================
-  // LER IMAGEM DO COMPUTADOR
-  // =========================================================
-
-  function lerImagemArquivo(
-    arquivo
-  ) {
-
-    if (
-      !arquivo ||
-      !arquivo.type.startsWith(
-        'image/'
-      )
-    ) {
-      return;
-    }
-
-    const leitor =
-      new FileReader();
-
-    leitor.onload =
-      function (evento) {
-
-        const src =
-          evento.target.result;
-
-        inserirImagemNoEditor(
-          src,
-          arquivo.name
-        );
-
-      };
-
-    leitor.onerror =
-      function () {
-
-        alert(
-          'Não foi possível ler a imagem selecionada.'
-        );
-
-      };
-
-    leitor.readAsDataURL(
-      arquivo
+    executarComando(
+      'formatBlock',
+      tipo
     );
 
   }
 
-  // =========================================================
-  // INSERIR IMAGEM NO EDITOR
-  // =========================================================
-
-  function inserirImagemNoEditor(
-    src,
-    nomeArquivo = 'Imagem do artigo'
-  ) {
-
-    if (!blogEditor) {
-      return;
-    }
-
-    const imagem =
-      document.createElement(
-        'img'
-      );
-
-    imagem.src =
-      src;
-
-    imagem.alt =
-      nomeArquivo;
-
-    imagem.className =
-      'editor-imagem';
-
-    imagem.loading =
-      'lazy';
-
-    imagem.style.maxWidth =
-      '100%';
-
-    imagem.style.height =
-      'auto';
-
-    imagem.style.display =
-      'block';
-
-    imagem.style.margin =
-      '15px 0';
-
-    restaurarSelecaoEditor();
-
-    const selecao =
-      window.getSelection();
-
-    if (
-      selecao &&
-      selecao.rangeCount > 0
-    ) {
-
-      const range =
-        selecao.getRangeAt(0);
-
-      if (
-        blogEditor.contains(
-          range.commonAncestorContainer
-        )
-      ) {
-
-        range.deleteContents();
-
-        range.insertNode(
-          imagem
-        );
-
-        const novoRange =
-          document.createRange();
-
-        novoRange.setStartAfter(
-          imagem
-        );
-
-        novoRange.collapse(
-          true
-        );
-
-        selecao.removeAllRanges();
-
-        selecao.addRange(
-          novoRange
-        );
-
-      } else {
-
-        blogEditor.appendChild(
-          imagem
-        );
-
-      }
-
-    } else {
-
-      blogEditor.appendChild(
-        imagem
-      );
-
-    }
-
-    salvarSelecaoEditor();
-
-  }
 
   // =========================================================
-  // IMAGEM POR URL
+  // PARÁGRAFO
   // =========================================================
 
-  function inserirImagemUrl() {
+  function aplicarParagrafo() {
 
-    if (!blogEditor) {
-      return;
-    }
-
-    salvarSelecaoEditor();
-
-    const url =
-      prompt(
-        'Cole aqui a URL da imagem:'
-      );
-
-    if (!url) {
-      return;
-    }
-
-    inserirImagemNoEditor(
-      url.trim(),
-      'Imagem do artigo'
+    executarComando(
+      'formatBlock',
+      'P'
     );
 
   }
 
+
   // =========================================================
-  // VÁRIAS IMAGENS DO COMPUTADOR
+  // CITAÇÃO
   // =========================================================
 
-  function inserirVariasImagens() {
+  function aplicarCitacao() {
 
-    abrirBibliotecaImagem(
-      true
+    executarComando(
+      'formatBlock',
+      'BLOCKQUOTE'
     );
 
   }
 
+
   // =========================================================
-  // MENU DE CONTEXTO
+  // BOTÕES DA BARRA DE FERRAMENTAS
   // =========================================================
 
-  let editorContextMenu = null;
-
-  function criarMenuContexto() {
-
-    if (editorContextMenu) {
-      return editorContextMenu;
-    }
-
-    editorContextMenu =
-      document.createElement(
-        'div'
-      );
-
-    editorContextMenu.id =
-      'editorContextMenuJS';
-
-    editorContextMenu.className =
-      'editor-context-menu';
-
-    editorContextMenu.style.position =
-      'fixed';
-
-    editorContextMenu.style.zIndex =
-      '99999';
-
-    editorContextMenu.style.display =
-      'none';
-
-    editorContextMenu.innerHTML = `
-
-      <button
-        type="button"
-        data-context-action="h1"
-      >
-        H1 - Título principal
-      </button>
-
-      <button
-        type="button"
-        data-context-action="h2"
-      >
-        H2 - Subtítulo
-      </button>
-
-      <button
-        type="button"
-        data-context-action="h3"
-      >
-        H3 - Seção
-      </button>
-
-      <button
-        type="button"
-        data-context-action="paragraph"
-      >
-        ¶ Parágrafo
-      </button>
-
-      <div class="context-separador"></div>
-
-      <button
-        type="button"
-        data-context-action="bold"
-      >
-        <strong>B</strong> Negrito
-      </button>
-
-      <button
-        type="button"
-        data-context-action="italic"
-      >
-        <em>I</em> Itálico
-      </button>
-
-      <button
-        type="button"
-        data-context-action="underline"
-      >
-        <u>U</u> Sublinhado
-      </button>
-
-      <div class="context-separador"></div>
-
-      <button
-        type="button"
-        data-context-action="link"
-      >
-        🔗 Inserir link
-      </button>
-
-      <button
-        type="button"
-        data-context-action="imageFile"
-      >
-        🖼️ Imagem do computador
-      </button>
-
-      <button
-        type="button"
-        data-context-action="imageUrl"
-      >
-        🌐 Imagem por URL
-      </button>
-
-      <button
-        type="button"
-        data-context-action="imageMultiple"
-      >
-        📷 Várias imagens
-      </button>
-
-      <div class="context-separador"></div>
-
-      <button
-        type="button"
-        data-context-action="ul"
-      >
-        • Lista com marcadores
-      </button>
-
-      <button
-        type="button"
-        data-context-action="ol"
-      >
-        1. Lista numerada
-      </button>
-
-      <button
-        type="button"
-        data-context-action="quote"
-      >
-        ❝ Citação
-      </button>
-
-    `;
-
-    document.body.appendChild(
-      editorContextMenu
-    );
-
-    editorContextMenu
-      .querySelectorAll(
-        '[data-context-action]'
-      )
-      .forEach(function (btn) {
+  document
+    .querySelectorAll(
+      '[data-editor-action]'
+    )
+    .forEach(
+      function (btn) {
 
         btn.addEventListener(
           'mousedown',
           function (e) {
 
-            /*
-              Evita que o editor perca
-              a seleção antes da ação.
-            */
-
             e.preventDefault();
+
+            salvarSelecao();
 
           }
         );
+
 
         btn.addEventListener(
           'click',
           function () {
 
             const acao =
-              btn.dataset.contextAction;
+              btn.dataset.editorAction;
 
-            esconderMenuContexto();
 
-            executarAcaoContexto(
-              acao
-            );
+            switch (acao) {
+
+              case 'h1':
+
+                aplicarTitulo(
+                  'H1'
+                );
+
+                break;
+
+
+              case 'h2':
+
+                aplicarTitulo(
+                  'H2'
+                );
+
+                break;
+
+
+              case 'h3':
+
+                aplicarTitulo(
+                  'H3'
+                );
+
+                break;
+
+
+              case 'bold':
+
+                executarComando(
+                  'bold'
+                );
+
+                break;
+
+
+              case 'italic':
+
+                executarComando(
+                  'italic'
+                );
+
+                break;
+
+
+              case 'link':
+
+                inserirLink();
+
+                break;
+
+
+              case 'image':
+
+                inserirImagemURL();
+
+                break;
+
+
+              case 'imageMultiple':
+
+                escolherImagemComputador();
+
+                break;
+
+
+              case 'paragraph':
+
+                aplicarParagrafo();
+
+                break;
+
+
+              case 'quote':
+
+                aplicarCitacao();
+
+                break;
+
+            }
 
           }
         );
 
-      });
+      }
+    );
 
-    return editorContextMenu;
-
-  }
 
   // =========================================================
-  // MOSTRAR MENU
+  // MENU DE CONTEXTO
   // =========================================================
 
   function mostrarMenuContexto(
@@ -1592,26 +1722,47 @@
     y
   ) {
 
-    const menu =
-      criarMenuContexto();
+    if (!editorContextMenu) {
+      return;
+    }
 
-    menu.style.display =
+
+    editorContextMenu.classList.remove(
+      'escondido'
+    );
+
+
+    editorContextMenu.style.display =
       'block';
 
-    const margem =
-      10;
 
-    const largura =
-      menu.offsetWidth;
+    editorContextMenu.style.position =
+      'fixed';
 
-    const altura =
-      menu.offsetHeight;
+
+    editorContextMenu.style.zIndex =
+      '999999';
+
 
     let posX =
       x;
 
+
     let posY =
       y;
+
+
+    const margem =
+      10;
+
+
+    const largura =
+      editorContextMenu.offsetWidth;
+
+
+    const altura =
+      editorContextMenu.offsetHeight;
+
 
     if (
       posX + largura >
@@ -1625,6 +1776,7 @@
 
     }
 
+
     if (
       posY + altura >
       window.innerHeight - margem
@@ -1637,174 +1789,49 @@
 
     }
 
-    menu.style.left =
-      `${Math.max(margem, posX)}px`;
 
-    menu.style.top =
-      `${Math.max(margem, posY)}px`;
+    editorContextMenu.style.left =
+      `${Math.max(
+        margem,
+        posX
+      )}px`;
+
+
+    editorContextMenu.style.top =
+      `${Math.max(
+        margem,
+        posY
+      )}px`;
 
   }
 
-  // =========================================================
-  // ESCONDER MENU
-  // =========================================================
 
   function esconderMenuContexto() {
 
-    if (editorContextMenu) {
-
-      editorContextMenu.style.display =
-        'none';
-
+    if (!editorContextMenu) {
+      return;
     }
+
+
+    editorContextMenu.classList.add(
+      'escondido'
+    );
+
+
+    editorContextMenu.style.display =
+      'none';
 
   }
 
+
   // =========================================================
-  // AÇÕES DO MENU DIREITO
+  // BOTÃO DIREITO DO MOUSE
   // =========================================================
 
-  function executarAcaoContexto(
-    acao
+  if (
+    blogEditor &&
+    editorContextMenu
   ) {
-
-    switch (acao) {
-
-      case 'h1':
-
-        executarComando(
-          'formatBlock',
-          'H1'
-        );
-
-        break;
-
-      case 'h2':
-
-        executarComando(
-          'formatBlock',
-          'H2'
-        );
-
-        break;
-
-      case 'h3':
-
-        executarComando(
-          'formatBlock',
-          'H3'
-        );
-
-        break;
-
-      case 'paragraph':
-
-        executarComando(
-          'formatBlock',
-          'P'
-        );
-
-        break;
-
-      case 'bold':
-
-        executarComando(
-          'bold'
-        );
-
-        break;
-
-      case 'italic':
-
-        executarComando(
-          'italic'
-        );
-
-        break;
-
-      case 'underline':
-
-        executarComando(
-          'underline'
-        );
-
-        break;
-
-      case 'link':
-
-        inserirLink();
-
-        break;
-
-      case 'imageFile':
-
-        abrirBibliotecaImagem(
-          false
-        );
-
-        break;
-
-      case 'imageUrl':
-
-        inserirImagemUrl();
-
-        break;
-
-      case 'imageMultiple':
-
-        inserirVariasImagens();
-
-        break;
-
-      case 'ul':
-
-        executarComando(
-          'insertUnorderedList'
-        );
-
-        break;
-
-      case 'ol':
-
-        executarComando(
-          'insertOrderedList'
-        );
-
-        break;
-
-      case 'quote':
-
-        executarComando(
-          'formatBlock',
-          'BLOCKQUOTE'
-        );
-
-        break;
-
-    }
-
-  }
-
-  // =========================================================
-  // EVENTOS DO EDITOR
-  // =========================================================
-
-  if (blogEditor) {
-
-    blogEditor.addEventListener(
-      'keyup',
-      salvarSelecaoEditor
-    );
-
-    blogEditor.addEventListener(
-      'mouseup',
-      salvarSelecaoEditor
-    );
-
-    blogEditor.addEventListener(
-      'focus',
-      salvarSelecaoEditor
-    );
 
     blogEditor.addEventListener(
       'contextmenu',
@@ -1812,7 +1839,9 @@
 
         e.preventDefault();
 
-        salvarSelecaoEditor();
+
+        salvarSelecao();
+
 
         mostrarMenuContexto(
           e.clientX,
@@ -1824,17 +1853,146 @@
 
   }
 
+
   // =========================================================
-  // FECHAR MENU AO CLICAR FORA
+  // AÇÕES DO MENU DE CONTEXTO
+  // =========================================================
+
+  if (editorContextMenu) {
+
+    editorContextMenu
+      .querySelectorAll(
+        '[data-context-action]'
+      )
+      .forEach(
+        function (btn) {
+
+          btn.addEventListener(
+            'mousedown',
+            function (e) {
+
+              e.preventDefault();
+
+            }
+          );
+
+
+          btn.addEventListener(
+            'click',
+            function (e) {
+
+              e.preventDefault();
+
+
+              const acao =
+                btn.dataset.contextAction;
+
+
+              esconderMenuContexto();
+
+
+              switch (acao) {
+
+                case 'h1':
+
+                  aplicarTitulo(
+                    'H1'
+                  );
+
+                  break;
+
+
+                case 'h2':
+
+                  aplicarTitulo(
+                    'H2'
+                  );
+
+                  break;
+
+
+                case 'h3':
+
+                  aplicarTitulo(
+                    'H3'
+                  );
+
+                  break;
+
+
+                case 'bold':
+
+                  executarComando(
+                    'bold'
+                  );
+
+                  break;
+
+
+                case 'italic':
+
+                  executarComando(
+                    'italic'
+                  );
+
+                  break;
+
+
+                case 'link':
+
+                  inserirLink();
+
+                  break;
+
+
+                case 'image':
+
+                  inserirImagemURL();
+
+                  break;
+
+
+                case 'imageMultiple':
+
+                  escolherImagemComputador();
+
+                  break;
+
+
+                case 'paragraph':
+
+                  aplicarParagrafo();
+
+                  break;
+
+
+                case 'quote':
+
+                  aplicarCitacao();
+
+                  break;
+
+              }
+
+            }
+          );
+
+        }
+      );
+
+  }
+
+
+  // =========================================================
+  // FECHAR MENU CLICANDO FORA
   // =========================================================
 
   document.addEventListener(
-    'mousedown',
+    'click',
     function (e) {
 
       if (
         editorContextMenu &&
-        editorContextMenu.style.display === 'block' &&
         !editorContextMenu.contains(
           e.target
         )
@@ -1847,15 +2005,52 @@
     }
   );
 
+
+  // =========================================================
+  // FECHAR MENU AO ROLAR
+  // =========================================================
+
   window.addEventListener(
     'scroll',
     esconderMenuContexto
   );
 
+
+  // =========================================================
+  // FECHAR MENU AO REDIMENSIONAR
+  // =========================================================
+
   window.addEventListener(
     'resize',
     esconderMenuContexto
   );
+
+
+  // =========================================================
+  // SALVAR SELEÇÃO DO EDITOR
+  // =========================================================
+
+  if (blogEditor) {
+
+    blogEditor.addEventListener(
+      'mouseup',
+      salvarSelecao
+    );
+
+
+    blogEditor.addEventListener(
+      'keyup',
+      salvarSelecao
+    );
+
+
+    blogEditor.addEventListener(
+      'input',
+      salvarSelecao
+    );
+
+  }
+
 
   // =========================================================
   // SALVAR ARTIGO
@@ -1868,71 +2063,80 @@
       async function () {
 
         if (erroBlog) {
-          erroBlog.textContent = '';
+
+          erroBlog.textContent =
+            '';
+
         }
 
-        const tituloElement =
+
+        const campoTitulo =
           document.getElementById(
             'blogTitulo'
           );
 
-        const resumoElement =
+
+        const campoResumo =
           document.getElementById(
             'blogResumo'
           );
 
-        const capaElement =
+
+        const campoCapa =
           document.getElementById(
             'blogCapa'
           );
 
-        const publicadoElement =
+
+        const campoPublicado =
           document.getElementById(
             'blogPublicado'
           );
 
+
         const titulo =
-          tituloElement
-            ? tituloElement.value.trim()
+          campoTitulo
+            ? campoTitulo.value.trim()
             : '';
+
 
         const resumo =
-          resumoElement
-            ? resumoElement.value.trim()
+          campoResumo
+            ? campoResumo.value.trim()
             : '';
+
 
         const capa =
-          capaElement
-            ? capaElement.value.trim()
+          campoCapa
+            ? campoCapa.value.trim()
             : '';
 
-        let conteudo = '';
-
-        if (blogEditor) {
-
-          conteudo =
-            blogEditor.innerHTML.trim();
-
-        }
 
         const publicado =
-          publicadoElement
-            ? publicadoElement.checked
+          campoPublicado
+            ? campoPublicado.checked
             : true;
 
-        // =====================================================
-        // VALIDAÇÃO
-        // =====================================================
+
+        const conteudo =
+          blogEditor
+            ? blogEditor.innerHTML.trim()
+            : '';
+
 
         if (!titulo) {
 
           if (erroBlog) {
+
             erroBlog.textContent =
               'Digite o título do artigo.';
+
           }
 
           return;
+
         }
+
 
         if (
           !conteudo ||
@@ -1940,22 +2144,24 @@
         ) {
 
           if (erroBlog) {
+
             erroBlog.textContent =
               'Digite o conteúdo do artigo.';
+
           }
 
           return;
+
         }
 
-        // =====================================================
-        // BLOQUEAR DUPLO CLIQUE
-        // =====================================================
 
         btnSalvarArtigo.disabled =
           true;
 
+
         btnSalvarArtigo.textContent =
           'Salvando...';
+
 
         try {
 
@@ -1970,72 +2176,88 @@
                     'application/json'
                 },
 
-                body: JSON.stringify({
+                body:
+                  JSON.stringify({
 
-                  titulo,
+                    titulo,
 
-                  resumo,
+                    resumo,
 
-                  capa_url:
-                    capa || null,
+                    capa_url:
+                      capa ||
+                      null,
 
-                  conteudo,
+                    conteudo,
 
-                  publicado
+                    publicado
 
-                })
+                  })
               }
             );
+
 
           console.log(
             '[blog] Artigo salvo:',
             resultado
           );
 
+
           alert(
             'Artigo salvo com sucesso!'
           );
 
-          // ===================================================
-          // LIMPAR FORMULÁRIO
-          // ===================================================
 
-          if (tituloElement) {
-            tituloElement.value = '';
+          if (campoTitulo) {
+            campoTitulo.value =
+              '';
           }
 
-          if (resumoElement) {
-            resumoElement.value = '';
+
+          if (campoResumo) {
+            campoResumo.value =
+              '';
           }
 
-          if (capaElement) {
-            capaElement.value = '';
+
+          if (campoCapa) {
+            campoCapa.value =
+              '';
           }
+
 
           if (blogEditor) {
-            blogEditor.innerHTML = '';
+
+            blogEditor.innerHTML =
+              '';
+
           }
 
-          if (publicadoElement) {
-            publicadoElement.checked = true;
+
+          if (campoPublicado) {
+
+            campoPublicado.checked =
+              true;
+
           }
 
-          ultimaSelecao =
-            null;
+
+          esconderMenuContexto();
+
 
           await carregarArtigos();
 
-        } catch (err) {
+        } catch (erro) {
 
           console.error(
             '[blog] Erro ao salvar:',
-            err
+            erro
           );
+
 
           if (erroBlog) {
 
             erroBlog.textContent =
-              err.message ||
+              erro.message ||
               'Erro ao salvar artigo.';
 
           }
@@ -2044,6 +2266,7 @@
 
           btnSalvarArtigo.disabled =
             false;
+
 
           btnSalvarArtigo.textContent =
             'Salvar artigo';
@@ -2054,6 +2277,7 @@
     );
 
   }
+
 
   // =========================================================
   // CARREGAR ARTIGOS
@@ -2066,9 +2290,11 @@
         'listaArtigos'
       );
 
+
     if (!tbody) {
       return;
     }
+
 
     try {
 
@@ -2077,154 +2303,192 @@
           '/api/blog/admin/todos'
         );
 
-      if (!Array.isArray(artigos)) {
+
+      if (
+        !Array.isArray(
+          artigos
+        ) ||
+        artigos.length === 0
+      ) {
 
         tbody.innerHTML =
           '<tr><td colspan="5">Nenhum artigo cadastrado.</td></tr>';
 
         return;
+
       }
 
+
       tbody.innerHTML =
-        artigos.map(function (artigo) {
+        artigos
+          .map(
+            function (artigo) {
 
-          const status =
-            artigo.publicado
-              ? 'Publicado'
-              : 'Rascunho';
+              const status =
+                artigo.publicado
+                  ? 'Publicado'
+                  : 'Rascunho';
 
-          return `
 
-            <tr>
+              return `
 
-              <td>
-                ${escapeHtml(artigo.id)}
-              </td>
+                <tr>
 
-              <td>
-                ${escapeHtml(artigo.titulo || '')}
-              </td>
+                  <td>
+                    ${escapeHtml(
+                      artigo.id
+                    )}
+                  </td>
 
-              <td>
+                  <td>
+                    ${escapeHtml(
+                      artigo.titulo || ''
+                    )}
+                  </td>
 
-                <span
-                  class="badge badge--${
-                    artigo.publicado
-                      ? 'ativo'
-                      : 'pendente'
-                  }"
-                >
-                  ${status}
-                </span>
+                  <td>
 
-              </td>
+                    <span
+                      class="badge badge--${
+                        artigo.publicado
+                          ? 'ativo'
+                          : 'pendente'
+                      }"
+                    >
+                      ${status}
+                    </span>
 
-              <td>
-                ${escapeHtml(
-                  artigo.criado_em ||
-                  artigo.created_at ||
-                  '-'
-                )}
-              </td>
+                  </td>
 
-              <td>
+                  <td>
+                    ${escapeHtml(
+                      artigo.criado_em ||
+                      artigo.created_at ||
+                      '-'
+                    )}
+                  </td>
 
-                <button
-                  class="btn btn--excluir"
-                  data-blog-id="${escapeHtml(artigo.id)}"
-                >
-                  Excluir
-                </button>
+                  <td>
 
-              </td>
+                    <button
+                      type="button"
+                      class="btn btn--excluir"
+                      data-blog-id="${escapeHtml(
+                        artigo.id
+                      )}"
+                    >
+                      Excluir
+                    </button>
 
-            </tr>
+                  </td>
 
-          `;
+                </tr>
 
-        }).join('') ||
+              `;
 
-        '<tr><td colspan="5">Nenhum artigo cadastrado.</td></tr>';
+            }
+          )
+          .join('');
+
 
       tbody
         .querySelectorAll(
           'button[data-blog-id]'
         )
-        .forEach(function (btn) {
+        .forEach(
+          function (btn) {
 
-          btn.addEventListener(
-            'click',
-            async function () {
+            btn.addEventListener(
+              'click',
+              async function () {
 
-              if (
-                !confirm(
-                  'Excluir este artigo?'
-                )
-              ) {
-                return;
+                if (
+                  !confirm(
+                    'Excluir este artigo?'
+                  )
+                ) {
+
+                  return;
+
+                }
+
+
+                try {
+
+                  btn.disabled =
+                    true;
+
+
+                  await apiFetch(
+                    `/api/blog/${btn.dataset.blogId}`,
+                    {
+                      method: 'DELETE'
+                    }
+                  );
+
+
+                  alert(
+                    'Artigo excluído com sucesso!'
+                  );
+
+
+                  await carregarArtigos();
+
+                } catch (erro) {
+
+                  console.error(
+                    '[blog] Erro ao excluir:',
+                    erro
+                  );
+
+
+                  alert(
+                    erro.message
+                  );
+
+
+                  btn.disabled =
+                    false;
+
+                }
+
               }
+            );
 
-              try {
+          }
+        );
 
-                await apiFetch(
-                  `/api/blog/${btn.dataset.blogId}`,
-                  {
-                    method: 'DELETE'
-                  }
-                );
-
-                alert(
-                  'Artigo excluído com sucesso!'
-                );
-
-                await carregarArtigos();
-
-              } catch (err) {
-
-                console.error(
-                  '[blog] Erro ao excluir:',
-                  err
-                );
-
-                alert(
-                  err.message
-                );
-
-              }
-
-            }
-          );
-
-        });
-
-    } catch (err) {
+    } catch (erro) {
 
       console.error(
         '[blog] Erro ao carregar artigos:',
-        err
+        erro
       );
 
-      tbody.innerHTML = `
 
+      tbody.innerHTML =
+        `
         <tr>
 
           <td colspan="5">
 
             Erro ao carregar artigos:
-            ${escapeHtml(err.message)}
+            ${escapeHtml(
+              erro.message
+            )}
 
           </td>
 
         </tr>
-
-      `;
+        `;
 
     }
 
   }
 
+
   // =========================================================
-  // ESCAPAR HTML
+  // SEGURANÇA
   // =========================================================
 
   function escapeHtml(valor) {
@@ -2233,32 +2497,41 @@
       valor === null ||
       valor === undefined
     ) {
+
       return '';
+
     }
 
+
     return String(valor)
+
       .replace(
         /&/g,
         '&amp;'
       )
+
       .replace(
         /</g,
         '&lt;'
       )
+
       .replace(
         />/g,
         '&gt;'
       )
+
       .replace(
         /"/g,
         '&quot;'
       )
+
       .replace(
         /'/g,
         '&#039;'
       );
 
   }
+
 
   // =========================================================
   // INICIALIZAÇÃO
@@ -2268,12 +2541,6 @@
     '[admin] Painel administrativo carregado.'
   );
 
-  console.log(
-    '[admin] Editor visual:',
-    blogEditor
-      ? 'OK'
-      : 'NÃO ENCONTRADO'
-  );
 
   if (getToken()) {
 
