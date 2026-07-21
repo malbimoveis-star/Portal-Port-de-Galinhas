@@ -28,13 +28,69 @@ function normalizarPublicado(valor, padrao = 1) {
   return 1;
 }
 
+// =========================================================
+// OBTER CAPA
+// =========================================================
+//
+// Se o admin informar uma capa manualmente,
+// usamos essa capa.
+//
+// Se não informar,
+// procuramos a primeira imagem dentro do conteúdo.
+//
+// Exemplo:
+//
+// <p>Texto do artigo...</p>
+// <img src="data:image/jpeg;base64,..." />
+//
+// A imagem encontrada será usada como capa.
+//
+
 function obterCapa(body = {}) {
-  return (
+  const capaInformada =
     body.capa_url ??
     body.capa ??
     body.imagem_capa ??
-    null
-  );
+    null;
+
+  // -------------------------------------------------------
+  // CAPA INFORMADA MANUALMENTE
+  // -------------------------------------------------------
+
+  if (
+    typeof capaInformada === 'string' &&
+    capaInformada.trim()
+  ) {
+    return capaInformada.trim();
+  }
+
+  // -------------------------------------------------------
+  // PROCURAR PRIMEIRA IMAGEM NO CONTEÚDO
+  // -------------------------------------------------------
+
+  const conteudo =
+    typeof body.conteudo === 'string'
+      ? body.conteudo
+      : '';
+
+  if (!conteudo) {
+    return null;
+  }
+
+  // Procura a primeira tag <img>
+  const resultado =
+    conteudo.match(
+      /<img\b[^>]*\bsrc\s*=\s*["']([^"']+)["'][^>]*>/i
+    );
+
+  if (
+    resultado &&
+    resultado[1]
+  ) {
+    return resultado[1].trim();
+  }
+
+  return null;
 }
 
 // =========================================================
@@ -42,32 +98,45 @@ function obterCapa(body = {}) {
 // GET /api/blog
 // =========================================================
 
-router.get('/', (req, res) => {
-  try {
-    const artigos = db.prepare(`
-      SELECT
-        id,
-        titulo,
-        resumo,
-        conteudo,
-        capa_url,
-        publicado,
-        criado_em
-      FROM artigos
-      WHERE publicado = 1
-      ORDER BY criado_em DESC
-    `).all();
+router.get(
+  '/',
+  (req, res) => {
 
-    return res.json(artigos);
+    try {
 
-  } catch (err) {
-    console.error('[BLOG] Erro ao listar artigos:', err);
+      const artigos =
+        db.prepare(`
+          SELECT
+            id,
+            titulo,
+            resumo,
+            conteudo,
+            capa_url,
+            publicado,
+            criado_em
+          FROM artigos
+          WHERE publicado = 1
+          ORDER BY criado_em DESC
+        `).all();
 
-    return res.status(500).json({
-      erro: 'Erro ao carregar artigos.'
-    });
+      return res.json(
+        artigos
+      );
+
+    } catch (err) {
+
+      console.error(
+        '[BLOG] Erro ao listar artigos:',
+        err
+      );
+
+      return res.status(500).json({
+        erro:
+          'Erro ao carregar artigos.'
+      });
+    }
   }
-});
+);
 
 // =========================================================
 // ADMIN
@@ -78,23 +147,30 @@ router.get(
   '/admin',
   autenticarAdmin,
   (req, res) => {
-    try {
-      const artigos = db.prepare(`
-        SELECT *
-        FROM artigos
-        ORDER BY criado_em DESC
-      `).all();
 
-      return res.json(artigos);
+    try {
+
+      const artigos =
+        db.prepare(`
+          SELECT *
+          FROM artigos
+          ORDER BY criado_em DESC
+        `).all();
+
+      return res.json(
+        artigos
+      );
 
     } catch (err) {
+
       console.error(
         '[BLOG ADMIN] Erro ao listar artigos:',
         err
       );
 
       return res.status(500).json({
-        erro: 'Erro ao carregar artigos administrativos.'
+        erro:
+          'Erro ao carregar artigos administrativos.'
       });
     }
   }
@@ -109,23 +185,30 @@ router.get(
   '/admin/todos',
   autenticarAdmin,
   (req, res) => {
-    try {
-      const artigos = db.prepare(`
-        SELECT *
-        FROM artigos
-        ORDER BY criado_em DESC
-      `).all();
 
-      return res.json(artigos);
+    try {
+
+      const artigos =
+        db.prepare(`
+          SELECT *
+          FROM artigos
+          ORDER BY criado_em DESC
+        `).all();
+
+      return res.json(
+        artigos
+      );
 
     } catch (err) {
+
       console.error(
         '[BLOG ADMIN] Erro ao listar todos os artigos:',
         err
       );
 
       return res.status(500).json({
-        erro: 'Erro ao carregar artigos administrativos.'
+        erro:
+          'Erro ao carregar artigos administrativos.'
       });
     }
   }
@@ -140,6 +223,7 @@ router.post(
   '/',
   autenticarAdmin,
   (req, res) => {
+
     try {
 
       const {
@@ -149,8 +233,20 @@ router.post(
         publicado
       } = req.body;
 
+      // -----------------------------------------------------
+      // OBTER CAPA
+      // -----------------------------------------------------
+      //
+      // Primeiro tenta usar capa_url.
+      //
+      // Se não existir,
+      // pega automaticamente a primeira imagem do artigo.
+      //
+
       const capa_url =
-        obterCapa(req.body);
+        obterCapa(
+          req.body
+        );
 
       // -----------------------------------------------------
       // VALIDAR TÍTULO
@@ -161,8 +257,10 @@ router.post(
         typeof titulo !== 'string' ||
         !titulo.trim()
       ) {
+
         return res.status(400).json({
-          erro: 'O título do artigo é obrigatório.'
+          erro:
+            'O título do artigo é obrigatório.'
         });
       }
 
@@ -175,8 +273,10 @@ router.post(
         typeof conteudo !== 'string' ||
         !conteudo.trim()
       ) {
+
         return res.status(400).json({
-          erro: 'O conteúdo do artigo é obrigatório.'
+          erro:
+            'O conteúdo do artigo é obrigatório.'
         });
       }
 
@@ -184,39 +284,46 @@ router.post(
       // SALVAR ARTIGO
       // -----------------------------------------------------
 
-      const resultado = db.prepare(`
-        INSERT INTO artigos (
-          titulo,
-          resumo,
+      const resultado =
+        db.prepare(`
+          INSERT INTO artigos (
+            titulo,
+            resumo,
+            conteudo,
+            capa_url,
+            publicado
+          )
+          VALUES (?, ?, ?, ?, ?)
+        `).run(
+
+          titulo.trim(),
+
+          typeof resumo === 'string'
+            ? resumo.trim()
+            : '',
+
           conteudo,
-          capa_url,
-          publicado
-        )
-        VALUES (?, ?, ?, ?, ?)
-      `).run(
-        titulo.trim(),
-        typeof resumo === 'string'
-          ? resumo.trim()
-          : '',
-        conteudo,
-        capa_url || null,
-        normalizarPublicado(
-          publicado,
-          1
-        )
-      );
+
+          capa_url || null,
+
+          normalizarPublicado(
+            publicado,
+            1
+          )
+        );
 
       // -----------------------------------------------------
       // BUSCAR ARTIGO CRIADO
       // -----------------------------------------------------
 
-      const artigo = db.prepare(`
-        SELECT *
-        FROM artigos
-        WHERE id = ?
-      `).get(
-        resultado.lastInsertRowid
-      );
+      const artigo =
+        db.prepare(`
+          SELECT *
+          FROM artigos
+          WHERE id = ?
+        `).get(
+          resultado.lastInsertRowid
+        );
 
       console.log(
         '[BLOG] Artigo salvo com sucesso:',
@@ -225,7 +332,9 @@ router.post(
 
       return res
         .status(201)
-        .json(artigo);
+        .json(
+          artigo
+        );
 
     } catch (err) {
 
@@ -252,19 +361,23 @@ router.put(
   '/:id',
   autenticarAdmin,
   (req, res) => {
+
     try {
 
-      const artigo = db.prepare(`
-        SELECT *
-        FROM artigos
-        WHERE id = ?
-      `).get(
-        req.params.id
-      );
+      const artigo =
+        db.prepare(`
+          SELECT *
+          FROM artigos
+          WHERE id = ?
+        `).get(
+          req.params.id
+        );
 
       if (!artigo) {
+
         return res.status(404).json({
-          erro: 'Artigo não encontrado.'
+          erro:
+            'Artigo não encontrado.'
         });
       }
 
@@ -275,8 +388,9 @@ router.put(
         publicado
       } = req.body;
 
-      const capa_url =
-        obterCapa(req.body);
+      // -----------------------------------------------------
+      // DADOS ATUAIS
+      // -----------------------------------------------------
 
       const novoTitulo =
         titulo !== undefined
@@ -296,10 +410,58 @@ router.put(
           ? String(conteudo)
           : artigo.conteudo;
 
-      const novaCapa =
-        capa_url !== null
-          ? capa_url
-          : artigo.capa_url;
+      // -----------------------------------------------------
+      // OBTER NOVA CAPA
+      // -----------------------------------------------------
+
+      let novaCapa;
+
+      // Se enviou capa manualmente
+      const capaInformada =
+        req.body.capa_url ??
+        req.body.capa ??
+        req.body.imagem_capa ??
+        null;
+
+      if (
+        typeof capaInformada === 'string' &&
+        capaInformada.trim()
+      ) {
+
+        novaCapa =
+          capaInformada.trim();
+
+      } else if (
+        conteudo !== undefined
+      ) {
+
+        // Se o conteúdo foi alterado,
+        // procura a primeira imagem nova.
+
+        const capaAutomatica =
+          obterCapa({
+            conteudo:
+              novoConteudo
+          });
+
+        novaCapa =
+          capaAutomatica ||
+          artigo.capa_url ||
+          null;
+
+      } else {
+
+        // Se o conteúdo não mudou,
+        // mantém a capa existente.
+
+        novaCapa =
+          artigo.capa_url ||
+          null;
+      }
+
+      // -----------------------------------------------------
+      // PUBLICADO
+      // -----------------------------------------------------
 
       const novoPublicado =
         publicado !== undefined
@@ -309,21 +471,29 @@ router.put(
           : artigo.publicado;
 
       // -----------------------------------------------------
-      // VALIDAR
+      // VALIDAR TÍTULO
       // -----------------------------------------------------
 
       if (!novoTitulo) {
+
         return res.status(400).json({
-          erro: 'O título do artigo é obrigatório.'
+          erro:
+            'O título do artigo é obrigatório.'
         });
       }
+
+      // -----------------------------------------------------
+      // VALIDAR CONTEÚDO
+      // -----------------------------------------------------
 
       if (
         !novoConteudo ||
         !novoConteudo.trim()
       ) {
+
         return res.status(400).json({
-          erro: 'O conteúdo do artigo é obrigatório.'
+          erro:
+            'O conteúdo do artigo é obrigatório.'
         });
       }
 
@@ -341,11 +511,17 @@ router.put(
           publicado = ?
         WHERE id = ?
       `).run(
+
         novoTitulo,
+
         novoResumo,
+
         novoConteudo,
+
         novaCapa,
+
         novoPublicado,
+
         req.params.id
       );
 
@@ -353,13 +529,14 @@ router.put(
       // RETORNAR ATUALIZADO
       // -----------------------------------------------------
 
-      const atualizado = db.prepare(`
-        SELECT *
-        FROM artigos
-        WHERE id = ?
-      `).get(
-        req.params.id
-      );
+      const atualizado =
+        db.prepare(`
+          SELECT *
+          FROM artigos
+          WHERE id = ?
+        `).get(
+          req.params.id
+        );
 
       return res.json(
         atualizado
@@ -390,19 +567,23 @@ router.delete(
   '/:id',
   autenticarAdmin,
   (req, res) => {
+
     try {
 
-      const artigo = db.prepare(`
-        SELECT id
-        FROM artigos
-        WHERE id = ?
-      `).get(
-        req.params.id
-      );
+      const artigo =
+        db.prepare(`
+          SELECT id
+          FROM artigos
+          WHERE id = ?
+        `).get(
+          req.params.id
+        );
 
       if (!artigo) {
+
         return res.status(404).json({
-          erro: 'Artigo não encontrado.'
+          erro:
+            'Artigo não encontrado.'
         });
       }
 
@@ -414,7 +595,9 @@ router.delete(
       );
 
       return res.json({
-        sucesso: true,
+        sucesso:
+          true,
+
         mensagem:
           'Artigo excluído com sucesso.'
       });
@@ -443,20 +626,24 @@ router.delete(
 router.get(
   '/:id',
   (req, res) => {
+
     try {
 
-      const artigo = db.prepare(`
-        SELECT *
-        FROM artigos
-        WHERE id = ?
-          AND publicado = 1
-      `).get(
-        req.params.id
-      );
+      const artigo =
+        db.prepare(`
+          SELECT *
+          FROM artigos
+          WHERE id = ?
+            AND publicado = 1
+        `).get(
+          req.params.id
+        );
 
       if (!artigo) {
+
         return res.status(404).json({
-          erro: 'Artigo não encontrado.'
+          erro:
+            'Artigo não encontrado.'
         });
       }
 
