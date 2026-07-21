@@ -10,23 +10,37 @@
 
 
   // =========================================================
-  // ELEMENTOS PRINCIPAIS
+  // ELEMENTOS
   // =========================================================
 
-  const telaLogin =
-    document.getElementById('telaLogin');
+  const telaLogin = document.getElementById('telaLogin');
+  const telaAdmin = document.getElementById('telaAdmin');
 
-  const telaAdmin =
-    document.getElementById('telaAdmin');
+  const formLogin = document.getElementById('formLogin');
+  const erroLogin = document.getElementById('erroLogin');
 
-  const formLogin =
-    document.getElementById('formLogin');
+  const btnSair = document.getElementById('btnSair');
 
-  const erroLogin =
-    document.getElementById('erroLogin');
+  const btnSalvarArtigo =
+    document.getElementById('btnSalvarArtigo');
 
-  const btnSair =
-    document.getElementById('btnSair');
+  const erroBlog =
+    document.getElementById('erroBlog');
+
+  const blogEditor =
+    document.getElementById('blogConteudo');
+
+  const editorContextMenu =
+    document.getElementById('editorContextMenu');
+
+
+  // =========================================================
+  // LOG
+  // =========================================================
+
+  console.log('[admin] Painel administrativo carregado.');
+  console.log('[admin] Botão salvar:', btnSalvarArtigo);
+  console.log('[admin] Editor:', blogEditor);
 
 
   // =========================================================
@@ -39,32 +53,23 @@
 
 
   function setToken(token) {
-    localStorage.setItem(
-      TOKEN_KEY,
-      token
-    );
+    localStorage.setItem(TOKEN_KEY, token);
   }
 
 
   function limparToken() {
-    localStorage.removeItem(
-      TOKEN_KEY
-    );
+    localStorage.removeItem(TOKEN_KEY);
   }
 
 
   function mostrarLogin() {
 
     if (telaLogin) {
-      telaLogin.classList.remove(
-        'escondido'
-      );
+      telaLogin.classList.remove('escondido');
     }
 
     if (telaAdmin) {
-      telaAdmin.classList.add(
-        'escondido'
-      );
+      telaAdmin.classList.add('escondido');
     }
 
   }
@@ -73,21 +78,21 @@
   async function mostrarAdmin() {
 
     if (telaLogin) {
-      telaLogin.classList.add(
-        'escondido'
-      );
+      telaLogin.classList.add('escondido');
     }
 
     if (telaAdmin) {
-      telaAdmin.classList.remove(
-        'escondido'
-      );
+      telaAdmin.classList.remove('escondido');
     }
 
-    await carregarPendentes();
-    await carregarTodos();
-    await carregarCategorias();
-    await carregarArtigos();
+    try {
+      await carregarPendentes();
+      await carregarTodos();
+      await carregarCategorias();
+      await carregarArtigos();
+    } catch (erro) {
+      console.error('[admin] Erro ao carregar painel:', erro);
+    }
 
   }
 
@@ -96,51 +101,45 @@
   // API
   // =========================================================
 
-  async function apiFetch(
-    path,
-    options = {}
-  ) {
+  async function apiFetch(path, options = {}) {
 
-    const token =
-      getToken();
+    const token = getToken();
 
     const headers = {
       ...(options.headers || {})
     };
 
-
     if (token) {
-
-      headers.Authorization =
-        `Bearer ${token}`;
-
+      headers.Authorization = `Bearer ${token}`;
     }
 
+    console.log('[API] Requisição:', path, options.method || 'GET');
 
-    const resposta =
-      await fetch(
-        `${API}${path}`,
-        {
-          ...options,
-          headers
-        }
-      );
-
+    const resposta = await fetch(
+      `${API}${path}`,
+      {
+        ...options,
+        headers
+      }
+    );
 
     let data = {};
 
+    const texto = await resposta.text();
 
     try {
-
-      data =
-        await resposta.json();
-
+      data = texto ? JSON.parse(texto) : {};
     } catch (erro) {
-
-      data = {};
-
+      data = {
+        mensagem: texto
+      };
     }
 
+    console.log(
+      '[API] Resposta:',
+      resposta.status,
+      data
+    );
 
     if (
       resposta.status === 401 ||
@@ -148,27 +147,26 @@
     ) {
 
       limparToken();
-
       mostrarLogin();
 
       throw new Error(
         data.erro ||
+        data.error ||
         'Sessão expirada. Faça login novamente.'
       );
 
     }
-
 
     if (!resposta.ok) {
 
       throw new Error(
         data.erro ||
         data.error ||
+        data.mensagem ||
         `Erro HTTP ${resposta.status}`
       );
 
     }
-
 
     return data;
 
@@ -187,37 +185,38 @@
 
         e.preventDefault();
 
+        console.log('[login] Tentando entrar...');
 
         if (erroLogin) {
-
-          erroLogin.textContent =
-            '';
-
+          erroLogin.textContent = '';
         }
 
-
         const campoUsuario =
-          document.getElementById(
-            'usuario'
-          );
+          document.getElementById('usuario');
 
         const campoSenha =
-          document.getElementById(
-            'senha'
-          );
-
+          document.getElementById('senha');
 
         const usuario =
           campoUsuario
             ? campoUsuario.value.trim()
             : '';
 
-
         const senha =
           campoSenha
             ? campoSenha.value
             : '';
 
+        if (!usuario || !senha) {
+
+          if (erroLogin) {
+            erroLogin.textContent =
+              'Digite usuário e senha.';
+          }
+
+          return;
+
+        }
 
         try {
 
@@ -240,56 +239,39 @@
               }
             );
 
-
           const data =
             await resposta.json();
-
 
           if (!resposta.ok) {
 
             if (erroLogin) {
-
               erroLogin.textContent =
                 data.erro ||
                 'Credenciais inválidas.';
-
             }
 
             return;
 
           }
 
-
           if (!data.token) {
-
             throw new Error(
-              'O servidor não retornou o token de acesso.'
+              'O servidor não retornou o token.'
             );
-
           }
 
-
-          setToken(
-            data.token
-          );
-
+          setToken(data.token);
 
           await mostrarAdmin();
 
         } catch (erro) {
 
-          console.error(
-            '[login]',
-            erro
-          );
-
+          console.error('[login]', erro);
 
           if (erroLogin) {
-
             erroLogin.textContent =
               erro.message ||
               'Erro ao conectar com o servidor.';
-
           }
 
         }
@@ -311,7 +293,6 @@
       function () {
 
         limparToken();
-
         mostrarLogin();
 
       }
@@ -325,117 +306,69 @@
   // =========================================================
 
   document
-    .querySelectorAll(
-      '.tabs button'
-    )
-    .forEach(
-      function (btn) {
+    .querySelectorAll('.tabs button')
+    .forEach(function (btn) {
 
-        btn.addEventListener(
-          'click',
-          async function () {
+      btn.addEventListener(
+        'click',
+        async function () {
 
-            document
-              .querySelectorAll(
-                '.tabs button'
-              )
-              .forEach(
-                function (botao) {
+          document
+            .querySelectorAll('.tabs button')
+            .forEach(function (botao) {
+              botao.classList.remove('ativa');
+            });
 
-                  botao.classList.remove(
-                    'ativa'
-                  );
+          btn.classList.add('ativa');
 
-                }
-              );
+          document
+            .querySelectorAll('main section')
+            .forEach(function (section) {
+              section.classList.add('escondido');
+            });
 
+          const tabId =
+            'tab' +
+            capitalize(btn.dataset.tab);
 
-            btn.classList.add(
-              'ativa'
+          const tab =
+            document.getElementById(tabId);
+
+          if (tab) {
+            tab.classList.remove('escondido');
+          }
+
+          try {
+
+            if (btn.dataset.tab === 'pendentes') {
+              await carregarPendentes();
+            }
+
+            if (btn.dataset.tab === 'todos') {
+              await carregarTodos();
+            }
+
+            if (btn.dataset.tab === 'categorias') {
+              await carregarCategorias();
+            }
+
+            if (btn.dataset.tab === 'blog') {
+              await carregarArtigos();
+            }
+
+          } catch (erro) {
+
+            console.error(
+              '[abas]',
+              erro
             );
 
-
-            document
-              .querySelectorAll(
-                'main section'
-              )
-              .forEach(
-                function (section) {
-
-                  section.classList.add(
-                    'escondido'
-                  );
-
-                }
-              );
-
-
-            const tabId =
-              'tab' +
-              capitalize(
-                btn.dataset.tab
-              );
-
-
-            const tab =
-              document.getElementById(
-                tabId
-              );
-
-
-            if (tab) {
-
-              tab.classList.remove(
-                'escondido'
-              );
-
-            }
-
-
-            if (
-              btn.dataset.tab ===
-              'pendentes'
-            ) {
-
-              await carregarPendentes();
-
-            }
-
-
-            if (
-              btn.dataset.tab ===
-              'todos'
-            ) {
-
-              await carregarTodos();
-
-            }
-
-
-            if (
-              btn.dataset.tab ===
-              'categorias'
-            ) {
-
-              await carregarCategorias();
-
-            }
-
-
-            if (
-              btn.dataset.tab ===
-              'blog'
-            ) {
-
-              await carregarArtigos();
-
-            }
-
           }
-        );
 
-      }
-    );
+        }
+      );
+
+    });
 
 
   function capitalize(texto) {
@@ -459,15 +392,11 @@
   async function carregarPendentes() {
 
     const container =
-      document.getElementById(
-        'listaPendentes'
-      );
-
+      document.getElementById('listaPendentes');
 
     if (!container) {
       return;
     }
-
 
     try {
 
@@ -476,11 +405,8 @@
           '/api/admin/anuncios'
         );
 
-
       if (
-        !Array.isArray(
-          pendentes
-        ) ||
+        !Array.isArray(pendentes) ||
         pendentes.length === 0
       ) {
 
@@ -491,140 +417,112 @@
 
       }
 
-
       container.innerHTML =
-        pendentes
-          .map(
-            function (anuncio) {
+        pendentes.map(function (anuncio) {
 
-              return `
+          return `
 
-                <div
-                  style="
-                    padding:12px;
-                    border-bottom:1px solid #ddd;
-                  "
-                >
+            <div
+              style="
+                padding:12px;
+                border-bottom:1px solid #ddd;
+              "
+            >
 
-                  <strong>
-                    ${escapeHtml(
-                      anuncio.titulo || ''
-                    )}
-                  </strong>
+              <strong>
+                ${escapeHtml(
+                  anuncio.titulo || ''
+                )}
+              </strong>
 
-                  <br>
+              <br>
 
-                  Comerciante:
-                  ${escapeHtml(
-                    anuncio.id_comerciante || '-'
-                  )}
+              Comerciante:
+              ${escapeHtml(
+                anuncio.id_comerciante || '-'
+              )}
 
-                  <br>
+              <br>
 
-                  Status:
+              Status:
 
-                  <span
-                    class="badge badge--${escapeHtml(
-                      anuncio.status || ''
-                    )}"
-                  >
-                    ${escapeHtml(
-                      anuncio.status || '-'
-                    )}
-                  </span>
+              <span class="badge">
+                ${escapeHtml(
+                  anuncio.status || '-'
+                )}
+              </span>
 
-                  <br><br>
+              <br><br>
 
-                  <button
-                    type="button"
-                    class="btn btn--aprovar"
-                    data-acao="aprovar"
-                    data-id="${escapeHtml(
-                      anuncio.id
-                    )}"
-                  >
-                    Aprovar
-                  </button>
+              <button
+                type="button"
+                class="btn btn--aprovar"
+                data-acao="aprovar"
+                data-id="${escapeHtml(anuncio.id)}"
+              >
+                Aprovar
+              </button>
 
-                  <button
-                    type="button"
-                    class="btn btn--rejeitar"
-                    data-acao="rejeitar"
-                    data-id="${escapeHtml(
-                      anuncio.id
-                    )}"
-                  >
-                    Rejeitar
-                  </button>
+              <button
+                type="button"
+                class="btn btn--rejeitar"
+                data-acao="rejeitar"
+                data-id="${escapeHtml(anuncio.id)}"
+              >
+                Rejeitar
+              </button>
 
-                </div>
+            </div>
 
-              `;
+          `;
 
-            }
-          )
-          .join('');
-
+        }).join('');
 
       container
-        .querySelectorAll(
-          'button[data-acao]'
-        )
-        .forEach(
-          function (btn) {
+        .querySelectorAll('button[data-acao]')
+        .forEach(function (btn) {
 
-            btn.addEventListener(
-              'click',
-              async function () {
+          btn.addEventListener(
+            'click',
+            async function () {
 
-                const acao =
-                  btn.dataset.acao;
+              const acao =
+                btn.dataset.acao;
 
-                const id =
-                  btn.dataset.id;
+              const id =
+                btn.dataset.id;
 
+              try {
 
-                try {
+                btn.disabled = true;
 
-                  btn.disabled =
-                    true;
+                await apiFetch(
+                  `/api/admin/anuncios/${id}/${acao}`,
+                  {
+                    method: 'PUT'
+                  }
+                );
 
+                await carregarPendentes();
+                await carregarTodos();
 
-                  await apiFetch(
-                    `/api/admin/anuncios/${id}/${acao}`,
-                    {
-                      method: 'PUT'
-                    }
-                  );
+              } catch (erro) {
 
+                console.error(
+                  '[anuncio]',
+                  erro
+                );
 
-                  await carregarPendentes();
+                alert(erro.message);
 
-                  await carregarTodos();
-
-                } catch (erro) {
-
-                  console.error(
-                    '[anuncio]',
-                    erro
-                  );
-
-
-                  alert(
-                    erro.message
-                  );
-
-
-                  btn.disabled =
-                    false;
-
-                }
+                btn.disabled = false;
 
               }
-            );
 
-          }
-        );
+            }
+          );
+
+        });
 
     } catch (erro) {
 
@@ -633,12 +531,9 @@
         erro
       );
 
-
       container.innerHTML =
         `<p class="erro">
-          ${escapeHtml(
-            erro.message
-          )}
+          ${escapeHtml(erro.message)}
         </p>`;
 
     }
@@ -653,15 +548,11 @@
   async function carregarTodos() {
 
     const tbody =
-      document.getElementById(
-        'listaTodos'
-      );
-
+      document.getElementById('listaTodos');
 
     if (!tbody) {
       return;
     }
-
 
     try {
 
@@ -669,7 +560,6 @@
         await apiFetch(
           '/api/admin/anuncios/todos'
         );
-
 
       if (
         !Array.isArray(todos) ||
@@ -683,152 +573,108 @@
 
       }
 
-
       tbody.innerHTML =
-        todos
-          .map(
-            function (anuncio) {
+        todos.map(function (anuncio) {
 
-              return `
+          return `
 
-                <tr>
+            <tr>
 
-                  <td>
-                    ${escapeHtml(
-                      anuncio.id
-                    )}
-                  </td>
+              <td>
+                ${escapeHtml(anuncio.id)}
+              </td>
 
-                  <td>
-                    ${escapeHtml(
-                      anuncio.titulo || ''
-                    )}
-                  </td>
+              <td>
+                ${escapeHtml(anuncio.titulo || '')}
+              </td>
 
-                  <td>
+              <td>
+                ${escapeHtml(anuncio.status || '-')}
+              </td>
 
-                    <span
-                      class="badge badge--${escapeHtml(
-                        anuncio.status || ''
-                      )}"
-                    >
-                      ${escapeHtml(
-                        anuncio.status || '-'
-                      )}
-                    </span>
+              <td>
+                ${escapeHtml(anuncio.latitude ?? '-')}
+                ,
+                ${escapeHtml(anuncio.longitude ?? '-')}
+              </td>
 
-                  </td>
+              <td>
 
-                  <td>
-                    ${escapeHtml(
-                      anuncio.latitude ?? '-'
-                    )},
-                    ${escapeHtml(
-                      anuncio.longitude ?? '-'
-                    )}
-                  </td>
+                <button
+                  type="button"
+                  class="btn btn--excluir"
+                  data-id="${escapeHtml(anuncio.id)}"
+                >
+                  Excluir
+                </button>
 
-                  <td>
+              </td>
 
-                    <button
-                      type="button"
-                      class="btn btn--excluir"
-                      data-id="${escapeHtml(
-                        anuncio.id
-                      )}"
-                    >
-                      Excluir
-                    </button>
+            </tr>
 
-                  </td>
+          `;
 
-                </tr>
-
-              `;
-
-            }
-          )
-          .join('');
-
+        }).join('');
 
       tbody
-        .querySelectorAll(
-          'button.btn--excluir'
-        )
-        .forEach(
-          function (btn) {
+        .querySelectorAll('button.btn--excluir')
+        .forEach(function (btn) {
 
-            btn.addEventListener(
-              'click',
-              async function () {
+          btn.addEventListener(
+            'click',
+            async function () {
 
-                if (
-                  !confirm(
-                    'Excluir este anúncio?'
-                  )
-                ) {
+              if (
+                !confirm(
+                  'Excluir este anúncio?'
+                )
+              ) {
+                return;
+              }
 
-                  return;
+              try {
 
-                }
+                btn.disabled = true;
 
+                await apiFetch(
+                  `/api/admin/anuncios/${btn.dataset.id}`,
+                  {
+                    method: 'DELETE'
+                  }
+                );
 
-                try {
+                await carregarTodos();
+                await carregarPendentes();
 
-                  btn.disabled =
-                    true;
+              } catch (erro) {
 
+                console.error(
+                  '[excluir anúncio]',
+                  erro
+                );
 
-                  await apiFetch(
-                    `/api/admin/anuncios/${btn.dataset.id}`,
-                    {
-                      method: 'DELETE'
-                    }
-                  );
+                alert(erro.message);
 
-
-                  await carregarTodos();
-
-                  await carregarPendentes();
-
-                } catch (erro) {
-
-                  console.error(
-                    '[excluir anuncio]',
-                    erro
-                  );
-
-
-                  alert(
-                    erro.message
-                  );
-
-
-                  btn.disabled =
-                    false;
-
-                }
+                btn.disabled = false;
 
               }
-            );
 
-          }
-        );
+            }
+          );
+
+        });
 
     } catch (erro) {
 
       console.error(
-        '[todos anuncios]',
+        '[todos anúncios]',
         erro
       );
-
 
       tbody.innerHTML =
         `<tr>
           <td colspan="5">
-            ${escapeHtml(
-              erro.message
-            )}
+            ${escapeHtml(erro.message)}
           </td>
         </tr>`;
 
@@ -844,15 +690,11 @@
   async function carregarCategorias() {
 
     const tbody =
-      document.getElementById(
-        'listaCategorias'
-      );
-
+      document.getElementById('listaCategorias');
 
     if (!tbody) {
       return;
     }
-
 
     try {
 
@@ -861,11 +703,8 @@
           '/api/admin/categorias'
         );
 
-
       if (
-        !Array.isArray(
-          categorias
-        ) ||
+        !Array.isArray(categorias) ||
         categorias.length === 0
       ) {
 
@@ -876,116 +715,93 @@
 
       }
 
-
       tbody.innerHTML =
-        categorias
-          .map(
-            function (categoria) {
+        categorias.map(function (categoria) {
 
-              return `
+          return `
 
-                <tr>
+            <tr>
 
-                  <td>
-                    ${escapeHtml(
-                      categoria.id
-                    )}
-                  </td>
+              <td>
+                ${escapeHtml(categoria.id)}
+              </td>
 
-                  <td>
-                    ${escapeHtml(
-                      categoria.nome || ''
-                    )}
-                  </td>
+              <td>
+                ${escapeHtml(categoria.nome || '')}
+              </td>
 
-                  <td>
-                    ${escapeHtml(
-                      categoria.icone_url || '-'
-                    )}
-                  </td>
+              <td>
+                ${escapeHtml(categoria.icone_url || '-')}
+              </td>
 
-                  <td>
-                    ${escapeHtml(
-                      categoria.slug || '-'
-                    )}
-                  </td>
+              <td>
+                ${escapeHtml(categoria.slug || '-')}
+              </td>
 
-                  <td>
+              <td>
 
-                    <button
-                      type="button"
-                      class="btn btn--excluir"
-                      data-id="${escapeHtml(
-                        categoria.id
-                      )}"
-                    >
-                      Excluir
-                    </button>
+                <button
+                  type="button"
+                  class="btn btn--excluir"
+                  data-id="${escapeHtml(categoria.id)}"
+                >
+                  Excluir
+                </button>
 
-                  </td>
+              </td>
 
-                </tr>
+            </tr>
 
-              `;
+          `;
 
-            }
-          )
-          .join('');
-
+        }).join('');
 
       tbody
-        .querySelectorAll(
-          'button.btn--excluir'
-        )
-        .forEach(
-          function (btn) {
+        .querySelectorAll('button.btn--excluir')
+        .forEach(function (btn) {
 
-            btn.addEventListener(
-              'click',
-              async function () {
+          btn.addEventListener(
+            'click',
+            async function () {
 
-                if (
-                  !confirm(
-                    'Excluir esta categoria?'
-                  )
-                ) {
+              if (
+                !confirm(
+                  'Excluir esta categoria?'
+                )
+              ) {
+                return;
+              }
 
-                  return;
+              try {
 
-                }
+                btn.disabled = true;
 
+                await apiFetch(
+                  `/api/admin/categorias/${btn.dataset.id}`,
+                  {
+                    method: 'DELETE'
+                  }
+                );
 
-                try {
+                await carregarCategorias();
 
-                  await apiFetch(
-                    `/api/admin/categorias/${btn.dataset.id}`,
-                    {
-                      method: 'DELETE'
-                    }
-                  );
+              } catch (erro) {
 
+                console.error(
+                  '[categoria]',
+                  erro
+                );
 
-                  await carregarCategorias();
+                alert(erro.message);
 
-                } catch (erro) {
-
-                  console.error(
-                    '[excluir categoria]',
-                    erro
-                  );
-
-
-                  alert(
-                    erro.message
-                  );
-
-                }
+                btn.disabled = false;
 
               }
-            );
 
-          }
-        );
+            }
+          );
+
+        });
 
     } catch (erro) {
 
@@ -994,13 +810,10 @@
         erro
       );
 
-
       tbody.innerHTML =
         `<tr>
           <td colspan="5">
-            ${escapeHtml(
-              erro.message
-            )}
+            ${escapeHtml(erro.message)}
           </td>
         </tr>`;
 
@@ -1018,7 +831,6 @@
       'btnAddCategoria'
     );
 
-
   if (btnAddCategoria) {
 
     btnAddCategoria.addEventListener(
@@ -1035,18 +847,15 @@
             'novaCategoriaIcone'
           );
 
-
         const nome =
           campoNome
             ? campoNome.value.trim()
             : '';
 
-
         const icone_url =
           campoIcone
             ? campoIcone.value.trim()
             : '';
-
 
         if (!nome) {
 
@@ -1058,12 +867,9 @@
 
         }
 
-
         try {
 
-          btnAddCategoria.disabled =
-            true;
-
+          btnAddCategoria.disabled = true;
 
           await apiFetch(
             '/api/admin/categorias',
@@ -1083,37 +889,23 @@
             }
           );
 
-
-          if (campoNome) {
-            campoNome.value =
-              '';
-          }
-
-
-          if (campoIcone) {
-            campoIcone.value =
-              '';
-          }
-
+          campoNome.value = '';
+          campoIcone.value = '';
 
           await carregarCategorias();
 
         } catch (erro) {
 
           console.error(
-            '[adicionar categoria]',
+            '[categoria]',
             erro
           );
 
-
-          alert(
-            erro.message
-          );
+          alert(erro.message);
 
         } finally {
 
-          btnAddCategoria.disabled =
-            false;
+          btnAddCategoria.disabled = false;
 
         }
 
@@ -1124,36 +916,10 @@
 
 
   // =========================================================
-  // BLOG
+  // EDITOR
   // =========================================================
 
-  const btnSalvarArtigo =
-    document.getElementById(
-      'btnSalvarArtigo'
-    );
-
-  const erroBlog =
-    document.getElementById(
-      'erroBlog'
-    );
-
-  const blogEditor =
-    document.getElementById(
-      'blogConteudo'
-    );
-
-  const editorContextMenu =
-    document.getElementById(
-      'editorContextMenu'
-    );
-
-
-  // =========================================================
-  // SELEÇÃO DO EDITOR
-  // =========================================================
-
-  let ultimaSelecao =
-    null;
+  let ultimaSelecao = null;
 
 
   function salvarSelecao() {
@@ -1162,10 +928,8 @@
       return;
     }
 
-
     const selecao =
       window.getSelection();
-
 
     if (
       selecao &&
@@ -1191,15 +955,12 @@
       return;
     }
 
-
     try {
 
       const selecao =
         window.getSelection();
 
-
       selecao.removeAllRanges();
-
 
       selecao.addRange(
         ultimaSelecao
@@ -1208,7 +969,7 @@
     } catch (erro) {
 
       console.warn(
-        '[editor] Não foi possível restaurar seleção.',
+        '[editor] Erro ao restaurar seleção.',
         erro
       );
 
@@ -1216,10 +977,6 @@
 
   }
 
-
-  // =========================================================
-  // EXECUTAR COMANDO
-  // =========================================================
 
   function executarComando(
     comando,
@@ -1230,12 +987,9 @@
       return;
     }
 
-
     restaurarSelecao();
 
-
     blogEditor.focus();
-
 
     try {
 
@@ -1244,7 +998,6 @@
         false,
         valor
       );
-
 
       salvarSelecao();
 
@@ -1260,40 +1013,52 @@
   }
 
 
+  function aplicarTitulo(tipo) {
+
+    executarComando(
+      'formatBlock',
+      tipo
+    );
+
+  }
+
+
+  function aplicarParagrafo() {
+
+    executarComando(
+      'formatBlock',
+      'P'
+    );
+
+  }
+
+
+  function aplicarCitacao() {
+
+    executarComando(
+      'formatBlock',
+      'BLOCKQUOTE'
+    );
+
+  }
+
+
   // =========================================================
-  // INPUT DE IMAGEM DO COMPUTADOR
+  // IMAGENS
   // =========================================================
 
   const inputImagem =
-    document.createElement(
-      'input'
-    );
+    document.createElement('input');
 
-
-  inputImagem.type =
-    'file';
-
-
-  inputImagem.accept =
-    'image/*';
-
-
-  inputImagem.multiple =
-    true;
-
-
-  inputImagem.style.display =
-    'none';
-
+  inputImagem.type = 'file';
+  inputImagem.accept = 'image/*';
+  inputImagem.multiple = true;
+  inputImagem.style.display = 'none';
 
   document.body.appendChild(
     inputImagem
   );
 
-
-  // =========================================================
-  // INSERIR IMAGEM NO EDITOR
-  // =========================================================
 
   function inserirImagemNoEditor(
     src,
@@ -1304,54 +1069,24 @@
       return;
     }
 
-
     restaurarSelecao();
-
 
     blogEditor.focus();
 
-
     const imagem =
-      document.createElement(
-        'img'
-      );
+      document.createElement('img');
 
+    imagem.src = src;
+    imagem.alt = alt;
+    imagem.className = 'editor-imagem';
 
-    imagem.src =
-      src;
-
-
-    imagem.alt =
-      alt;
-
-
-    imagem.className =
-      'editor-imagem';
-
-
-    imagem.loading =
-      'lazy';
-
-
-    imagem.style.maxWidth =
-      '100%';
-
-
-    imagem.style.height =
-      'auto';
-
-
-    imagem.style.display =
-      'block';
-
-
-    imagem.style.margin =
-      '15px 0';
-
+    imagem.style.maxWidth = '100%';
+    imagem.style.height = 'auto';
+    imagem.style.display = 'block';
+    imagem.style.margin = '15px 0';
 
     const selecao =
       window.getSelection();
-
 
     if (
       selecao &&
@@ -1361,27 +1096,19 @@
       const range =
         selecao.getRangeAt(0);
 
-
       range.deleteContents();
-
 
       range.insertNode(
         imagem
       );
 
-
       range.setStartAfter(
         imagem
       );
 
-
-      range.collapse(
-        true
-      );
-
+      range.collapse(true);
 
       selecao.removeAllRanges();
-
 
       selecao.addRange(
         range
@@ -1395,36 +1122,23 @@
 
     }
 
-
     salvarSelecao();
 
   }
 
 
-  // =========================================================
-  // IMAGEM POR URL
-  // =========================================================
-
   function inserirImagemURL() {
 
-    if (!blogEditor) {
-      return;
-    }
-
-
     salvarSelecao();
-
 
     const url =
       prompt(
         'Cole a URL da imagem:'
       );
 
-
     if (!url) {
       return;
     }
-
 
     inserirImagemNoEditor(
       url
@@ -1433,23 +1147,11 @@
   }
 
 
-  // =========================================================
-  // IMAGEM DO COMPUTADOR
-  // =========================================================
-
   function escolherImagemComputador() {
-
-    if (!blogEditor) {
-      return;
-    }
-
 
     salvarSelecao();
 
-
-    inputImagem.value =
-      '';
-
+    inputImagem.value = '';
 
     inputImagem.click();
 
@@ -1465,33 +1167,23 @@
           inputImagem.files || []
         );
 
-
       if (
         arquivos.length === 0
       ) {
-
         return;
-
       }
-
 
       arquivos.forEach(
         function (arquivo) {
 
           if (
-            !arquivo.type.startsWith(
-              'image/'
-            )
+            !arquivo.type.startsWith('image/')
           ) {
-
             return;
-
           }
-
 
           const leitor =
             new FileReader();
-
 
           leitor.onload =
             function (evento) {
@@ -1502,7 +1194,6 @@
               );
 
             };
-
 
           leitor.readAsDataURL(
             arquivo
@@ -1516,29 +1207,21 @@
 
 
   // =========================================================
-  // INSERIR LINK
+  // LINK
   // =========================================================
 
   function inserirLink() {
 
-    if (!blogEditor) {
-      return;
-    }
-
-
     salvarSelecao();
-
 
     const url =
       prompt(
         'Digite a URL do link:'
       );
 
-
     if (!url) {
       return;
     }
-
 
     executarComando(
       'createLink',
@@ -1549,220 +1232,118 @@
 
 
   // =========================================================
-  // FORMATAR TÍTULO
-  // =========================================================
-
-  function aplicarTitulo(
-    tipo
-  ) {
-
-    executarComando(
-      'formatBlock',
-      tipo
-    );
-
-  }
-
-
-  // =========================================================
-  // PARÁGRAFO
-  // =========================================================
-
-  function aplicarParagrafo() {
-
-    executarComando(
-      'formatBlock',
-      'P'
-    );
-
-  }
-
-
-  // =========================================================
-  // CITAÇÃO
-  // =========================================================
-
-  function aplicarCitacao() {
-
-    executarComando(
-      'formatBlock',
-      'BLOCKQUOTE'
-    );
-
-  }
-
-
-  // =========================================================
-  // BOTÕES DA BARRA DE FERRAMENTAS
+  // BARRA DE FERRAMENTAS
   // =========================================================
 
   document
-    .querySelectorAll(
-      '[data-editor-action]'
-    )
-    .forEach(
-      function (btn) {
+    .querySelectorAll('[data-editor-action]')
+    .forEach(function (btn) {
 
-        btn.addEventListener(
-          'mousedown',
-          function (e) {
+      btn.addEventListener(
+        'mousedown',
+        function (e) {
 
-            e.preventDefault();
+          e.preventDefault();
 
-            salvarSelecao();
+          salvarSelecao();
 
-          }
-        );
+        }
+      );
 
+      btn.addEventListener(
+        'click',
+        function () {
 
-        btn.addEventListener(
-          'click',
-          function () {
+          const acao =
+            btn.dataset.editorAction;
 
-            const acao =
-              btn.dataset.editorAction;
+          executarAcaoEditor(
+            acao
+          );
 
+        }
+      );
 
-            switch (acao) {
-
-              case 'h1':
-
-                aplicarTitulo(
-                  'H1'
-                );
-
-                break;
+    });
 
 
-              case 'h2':
+  function executarAcaoEditor(acao) {
 
-                aplicarTitulo(
-                  'H2'
-                );
+    switch (acao) {
 
-                break;
+      case 'h1':
+        aplicarTitulo('H1');
+        break;
 
+      case 'h2':
+        aplicarTitulo('H2');
+        break;
 
-              case 'h3':
+      case 'h3':
+        aplicarTitulo('H3');
+        break;
 
-                aplicarTitulo(
-                  'H3'
-                );
+      case 'bold':
+        executarComando('bold');
+        break;
 
-                break;
+      case 'italic':
+        executarComando('italic');
+        break;
 
+      case 'link':
+        inserirLink();
+        break;
 
-              case 'bold':
+      case 'image':
+        inserirImagemURL();
+        break;
 
-                executarComando(
-                  'bold'
-                );
+      case 'imageMultiple':
+        escolherImagemComputador();
+        break;
 
-                break;
+      case 'paragraph':
+        aplicarParagrafo();
+        break;
 
+      case 'quote':
+        aplicarCitacao();
+        break;
 
-              case 'italic':
+    }
 
-                executarComando(
-                  'italic'
-                );
-
-                break;
-
-
-              case 'link':
-
-                inserirLink();
-
-                break;
-
-
-              case 'image':
-
-                inserirImagemURL();
-
-                break;
-
-
-              case 'imageMultiple':
-
-                escolherImagemComputador();
-
-                break;
-
-
-              case 'paragraph':
-
-                aplicarParagrafo();
-
-                break;
-
-
-              case 'quote':
-
-                aplicarCitacao();
-
-                break;
-
-            }
-
-          }
-        );
-
-      }
-    );
+  }
 
 
   // =========================================================
-  // MENU DE CONTEXTO
+  // MENU BOTÃO DIREITO
   // =========================================================
 
-  function mostrarMenuContexto(
-    x,
-    y
-  ) {
+  function mostrarMenuContexto(x, y) {
 
     if (!editorContextMenu) {
       return;
     }
 
-
     editorContextMenu.classList.remove(
       'escondido'
     );
 
+    editorContextMenu.style.display = 'block';
+    editorContextMenu.style.position = 'fixed';
+    editorContextMenu.style.zIndex = '999999';
 
-    editorContextMenu.style.display =
-      'block';
-
-
-    editorContextMenu.style.position =
-      'fixed';
-
-
-    editorContextMenu.style.zIndex =
-      '999999';
-
-
-    let posX =
-      x;
-
-
-    let posY =
-      y;
-
-
-    const margem =
-      10;
-
+    const margem = 10;
 
     const largura =
       editorContextMenu.offsetWidth;
 
-
     const altura =
       editorContextMenu.offsetHeight;
 
+    let posX = x;
+    let posY = y;
 
     if (
       posX + largura >
@@ -1776,7 +1357,6 @@
 
     }
 
-
     if (
       posY + altura >
       window.innerHeight - margem
@@ -1789,19 +1369,11 @@
 
     }
 
-
     editorContextMenu.style.left =
-      `${Math.max(
-        margem,
-        posX
-      )}px`;
-
+      `${Math.max(margem, posX)}px`;
 
     editorContextMenu.style.top =
-      `${Math.max(
-        margem,
-        posY
-      )}px`;
+      `${Math.max(margem, posY)}px`;
 
   }
 
@@ -1812,21 +1384,15 @@
       return;
     }
 
-
     editorContextMenu.classList.add(
       'escondido'
     );
-
 
     editorContextMenu.style.display =
       'none';
 
   }
 
-
-  // =========================================================
-  // BOTÃO DIREITO DO MOUSE
-  // =========================================================
 
   if (
     blogEditor &&
@@ -1839,9 +1405,7 @@
 
         e.preventDefault();
 
-
         salvarSelecao();
-
 
         mostrarMenuContexto(
           e.clientX,
@@ -1854,138 +1418,45 @@
   }
 
 
-  // =========================================================
-  // AÇÕES DO MENU DE CONTEXTO
-  // =========================================================
-
   if (editorContextMenu) {
 
     editorContextMenu
       .querySelectorAll(
         '[data-context-action]'
       )
-      .forEach(
-        function (btn) {
+      .forEach(function (btn) {
 
-          btn.addEventListener(
-            'mousedown',
-            function (e) {
+        btn.addEventListener(
+          'mousedown',
+          function (e) {
 
-              e.preventDefault();
+            e.preventDefault();
 
-            }
-          );
+          }
+        );
 
+        btn.addEventListener(
+          'click',
+          function (e) {
 
-          btn.addEventListener(
-            'click',
-            function (e) {
+            e.preventDefault();
 
-              e.preventDefault();
+            const acao =
+              btn.dataset.contextAction;
 
+            esconderMenuContexto();
 
-              const acao =
-                btn.dataset.contextAction;
+            executarAcaoEditor(
+              acao
+            );
 
+          }
+        );
 
-              esconderMenuContexto();
-
-
-              switch (acao) {
-
-                case 'h1':
-
-                  aplicarTitulo(
-                    'H1'
-                  );
-
-                  break;
-
-
-                case 'h2':
-
-                  aplicarTitulo(
-                    'H2'
-                  );
-
-                  break;
-
-
-                case 'h3':
-
-                  aplicarTitulo(
-                    'H3'
-                  );
-
-                  break;
-
-
-                case 'bold':
-
-                  executarComando(
-                    'bold'
-                  );
-
-                  break;
-
-
-                case 'italic':
-
-                  executarComando(
-                    'italic'
-                  );
-
-                  break;
-
-
-                case 'link':
-
-                  inserirLink();
-
-                  break;
-
-
-                case 'image':
-
-                  inserirImagemURL();
-
-                  break;
-
-
-                case 'imageMultiple':
-
-                  escolherImagemComputador();
-
-                  break;
-
-
-                case 'paragraph':
-
-                  aplicarParagrafo();
-
-                  break;
-
-
-                case 'quote':
-
-                  aplicarCitacao();
-
-                  break;
-
-              }
-
-            }
-          );
-
-        }
-      );
+      });
 
   }
 
-
-  // =========================================================
-  // FECHAR MENU CLICANDO FORA
-  // =========================================================
 
   document.addEventListener(
     'click',
@@ -2006,29 +1477,17 @@
   );
 
 
-  // =========================================================
-  // FECHAR MENU AO ROLAR
-  // =========================================================
-
   window.addEventListener(
     'scroll',
     esconderMenuContexto
   );
 
 
-  // =========================================================
-  // FECHAR MENU AO REDIMENSIONAR
-  // =========================================================
-
   window.addEventListener(
     'resize',
     esconderMenuContexto
   );
 
-
-  // =========================================================
-  // SALVAR SELEÇÃO DO EDITOR
-  // =========================================================
 
   if (blogEditor) {
 
@@ -2037,12 +1496,10 @@
       salvarSelecao
     );
 
-
     blogEditor.addEventListener(
       'keyup',
       salvarSelecao
     );
-
 
     blogEditor.addEventListener(
       'input',
@@ -2056,17 +1513,32 @@
   // SALVAR ARTIGO
   // =========================================================
 
-  if (btnSalvarArtigo) {
+  if (!btnSalvarArtigo) {
+
+    console.error(
+      '[blog] ERRO: botão #btnSalvarArtigo não encontrado.'
+    );
+
+  } else {
+
+    console.log(
+      '[blog] Botão #btnSalvarArtigo encontrado.'
+    );
+
 
     btnSalvarArtigo.addEventListener(
       'click',
-      async function () {
+      async function (e) {
+
+        e.preventDefault();
+
+        console.log(
+          '[blog] BOTÃO SALVAR CLICADO!'
+        );
+
 
         if (erroBlog) {
-
-          erroBlog.textContent =
-            '';
-
+          erroBlog.textContent = '';
         }
 
 
@@ -2075,18 +1547,15 @@
             'blogTitulo'
           );
 
-
         const campoResumo =
           document.getElementById(
             'blogResumo'
           );
 
-
         const campoCapa =
           document.getElementById(
             'blogCapa'
           );
-
 
         const campoPublicado =
           document.getElementById(
@@ -2124,14 +1593,28 @@
             : '';
 
 
+        console.log(
+          '[blog] Dados preparados:',
+          {
+            titulo,
+            resumo,
+            capa,
+            publicado,
+            conteudo
+          }
+        );
+
+
         if (!titulo) {
 
           if (erroBlog) {
-
             erroBlog.textContent =
               'Digite o título do artigo.';
-
           }
+
+          alert(
+            'Digite o título do artigo.'
+          );
 
           return;
 
@@ -2144,20 +1627,20 @@
         ) {
 
           if (erroBlog) {
-
             erroBlog.textContent =
               'Digite o conteúdo do artigo.';
-
           }
+
+          alert(
+            'Digite o conteúdo do artigo.'
+          );
 
           return;
 
         }
 
 
-        btnSalvarArtigo.disabled =
-          true;
-
+        btnSalvarArtigo.disabled = true;
 
         btnSalvarArtigo.textContent =
           'Salvando...';
@@ -2165,31 +1648,47 @@
 
         try {
 
-          const resultado =
-            await apiFetch(
-              '/api/blog',
+          console.log(
+            '[blog] Enviando artigo para:',
+            `${API}/api/blog`
+          );
+
+
+          const resposta =
+            await fetch(
+              `${API}/api/blog`,
               {
                 method: 'POST',
 
                 headers: {
                   'Content-Type':
-                    'application/json'
+                    'application/json',
+
+                  ...(getToken()
+                    ? {
+                        Authorization:
+                          `Bearer ${getToken()}`
+                      }
+                    : {})
                 },
 
                 body:
                   JSON.stringify({
 
-                    titulo,
+                    titulo:
+                      titulo,
 
-                    resumo,
+                    resumo:
+                      resumo,
 
                     capa_url:
-                      capa ||
-                      null,
+                      capa || null,
 
-                    conteudo,
+                    conteudo:
+                      conteudo,
 
-                    publicado
+                    publicado:
+                      publicado
 
                   })
               }
@@ -2197,8 +1696,57 @@
 
 
           console.log(
-            '[blog] Artigo salvo:',
-            resultado
+            '[blog] Status HTTP:',
+            resposta.status
+          );
+
+
+          const textoResposta =
+            await resposta.text();
+
+
+          console.log(
+            '[blog] Resposta do servidor:',
+            textoResposta
+          );
+
+
+          let dadosResposta = {};
+
+          try {
+
+            dadosResposta =
+              textoResposta
+                ? JSON.parse(
+                    textoResposta
+                  )
+                : {};
+
+          } catch (erro) {
+
+            dadosResposta = {
+              mensagem:
+                textoResposta
+            };
+
+          }
+
+
+          if (!resposta.ok) {
+
+            throw new Error(
+              dadosResposta.erro ||
+              dadosResposta.error ||
+              dadosResposta.mensagem ||
+              `Erro HTTP ${resposta.status}`
+            );
+
+          }
+
+
+          console.log(
+            '[blog] ARTIGO SALVO COM SUCESSO:',
+            dadosResposta
           );
 
 
@@ -2208,48 +1756,42 @@
 
 
           if (campoTitulo) {
-            campoTitulo.value =
-              '';
+            campoTitulo.value = '';
           }
 
 
           if (campoResumo) {
-            campoResumo.value =
-              '';
+            campoResumo.value = '';
           }
 
 
           if (campoCapa) {
-            campoCapa.value =
-              '';
+            campoCapa.value = '';
           }
 
 
           if (blogEditor) {
-
-            blogEditor.innerHTML =
-              '';
-
+            blogEditor.innerHTML = '';
           }
 
 
           if (campoPublicado) {
-
-            campoPublicado.checked =
-              true;
-
+            campoPublicado.checked = true;
           }
 
+
+          ultimaSelecao = null;
 
           esconderMenuContexto();
 
 
           await carregarArtigos();
 
+
         } catch (erro) {
 
           console.error(
-            '[blog] Erro ao salvar:',
+            '[blog] ERRO AO SALVAR ARTIGO:',
             erro
           );
 
@@ -2262,11 +1804,20 @@
 
           }
 
+
+          alert(
+            'Erro ao salvar artigo:\n\n' +
+            (
+              erro.message ||
+              'Erro desconhecido.'
+            )
+          );
+
+
         } finally {
 
           btnSalvarArtigo.disabled =
             false;
-
 
           btnSalvarArtigo.textContent =
             'Salvar artigo';
@@ -2290,11 +1841,9 @@
         'listaArtigos'
       );
 
-
     if (!tbody) {
       return;
     }
-
 
     try {
 
@@ -2305,9 +1854,7 @@
 
 
       if (
-        !Array.isArray(
-          artigos
-        ) ||
+        !Array.isArray(artigos) ||
         artigos.length === 0
       ) {
 
@@ -2320,143 +1867,117 @@
 
 
       tbody.innerHTML =
-        artigos
-          .map(
-            function (artigo) {
+        artigos.map(function (artigo) {
 
-              const status =
-                artigo.publicado
-                  ? 'Publicado'
-                  : 'Rascunho';
+          const status =
+            artigo.publicado
+              ? 'Publicado'
+              : 'Rascunho';
 
 
-              return `
+          return `
 
-                <tr>
+            <tr>
 
-                  <td>
-                    ${escapeHtml(
-                      artigo.id
-                    )}
-                  </td>
+              <td>
+                ${escapeHtml(
+                  artigo.id
+                )}
+              </td>
 
-                  <td>
-                    ${escapeHtml(
-                      artigo.titulo || ''
-                    )}
-                  </td>
+              <td>
+                ${escapeHtml(
+                  artigo.titulo || ''
+                )}
+              </td>
 
-                  <td>
+              <td>
+                ${status}
+              </td>
 
-                    <span
-                      class="badge badge--${
-                        artigo.publicado
-                          ? 'ativo'
-                          : 'pendente'
-                      }"
-                    >
-                      ${status}
-                    </span>
+              <td>
+                ${escapeHtml(
+                  artigo.criado_em ||
+                  artigo.created_at ||
+                  '-'
+                )}
+              </td>
 
-                  </td>
+              <td>
 
-                  <td>
-                    ${escapeHtml(
-                      artigo.criado_em ||
-                      artigo.created_at ||
-                      '-'
-                    )}
-                  </td>
+                <button
+                  type="button"
+                  class="btn btn--excluir"
+                  data-blog-id="${escapeHtml(
+                    artigo.id
+                  )}"
+                >
+                  Excluir
+                </button>
 
-                  <td>
+              </td>
 
-                    <button
-                      type="button"
-                      class="btn btn--excluir"
-                      data-blog-id="${escapeHtml(
-                        artigo.id
-                      )}"
-                    >
-                      Excluir
-                    </button>
+            </tr>
 
-                  </td>
+          `;
 
-                </tr>
-
-              `;
-
-            }
-          )
-          .join('');
+        }).join('');
 
 
       tbody
         .querySelectorAll(
           'button[data-blog-id]'
         )
-        .forEach(
-          function (btn) {
+        .forEach(function (btn) {
 
-            btn.addEventListener(
-              'click',
-              async function () {
+          btn.addEventListener(
+            'click',
+            async function () {
 
-                if (
-                  !confirm(
-                    'Excluir este artigo?'
-                  )
-                ) {
+              if (
+                !confirm(
+                  'Excluir este artigo?'
+                )
+              ) {
+                return;
+              }
 
-                  return;
+              try {
 
-                }
+                btn.disabled = true;
 
+                await apiFetch(
+                  `/api/blog/${btn.dataset.blogId}`,
+                  {
+                    method: 'DELETE'
+                  }
+                );
 
-                try {
+                alert(
+                  'Artigo excluído com sucesso!'
+                );
 
-                  btn.disabled =
-                    true;
+                await carregarArtigos();
 
+              } catch (erro) {
 
-                  await apiFetch(
-                    `/api/blog/${btn.dataset.blogId}`,
-                    {
-                      method: 'DELETE'
-                    }
-                  );
+                console.error(
+                  '[blog] Erro ao excluir:',
+                  erro
+                );
 
+                alert(
+                  erro.message
+                );
 
-                  alert(
-                    'Artigo excluído com sucesso!'
-                  );
-
-
-                  await carregarArtigos();
-
-                } catch (erro) {
-
-                  console.error(
-                    '[blog] Erro ao excluir:',
-                    erro
-                  );
-
-
-                  alert(
-                    erro.message
-                  );
-
-
-                  btn.disabled =
-                    false;
-
-                }
+                btn.disabled = false;
 
               }
-            );
 
-          }
-        );
+            }
+          );
+
+        });
 
     } catch (erro) {
 
@@ -2465,20 +1986,13 @@
         erro
       );
 
-
       tbody.innerHTML =
         `
         <tr>
-
           <td colspan="5">
-
             Erro ao carregar artigos:
-            ${escapeHtml(
-              erro.message
-            )}
-
+            ${escapeHtml(erro.message)}
           </td>
-
         </tr>
         `;
 
@@ -2497,38 +2011,15 @@
       valor === null ||
       valor === undefined
     ) {
-
       return '';
-
     }
 
-
     return String(valor)
-
-      .replace(
-        /&/g,
-        '&amp;'
-      )
-
-      .replace(
-        /</g,
-        '&lt;'
-      )
-
-      .replace(
-        />/g,
-        '&gt;'
-      )
-
-      .replace(
-        /"/g,
-        '&quot;'
-      )
-
-      .replace(
-        /'/g,
-        '&#039;'
-      );
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
 
   }
 
@@ -2536,11 +2027,6 @@
   // =========================================================
   // INICIALIZAÇÃO
   // =========================================================
-
-  console.log(
-    '[admin] Painel administrativo carregado.'
-  );
-
 
   if (getToken()) {
 
