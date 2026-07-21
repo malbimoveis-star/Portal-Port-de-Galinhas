@@ -12,99 +12,208 @@
   <title>Blog — Portal Porto de Galinhas</title>
 
   <!-- CSS PRINCIPAL DO SITE -->
-  <link rel="stylesheet" href="../CSS/styles.css">
+  <link
+    rel="stylesheet"
+    href="../CSS/styles.css"
+  >
 
   <style>
-    .blog-main {
+    /* =====================================================
+       BLOG
+    ===================================================== */
+
+    .blog-principal {
       max-width: 1100px;
-      margin: 30px auto;
-      padding: 0 16px 60px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
     }
 
     .blog-titulo {
-      color: #0a5c8a;
-      margin-bottom: 20px;
+      color: var(--azul-primario, #0a5c8a);
+      margin: 0 0 10px;
+      font-size: 2.2rem;
+    }
+
+    .blog-subtitulo {
+      color: #55707f;
+      margin: 0 0 30px;
     }
 
     .blog-grid {
       display: grid;
-      grid-template-columns: repeat(
-        auto-fill,
-        minmax(260px, 1fr)
-      );
-      gap: 20px;
+      grid-template-columns:
+        repeat(
+          auto-fill,
+          minmax(280px, 1fr)
+        );
+
+      gap: 24px;
     }
 
+    /* =====================================================
+       CARD DO ARTIGO
+    ===================================================== */
+
     .blog-card {
-      background: #fff;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-      text-decoration: none;
-      color: inherit;
       display: block;
+
+      background: #ffffff;
+
+      border-radius: 12px;
+
+      overflow: hidden;
+
+      text-decoration: none;
+
+      color: inherit;
+
+      box-shadow:
+        0 3px 12px
+        rgba(0, 0, 0, 0.10);
+
       transition:
         transform 0.2s ease,
         box-shadow 0.2s ease;
     }
 
     .blog-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+      transform:
+        translateY(-4px);
+
+      box-shadow:
+        0 8px 22px
+        rgba(0, 0, 0, 0.15);
     }
+
+    /* =====================================================
+       IMAGEM DE CAPA
+    ===================================================== */
 
     .blog-card-imagem {
       width: 100%;
-      height: 190px;
+
+      height: 210px;
+
       object-fit: cover;
+
       display: block;
+
       background: #dde5ea;
     }
 
+    /* =====================================================
+       QUANDO NÃO EXISTE IMAGEM
+    ===================================================== */
+
     .blog-card-sem-imagem {
       width: 100%;
-      height: 190px;
+
+      height: 210px;
+
       display: flex;
+
       align-items: center;
+
       justify-content: center;
-      background: linear-gradient(
-        135deg,
-        #0a5c8a,
-        #1385bd
-      );
-      color: #fff;
-      font-size: 18px;
-      font-weight: bold;
+
       text-align: center;
-      padding: 20px;
+
+      padding: 25px;
+
+      background:
+        linear-gradient(
+          135deg,
+          #0a5c8a,
+          #1385bd
+        );
+
+      color: #ffffff;
+
+      font-size: 1.15rem;
+
+      font-weight: bold;
     }
+
+    /* =====================================================
+       CONTEÚDO DO CARD
+    ===================================================== */
 
     .blog-card-conteudo {
-      padding: 16px;
+      padding: 18px;
     }
 
-    .blog-card h2 {
-      font-size: 1.05em;
-      margin: 0 0 8px;
-      color: #0a5c8a;
+    .blog-card-titulo {
+      margin: 0 0 10px;
+
+      color:
+        var(
+          --azul-primario,
+          #0a5c8a
+        );
+
+      font-size: 1.15rem;
+
+      line-height: 1.35;
     }
 
-    .blog-card p {
-      font-size: 0.9em;
-      color: #55707f;
+    .blog-card-resumo {
       margin: 0;
-      line-height: 1.5;
+
+      color: #55707f;
+
+      font-size: 0.95rem;
+
+      line-height: 1.55;
     }
+
+    /* =====================================================
+       MENSAGEM VAZIA
+    ===================================================== */
 
     .blog-vazio {
       color: #55707f;
-      margin-top: 30px;
+
+      padding: 30px 0;
+
+      font-size: 1rem;
     }
 
-    .blog-carregando {
-      color: #55707f;
-      margin-top: 30px;
+    /* =====================================================
+       ERRO
+    ===================================================== */
+
+    .blog-erro {
+      color: #b42318;
+
+      padding: 30px 0;
     }
+
+    /* =====================================================
+       RESPONSIVO
+    ===================================================== */
+
+    @media (max-width: 700px) {
+
+      .blog-principal {
+        padding:
+          30px 15px 60px;
+      }
+
+      .blog-titulo {
+        font-size: 1.8rem;
+      }
+
+      .blog-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .blog-card-imagem,
+      .blog-card-sem-imagem {
+        height: 200px;
+      }
+
+    }
+
   </style>
 
 </head>
@@ -112,12 +221,19 @@
 
 <body>
 
-  <!-- HEADER DO SITE -->
+
+  <!-- =====================================================
+       HEADER DO SITE
+  ===================================================== -->
+
   <div id="layout-header"></div>
 
 
-  <!-- CONTEÚDO DO BLOG -->
-  <main class="blog-main">
+  <!-- =====================================================
+       CONTEÚDO DO BLOG
+  ===================================================== -->
+
+  <main class="blog-principal">
 
     <h1
       class="blog-titulo"
@@ -126,15 +242,15 @@
       Blog
     </h1>
 
-
     <p
-      id="carregando"
-      class="blog-carregando"
-      data-i18n="blog.carregando"
+      class="blog-subtitulo"
+      data-i18n="blog.subtitulo"
     >
-      Carregando artigos...
+      Descubra novidades, dicas e experiências em Porto de Galinhas.
     </p>
 
+
+    <!-- LISTA DOS ARTIGOS -->
 
     <div
       id="lista"
@@ -142,29 +258,45 @@
     ></div>
 
 
+    <!-- MENSAGEM QUANDO NÃO HÁ ARTIGOS -->
+
     <p
       id="vazio"
       class="blog-vazio"
-      style="display:none"
       data-i18n="blog.vazio"
+      style="display: none;"
     >
       Ainda não temos artigos publicados.
+    </p>
+
+
+    <!-- MENSAGEM DE ERRO -->
+
+    <p
+      id="erro"
+      class="blog-erro"
+      data-i18n="blog.erro"
+      style="display: none;"
+    >
+      Não foi possível carregar os artigos agora.
     </p>
 
   </main>
 
 
-  <!-- RODAPÉ DO SITE -->
+  <!-- =====================================================
+       RODAPÉ DO SITE
+  ===================================================== -->
+
   <div id="layout-rodape"></div>
 
 
-  <!--
-    IMPORTANTE:
-    layout.js deve carregar primeiro,
-    pois ele cria o header e o seletor de idiomas.
-  -->
+  <!-- =====================================================
+       JAVASCRIPT
+  ===================================================== -->
 
   <script src="../js/i18n.js"></script>
+
   <script src="../js/layout.js"></script>
 
 
@@ -187,11 +319,59 @@
       }
 
       return String(valor)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+
+        .replace(
+          /&/g,
+          '&amp;'
+        )
+
+        .replace(
+          /</g,
+          '&lt;'
+        )
+
+        .replace(
+          />/g,
+          '&gt;'
+        )
+
+        .replace(
+          /"/g,
+          '&quot;'
+        )
+
+        .replace(
+          /'/g,
+          '&#039;'
+        );
+
+    }
+
+
+    // =====================================================
+    // TRADUÇÃO
+    // =====================================================
+
+    function traduzir(chave, padrao) {
+
+      if (
+        window.i18nPortal &&
+        typeof window.i18nPortal.t === 'function'
+      ) {
+
+        const valor =
+          window.i18nPortal.t(chave);
+
+        if (
+          valor &&
+          valor !== chave
+        ) {
+          return valor;
+        }
+
+      }
+
+      return padrao;
 
     }
 
@@ -208,20 +388,31 @@
       const vazio =
         document.getElementById('vazio');
 
-      const carregando =
-        document.getElementById('carregando');
+      const erro =
+        document.getElementById('erro');
 
 
       try {
 
+        vazio.style.display =
+          'none';
+
+        erro.style.display =
+          'none';
+
+
         const resposta =
-          await fetch('/api/blog');
+          await fetch(
+            '/api/blog'
+          );
 
 
-        if (!resposta.ok) {
+        if (
+          !resposta.ok
+        ) {
 
           throw new Error(
-            'Erro ao carregar artigos.'
+            'Erro ao carregar artigos'
           );
 
         }
@@ -237,18 +428,13 @@
         );
 
 
-        // Esconder carregando
-
-        carregando.style.display =
-          'none';
-
-
-        // Nenhum artigo
-
         if (
           !Array.isArray(artigos) ||
           artigos.length === 0
         ) {
+
+          lista.innerHTML =
+            '';
 
           vazio.style.display =
             'block';
@@ -258,158 +444,144 @@
         }
 
 
-        // =================================================
-        // MONTAR CARDS
-        // =================================================
-
         lista.innerHTML =
           artigos
-            .map(function (artigo) {
+            .map(
+              function (artigo) {
+
+                const id =
+                  encodeURIComponent(
+                    artigo.id
+                  );
 
 
-              const titulo =
-                escapeHtml(
-                  artigo.titulo ||
-                  'Sem título'
-                );
+                const titulo =
+                  escapeHtml(
+                    artigo.titulo ||
+                    'Sem título'
+                  );
 
 
-              const resumo =
-                escapeHtml(
-                  artigo.resumo ||
-                  ''
-                );
+                const resumo =
+                  escapeHtml(
+                    artigo.resumo ||
+                    ''
+                  );
 
 
-              const capa =
-                artigo.capa_url
-                  ? String(
-                      artigo.capa_url
-                    )
-                  : '';
+                /*
+                 * A CAPA É A PRIMEIRA IMAGEM
+                 * CADASTRADA NO CAMPO capa_url.
+                 */
+
+                const capa =
+                  artigo.capa_url
+                    ? String(
+                        artigo.capa_url
+                      ).trim()
+                    : '';
 
 
-              const id =
-                encodeURIComponent(
-                  artigo.id
-                );
+                let imagemHtml =
+                  '';
 
 
-              let imagemHtml =
-                '';
+                if (capa) {
 
+                  imagemHtml = `
 
-              // =================================================
-              // SE TEM CAPA
-              // =================================================
+                    <img
+                      class="blog-card-imagem"
+                      src="${escapeHtml(capa)}"
+                      alt="${titulo}"
+                      loading="lazy"
+                      onerror="
+                        this.style.display='none';
+                        this.nextElementSibling.style.display='flex';
+                      "
+                    >
 
-              if (capa) {
-
-                imagemHtml = `
-
-                  <img
-                    class="blog-card-imagem"
-                    src="${escapeHtml(capa)}"
-                    alt="${titulo}"
-                    loading="lazy"
-                    onerror="
-                      this.style.display='none';
-                      this.nextElementSibling.style.display='flex';
-                    "
-                  >
-
-                  <div
-                    class="blog-card-sem-imagem"
-                    style="display:none"
-                  >
-                    ${titulo}
-                  </div>
-
-                `;
-
-              }
-
-
-              // =================================================
-              // SE NÃO TEM CAPA
-              // =================================================
-
-              else {
-
-                imagemHtml = `
-
-                  <div
-                    class="blog-card-sem-imagem"
-                  >
-                    ${titulo}
-                  </div>
-
-                `;
-
-              }
-
-
-              // =================================================
-              // CARD
-              // =================================================
-
-              return `
-
-                <a
-                  class="blog-card"
-                  href="/artigo?id=${id}"
-                >
-
-                  ${imagemHtml}
-
-
-                  <div
-                    class="blog-card-conteudo"
-                  >
-
-                    <h2>
+                    <div
+                      class="blog-card-sem-imagem"
+                      style="display:none;"
+                    >
                       ${titulo}
-                    </h2>
+                    </div>
+
+                  `;
+
+                } else {
+
+                  imagemHtml = `
+
+                    <div
+                      class="blog-card-sem-imagem"
+                    >
+                      ${titulo}
+                    </div>
+
+                  `;
+
+                }
 
 
-                    ${
-                      resumo
-                        ? `
-                          <p>
-                            ${resumo}
-                          </p>
-                        `
-                        : ''
-                    }
+                return `
 
-                  </div>
+                  <a
+                    class="blog-card"
+                    href="/artigo?id=${id}"
+                  >
 
-                </a>
+                    ${imagemHtml}
 
-              `;
+                    <div
+                      class="blog-card-conteudo"
+                    >
 
-            })
+                      <h2
+                        class="blog-card-titulo"
+                      >
+                        ${titulo}
+                      </h2>
+
+                      ${
+                        resumo
+                          ? `
+                            <p
+                              class="blog-card-resumo"
+                            >
+                              ${resumo}
+                            </p>
+                          `
+                          : ''
+                      }
+
+                    </div>
+
+                  </a>
+
+                `;
+
+              }
+            )
             .join('');
 
 
-      } catch (erro) {
-
+      } catch (err) {
 
         console.error(
-          '[BLOG] Erro:',
-          erro
+          '[BLOG] Erro ao carregar:',
+          err
         );
 
 
-        carregando.style.display =
-          'none';
-
-
-        vazio.textContent =
-          'Não foi possível carregar os artigos agora.';
-
+        lista.innerHTML =
+          '';
 
         vazio.style.display =
+          'none';
+
+        erro.style.display =
           'block';
 
       }
@@ -418,17 +590,46 @@
 
 
     // =====================================================
-    // INICIAR BLOG
+    // INICIALIZAÇÃO
     // =====================================================
 
     document.addEventListener(
       'DOMContentLoaded',
       function () {
 
-        carregarBlog();
+        /*
+         * O layout.js monta o header,
+         * o rodapé e inicializa o i18n.
+         *
+         * O blog espera o evento
+         * i18n:aplicado antes de carregar.
+         */
+
+        if (
+          window.i18nPortal
+        ) {
+
+          document.addEventListener(
+            'i18n:aplicado',
+            function () {
+
+              carregarBlog();
+
+            },
+            {
+              once: true
+            }
+          );
+
+        } else {
+
+          carregarBlog();
+
+        }
 
       }
     );
+
 
   </script>
 
