@@ -1,98 +1,1014 @@
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Painel Administrativo - Portal Porto de Galinhas</title>
-  <style>
-    * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
-    body { margin: 0; background: #f2f5f8; color: #1c2b36; }
-    header { background: #0a5c8a; color: #fff; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }
-    header h1 { margin: 0; font-size: 1.3em; }
-    header button { background: #ff6600; border: none; color: #fff; padding: 8px 16px; border-radius: 6px; cursor: pointer; }
-    main { max-width: 1000px; margin: 24px auto; padding: 0 16px; }
-    .card { background: #fff; border-radius: 10px; padding: 20px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-    .card h2 { margin-top: 0; color: #0a5c8a; }
-    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #e3e8ec; font-size: 0.92em; }
-    th { color: #55707f; font-weight: 600; }
-    .btn { border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; color: #fff; font-size: 0.85em; margin-right: 6px; }
-    .btn--aprovar { background: #2e9e5b; }
-    .btn--rejeitar { background: #d64545; }
-    .btn--excluir { background: #999; }
-    .btn--salvar { background: #0a5c8a; }
-    .badge { padding: 3px 8px; border-radius: 12px; font-size: 0.78em; color: #fff; }
-    .badge--pendente { background: #e0a020; }
-    .badge--ativo { background: #2e9e5b; }
-    .badge--rejeitado { background: #d64545; }
-    form.login-form { display: flex; flex-direction: column; gap: 12px; max-width: 320px; margin: 80px auto; }
-    form.login-form input { padding: 10px; border: 1px solid #ccc; border-radius: 6px; }
-    form.login-form button { padding: 10px; background: #0a5c8a; color: #fff; border: none; border-radius: 6px; cursor: pointer; }
-    .form-inline { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
-    .form-inline input { padding: 8px; border: 1px solid #ccc; border-radius: 6px; flex: 1; min-width: 140px; }
-    .erro { color: #d64545; font-size: 0.9em; }
-    .escondido { display: none; }
-    .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
-    .tabs button { padding: 8px 16px; border: 1px solid #0a5c8a; background: #fff; color: #0a5c8a; border-radius: 6px; cursor: pointer; }
-    .tabs button.ativa { background: #0a5c8a; color: #fff; }
-  </style>
-</head>
-<body>
-  <div id="telaLogin">
-    <form class="login-form" id="formLogin">
-      <h2 style="text-align:center; color:#0a5c8a;">Painel Administrativo</h2>
-      <input type="text" id="usuario" placeholder="Usuario" required />
-      <input type="password" id="senha" placeholder="Senha" required />
-      <button type="submit">Entrar</button>
-      <p class="erro" id="erroLogin"></p>
-    </form>
-  </div>
+// Painel administrativo
+// Login + CRUD categorias + moderacao de anuncios + gerenciamento do blog
+(function () {
+  'use strict';
 
-  <div id="telaAdmin" class="escondido">
-    <header>
-      <h1>Painel Administrativo - Portal Porto de Galinhas</h1>
-      <button id="btnSair">Sair</button>
-    </header>
-    <main>
-      <div class="tabs">
-        <button data-tab="pendentes" class="ativa">Anuncios Pendentes</button>
-        <button data-tab="todos">Todos os Anuncios</button>
-        <button data-tab="categorias">Categorias</button>
-        <button data-tab="blog">Blog</button>
-      </div>
-      <section id="tabPendentes" class="card">
-        <h2>Anuncios Pendentes de Aprovacao</h2>
-        <div id="listaPendentes"></div>
-      </section>
-      <section id="tabTodos" class="card escondido">
-        <h2>Todos os Anuncios</h2>
-        <table><thead><tr><th>ID</th><th>Titulo</th><th>Status</th><th>Lat/Lng</th><th>Acoes</th></tr></thead><tbody id="listaTodos"></tbody></table>
-      </section>
-      <section id="tabCategorias" class="card escondido">
-        <h2>Categorias</h2>
-        <div class="form-inline">
-          <input type="text" id="novaCategoriaNome" placeholder="Nome da categoria" />
-          <input type="text" id="novaCategoriaIcone" placeholder="/assets/icons/exemplo.svg" />
-          <button class="btn btn--salvar" id="btnAddCategoria">Adicionar</button>
-        </div>
-        <table><thead><tr><th>ID</th><th>Nome</th><th>Icone</th><th>Slug</th><th>Acoes</th></tr></thead><tbody id="listaCategorias"></tbody></table>
-      </section>
-      <section id="tabBlog" class="card escondido">
-        <h2>Blog - Novo Artigo</h2>
-        <div style="display:flex;flex-direction:column;gap:10px;max-width:600px">
-          <input type="text" id="blogTitulo" placeholder="Titulo do artigo" style="padding:8px;border:1px solid #ccc;border-radius:6px" />
-          <input type="text" id="blogResumo" placeholder="Resumo curto (aparece na listagem)" style="padding:8px;border:1px solid #ccc;border-radius:6px" />
-          <input type="text" id="blogCapa" placeholder="URL da imagem de capa (opcional)" style="padding:8px;border:1px solid #ccc;border-radius:6px" />
-          <textarea id="blogConteudo" placeholder="Conteudo completo do artigo" rows="8" style="padding:8px;border:1px solid #ccc;border-radius:6px;font-family:inherit"></textarea>
-          <label><input type="checkbox" id="blogPublicado" checked /> Publicar imediatamente</label>
-          <button class="btn btn--salvar" id="btnSalvarArtigo" style="width:fit-content;background:#0a5c8a;color:#fff;padding:8px 16px;border:none;border-radius:6px;cursor:pointer">Salvar artigo</button>
-          <p class="erro" id="erroBlog"></p>
-        </div>
-        <h2 style="margin-top:28px">Artigos</h2>
-        <table><thead><tr><th>ID</th><th>Titulo</th><th>Status</th><th>Criado em</th><th>Acoes</th></tr></thead><tbody id="listaArtigos"></tbody></table>
-      </section>
-    </main>
-  </div>
-  <script src="admin.js"></script>
-</body>
-</html>
+  const API = window.location.origin;
+  const TOKEN_KEY = 'portal_admin_token';
+
+  const telaLogin = document.getElementById('telaLogin');
+  const telaAdmin = document.getElementById('telaAdmin');
+  const formLogin = document.getElementById('formLogin');
+  const erroLogin = document.getElementById('erroLogin');
+  const btnSair = document.getElementById('btnSair');
+
+  // =========================================================
+  // AUTENTICAÇÃO
+  // =========================================================
+
+  function getToken() {
+    return localStorage.getItem(TOKEN_KEY);
+  }
+
+  function setToken(token) {
+    localStorage.setItem(TOKEN_KEY, token);
+  }
+
+  function limparToken() {
+    localStorage.removeItem(TOKEN_KEY);
+  }
+
+  function mostrarLogin() {
+    telaLogin.classList.remove('escondido');
+    telaAdmin.classList.add('escondido');
+  }
+
+  function mostrarAdmin() {
+    telaLogin.classList.add('escondido');
+    telaAdmin.classList.remove('escondido');
+
+    carregarPendentes();
+    carregarTodos();
+    carregarCategorias();
+    carregarArtigos();
+  }
+
+  async function apiFetch(path, options = {}) {
+    const token = getToken();
+
+    const headers = {
+      ...(options.headers || {})
+    };
+
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    const resp = await fetch(`${API}${path}`, {
+      ...options,
+      headers
+    });
+
+    let data;
+
+    try {
+      data = await resp.json();
+    } catch (e) {
+      data = {};
+    }
+
+    if (resp.status === 401 || resp.status === 403) {
+      limparToken();
+      mostrarLogin();
+
+      throw new Error(
+        data.erro || 'Sessao expirada. Faca login novamente.'
+      );
+    }
+
+    if (!resp.ok) {
+      throw new Error(
+        data.erro ||
+        data.error ||
+        `Erro HTTP ${resp.status}`
+      );
+    }
+
+    return data;
+  }
+
+  // =========================================================
+  // LOGIN
+  // =========================================================
+
+  formLogin.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    erroLogin.textContent = '';
+
+    const usuario = document
+      .getElementById('usuario')
+      .value
+      .trim();
+
+    const senha = document
+      .getElementById('senha')
+      .value;
+
+    try {
+      const resp = await fetch(`${API}/api/login`, {
+        method: 'POST',
+
+        headers: {
+          'Content-Type': 'application/json'
+        },
+
+        body: JSON.stringify({
+          usuario,
+          senha
+        })
+      });
+
+      const data = await resp.json();
+
+      if (!resp.ok) {
+        erroLogin.textContent =
+          data.erro || 'Credenciais invalidas.';
+        return;
+      }
+
+      setToken(data.token);
+
+      mostrarAdmin();
+
+    } catch (err) {
+      console.error('[login]', err);
+
+      erroLogin.textContent =
+        'Erro ao conectar com o servidor.';
+    }
+  });
+
+  // =========================================================
+  // SAIR
+  // =========================================================
+
+  btnSair.addEventListener('click', () => {
+    limparToken();
+    mostrarLogin();
+  });
+
+  // =========================================================
+  // TABS
+  // =========================================================
+
+  document
+    .querySelectorAll('.tabs button')
+    .forEach((btn) => {
+
+      btn.addEventListener('click', () => {
+
+        document
+          .querySelectorAll('.tabs button')
+          .forEach((b) => {
+            b.classList.remove('ativa');
+          });
+
+        btn.classList.add('ativa');
+
+        document
+          .querySelectorAll('main section')
+          .forEach((section) => {
+            section.classList.add('escondido');
+          });
+
+        const tabId =
+          `tab${capitalize(btn.dataset.tab)}`;
+
+        const tab =
+          document.getElementById(tabId);
+
+        if (tab) {
+          tab.classList.remove('escondido');
+        }
+
+        // Quando abrir a aba Blog,
+        // atualiza os artigos
+        if (btn.dataset.tab === 'blog') {
+          carregarArtigos();
+        }
+      });
+    });
+
+  function capitalize(s) {
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  // =========================================================
+  // ANÚNCIOS PENDENTES
+  // =========================================================
+
+  async function carregarPendentes() {
+
+    try {
+
+      const pendentes =
+        await apiFetch('/api/admin/anuncios');
+
+      const container =
+        document.getElementById('listaPendentes');
+
+      if (!Array.isArray(pendentes)) {
+
+        container.innerHTML =
+          '<p>Nenhum anuncio pendente.</p>';
+
+        return;
+      }
+
+      container.innerHTML =
+        pendentes.map((a) => `
+
+          <div style="padding:12px;border-bottom:1px solid #ddd;">
+
+            <strong>
+              ${a.titulo || ''}
+            </strong>
+
+            <br>
+
+            Comerciante:
+            ${a.id_comerciante || '-'}
+
+            <br>
+
+            Status:
+
+            <span class="badge badge--${a.status}">
+              ${a.status || '-'}
+            </span>
+
+            <br><br>
+
+            <button
+              class="btn btn--aprovar"
+              data-acao="aprovar"
+              data-id="${a.id}">
+              Aprovar
+            </button>
+
+            <button
+              class="btn btn--rejeitar"
+              data-acao="rejeitar"
+              data-id="${a.id}">
+              Rejeitar
+            </button>
+
+          </div>
+
+        `).join('') ||
+
+        '<p>Nenhum anuncio pendente.</p>';
+
+      container
+        .querySelectorAll('button[data-acao]')
+        .forEach((btn) => {
+
+          btn.addEventListener('click', async () => {
+
+            const acao =
+              btn.dataset.acao;
+
+            const id =
+              btn.dataset.id;
+
+            try {
+
+              await apiFetch(
+                `/api/admin/anuncios/${id}/${acao}`,
+                {
+                  method: 'PUT'
+                }
+              );
+
+              await carregarPendentes();
+              await carregarTodos();
+
+            } catch (err) {
+
+              console.error(
+                '[anuncio]',
+                err
+              );
+
+              alert(err.message);
+            }
+          });
+        });
+
+    } catch (err) {
+
+      console.error(
+        '[pendentes]',
+        err
+      );
+    }
+  }
+
+  // =========================================================
+  // TODOS OS ANÚNCIOS
+  // =========================================================
+
+  async function carregarTodos() {
+
+    try {
+
+      const todos =
+        await apiFetch('/api/admin/anuncios/todos');
+
+      const tbody =
+        document.getElementById('listaTodos');
+
+      if (!Array.isArray(todos)) {
+
+        tbody.innerHTML =
+          '<tr><td colspan="5">Nenhum anuncio cadastrado.</td></tr>';
+
+        return;
+      }
+
+      tbody.innerHTML =
+        todos.map((a) => `
+
+          <tr>
+
+            <td>
+              ${a.id}
+            </td>
+
+            <td>
+              ${a.titulo || ''}
+            </td>
+
+            <td>
+
+              <span class="badge badge--${a.status}">
+                ${a.status || '-'}
+              </span>
+
+            </td>
+
+            <td>
+              ${a.latitude ?? '-'},
+              ${a.longitude ?? '-'}
+            </td>
+
+            <td>
+
+              <button
+                class="btn btn--excluir"
+                data-id="${a.id}">
+                Excluir
+              </button>
+
+            </td>
+
+          </tr>
+
+        `).join('') ||
+
+        '<tr><td colspan="5">Nenhum anuncio cadastrado.</td></tr>';
+
+      tbody
+        .querySelectorAll('button.btn--excluir')
+        .forEach((btn) => {
+
+          btn.addEventListener('click', async () => {
+
+            if (
+              !confirm(
+                'Excluir este anuncio?'
+              )
+            ) {
+              return;
+            }
+
+            try {
+
+              await apiFetch(
+                `/api/admin/anuncios/${btn.dataset.id}`,
+                {
+                  method: 'DELETE'
+                }
+              );
+
+              await carregarTodos();
+              await carregarPendentes();
+
+            } catch (err) {
+
+              console.error(
+                '[excluir anuncio]',
+                err
+              );
+
+              alert(err.message);
+            }
+          });
+        });
+
+    } catch (err) {
+
+      console.error(
+        '[todos anuncios]',
+        err
+      );
+    }
+  }
+
+  // =========================================================
+  // CATEGORIAS
+  // =========================================================
+
+  async function carregarCategorias() {
+
+    try {
+
+      const categorias =
+        await apiFetch('/api/admin/categorias');
+
+      const tbody =
+        document.getElementById('listaCategorias');
+
+      if (!Array.isArray(categorias)) {
+
+        tbody.innerHTML =
+          '<tr><td colspan="5">Nenhuma categoria cadastrada.</td></tr>';
+
+        return;
+      }
+
+      tbody.innerHTML =
+        categorias.map((c) => `
+
+          <tr>
+
+            <td>
+              ${c.id}
+            </td>
+
+            <td>
+              ${c.nome || ''}
+            </td>
+
+            <td>
+              ${c.icone_url || '-'}
+            </td>
+
+            <td>
+              ${c.slug || '-'}
+            </td>
+
+            <td>
+
+              <button
+                class="btn btn--excluir"
+                data-id="${c.id}">
+                Excluir
+              </button>
+
+            </td>
+
+          </tr>
+
+        `).join('') ||
+
+        '<tr><td colspan="5">Nenhuma categoria cadastrada.</td></tr>';
+
+      tbody
+        .querySelectorAll('button.btn--excluir')
+        .forEach((btn) => {
+
+          btn.addEventListener('click', async () => {
+
+            if (
+              !confirm(
+                'Excluir esta categoria?'
+              )
+            ) {
+              return;
+            }
+
+            try {
+
+              await apiFetch(
+                `/api/admin/categorias/${btn.dataset.id}`,
+                {
+                  method: 'DELETE'
+                }
+              );
+
+              await carregarCategorias();
+
+            } catch (err) {
+
+              console.error(
+                '[excluir categoria]',
+                err
+              );
+
+              alert(err.message);
+            }
+          });
+        });
+
+    } catch (err) {
+
+      console.error(
+        '[categorias]',
+        err
+      );
+    }
+  }
+
+  // =========================================================
+  // ADICIONAR CATEGORIA
+  // =========================================================
+
+  const btnAddCategoria =
+    document.getElementById(
+      'btnAddCategoria'
+    );
+
+  if (btnAddCategoria) {
+
+    btnAddCategoria.addEventListener(
+      'click',
+      async () => {
+
+        const nome =
+          document
+            .getElementById(
+              'novaCategoriaNome'
+            )
+            .value
+            .trim();
+
+        const icone_url =
+          document
+            .getElementById(
+              'novaCategoriaIcone'
+            )
+            .value
+            .trim();
+
+        if (!nome) {
+
+          alert(
+            'Digite o nome da categoria.'
+          );
+
+          return;
+        }
+
+        try {
+
+          await apiFetch(
+            '/api/admin/categorias',
+            {
+              method: 'POST',
+
+              headers: {
+                'Content-Type':
+                  'application/json'
+              },
+
+              body: JSON.stringify({
+                nome,
+                icone_url
+              })
+            }
+          );
+
+          document
+            .getElementById(
+              'novaCategoriaNome'
+            )
+            .value = '';
+
+          document
+            .getElementById(
+              'novaCategoriaIcone'
+            )
+            .value = '';
+
+          await carregarCategorias();
+
+        } catch (err) {
+
+          console.error(
+            '[adicionar categoria]',
+            err
+          );
+
+          alert(err.message);
+        }
+      }
+    );
+  }
+
+  // =========================================================
+  // BLOG - SALVAR ARTIGO
+  // =========================================================
+
+  const btnSalvarArtigo =
+    document.getElementById(
+      'btnSalvarArtigo'
+    );
+
+  if (btnSalvarArtigo) {
+
+    btnSalvarArtigo.addEventListener(
+      'click',
+      async () => {
+
+        console.log(
+          '[blog] Botao Salvar artigo clicado'
+        );
+
+        const erroBlog =
+          document.getElementById(
+            'erroBlog'
+          );
+
+        erroBlog.textContent = '';
+
+        const titulo =
+          document
+            .getElementById(
+              'blogTitulo'
+            )
+            .value
+            .trim();
+
+        const resumo =
+          document
+            .getElementById(
+              'blogResumo'
+            )
+            .value
+            .trim();
+
+        const capa =
+          document
+            .getElementById(
+              'blogCapa'
+            )
+            .value
+            .trim();
+
+        const conteudo =
+          document
+            .getElementById(
+              'blogConteudo'
+            )
+            .value
+            .trim();
+
+        const publicado =
+          document
+            .getElementById(
+              'blogPublicado'
+            )
+            .checked;
+
+        // =====================================================
+        // VALIDAÇÃO
+        // =====================================================
+
+        if (!titulo) {
+
+          erroBlog.textContent =
+            'Digite o titulo do artigo.';
+
+          return;
+        }
+
+        if (!conteudo) {
+
+          erroBlog.textContent =
+            'Digite o conteudo do artigo.';
+
+          return;
+        }
+
+        // =====================================================
+        // EVITA DUPLO CLIQUE
+        // =====================================================
+
+        btnSalvarArtigo.disabled = true;
+
+        btnSalvarArtigo.textContent =
+          'Salvando...';
+
+        try {
+
+          console.log(
+            '[blog] Enviando artigo para:',
+            `${API}/api/blog`
+          );
+
+          // ===================================================
+          // CORREÇÃO:
+          // O backend espera "capa_url"
+          // ===================================================
+
+          const resultado =
+            await apiFetch(
+              '/api/blog',
+              {
+                method: 'POST',
+
+                headers: {
+                  'Content-Type':
+                    'application/json'
+                },
+
+                body: JSON.stringify({
+
+                  titulo,
+
+                  resumo,
+
+                  capa_url: capa,
+
+                  conteudo,
+
+                  publicado
+
+                })
+              }
+            );
+
+          console.log(
+            '[blog] Artigo salvo:',
+            resultado
+          );
+
+          alert(
+            'Artigo salvo com sucesso!'
+          );
+
+          // ===================================================
+          // LIMPA O FORMULÁRIO
+          // ===================================================
+
+          document
+            .getElementById(
+              'blogTitulo'
+            )
+            .value = '';
+
+          document
+            .getElementById(
+              'blogResumo'
+            )
+            .value = '';
+
+          document
+            .getElementById(
+              'blogCapa'
+            )
+            .value = '';
+
+          document
+            .getElementById(
+              'blogConteudo'
+            )
+            .value = '';
+
+          document
+            .getElementById(
+              'blogPublicado'
+            )
+            .checked = true;
+
+          // ===================================================
+          // ATUALIZA LISTA
+          // ===================================================
+
+          await carregarArtigos();
+
+        } catch (err) {
+
+          console.error(
+            '[blog] Erro ao salvar:',
+            err
+          );
+
+          erroBlog.textContent =
+            err.message ||
+            'Erro ao salvar artigo.';
+
+        } finally {
+
+          btnSalvarArtigo.disabled = false;
+
+          btnSalvarArtigo.textContent =
+            'Salvar artigo';
+        }
+      }
+    );
+
+  } else {
+
+    console.error(
+      '[blog] ERRO: botao btnSalvarArtigo nao encontrado no HTML.'
+    );
+  }
+
+  // =========================================================
+  // BLOG - CARREGAR ARTIGOS
+  // =========================================================
+
+  async function carregarArtigos() {
+
+    const tbody =
+      document.getElementById(
+        'listaArtigos'
+      );
+
+    if (!tbody) {
+      return;
+    }
+
+    try {
+
+      console.log(
+        '[blog] Carregando artigos...'
+      );
+
+      // =====================================================
+      // CORREÇÃO:
+      // A rota correta do backend é /api/blog/admin/todos
+      // =====================================================
+
+      const artigos =
+        await apiFetch(
+          '/api/blog/admin/todos'
+        );
+
+      if (!Array.isArray(artigos)) {
+
+        tbody.innerHTML =
+          '<tr><td colspan="5">Nenhum artigo cadastrado.</td></tr>';
+
+        return;
+      }
+
+      tbody.innerHTML =
+        artigos.map((artigo) => {
+
+          const status =
+            artigo.publicado
+              ? 'Publicado'
+              : 'Rascunho';
+
+          return `
+
+            <tr>
+
+              <td>
+                ${artigo.id}
+              </td>
+
+              <td>
+                ${artigo.titulo || ''}
+              </td>
+
+              <td>
+
+                <span class="badge badge--${
+                  artigo.publicado
+                    ? 'ativo'
+                    : 'pendente'
+                }">
+
+                  ${status}
+
+                </span>
+
+              </td>
+
+              <td>
+                ${
+                  artigo.criado_em ||
+                  artigo.created_at ||
+                  '-'
+                }
+              </td>
+
+              <td>
+
+                <button
+                  class="btn btn--excluir"
+                  data-blog-id="${artigo.id}">
+                  Excluir
+                </button>
+
+              </td>
+
+            </tr>
+
+          `;
+
+        }).join('') ||
+
+        '<tr><td colspan="5">Nenhum artigo cadastrado.</td></tr>';
+
+      // =====================================================
+      // BOTÕES EXCLUIR ARTIGO
+      // =====================================================
+
+      tbody
+        .querySelectorAll(
+          'button[data-blog-id]'
+        )
+        .forEach((btn) => {
+
+          btn.addEventListener(
+            'click',
+            async () => {
+
+              if (
+                !confirm(
+                  'Excluir este artigo?'
+                )
+              ) {
+                return;
+              }
+
+              try {
+
+                await apiFetch(
+                  `/api/blog/${btn.dataset.blogId}`,
+                  {
+                    method: 'DELETE'
+                  }
+                );
+
+                alert(
+                  'Artigo excluido com sucesso!'
+                );
+
+                await carregarArtigos();
+
+              } catch (err) {
+
+                console.error(
+                  '[blog] Erro ao excluir:',
+                  err
+                );
+
+                alert(
+                  err.message
+                );
+              }
+            }
+          );
+
+        });
+
+    } catch (err) {
+
+      console.error(
+        '[blog] Erro ao carregar artigos:',
+        err
+      );
+
+      tbody.innerHTML = `
+
+        <tr>
+
+          <td colspan="5">
+
+            Erro ao carregar artigos:
+            ${err.message}
+
+          </td>
+
+        </tr>
+
+      `;
+    }
+  }
+
+  // =========================================================
+  // INICIALIZAÇÃO
+  // =========================================================
+
+  console.log(
+    '[admin] JavaScript administrativo carregado.'
+  );
+
+  if (getToken()) {
+
+    mostrarAdmin();
+
+  } else {
+
+    mostrarLogin();
+
+  }
+
+})();
