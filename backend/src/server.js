@@ -47,15 +47,22 @@ const ASSETS_DIR = path.join(
   'assets'
 );
 
-// Pasta do painel administrativo
-// Estrutura esperada:
+// =========================================================
+// PAINEL ADMINISTRATIVO
+// =========================================================
+//
+// Estrutura atual:
 //
 // backend/
-// ├── server.js
+// ├── src/
+// │   └── server.js
+// │
 // └── admin/
-//     ├── admin.html
+//     ├── index.html
 //     ├── admin.css
 //     └── admin.js
+//
+// =========================================================
 
 const ADMIN_DIR = path.join(
   __dirname,
@@ -63,29 +70,34 @@ const ADMIN_DIR = path.join(
   'admin'
 );
 
+const ADMIN_HTML = path.join(
+  ADMIN_DIR,
+  'index.html'
+);
+
 // =========================================================
 // MIDDLEWARES
 // =========================================================
 
-// Aumenta o limite do JSON para permitir
-// salvar artigos que contenham imagens em Base64.
+// Limite maior para permitir artigos com imagens
+// e conteúdo HTML.
 //
-// Antes:
-// app.use(express.json());
+// IMPORTANTE:
+// Isso corrige o erro:
+// request entity too large
 //
-// Agora:
-// limite de até 20 MB por requisição.
+// Limite máximo: 50 MB
 
 app.use(
   express.json({
-    limit: '20mb'
+    limit: '50mb'
   })
 );
 
 app.use(
   express.urlencoded({
     extended: true,
-    limit: '20mb'
+    limit: '50mb'
   })
 );
 
@@ -103,14 +115,14 @@ app.use(
 );
 
 // =========================================================
-// PAINEL ADMINISTRATIVO
+// ARQUIVOS ESTÁTICOS DO PAINEL ADMIN
 // =========================================================
 
-// Arquivos estáticos do admin.
+// Permite acessar:
 //
-// Exemplo:
 // /admin/admin.css
 // /admin/admin.js
+// /admin/index.html
 
 app.use(
   '/admin',
@@ -123,21 +135,18 @@ app.use(
 
 // Acesso:
 //
-// https://seu-dominio.com/admin
+// /admin
 //
 // ou
 //
-// https://seu-dominio.com/admin/
+// /admin/
 
 app.get(
   '/admin',
   (req, res) => {
 
     res.sendFile(
-      path.join(
-        ADMIN_DIR,
-        'admin.html'
-      )
+      ADMIN_HTML
     );
 
   }
@@ -148,10 +157,7 @@ app.get(
   (req, res) => {
 
     res.sendFile(
-      path.join(
-        ADMIN_DIR,
-        'admin.html'
-      )
+      ADMIN_HTML
     );
 
   }
@@ -451,7 +457,7 @@ app.use(
   '/api',
   (req, res) => {
 
-    res
+    return res
       .status(404)
       .json({
         erro: 'Rota da API nao encontrada.'
@@ -464,17 +470,17 @@ app.use(
 // FALLBACK DO SITE
 // =========================================================
 
-// Qualquer rota que não seja API ou admin
-// volta para o site principal.
+// Qualquer rota desconhecida do site
+// retorna a página inicial.
 //
 // IMPORTANTE:
-// As rotas /admin e /admin/ já foram tratadas acima,
-// então não devem cair neste fallback.
+// Rotas /api já foram tratadas acima.
+// Rotas /admin também já foram tratadas acima.
 
 app.use(
   (req, res) => {
 
-    res
+    return res
       .status(404)
       .sendFile(
         path.join(
@@ -500,12 +506,27 @@ app.use(
 
     console.error(
       '[erro]',
-      err.message
+      err
     );
 
-    res
+    // Erro específico de corpo da requisição muito grande
+
+    if (
+      err.type === 'entity.too.large'
+    ) {
+
+      return res
+        .status(413)
+        .json({
+          erro:
+            'O conteúdo enviado é muito grande. Reduza o tamanho das imagens ou do artigo.'
+        });
+
+    }
+
+    return res
       .status(
-        err.status || 400
+        err.status || 500
       )
       .json({
         erro:
@@ -520,8 +541,9 @@ app.use(
 // INICIAR SERVIDOR
 // =========================================================
 
-app.listen(
+const server = app.listen(
   PORT,
+  '0.0.0.0',
   () => {
 
     console.log(
@@ -537,7 +559,61 @@ app.listen(
     );
 
     console.log(
-      `[server] Admin HTML: ${path.join(ADMIN_DIR, 'admin.html')}`
+      `[server] Admin HTML: ${ADMIN_HTML}`
+    );
+
+    console.log(
+      `[server] Limite JSON: 50 MB`
+    );
+
+  }
+);
+
+// =========================================================
+// TRATAMENTO DE ENCERRAMENTO
+// =========================================================
+
+process.on(
+  'SIGTERM',
+  () => {
+
+    console.log(
+      '[server] SIGTERM recebido. Encerrando servidor...'
+    );
+
+    server.close(
+      () => {
+
+        console.log(
+          '[server] Servidor encerrado corretamente.'
+        );
+
+        process.exit(0);
+
+      }
+    );
+
+  }
+);
+
+process.on(
+  'SIGINT',
+  () => {
+
+    console.log(
+      '[server] SIGINT recebido. Encerrando servidor...'
+    );
+
+    server.close(
+      () => {
+
+        console.log(
+          '[server] Servidor encerrado corretamente.'
+        );
+
+        process.exit(0);
+
+      }
     );
 
   }
