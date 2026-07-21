@@ -1,1014 +1,600 @@
-// Painel administrativo
-// Login + CRUD categorias + moderacao de anuncios + gerenciamento do blog
-(function () {
-  'use strict';
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
 
-  const API = window.location.origin;
-  const TOKEN_KEY = 'portal_admin_token';
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-  const telaLogin = document.getElementById('telaLogin');
-  const telaAdmin = document.getElementById('telaAdmin');
-  const formLogin = document.getElementById('formLogin');
-  const erroLogin = document.getElementById('erroLogin');
-  const btnSair = document.getElementById('btnSair');
+  <title>Painel Administrativo - Portal Porto de Galinhas</title>
 
-  // =========================================================
-  // AUTENTICAÇÃO
-  // =========================================================
+  <link
+    rel="stylesheet"
+    href="./admin.css"
+  >
+</head>
 
-  function getToken() {
-    return localStorage.getItem(TOKEN_KEY);
-  }
+<body>
 
-  function setToken(token) {
-    localStorage.setItem(TOKEN_KEY, token);
-  }
+  <!-- =====================================================
+       TELA DE LOGIN
+  ====================================================== -->
 
-  function limparToken() {
-    localStorage.removeItem(TOKEN_KEY);
-  }
+  <div
+    id="telaLogin"
+    class="tela-login"
+  >
 
-  function mostrarLogin() {
-    telaLogin.classList.remove('escondido');
-    telaAdmin.classList.add('escondido');
-  }
+    <div class="login-card">
 
-  function mostrarAdmin() {
-    telaLogin.classList.add('escondido');
-    telaAdmin.classList.remove('escondido');
+      <h1>
+        Painel Administrativo
+      </h1>
 
-    carregarPendentes();
-    carregarTodos();
-    carregarCategorias();
-    carregarArtigos();
-  }
+      <p>
+        Portal Porto de Galinhas
+      </p>
 
-  async function apiFetch(path, options = {}) {
-    const token = getToken();
+      <form id="formLogin">
 
-    const headers = {
-      ...(options.headers || {})
-    };
+        <div class="campo">
 
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
+          <label for="usuario">
+            Usuário
+          </label>
 
-    const resp = await fetch(`${API}${path}`, {
-      ...options,
-      headers
-    });
+          <input
+            type="text"
+            id="usuario"
+            name="usuario"
+            placeholder="Digite seu usuário"
+            autocomplete="username"
+            required
+          >
 
-    let data;
+        </div>
 
-    try {
-      data = await resp.json();
-    } catch (e) {
-      data = {};
-    }
 
-    if (resp.status === 401 || resp.status === 403) {
-      limparToken();
-      mostrarLogin();
+        <div class="campo">
 
-      throw new Error(
-        data.erro || 'Sessao expirada. Faca login novamente.'
-      );
-    }
+          <label for="senha">
+            Senha
+          </label>
 
-    if (!resp.ok) {
-      throw new Error(
-        data.erro ||
-        data.error ||
-        `Erro HTTP ${resp.status}`
-      );
-    }
+          <input
+            type="password"
+            id="senha"
+            name="senha"
+            placeholder="Digite sua senha"
+            autocomplete="current-password"
+            required
+          >
 
-    return data;
-  }
+        </div>
 
-  // =========================================================
-  // LOGIN
-  // =========================================================
 
-  formLogin.addEventListener('submit', async (e) => {
-    e.preventDefault();
+        <p
+          id="erroLogin"
+          class="erro"
+        ></p>
 
-    erroLogin.textContent = '';
 
-    const usuario = document
-      .getElementById('usuario')
-      .value
-      .trim();
+        <button
+          type="submit"
+          class="btn btn--principal"
+        >
+          Entrar
+        </button>
 
-    const senha = document
-      .getElementById('senha')
-      .value;
+      </form>
 
-    try {
-      const resp = await fetch(`${API}/api/login`, {
-        method: 'POST',
+    </div>
 
-        headers: {
-          'Content-Type': 'application/json'
-        },
+  </div>
 
-        body: JSON.stringify({
-          usuario,
-          senha
-        })
-      });
 
-      const data = await resp.json();
+  <!-- =====================================================
+       PAINEL ADMINISTRATIVO
+  ====================================================== -->
 
-      if (!resp.ok) {
-        erroLogin.textContent =
-          data.erro || 'Credenciais invalidas.';
-        return;
-      }
+  <div
+    id="telaAdmin"
+    class="admin-container escondido"
+  >
 
-      setToken(data.token);
+    <!-- CABEÇALHO -->
 
-      mostrarAdmin();
+    <header class="admin-header">
 
-    } catch (err) {
-      console.error('[login]', err);
+      <div>
 
-      erroLogin.textContent =
-        'Erro ao conectar com o servidor.';
-    }
-  });
+        <h1>
+          Painel Administrativo
+        </h1>
 
-  // =========================================================
-  // SAIR
-  // =========================================================
+        <p>
+          Portal Porto de Galinhas
+        </p>
 
-  btnSair.addEventListener('click', () => {
-    limparToken();
-    mostrarLogin();
-  });
+      </div>
 
-  // =========================================================
-  // TABS
-  // =========================================================
 
-  document
-    .querySelectorAll('.tabs button')
-    .forEach((btn) => {
+      <button
+        id="btnSair"
+        type="button"
+        class="btn btn--sair"
+      >
+        Sair
+      </button>
 
-      btn.addEventListener('click', () => {
+    </header>
 
-        document
-          .querySelectorAll('.tabs button')
-          .forEach((b) => {
-            b.classList.remove('ativa');
-          });
 
-        btn.classList.add('ativa');
+    <!-- =================================================
+         ABAS
+    ================================================== -->
 
-        document
-          .querySelectorAll('main section')
-          .forEach((section) => {
-            section.classList.add('escondido');
-          });
+    <nav class="tabs">
 
-        const tabId =
-          `tab${capitalize(btn.dataset.tab)}`;
+      <button
+        type="button"
+        data-tab="pendentes"
+        class="ativa"
+      >
+        Anúncios Pendentes
+      </button>
 
-        const tab =
-          document.getElementById(tabId);
 
-        if (tab) {
-          tab.classList.remove('escondido');
-        }
+      <button
+        type="button"
+        data-tab="todos"
+      >
+        Todos os Anúncios
+      </button>
 
-        // Quando abrir a aba Blog,
-        // atualiza os artigos
-        if (btn.dataset.tab === 'blog') {
-          carregarArtigos();
-        }
-      });
-    });
 
-  function capitalize(s) {
-    return s.charAt(0).toUpperCase() + s.slice(1);
-  }
+      <button
+        type="button"
+        data-tab="categorias"
+      >
+        Categorias
+      </button>
 
-  // =========================================================
-  // ANÚNCIOS PENDENTES
-  // =========================================================
 
-  async function carregarPendentes() {
+      <button
+        type="button"
+        data-tab="blog"
+      >
+        Blog
+      </button>
 
-    try {
+    </nav>
 
-      const pendentes =
-        await apiFetch('/api/admin/anuncios');
 
-      const container =
-        document.getElementById('listaPendentes');
+    <!-- =================================================
+         CONTEÚDO
+    ================================================== -->
 
-      if (!Array.isArray(pendentes)) {
+    <main>
 
-        container.innerHTML =
-          '<p>Nenhum anuncio pendente.</p>';
 
-        return;
-      }
+      <!-- ===============================================
+           ANÚNCIOS PENDENTES
+      ================================================ -->
 
-      container.innerHTML =
-        pendentes.map((a) => `
+      <section
+        id="tabPendentes"
+      >
 
-          <div style="padding:12px;border-bottom:1px solid #ddd;">
+        <div class="card">
 
-            <strong>
-              ${a.titulo || ''}
-            </strong>
+          <h2>
+            Anúncios Pendentes
+          </h2>
 
-            <br>
+          <p>
+            Anúncios aguardando aprovação ou rejeição.
+          </p>
 
-            Comerciante:
-            ${a.id_comerciante || '-'}
+          <div
+            id="listaPendentes"
+          >
+            Carregando...
+          </div>
 
-            <br>
+        </div>
 
-            Status:
+      </section>
 
-            <span class="badge badge--${a.status}">
-              ${a.status || '-'}
-            </span>
 
-            <br><br>
+      <!-- ===============================================
+           TODOS OS ANÚNCIOS
+      ================================================ -->
+
+      <section
+        id="tabTodos"
+        class="escondido"
+      >
+
+        <div class="card">
+
+          <h2>
+            Todos os Anúncios
+          </h2>
+
+          <div class="table-container">
+
+            <table>
+
+              <thead>
+
+                <tr>
+
+                  <th>
+                    ID
+                  </th>
+
+                  <th>
+                    Título
+                  </th>
+
+                  <th>
+                    Status
+                  </th>
+
+                  <th>
+                    Localização
+                  </th>
+
+                  <th>
+                    Ações
+                  </th>
+
+                </tr>
+
+              </thead>
+
+
+              <tbody
+                id="listaTodos"
+              >
+
+                <tr>
+
+                  <td colspan="5">
+                    Carregando...
+                  </td>
+
+                </tr>
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ===============================================
+           CATEGORIAS
+      ================================================ -->
+
+      <section
+        id="tabCategorias"
+        class="escondido"
+      >
+
+        <div class="card">
+
+          <h2>
+            Categorias
+          </h2>
+
+
+          <div class="form-categoria">
+
+            <div class="campo">
+
+              <label for="novaCategoriaNome">
+                Nome da categoria
+              </label>
+
+              <input
+                type="text"
+                id="novaCategoriaNome"
+                placeholder="Ex.: Restaurantes"
+              >
+
+            </div>
+
+
+            <div class="campo">
+
+              <label for="novaCategoriaIcone">
+                URL do ícone
+              </label>
+
+              <input
+                type="text"
+                id="novaCategoriaIcone"
+                placeholder="https://..."
+              >
+
+            </div>
+
 
             <button
-              class="btn btn--aprovar"
-              data-acao="aprovar"
-              data-id="${a.id}">
-              Aprovar
-            </button>
-
-            <button
-              class="btn btn--rejeitar"
-              data-acao="rejeitar"
-              data-id="${a.id}">
-              Rejeitar
+              type="button"
+              id="btnAddCategoria"
+              class="btn btn--principal"
+            >
+              Adicionar Categoria
             </button>
 
           </div>
 
-        `).join('') ||
 
-        '<p>Nenhum anuncio pendente.</p>';
+          <div class="table-container">
 
-      container
-        .querySelectorAll('button[data-acao]')
-        .forEach((btn) => {
+            <table>
 
-          btn.addEventListener('click', async () => {
+              <thead>
 
-            const acao =
-              btn.dataset.acao;
+                <tr>
 
-            const id =
-              btn.dataset.id;
+                  <th>
+                    ID
+                  </th>
 
-            try {
+                  <th>
+                    Nome
+                  </th>
 
-              await apiFetch(
-                `/api/admin/anuncios/${id}/${acao}`,
-                {
-                  method: 'PUT'
-                }
-              );
+                  <th>
+                    Ícone
+                  </th>
 
-              await carregarPendentes();
-              await carregarTodos();
+                  <th>
+                    Slug
+                  </th>
 
-            } catch (err) {
+                  <th>
+                    Ações
+                  </th>
 
-              console.error(
-                '[anuncio]',
-                err
-              );
+                </tr>
 
-              alert(err.message);
-            }
-          });
-        });
+              </thead>
 
-    } catch (err) {
 
-      console.error(
-        '[pendentes]',
-        err
-      );
-    }
-  }
+              <tbody
+                id="listaCategorias"
+              >
 
-  // =========================================================
-  // TODOS OS ANÚNCIOS
-  // =========================================================
+                <tr>
 
-  async function carregarTodos() {
+                  <td colspan="5">
+                    Carregando...
+                  </td>
 
-    try {
+                </tr>
 
-      const todos =
-        await apiFetch('/api/admin/anuncios/todos');
+              </tbody>
 
-      const tbody =
-        document.getElementById('listaTodos');
+            </table>
 
-      if (!Array.isArray(todos)) {
+          </div>
 
-        tbody.innerHTML =
-          '<tr><td colspan="5">Nenhum anuncio cadastrado.</td></tr>';
+        </div>
 
-        return;
-      }
+      </section>
 
-      tbody.innerHTML =
-        todos.map((a) => `
 
-          <tr>
+      <!-- ===============================================
+           BLOG
+      ================================================ -->
 
-            <td>
-              ${a.id}
-            </td>
+      <section
+        id="tabBlog"
+        class="escondido"
+      >
 
-            <td>
-              ${a.titulo || ''}
-            </td>
+        <div class="card">
 
-            <td>
+          <h2>
+            Gerenciar Blog
+          </h2>
 
-              <span class="badge badge--${a.status}">
-                ${a.status || '-'}
-              </span>
 
-            </td>
+          <p
+            id="erroBlog"
+            class="erro"
+          ></p>
 
-            <td>
-              ${a.latitude ?? '-'},
-              ${a.longitude ?? '-'}
-            </td>
 
-            <td>
+          <!-- FORMULÁRIO DO ARTIGO -->
 
-              <button
-                class="btn btn--excluir"
-                data-id="${a.id}">
-                Excluir
-              </button>
+          <div class="blog-form">
 
-            </td>
+            <div class="campo">
 
-          </tr>
+              <label for="blogTitulo">
+                Título
+              </label>
 
-        `).join('') ||
+              <input
+                type="text"
+                id="blogTitulo"
+                placeholder="Título do artigo"
+              >
 
-        '<tr><td colspan="5">Nenhum anuncio cadastrado.</td></tr>';
+            </div>
 
-      tbody
-        .querySelectorAll('button.btn--excluir')
-        .forEach((btn) => {
 
-          btn.addEventListener('click', async () => {
+            <div class="campo">
 
-            if (
-              !confirm(
-                'Excluir este anuncio?'
-              )
-            ) {
-              return;
-            }
+              <label for="blogResumo">
+                Resumo
+              </label>
 
-            try {
+              <textarea
+                id="blogResumo"
+                rows="4"
+                placeholder="Resumo do artigo"
+              ></textarea>
 
-              await apiFetch(
-                `/api/admin/anuncios/${btn.dataset.id}`,
-                {
-                  method: 'DELETE'
-                }
-              );
+            </div>
 
-              await carregarTodos();
-              await carregarPendentes();
 
-            } catch (err) {
+            <div class="campo">
 
-              console.error(
-                '[excluir anuncio]',
-                err
-              );
+              <label for="blogCapa">
+                URL da capa
+              </label>
 
-              alert(err.message);
-            }
-          });
-        });
+              <input
+                type="text"
+                id="blogCapa"
+                placeholder="https://..."
+              >
 
-    } catch (err) {
+            </div>
 
-      console.error(
-        '[todos anuncios]',
-        err
-      );
-    }
-  }
 
-  // =========================================================
-  // CATEGORIAS
-  // =========================================================
+            <div class="campo">
 
-  async function carregarCategorias() {
+              <label for="blogConteudo">
+                Conteúdo
+              </label>
 
-    try {
+              <textarea
+                id="blogConteudo"
+                rows="12"
+                placeholder="Digite o conteúdo completo do artigo"
+              ></textarea>
 
-      const categorias =
-        await apiFetch('/api/admin/categorias');
+            </div>
 
-      const tbody =
-        document.getElementById('listaCategorias');
 
-      if (!Array.isArray(categorias)) {
+            <div class="campo checkbox">
 
-        tbody.innerHTML =
-          '<tr><td colspan="5">Nenhuma categoria cadastrada.</td></tr>';
+              <label>
 
-        return;
-      }
+                <input
+                  type="checkbox"
+                  id="blogPublicado"
+                  checked
+                >
 
-      tbody.innerHTML =
-        categorias.map((c) => `
+                Publicar artigo imediatamente
 
-          <tr>
+              </label>
 
-            <td>
-              ${c.id}
-            </td>
+            </div>
 
-            <td>
-              ${c.nome || ''}
-            </td>
 
-            <td>
-              ${c.icone_url || '-'}
-            </td>
+            <button
+              type="button"
+              id="btnSalvarArtigo"
+              class="btn btn--principal"
+            >
+              Salvar artigo
+            </button>
 
-            <td>
-              ${c.slug || '-'}
-            </td>
+          </div>
 
-            <td>
+        </div>
 
-              <button
-                class="btn btn--excluir"
-                data-id="${c.id}">
-                Excluir
-              </button>
 
-            </td>
+        <!-- LISTA DE ARTIGOS -->
 
-          </tr>
+        <div class="card">
 
-        `).join('') ||
+          <h2>
+            Artigos cadastrados
+          </h2>
 
-        '<tr><td colspan="5">Nenhuma categoria cadastrada.</td></tr>';
 
-      tbody
-        .querySelectorAll('button.btn--excluir')
-        .forEach((btn) => {
+          <div class="table-container">
 
-          btn.addEventListener('click', async () => {
+            <table>
 
-            if (
-              !confirm(
-                'Excluir esta categoria?'
-              )
-            ) {
-              return;
-            }
+              <thead>
 
-            try {
+                <tr>
 
-              await apiFetch(
-                `/api/admin/categorias/${btn.dataset.id}`,
-                {
-                  method: 'DELETE'
-                }
-              );
+                  <th>
+                    ID
+                  </th>
 
-              await carregarCategorias();
+                  <th>
+                    Título
+                  </th>
 
-            } catch (err) {
+                  <th>
+                    Status
+                  </th>
 
-              console.error(
-                '[excluir categoria]',
-                err
-              );
+                  <th>
+                    Data
+                  </th>
 
-              alert(err.message);
-            }
-          });
-        });
+                  <th>
+                    Ações
+                  </th>
 
-    } catch (err) {
+                </tr>
 
-      console.error(
-        '[categorias]',
-        err
-      );
-    }
-  }
+              </thead>
 
-  // =========================================================
-  // ADICIONAR CATEGORIA
-  // =========================================================
 
-  const btnAddCategoria =
-    document.getElementById(
-      'btnAddCategoria'
-    );
+              <tbody
+                id="listaArtigos"
+              >
 
-  if (btnAddCategoria) {
+                <tr>
 
-    btnAddCategoria.addEventListener(
-      'click',
-      async () => {
+                  <td colspan="5">
+                    Carregando...
+                  </td>
 
-        const nome =
-          document
-            .getElementById(
-              'novaCategoriaNome'
-            )
-            .value
-            .trim();
+                </tr>
 
-        const icone_url =
-          document
-            .getElementById(
-              'novaCategoriaIcone'
-            )
-            .value
-            .trim();
+              </tbody>
 
-        if (!nome) {
+            </table>
 
-          alert(
-            'Digite o nome da categoria.'
-          );
+          </div>
 
-          return;
-        }
+        </div>
 
-        try {
-
-          await apiFetch(
-            '/api/admin/categorias',
-            {
-              method: 'POST',
-
-              headers: {
-                'Content-Type':
-                  'application/json'
-              },
-
-              body: JSON.stringify({
-                nome,
-                icone_url
-              })
-            }
-          );
-
-          document
-            .getElementById(
-              'novaCategoriaNome'
-            )
-            .value = '';
-
-          document
-            .getElementById(
-              'novaCategoriaIcone'
-            )
-            .value = '';
+      </section>
 
-          await carregarCategorias();
+    </main>
 
-        } catch (err) {
+  </div>
 
-          console.error(
-            '[adicionar categoria]',
-            err
-          );
 
-          alert(err.message);
-        }
-      }
-    );
-  }
+  <!-- =====================================================
+       JAVASCRIPT DO PAINEL
+       
+       IMPORTANTE:
+       O código JavaScript que você me enviou deve estar
+       no arquivo:
 
-  // =========================================================
-  // BLOG - SALVAR ARTIGO
-  // =========================================================
+       backend/admin/admin.js
 
-  const btnSalvarArtigo =
-    document.getElementById(
-      'btnSalvarArtigo'
-    );
+       NÃO cole o JavaScript diretamente fora de uma
+       tag <script>.
+  ====================================================== -->
 
-  if (btnSalvarArtigo) {
+  <script src="./admin.js"></script>
 
-    btnSalvarArtigo.addEventListener(
-      'click',
-      async () => {
+</body>
 
-        console.log(
-          '[blog] Botao Salvar artigo clicado'
-        );
-
-        const erroBlog =
-          document.getElementById(
-            'erroBlog'
-          );
-
-        erroBlog.textContent = '';
-
-        const titulo =
-          document
-            .getElementById(
-              'blogTitulo'
-            )
-            .value
-            .trim();
-
-        const resumo =
-          document
-            .getElementById(
-              'blogResumo'
-            )
-            .value
-            .trim();
-
-        const capa =
-          document
-            .getElementById(
-              'blogCapa'
-            )
-            .value
-            .trim();
-
-        const conteudo =
-          document
-            .getElementById(
-              'blogConteudo'
-            )
-            .value
-            .trim();
-
-        const publicado =
-          document
-            .getElementById(
-              'blogPublicado'
-            )
-            .checked;
-
-        // =====================================================
-        // VALIDAÇÃO
-        // =====================================================
-
-        if (!titulo) {
-
-          erroBlog.textContent =
-            'Digite o titulo do artigo.';
-
-          return;
-        }
-
-        if (!conteudo) {
-
-          erroBlog.textContent =
-            'Digite o conteudo do artigo.';
-
-          return;
-        }
-
-        // =====================================================
-        // EVITA DUPLO CLIQUE
-        // =====================================================
-
-        btnSalvarArtigo.disabled = true;
-
-        btnSalvarArtigo.textContent =
-          'Salvando...';
-
-        try {
-
-          console.log(
-            '[blog] Enviando artigo para:',
-            `${API}/api/blog`
-          );
-
-          // ===================================================
-          // CORREÇÃO:
-          // O backend espera "capa_url"
-          // ===================================================
-
-          const resultado =
-            await apiFetch(
-              '/api/blog',
-              {
-                method: 'POST',
-
-                headers: {
-                  'Content-Type':
-                    'application/json'
-                },
-
-                body: JSON.stringify({
-
-                  titulo,
-
-                  resumo,
-
-                  capa_url: capa,
-
-                  conteudo,
-
-                  publicado
-
-                })
-              }
-            );
-
-          console.log(
-            '[blog] Artigo salvo:',
-            resultado
-          );
-
-          alert(
-            'Artigo salvo com sucesso!'
-          );
-
-          // ===================================================
-          // LIMPA O FORMULÁRIO
-          // ===================================================
-
-          document
-            .getElementById(
-              'blogTitulo'
-            )
-            .value = '';
-
-          document
-            .getElementById(
-              'blogResumo'
-            )
-            .value = '';
-
-          document
-            .getElementById(
-              'blogCapa'
-            )
-            .value = '';
-
-          document
-            .getElementById(
-              'blogConteudo'
-            )
-            .value = '';
-
-          document
-            .getElementById(
-              'blogPublicado'
-            )
-            .checked = true;
-
-          // ===================================================
-          // ATUALIZA LISTA
-          // ===================================================
-
-          await carregarArtigos();
-
-        } catch (err) {
-
-          console.error(
-            '[blog] Erro ao salvar:',
-            err
-          );
-
-          erroBlog.textContent =
-            err.message ||
-            'Erro ao salvar artigo.';
-
-        } finally {
-
-          btnSalvarArtigo.disabled = false;
-
-          btnSalvarArtigo.textContent =
-            'Salvar artigo';
-        }
-      }
-    );
-
-  } else {
-
-    console.error(
-      '[blog] ERRO: botao btnSalvarArtigo nao encontrado no HTML.'
-    );
-  }
-
-  // =========================================================
-  // BLOG - CARREGAR ARTIGOS
-  // =========================================================
-
-  async function carregarArtigos() {
-
-    const tbody =
-      document.getElementById(
-        'listaArtigos'
-      );
-
-    if (!tbody) {
-      return;
-    }
-
-    try {
-
-      console.log(
-        '[blog] Carregando artigos...'
-      );
-
-      // =====================================================
-      // CORREÇÃO:
-      // A rota correta do backend é /api/blog/admin/todos
-      // =====================================================
-
-      const artigos =
-        await apiFetch(
-          '/api/blog/admin/todos'
-        );
-
-      if (!Array.isArray(artigos)) {
-
-        tbody.innerHTML =
-          '<tr><td colspan="5">Nenhum artigo cadastrado.</td></tr>';
-
-        return;
-      }
-
-      tbody.innerHTML =
-        artigos.map((artigo) => {
-
-          const status =
-            artigo.publicado
-              ? 'Publicado'
-              : 'Rascunho';
-
-          return `
-
-            <tr>
-
-              <td>
-                ${artigo.id}
-              </td>
-
-              <td>
-                ${artigo.titulo || ''}
-              </td>
-
-              <td>
-
-                <span class="badge badge--${
-                  artigo.publicado
-                    ? 'ativo'
-                    : 'pendente'
-                }">
-
-                  ${status}
-
-                </span>
-
-              </td>
-
-              <td>
-                ${
-                  artigo.criado_em ||
-                  artigo.created_at ||
-                  '-'
-                }
-              </td>
-
-              <td>
-
-                <button
-                  class="btn btn--excluir"
-                  data-blog-id="${artigo.id}">
-                  Excluir
-                </button>
-
-              </td>
-
-            </tr>
-
-          `;
-
-        }).join('') ||
-
-        '<tr><td colspan="5">Nenhum artigo cadastrado.</td></tr>';
-
-      // =====================================================
-      // BOTÕES EXCLUIR ARTIGO
-      // =====================================================
-
-      tbody
-        .querySelectorAll(
-          'button[data-blog-id]'
-        )
-        .forEach((btn) => {
-
-          btn.addEventListener(
-            'click',
-            async () => {
-
-              if (
-                !confirm(
-                  'Excluir este artigo?'
-                )
-              ) {
-                return;
-              }
-
-              try {
-
-                await apiFetch(
-                  `/api/blog/${btn.dataset.blogId}`,
-                  {
-                    method: 'DELETE'
-                  }
-                );
-
-                alert(
-                  'Artigo excluido com sucesso!'
-                );
-
-                await carregarArtigos();
-
-              } catch (err) {
-
-                console.error(
-                  '[blog] Erro ao excluir:',
-                  err
-                );
-
-                alert(
-                  err.message
-                );
-              }
-            }
-          );
-
-        });
-
-    } catch (err) {
-
-      console.error(
-        '[blog] Erro ao carregar artigos:',
-        err
-      );
-
-      tbody.innerHTML = `
-
-        <tr>
-
-          <td colspan="5">
-
-            Erro ao carregar artigos:
-            ${err.message}
-
-          </td>
-
-        </tr>
-
-      `;
-    }
-  }
-
-  // =========================================================
-  // INICIALIZAÇÃO
-  // =========================================================
-
-  console.log(
-    '[admin] JavaScript administrativo carregado.'
-  );
-
-  if (getToken()) {
-
-    mostrarAdmin();
-
-  } else {
-
-    mostrarLogin();
-
-  }
-
-})();
+</html>
