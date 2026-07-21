@@ -47,7 +47,6 @@
 
       <form id="formLogin">
 
-
         <div class="campo">
 
           <label for="usuario">
@@ -97,9 +96,7 @@
           Entrar
         </button>
 
-
       </form>
-
 
     </div>
 
@@ -123,7 +120,6 @@
 
     <header class="admin-header">
 
-
       <div>
 
         <h1>
@@ -145,7 +141,6 @@
         Sair
       </button>
 
-
     </header>
 
 
@@ -155,7 +150,6 @@
     ================================================== -->
 
     <nav class="tabs">
-
 
       <button
         type="button"
@@ -189,7 +183,6 @@
         Blog
       </button>
 
-
     </nav>
 
 
@@ -209,19 +202,15 @@
         id="tabPendentes"
       >
 
-
         <div class="card">
-
 
           <h2>
             Anúncios Pendentes
           </h2>
 
-
           <p>
             Anúncios aguardando aprovação ou rejeição.
           </p>
-
 
           <div
             id="listaPendentes"
@@ -229,9 +218,7 @@
             Carregando...
           </div>
 
-
         </div>
-
 
       </section>
 
@@ -246,9 +233,7 @@
         class="escondido"
       >
 
-
         <div class="card">
-
 
           <h2>
             Todos os Anúncios
@@ -257,9 +242,7 @@
 
           <div class="table-container">
 
-
             <table>
-
 
               <thead>
 
@@ -304,15 +287,11 @@
 
               </tbody>
 
-
             </table>
-
 
           </div>
 
-
         </div>
-
 
       </section>
 
@@ -327,26 +306,20 @@
         class="escondido"
       >
 
-
         <div class="card">
-
 
           <h2>
             Categorias
           </h2>
 
 
-
           <div class="form-categoria">
 
-
             <div class="campo">
-
 
               <label for="novaCategoriaNome">
                 Nome da categoria
               </label>
-
 
               <input
                 type="text"
@@ -354,18 +327,14 @@
                 placeholder="Ex.: Restaurantes"
               >
 
-
             </div>
-
 
 
             <div class="campo">
 
-
               <label for="novaCategoriaIcone">
                 URL do ícone
               </label>
-
 
               <input
                 type="text"
@@ -373,9 +342,7 @@
                 placeholder="https://..."
               >
 
-
             </div>
-
 
 
             <button
@@ -386,16 +353,12 @@
               Adicionar Categoria
             </button>
 
-
           </div>
-
 
 
           <div class="table-container">
 
-
             <table>
-
 
               <thead>
 
@@ -440,15 +403,11 @@
 
               </tbody>
 
-
             </table>
-
 
           </div>
 
-
         </div>
-
 
       </section>
 
@@ -465,19 +424,17 @@
 
 
         <!-- =============================================
-             FORMULÁRIO DO BLOG
+             CRIAR ARTIGO
         ============================================== -->
 
         <div class="card">
 
-
           <h2>
-            Gerenciar Blog
+            Criar novo artigo
           </h2>
 
-
           <p>
-            Crie artigos completos usando o editor visual.
+            Crie seu artigo usando o editor visual abaixo.
           </p>
 
 
@@ -497,19 +454,15 @@
 
             <div class="campo">
 
-
               <label for="blogTitulo">
                 Título do artigo
               </label>
 
-
               <input
                 type="text"
                 id="blogTitulo"
-                placeholder="Digite o título do artigo"
-                autocomplete="off"
+                placeholder="Digite o título principal do artigo"
               >
-
 
             </div>
 
@@ -521,11 +474,9 @@
 
             <div class="campo">
 
-
               <label>
                 Conteúdo do artigo
               </label>
-
 
 
               <!-- =======================================
@@ -538,8 +489,6 @@
               >
 
 
-                <!-- H1 -->
-
                 <button
                   type="button"
                   class="editor-btn"
@@ -550,8 +499,6 @@
                 </button>
 
 
-                <!-- H2 -->
-
                 <button
                   type="button"
                   class="editor-btn"
@@ -561,8 +508,6 @@
                   H2
                 </button>
 
-
-                <!-- H3 -->
 
                 <button
                   type="button"
@@ -577,8 +522,6 @@
                 <span class="editor-separador"></span>
 
 
-                <!-- NEGRITO -->
-
                 <button
                   type="button"
                   class="editor-btn"
@@ -588,8 +531,6 @@
                   <strong>B</strong>
                 </button>
 
-
-                <!-- ITÁLICO -->
 
                 <button
                   type="button"
@@ -604,8 +545,6 @@
                 <span class="editor-separador"></span>
 
 
-                <!-- LINK -->
-
                 <button
                   type="button"
                   class="editor-btn"
@@ -616,8 +555,6 @@
                 </button>
 
 
-                <!-- UMA IMAGEM -->
-
                 <button
                   type="button"
                   class="editor-btn"
@@ -627,8 +564,6 @@
                   🖼️ Imagem
                 </button>
 
-
-                <!-- VÁRIAS IMAGENS -->
 
                 <button
                   type="button"
@@ -643,8 +578,6 @@
                 <span class="editor-separador"></span>
 
 
-                <!-- PARÁGRAFO -->
-
                 <button
                   type="button"
                   class="editor-btn"
@@ -654,8 +587,6 @@
                   ¶ Parágrafo
                 </button>
 
-
-                <!-- CITAÇÃO -->
 
                 <button
                   type="button"
@@ -681,7 +612,7 @@
                 contenteditable="true"
                 role="textbox"
                 aria-multiline="true"
-                data-placeholder="Escreva seu artigo aqui..."
+                data-placeholder="Comece a escrever seu artigo aqui..."
               ></div>
 
 
@@ -696,8 +627,6 @@
               >
 
 
-                <!-- H1 -->
-
                 <button
                   type="button"
                   data-context-action="h1"
@@ -706,8 +635,6 @@
                 </button>
 
 
-                <!-- H2 -->
-
                 <button
                   type="button"
                   data-context-action="h2"
@@ -715,8 +642,6 @@
                   H2 - Subtítulo
                 </button>
 
-
-                <!-- H3 -->
 
                 <button
                   type="button"
@@ -729,8 +654,6 @@
                 <div class="context-separador"></div>
 
 
-                <!-- NEGRITO -->
-
                 <button
                   type="button"
                   data-context-action="bold"
@@ -739,8 +662,6 @@
                   Negrito
                 </button>
 
-
-                <!-- ITÁLICO -->
 
                 <button
                   type="button"
@@ -754,8 +675,6 @@
                 <div class="context-separador"></div>
 
 
-                <!-- LINK -->
-
                 <button
                   type="button"
                   data-context-action="link"
@@ -764,8 +683,6 @@
                 </button>
 
 
-                <!-- IMAGEM -->
-
                 <button
                   type="button"
                   data-context-action="image"
@@ -773,8 +690,6 @@
                   🖼️ Inserir imagem
                 </button>
 
-
-                <!-- VÁRIAS IMAGENS -->
 
                 <button
                   type="button"
@@ -787,8 +702,6 @@
                 <div class="context-separador"></div>
 
 
-                <!-- PARÁGRAFO -->
-
                 <button
                   type="button"
                   data-context-action="paragraph"
@@ -796,8 +709,6 @@
                   ¶ Transformar em parágrafo
                 </button>
 
-
-                <!-- CITAÇÃO -->
 
                 <button
                   type="button"
@@ -818,11 +729,10 @@
               <small class="editor-ajuda">
 
                 💡
+                Escreva o artigo diretamente no editor.
                 Selecione um texto para aplicar formatação.
-                Use a barra de ferramentas para inserir títulos,
-                links, imagens e outros elementos.
                 Você também pode clicar com o botão direito
-                dentro do editor para abrir as opções de formatação.
+                dentro do editor para acessar as opções.
 
               </small>
 
@@ -837,9 +747,7 @@
 
             <div class="campo checkbox">
 
-
               <label>
-
 
                 <input
                   type="checkbox"
@@ -847,12 +755,9 @@
                   checked
                 >
 
-
                 Publicar artigo imediatamente
 
-
               </label>
-
 
             </div>
 
@@ -873,17 +778,15 @@
 
           </div>
 
-
         </div>
 
 
 
         <!-- =============================================
-             LISTA DE ARTIGOS
+             ARTIGOS CADASTRADOS
         ============================================== -->
 
         <div class="card">
-
 
           <h2>
             Artigos cadastrados
@@ -892,9 +795,7 @@
 
           <div class="table-container">
 
-
             <table>
-
 
               <thead>
 
@@ -929,7 +830,6 @@
                 id="listaArtigos"
               >
 
-
                 <tr>
 
                   <td colspan="5">
@@ -938,15 +838,11 @@
 
                 </tr>
 
-
               </tbody>
-
 
             </table>
 
-
           </div>
-
 
         </div>
 
