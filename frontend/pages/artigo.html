@@ -14,287 +14,312 @@
     Artigo — Portal Porto de Galinhas
   </title>
 
+  <!-- CSS PRINCIPAL -->
+  <link
+    rel="stylesheet"
+    href="../CSS/styles.css"
+  >
+
   <style>
 
-    * {
-      box-sizing: border-box;
-      font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-    }
-
-    body {
-      margin: 0;
-      background: #f2f5f8;
-      color: #1c2b36;
-    }
-
     /* =====================================================
-       CABEÇALHO
+       PÁGINA DO ARTIGO
     ===================================================== */
 
-    header {
-      background: #0a5c8a;
-      padding: 18px 24px;
-    }
+    .artigo-principal {
 
-    header a {
-      color: #fff;
-      text-decoration: none;
-      font-weight: bold;
-      font-size: 1.1em;
-    }
-
-    header a:hover {
-      text-decoration: underline;
-    }
-
-    /* =====================================================
-       CONTAINER PRINCIPAL
-    ===================================================== */
-
-    main {
       max-width: 900px;
-      margin: 30px auto 60px;
-      padding: 0;
-      background: #fff;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow:
-        0 2px 12px
-        rgba(0, 0, 0, 0.08);
+
+      margin: 0 auto;
+
+      padding:
+        40px 20px 80px;
+
     }
+
+
+    .artigo-container {
+
+      background:
+        #ffffff;
+
+      border-radius:
+        12px;
+
+      overflow:
+        hidden;
+
+      box-shadow:
+        0 2px 10px
+        rgba(
+          0,
+          0,
+          0,
+          0.08
+        );
+
+    }
+
 
     /* =====================================================
        CAPA
     ===================================================== */
 
-    .capa {
-      width: 100%;
-      height: 360px;
-      object-fit: cover;
-      display: none;
-      background: #dde5ea;
+    .artigo-capa {
+
+      width:
+        100%;
+
+      height:
+        380px;
+
+      object-fit:
+        cover;
+
+      display:
+        block;
+
+      background:
+        #dde5ea;
+
     }
+
 
     /* =====================================================
-       ÁREA DO ARTIGO
+       CABEÇALHO DO ARTIGO
     ===================================================== */
 
-    .artigo {
-      padding: 35px 45px 50px;
+    .artigo-cabecalho {
+
+      padding:
+        30px 35px 10px;
+
     }
+
+
+    .artigo-titulo {
+
+      margin:
+        0 0 15px;
+
+      color:
+        var(
+          --azul-primario,
+          #0a5c8a
+        );
+
+      font-size:
+        2.2rem;
+
+      line-height:
+        1.25;
+
+    }
+
+
+    .artigo-resumo {
+
+      margin:
+        0;
+
+      color:
+        #55707f;
+
+      font-size:
+        1.05rem;
+
+      line-height:
+        1.6;
+
+    }
+
 
     /* =====================================================
-       TÍTULO
+       CONTEÚDO
     ===================================================== */
 
-    #titulo {
-      margin: 0 0 18px;
+    .artigo-conteudo {
 
-      color: #0a5c8a;
+      padding:
+        20px 35px 40px;
 
-      font-size: 2.4rem;
+      color:
+        #1c2b36;
 
-      line-height: 1.2;
+      font-size:
+        1rem;
+
+      line-height:
+        1.7;
+
+      overflow-wrap:
+        break-word;
+
     }
 
-    /* =====================================================
-       RESUMO
-    ===================================================== */
 
-    #resumo {
-      margin: 0 0 28px;
+    .artigo-conteudo h1 {
 
-      color: #55707f;
+      color:
+        var(
+          --azul-primario,
+          #0a5c8a
+        );
 
-      font-size: 1.15rem;
-
-      line-height: 1.6;
-
-      border-bottom:
-        1px solid #e1e7eb;
-
-      padding-bottom: 25px;
     }
 
-    /* =====================================================
-       DATA
-    ===================================================== */
 
-    #data {
-      color: #7b8b94;
+    .artigo-conteudo h2,
+    .artigo-conteudo h3 {
 
-      font-size: 0.9rem;
+      color:
+        var(
+          --azul-primario,
+          #0a5c8a
+        );
 
-      margin-bottom: 25px;
+      margin-top:
+        30px;
+
     }
 
-    /* =====================================================
-       CONTEÚDO DO ARTIGO
-    ===================================================== */
 
-    #conteudo {
-      line-height: 1.75;
+    .artigo-conteudo p {
 
-      font-size: 1.05rem;
+      margin:
+        15px 0;
 
-      color: #263842;
     }
 
-    #conteudo h1 {
-      color: #0a5c8a;
 
-      font-size: 2rem;
+    .artigo-conteudo a {
 
-      margin-top: 30px;
-      margin-bottom: 15px;
+      color:
+        #0a5c8a;
+
+      font-weight:
+        bold;
+
     }
 
-    #conteudo h2 {
-      color: #0a5c8a;
-
-      font-size: 1.6rem;
-
-      margin-top: 30px;
-      margin-bottom: 15px;
-    }
-
-    #conteudo h3 {
-      color: #0a5c8a;
-
-      font-size: 1.3rem;
-
-      margin-top: 25px;
-      margin-bottom: 12px;
-    }
-
-    #conteudo p {
-      margin: 16px 0;
-    }
-
-    #conteudo strong {
-      font-weight: bold;
-    }
-
-    #conteudo em {
-      font-style: italic;
-    }
-
-    #conteudo blockquote {
-      margin: 25px 0;
-
-      padding: 18px 22px;
-
-      border-left:
-        5px solid #0a5c8a;
-
-      background: #f2f7fa;
-
-      color: #55707f;
-
-      font-style: italic;
-    }
 
     /* =====================================================
        IMAGENS DENTRO DO ARTIGO
     ===================================================== */
 
-    #conteudo img {
-      display: block;
+    .artigo-conteudo img {
 
-      max-width: 100%;
+      max-width:
+        100%;
 
-      width: auto;
+      height:
+        auto;
 
-      height: auto;
+      display:
+        block;
 
-      margin: 25px auto;
+      margin:
+        20px auto;
 
-      border-radius: 10px;
+      border-radius:
+        8px;
 
-      box-shadow:
-        0 2px 8px
-        rgba(0, 0, 0, 0.10);
     }
+
 
     /* =====================================================
-       LINKS
+       BLOCKQUOTE
     ===================================================== */
 
-    #conteudo a {
-      color: #0a5c8a;
+    .artigo-conteudo blockquote {
 
-      font-weight: 600;
+      margin:
+        25px 0;
+
+      padding:
+        15px 20px;
+
+      border-left:
+        4px solid
+        #0a5c8a;
+
+      background:
+        #f2f5f8;
+
+      color:
+        #55707f;
+
+      font-style:
+        italic;
+
     }
+
 
     /* =====================================================
-       LISTAS
+       ARTIGO SEM CAPA
     ===================================================== */
 
-    #conteudo ul,
-    #conteudo ol {
-      padding-left: 30px;
+    .artigo-sem-capa {
 
-      margin: 18px 0;
+      display:
+        none;
+
+      padding:
+        40px;
+
+      background:
+        linear-gradient(
+          135deg,
+          #0a5c8a,
+          #1385bd
+        );
+
+      color:
+        #ffffff;
+
+      text-align:
+        center;
+
+      font-size:
+        1.5rem;
+
+      font-weight:
+        bold;
+
     }
 
-    #conteudo li {
-      margin: 8px 0;
-    }
 
     /* =====================================================
-       BOTÃO VOLTAR
+       MENSAGEM DE ERRO
     ===================================================== */
 
-    .voltar {
-      display: inline-block;
+    .artigo-erro {
 
-      margin-top: 35px;
+      display:
+        none;
 
-      padding: 12px 20px;
+      padding:
+        50px 20px;
 
-      background: #0a5c8a;
+      text-align:
+        center;
 
-      color: #fff;
+      color:
+        #b42318;
 
-      text-decoration: none;
-
-      border-radius: 7px;
-
-      font-weight: bold;
     }
 
-    .voltar:hover {
-      background: #084c73;
+
+    .artigo-erro a {
+
+      color:
+        #0a5c8a;
+
+      font-weight:
+        bold;
+
     }
 
-    /* =====================================================
-       CARREGANDO
-    ===================================================== */
-
-    #carregando {
-      padding: 50px;
-
-      text-align: center;
-
-      color: #55707f;
-    }
-
-    /* =====================================================
-       ERRO
-    ===================================================== */
-
-    #erro {
-      display: none;
-
-      padding: 50px;
-
-      text-align: center;
-
-      color: #b42318;
-    }
 
     /* =====================================================
        RESPONSIVO
@@ -304,34 +329,43 @@
       max-width: 700px
     ) {
 
-      main {
-        margin:
-          15px
-          10px
-          40px;
-      }
+      .artigo-principal {
 
-      .capa {
-        height: 220px;
-      }
-
-      .artigo {
         padding:
-          25px
-          20px
-          35px;
+          25px 12px 50px;
+
       }
 
-      #titulo {
-        font-size: 1.8rem;
+
+      .artigo-capa {
+
+        height:
+          240px;
+
       }
 
-      #resumo {
-        font-size: 1rem;
+
+      .artigo-cabecalho {
+
+        padding:
+          25px 20px 10px;
+
       }
 
-      #conteudo {
-        font-size: 1rem;
+
+      .artigo-conteudo {
+
+        padding:
+          15px 20px 30px;
+
+      }
+
+
+      .artigo-titulo {
+
+        font-size:
+          1.7rem;
+
       }
 
     }
@@ -340,107 +374,111 @@
 
 </head>
 
+
 <body>
 
+
   <!-- =====================================================
-       CABEÇALHO
-  ====================================================== -->
+       HEADER DO SITE
+  ===================================================== -->
 
-  <header>
-
-    <a href="/blog">
-      ← Voltar para o Blog
-    </a>
-
-  </header>
+  <div
+    id="layout-header"
+  ></div>
 
 
   <!-- =====================================================
        ARTIGO
-  ====================================================== -->
+  ===================================================== -->
 
-  <main>
-
-    <!-- CAPA DO ARTIGO -->
-
-    <img
-      id="capa"
-      class="capa"
-      alt="Capa do artigo"
-    >
-
-
-    <!-- CARREGANDO -->
-
-    <div id="carregando">
-
-      Carregando artigo...
-
-    </div>
-
-
-    <!-- ERRO -->
-
-    <div id="erro">
-
-      <h2>
-        Artigo não encontrado
-      </h2>
-
-      <p>
-        Não foi possível carregar este artigo.
-      </p>
-
-      <a
-        class="voltar"
-        href="/blog"
-      >
-        Voltar para o Blog
-      </a>
-
-    </div>
-
-
-    <!-- CONTEÚDO -->
+  <main
+    class="artigo-principal"
+  >
 
     <article
-      id="artigo"
-      class="artigo"
-      style="display:none"
+      class="artigo-container"
     >
 
-      <!-- TÍTULO -->
 
-      <h1 id="titulo">
-      </h1>
+      <!-- CAPA -->
 
-
-      <!-- DATA -->
-
-      <div id="data">
-      </div>
-
-
-      <!-- RESUMO -->
-
-      <p id="resumo">
-      </p>
-
-
-      <!-- CONTEÚDO DO ARTIGO -->
-
-      <div id="conteudo">
-      </div>
-
-
-      <!-- VOLTAR -->
-
-      <a
-        class="voltar"
-        href="/blog"
+      <img
+        id="capa"
+        class="artigo-capa"
+        style="display: none;"
+        alt=""
       >
-        ← Voltar para o Blog
-      </a>
+
+
+      <!-- CASO NÃO TENHA CAPA -->
+
+      <div
+        id="semCapa"
+        class="artigo-sem-capa"
+      >
+        <span
+          id="tituloSemCapa"
+        >
+          Artigo
+        </span>
+      </div>
+
+
+      <!-- CABEÇALHO -->
+
+      <header
+        class="artigo-cabecalho"
+      >
+
+        <h1
+          id="titulo"
+          class="artigo-titulo"
+        >
+          Carregando...
+        </h1>
+
+
+        <p
+          id="resumo"
+          class="artigo-resumo"
+        ></p>
+
+      </header>
+
+
+      <!-- CONTEÚDO -->
+
+      <div
+        id="conteudo"
+        class="artigo-conteudo"
+      >
+        Carregando artigo...
+      </div>
+
+
+      <!-- ERRO -->
+
+      <div
+        id="erro"
+        class="artigo-erro"
+      >
+
+        <p>
+          Artigo não encontrado.
+        </p>
+
+        <p>
+
+          <a
+            href="blog.html"
+          >
+            Voltar para o Blog
+          </a>
+
+        </p>
+
+      </div>
+
 
     </article>
 
@@ -448,8 +486,35 @@
 
 
   <!-- =====================================================
-       JAVASCRIPT
-  ====================================================== -->
+       RODAPÉ DO SITE
+  ===================================================== -->
+
+  <div
+    id="layout-rodape"
+  ></div>
+
+
+  <!-- =====================================================
+       JAVASCRIPT DO LAYOUT
+  ===================================================== -->
+
+  <script
+    src="../js/layout.js"
+  ></script>
+
+
+  <!-- =====================================================
+       SISTEMA DE IDIOMAS
+  ===================================================== -->
+
+  <script
+    src="../js/i18n.js"
+  ></script>
+
+
+  <!-- =====================================================
+       CARREGAR ARTIGO
+  ===================================================== -->
 
   <script>
 
@@ -460,13 +525,16 @@
     // PEGAR ID DO ARTIGO
     // =====================================================
 
-    const params =
+    const parametros =
       new URLSearchParams(
         window.location.search
       );
 
+
     const id =
-      params.get('id');
+      parametros.get(
+        'id'
+      );
 
 
     // =====================================================
@@ -478,35 +546,36 @@
         'capa'
       );
 
+
+    const elementoSemCapa =
+      document.getElementById(
+        'semCapa'
+      );
+
+
+    const elementoTituloSemCapa =
+      document.getElementById(
+        'tituloSemCapa'
+      );
+
+
     const elementoTitulo =
       document.getElementById(
         'titulo'
       );
+
 
     const elementoResumo =
       document.getElementById(
         'resumo'
       );
 
+
     const elementoConteudo =
       document.getElementById(
         'conteudo'
       );
 
-    const elementoData =
-      document.getElementById(
-        'data'
-      );
-
-    const elementoArtigo =
-      document.getElementById(
-        'artigo'
-      );
-
-    const elementoCarregando =
-      document.getElementById(
-        'carregando'
-      );
 
     const elementoErro =
       document.getElementById(
@@ -515,20 +584,49 @@
 
 
     // =====================================================
-    // VERIFICAR ID
+    // ESCAPAR HTML
     // =====================================================
 
-    if (!id) {
+    function escapeHtml(
+      valor
+    ) {
 
-      elementoCarregando.style.display =
-        'none';
+      if (
+        valor === null ||
+        valor === undefined
+      ) {
 
-      elementoErro.style.display =
-        'block';
+        return '';
 
-    } else {
+      }
 
-      carregarArtigo();
+
+      return String(valor)
+
+        .replace(
+          /&/g,
+          '&amp;'
+        )
+
+        .replace(
+          /</g,
+          '&lt;'
+        )
+
+        .replace(
+          />/g,
+          '&gt;'
+        )
+
+        .replace(
+          /"/g,
+          '&quot;'
+        )
+
+        .replace(
+          /'/g,
+          '&#039;'
+        );
 
     }
 
@@ -539,7 +637,18 @@
 
     async function carregarArtigo() {
 
+
+      if (!id) {
+
+        mostrarErro();
+
+        return;
+
+      }
+
+
       try {
+
 
         console.log(
           '[ARTIGO] Carregando artigo:',
@@ -547,23 +656,15 @@
         );
 
 
-        // -------------------------------------------------
-        // BUSCAR API
-        // -------------------------------------------------
-
         const resposta =
           await fetch(
             `/api/blog/${encodeURIComponent(id)}`
           );
 
 
-        console.log(
-          '[ARTIGO] Status:',
-          resposta.status
-        );
-
-
-        if (!resposta.ok) {
+        if (
+          !resposta.ok
+        ) {
 
           throw new Error(
             'Artigo não encontrado.'
@@ -572,48 +673,44 @@
         }
 
 
-        // -------------------------------------------------
-        // CONVERTER JSON
-        // -------------------------------------------------
-
         const artigo =
           await resposta.json();
 
 
         console.log(
-          '[ARTIGO] Dados:',
+          '[ARTIGO] Artigo recebido:',
           artigo
         );
 
 
-        // -------------------------------------------------
-        // TÍTULO DA ABA
-        // -------------------------------------------------
+        // =================================================
+        // TÍTULO
+        // =================================================
+
+        const titulo =
+          artigo.titulo ||
+          'Artigo';
+
+
+        elementoTitulo.textContent =
+          titulo;
+
+
+        elementoTituloSemCapa.textContent =
+          titulo;
+
 
         document.title =
-          (
-            artigo.titulo ||
-            'Artigo'
-          ) +
+          titulo +
           ' — Portal Porto de Galinhas';
 
 
-        // -------------------------------------------------
-        // TÍTULO VISÍVEL
-        // -------------------------------------------------
-
-        elementoTitulo.textContent =
-          artigo.titulo ||
-          'Sem título';
-
-
-        // -------------------------------------------------
+        // =================================================
         // RESUMO
-        // -------------------------------------------------
+        // =================================================
 
         if (
-          artigo.resumo &&
-          artigo.resumo.trim()
+          artigo.resumo
         ) {
 
           elementoResumo.textContent =
@@ -630,97 +727,69 @@
         }
 
 
-        // -------------------------------------------------
-        // DATA
-        // -------------------------------------------------
-
-        if (
-          artigo.criado_em
-        ) {
-
-          try {
-
-            const data =
-              new Date(
-                artigo.criado_em
-              );
-
-            if (
-              !isNaN(
-                data.getTime()
-              )
-            ) {
-
-              elementoData.textContent =
-                'Publicado em ' +
-                data.toLocaleDateString(
-                  'pt-BR'
-                );
-
-            }
-
-          } catch (erroData) {
-
-            console.warn(
-              '[ARTIGO] Erro na data:',
-              erroData
-            );
-
-          }
-
-        }
-
-
-        // -------------------------------------------------
+        // =================================================
         // CAPA
-        // -------------------------------------------------
+        // =================================================
 
         if (
-          artigo.capa_url &&
-          String(
-            artigo.capa_url
-          ).trim()
+          artigo.capa_url
         ) {
+
 
           elementoCapa.src =
             artigo.capa_url;
 
+
           elementoCapa.alt =
-            artigo.titulo ||
-            'Capa do artigo';
+            titulo;
+
 
           elementoCapa.style.display =
             'block';
 
 
-          // -----------------------------------------------
-          // ERRO AO CARREGAR CAPA
-          // -----------------------------------------------
+          elementoSemCapa.style.display =
+            'none';
+
+
+          // ===============================================
+          // SE A CAPA DER ERRO
+          // ===============================================
 
           elementoCapa.onerror =
             function () {
 
               console.warn(
-                '[ARTIGO] Não foi possível carregar a capa:',
+                '[ARTIGO] Erro ao carregar capa:',
                 artigo.capa_url
               );
 
+
               elementoCapa.style.display =
                 'none';
+
+
+              elementoSemCapa.style.display =
+                'flex';
 
             };
 
         } else {
 
+
           elementoCapa.style.display =
             'none';
+
+
+          elementoSemCapa.style.display =
+            'flex';
 
         }
 
 
-        // -------------------------------------------------
+        // =================================================
         // CONTEÚDO
-        // -------------------------------------------------
+        // =================================================
 
         if (
           artigo.conteudo
@@ -732,60 +801,107 @@
         } else {
 
           elementoConteudo.innerHTML =
-            '<p>Este artigo não possui conteúdo.</p>';
+            '<p>Este artigo ainda não possui conteúdo.</p>';
 
         }
 
 
-        // -------------------------------------------------
-        // ESCONDER CARREGANDO
-        // -------------------------------------------------
+        // =================================================
+        // GARANTIR QUE IMAGENS DO ARTIGO APAREÇAM
+        // =================================================
 
-        elementoCarregando.style.display =
-          'none';
-
-
-        // -------------------------------------------------
-        // MOSTRAR ARTIGO
-        // -------------------------------------------------
-
-        elementoArtigo.style.display =
-          'block';
+        const imagens =
+          elementoConteudo.querySelectorAll(
+            'img'
+          );
 
 
-        console.log(
-          '[ARTIGO] Artigo carregado com sucesso.'
+        imagens.forEach(
+          function (imagem) {
+
+            imagem.style.maxWidth =
+              '100%';
+
+            imagem.style.height =
+              'auto';
+
+            imagem.style.display =
+              'block';
+
+            imagem.style.margin =
+              '20px auto';
+
+            imagem.style.borderRadius =
+              '8px';
+
+          }
         );
 
 
-      } catch (erro) {
+      } catch (err) {
+
 
         console.error(
           '[ARTIGO] Erro:',
-          erro
+          err
         );
 
 
-        // -----------------------------------------------
-        // ESCONDER CARREGAMENTO
-        // -----------------------------------------------
-
-        elementoCarregando.style.display =
-          'none';
-
-
-        // -----------------------------------------------
-        // MOSTRAR ERRO
-        // -----------------------------------------------
-
-        elementoErro.style.display =
-          'block';
+        mostrarErro();
 
       }
 
     }
 
+
+    // =====================================================
+    // MOSTRAR ERRO
+    // =====================================================
+
+    function mostrarErro() {
+
+
+      elementoCapa.style.display =
+        'none';
+
+
+      elementoSemCapa.style.display =
+        'none';
+
+
+      elementoTitulo.style.display =
+        'none';
+
+
+      elementoResumo.style.display =
+        'none';
+
+
+      elementoConteudo.style.display =
+        'none';
+
+
+      elementoErro.style.display =
+        'block';
+
+    }
+
+
+    // =====================================================
+    // INICIALIZAÇÃO
+    // =====================================================
+
+    document.addEventListener(
+      'DOMContentLoaded',
+      function () {
+
+        carregarArtigo();
+
+      }
+    );
+
   </script>
+
 
 </body>
 
