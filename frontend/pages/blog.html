@@ -14,6 +14,7 @@
     Blog — Portal Porto de Galinhas
   </title>
 
+
   <style>
 
     * {
@@ -24,52 +25,92 @@
         sans-serif;
     }
 
+
     body {
       margin: 0;
-      background: #f2f5f8;
-      color: #1c2b36;
+
+      background:
+        #f2f5f8;
+
+      color:
+        #1c2b36;
     }
 
-    header {
-      background: #0a5c8a;
-      padding: 18px 24px;
-    }
 
-    header a {
-      color: #fff;
-      text-decoration: none;
-      font-weight: bold;
-      font-size: 1.1em;
-    }
+    /* =====================================================
+       CONTEÚDO PRINCIPAL
+    ===================================================== */
 
     main {
-      max-width: 1100px;
-      margin: 30px auto;
-      padding: 0 16px;
+      max-width:
+        1100px;
+
+      margin:
+        30px auto;
+
+      padding:
+        0 16px 60px;
     }
 
-    h1 {
-      color: #0a5c8a;
+
+    .blog-titulo {
+      color:
+        #0a5c8a;
+
+      margin:
+        0 0 10px;
     }
+
+
+    .blog-descricao {
+      color:
+        #55707f;
+
+      margin:
+        0 0 25px;
+    }
+
+
+    /* =====================================================
+       GRID
+    ===================================================== */
 
     .grid {
-      display: grid;
+
+      display:
+        grid;
+
       grid-template-columns:
         repeat(
           auto-fill,
-          minmax(260px, 1fr)
+          minmax(
+            260px,
+            1fr
+          )
         );
 
-      gap: 20px;
-      margin-top: 20px;
+      gap:
+        20px;
+
+      margin-top:
+        20px;
     }
 
+
+    /* =====================================================
+       CARD DO ARTIGO
+    ===================================================== */
+
     .card {
-      background: #fff;
 
-      border-radius: 10px;
+      background:
+        #fff;
 
-      overflow: hidden;
+      border-radius:
+        10px;
+
+      overflow:
+        hidden;
 
       box-shadow:
         0 2px 8px
@@ -80,18 +121,23 @@
           0.08
         );
 
-      text-decoration: none;
+      text-decoration:
+        none;
 
-      color: inherit;
+      color:
+        inherit;
 
-      display: block;
+      display:
+        block;
 
       transition:
         transform 0.2s ease,
         box-shadow 0.2s ease;
     }
 
+
     .card:hover {
+
       transform:
         translateY(-3px);
 
@@ -105,29 +151,50 @@
         );
     }
 
+
+    /* =====================================================
+       IMAGEM DO ARTIGO
+    ===================================================== */
+
     .card-imagem {
-      width: 100%;
 
-      height: 190px;
+      width:
+        100%;
 
-      object-fit: cover;
+      height:
+        190px;
 
-      display: block;
+      object-fit:
+        cover;
+
+      display:
+        block;
 
       background:
         #dde5ea;
     }
 
+
+    /* =====================================================
+       QUANDO NÃO EXISTE IMAGEM
+    ===================================================== */
+
     .card-sem-imagem {
-      width: 100%;
 
-      height: 190px;
+      width:
+        100%;
 
-      display: flex;
+      height:
+        190px;
 
-      align-items: center;
+      display:
+        flex;
 
-      justify-content: center;
+      align-items:
+        center;
+
+      justify-content:
+        center;
 
       background:
         linear-gradient(
@@ -136,23 +203,38 @@
           #1385bd
         );
 
-      color: #fff;
+      color:
+        #fff;
 
-      font-size: 18px;
+      font-size:
+        18px;
 
-      font-weight: bold;
+      font-weight:
+        bold;
 
-      text-align: center;
+      text-align:
+        center;
 
-      padding: 20px;
+      padding:
+        20px;
     }
+
+
+    /* =====================================================
+       CONTEÚDO DO CARD
+    ===================================================== */
 
     .card .conteudo {
-      padding: 16px;
+
+      padding:
+        16px;
     }
 
+
     .card h2 {
-      font-size: 1.05em;
+
+      font-size:
+        1.05em;
 
       margin:
         0 0 8px;
@@ -161,26 +243,52 @@
         #0a5c8a;
     }
 
+
     .card p {
+
       font-size:
         0.9em;
 
       color:
         #55707f;
 
-      margin: 0;
+      margin:
+        0;
 
       line-height:
         1.5;
     }
 
+
+    /* =====================================================
+       MENSAGENS
+    ===================================================== */
+
     .vazio {
+
       color:
         #55707f;
 
       margin-top:
         30px;
+
+      text-align:
+        center;
     }
+
+
+    .carregando {
+
+      color:
+        #55707f;
+
+      text-align:
+        center;
+
+      padding:
+        40px 20px;
+    }
+
 
   </style>
 
@@ -190,22 +298,38 @@
 <body>
 
 
-  <header>
+  <!-- =====================================================
+       HEADER DO SITE
+       O layout.js vai inserir o cabeçalho aqui
+  ====================================================== -->
 
-    <a href="/">
-      ← Portal Porto de Galinhas
-    </a>
-
-  </header>
+  <div
+    id="layout-header"
+  ></div>
 
 
+
+  <!-- =====================================================
+       CONTEÚDO DO BLOG
+  ====================================================== -->
 
   <main>
 
 
-    <h1>
+    <h1
+      class="blog-titulo"
+      data-i18n="blog.titulo"
+    >
       Blog
     </h1>
+
+
+    <p
+      class="blog-descricao"
+      data-i18n="blog.descricao"
+    >
+      Notícias, dicas e informações sobre Porto de Galinhas.
+    </p>
 
 
     <div
@@ -215,9 +339,19 @@
 
 
     <p
+      id="carregando"
+      class="carregando"
+      data-i18n="blog.carregando"
+    >
+      Carregando artigos...
+    </p>
+
+
+    <p
       id="vazio"
       class="vazio"
       style="display:none"
+      data-i18n="blog.vazio"
     >
       Ainda não temos artigos publicados.
     </p>
@@ -226,6 +360,40 @@
   </main>
 
 
+
+  <!-- =====================================================
+       RODAPÉ DO SITE
+       O layout.js vai inserir o rodapé aqui
+  ====================================================== -->
+
+  <div
+    id="layout-rodape"
+  ></div>
+
+
+
+  <!-- =====================================================
+       SISTEMA DE IDIOMAS
+  ====================================================== -->
+
+  <script
+    src="../js/i18n.js"
+  ></script>
+
+
+  <!-- =====================================================
+       HEADER / RODAPÉ / SELETOR DE IDIOMA
+  ====================================================== -->
+
+  <script
+    src="../js/layout.js"
+  ></script>
+
+
+
+  <!-- =====================================================
+       JAVASCRIPT DO BLOG
+  ====================================================== -->
 
   <script>
 
@@ -246,6 +414,7 @@
         return '';
 
       }
+
 
       return String(valor)
 
@@ -279,20 +448,53 @@
 
 
     // =====================================================
+    // TRADUÇÕES
+    // =====================================================
+
+    function traduzir(chave) {
+
+      if (
+        window.i18nPortal &&
+        typeof window.i18nPortal.t === 'function'
+      ) {
+
+        return window.i18nPortal.t(
+          chave
+        );
+
+      }
+
+
+      return chave;
+
+    }
+
+
+
+    // =====================================================
     // CARREGAR BLOG
     // =====================================================
 
     async function carregarBlog() {
+
 
       const lista =
         document.getElementById(
           'lista'
         );
 
+
       const vazio =
         document.getElementById(
           'vazio'
         );
+
+
+      const carregando =
+        document.getElementById(
+          'carregando'
+        );
+
 
 
       try {
@@ -315,8 +517,10 @@
         }
 
 
+
         const artigos =
           await resposta.json();
+
 
 
         console.log(
@@ -325,21 +529,55 @@
         );
 
 
+
+        // -------------------------------------------------
+        // ESCONDER CARREGANDO
+        // -------------------------------------------------
+
+        if (carregando) {
+
+          carregando.style.display =
+            'none';
+
+        }
+
+
+
+        // -------------------------------------------------
+        // NENHUM ARTIGO
+        // -------------------------------------------------
+
         if (
           !Array.isArray(artigos) ||
           artigos.length === 0
         ) {
 
-          vazio.style.display =
-            'block';
+          if (vazio) {
+
+            vazio.textContent =
+              traduzir(
+                'blog.vazio'
+              );
+
+            vazio.style.display =
+              'block';
+
+          }
 
           return;
 
         }
 
 
+
+        // -------------------------------------------------
+        // MOSTRAR ARTIGOS
+        // -------------------------------------------------
+
         lista.innerHTML =
+
           artigos
+
             .map(
               function (artigo) {
 
@@ -347,8 +585,11 @@
                 const titulo =
                   escapeHtml(
                     artigo.titulo ||
-                    'Sem título'
+                    traduzir(
+                      'blog.sem_titulo'
+                    )
                   );
+
 
 
                 const resumo =
@@ -356,6 +597,7 @@
                     artigo.resumo ||
                     ''
                   );
+
 
 
                 const capa =
@@ -366,47 +608,83 @@
                     : '';
 
 
+
                 const id =
                   encodeURIComponent(
                     artigo.id
                   );
 
 
+
                 let imagemHtml =
                   '';
 
+
+
+                // -----------------------------------------
+                // ARTIGO COM CAPA
+                // -----------------------------------------
 
                 if (
                   capa
                 ) {
 
+
                   imagemHtml = `
 
                     <img
+
                       class="card-imagem"
+
                       src="${escapeHtml(capa)}"
+
                       alt="${titulo}"
+
                       loading="lazy"
-                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+
+                      onerror="
+                        this.style.display='none';
+                        this.nextElementSibling.style.display='flex';
+                      "
+
                     >
 
+
                     <div
+
                       class="card-sem-imagem"
+
                       style="display:none"
+
                     >
+
                       ${titulo}
+
                     </div>
 
                   `;
 
-                } else {
+
+                }
+
+
+                // -----------------------------------------
+                // ARTIGO SEM CAPA
+                // -----------------------------------------
+
+                else {
+
 
                   imagemHtml = `
 
                     <div
+
                       class="card-sem-imagem"
+
                     >
+
                       ${titulo}
+
                     </div>
 
                   `;
@@ -414,61 +692,112 @@
                 }
 
 
+
+                // -----------------------------------------
+                // CARD
+                // -----------------------------------------
+
                 return `
 
                   <a
+
                     class="card"
+
                     href="/artigo?id=${id}"
+
                   >
+
 
                     ${imagemHtml}
 
 
+
                     <div
+
                       class="conteudo"
+
                     >
 
+
                       <h2>
+
                         ${titulo}
+
                       </h2>
+
 
 
                       ${
                         resumo
+
                           ? `
+
                             <p>
+
                               ${resumo}
+
                             </p>
+
                           `
+
                           : ''
+
                       }
 
+
                     </div>
+
 
                   </a>
 
                 `;
 
               }
+
             )
+
             .join('');
 
 
-      } catch (erro) {
+
+      }
+
+
+      catch (erro) {
 
 
         console.error(
+
           '[BLOG] Erro:',
+
           erro
+
         );
 
 
-        vazio.textContent =
-          'Não foi possível carregar os artigos agora.';
+
+        if (carregando) {
+
+          carregando.style.display =
+            'none';
+
+        }
 
 
-        vazio.style.display =
-          'block';
+
+        if (vazio) {
+
+          vazio.textContent =
+
+            traduzir(
+              'blog.erro'
+            );
+
+
+          vazio.style.display =
+            'block';
+
+        }
 
       }
 
@@ -477,10 +806,69 @@
 
 
     // =====================================================
-    // INICIAR
+    // ATUALIZAR TEXTOS QUANDO O IDIOMA MUDAR
+    // =====================================================
+
+    document.addEventListener(
+
+      'i18n:aplicado',
+
+      function () {
+
+
+        const vazio =
+          document.getElementById(
+            'vazio'
+          );
+
+
+        const carregando =
+          document.getElementById(
+            'carregando'
+          );
+
+
+
+        if (
+          vazio &&
+          vazio.style.display !== 'none'
+        ) {
+
+          vazio.textContent =
+
+            traduzir(
+              'blog.vazio'
+            );
+
+        }
+
+
+
+        if (
+          carregando &&
+          carregando.style.display !== 'none'
+        ) {
+
+          carregando.textContent =
+
+            traduzir(
+              'blog.carregando'
+            );
+
+        }
+
+      }
+
+    );
+
+
+
+    // =====================================================
+    // INICIAR BLOG
     // =====================================================
 
     carregarBlog();
+
 
   </script>
 
