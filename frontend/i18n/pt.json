@@ -70,7 +70,7 @@
     "comerciante_basico": "Comerciante Basico",
     "comerciante_premium": "Comerciante Premium",
     "mes": "/mes",
-     "assinar": "Assinar"
+    "assinar": "Assinar"
   },
   "rodape_mobile": {
     "cadastre_negocio": "Cadastre seu negocio",
@@ -96,5 +96,13 @@
     "erro_texto": "Houve um problema ao processar seu pagamento. Tente novamente.",
     "voltar_home": "Voltar para a Home",
     "ir_painel": "Ir para o Painel"
+  },
+  "blog": {
+    "titulo": "Blog",
+    "descricao": "Notícias, dicas e informações sobre Porto de Galinhas.",
+    "carregando": "Carregando artigos...",
+    "vazio": "Ainda não temos artigos publicados.",
+    "sem_titulo": "Sem título",
+    "erro": "Não foi possível carregar os artigos agora."
   }
 }
