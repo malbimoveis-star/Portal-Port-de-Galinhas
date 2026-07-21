@@ -10,64 +10,68 @@
   },
 
   "categorias": {
-    "titulo": "Services et Tourisme",
-    "hoteis-pousadas": "Hôtels et Auberges",
+    "titulo": "Services & Tourisme",
+    "hoteis-pousadas": "Hôtels & Auberges",
     "resorts": "Resorts",
-    "passeios-de-barco": "Excursions en Bateau",
-    "buggys-traslados": "Buggys et Transferts",
-    "restaurantes-bares": "Restaurants et Bars",
-    "comercios-regionais": "Commerces Régionaux",
+    "passeios-de-barco": "Excursions en bateau",
+    "buggys-traslados": "Buggys & Transferts",
+    "restaurantes-bares": "Restaurants & Bars",
+    "comercios-regionais": "Commerces régionaux",
     "mergulho": "Plongée",
     "jet-ski": "Jet Ski",
-    "servicos-de-praia": "Services de Plage"
+    "servicos-de-praia": "Services de plage"
   },
 
   "home": {
-    "hero_titulo": "Découvrez les Meilleures Expériences de Porto de Galinhas !",
-    "destaques_titulo": "Sélections Premium pour Vous",
+    "hero_titulo": "Découvrez les meilleures expériences de Porto de Galinhas !",
+    "destaques_titulo": "Les meilleurs choix pour vous",
     "saiba_mais": "En savoir plus",
-    "cta_titulo": "Découvrez les Meilleures Options à Porto !",
-    "cta_subtitulo": "Découvrez un voyage tropical et moderne à Porto de Galinhas !",
-    "btn_sou_turista": "Je suis Touriste",
-    "btn_cadastrar_negocio": "Enregistrez votre Entreprise"
+    "cta_titulo": "Découvrez les meilleures options à Porto !",
+    "cta_subtitulo": "Profitez d'un voyage tropical moderne et pratique à Porto de Galinhas !",
+    "btn_sou_turista": "Je suis touriste",
+    "btn_cadastrar_negocio": "Inscrivez votre entreprise"
+  },
+
+  "blog": {
+    "titulo": "Blog",
+    "subtitulo": "Découvrez les nouveautés, conseils et expériences à Porto de Galinhas.",
+    "vazio": "Nous n'avons pas encore d'articles publiés.",
+    "erro": "Impossible de charger les articles maintenant.",
+    "ler_mais": "Lire plus"
   },
 
   "comerciante_pagina": {
     "sobre": "À propos",
-    "galeria": "Galerie de Photos",
+    "galeria": "Galerie de photos",
     "localizacao": "Localisation",
     "contato": "Contact",
     "whatsapp": "WhatsApp",
-    "status_ativo": "Annonce Active",
-    "status_degustacao": "Période d'Essai Gratuite",
+    "status_ativo": "Annonce active",
+    "status_degustacao": "Période d'essai gratuite",
     "status_expirado": "Cette annonce est actuellement indisponible.",
-    "sem_whatsapp": "Le contact par WhatsApp est disponible uniquement pour les annonceurs ayant un forfait actif."
+    "sem_whatsapp": "Le contact WhatsApp est disponible uniquement pour les annonceurs actifs."
   },
 
   "painel": {
-    "titulo": "Tableau de Bord du Commerçant",
-    "plano_atual": "Forfait Actuel",
+    "titulo": "Tableau du commerçant",
+    "plano_atual": "Plan actuel",
     "status": "Statut",
-    "degustacao_restante": "Temps d'Essai Restant",
     "dias": "jours",
     "horas": "heures",
-    "renovar_plano": "Renouveler le Forfait",
-    "meus_anuncios": "Mes Annonces",
-    "novo_anuncio": "Nouvelle Annonce",
+    "renovar_plano": "Renouveler le plan",
+    "meus_anuncios": "Mes annonces",
+    "novo_anuncio": "Nouvelle annonce",
     "editar": "Modifier",
     "excluir": "Supprimer",
     "salvar": "Enregistrer",
     "cancelar": "Annuler",
-    "alerta_expirado": "Votre forfait a expiré. Renouvelez-le maintenant pour réapparaître dans les listes publiques.",
-    "login": "Se Connecter",
-    "cadastro": "S'inscrire",
+    "login": "Connexion",
+    "cadastro": "Créer un compte",
     "email": "E-mail",
-    "senha": "Mot de Passe",
+    "senha": "Mot de passe",
     "nome": "Nom",
     "telefone": "Téléphone",
-    "sair": "Se Déconnecter",
-    "nao_tenho_conta": "Je n'ai pas de compte, je veux m'inscrire",
-    "ja_tenho_conta": "J'ai déjà un compte, je veux me connecter"
+    "sair": "Quitter"
   },
 
   "planos": {
@@ -79,43 +83,31 @@
   },
 
   "rodape_mobile": {
-    "cadastre_negocio": "Enregistrez votre Entreprise",
-    "assine_ja": "Abonnez-vous Maintenant"
+    "cadastre_negocio": "Inscrivez votre entreprise",
+    "assine_ja": "Abonnez-vous"
   },
 
   "rodape": {
-    "termos": "Conditions d'Utilisation",
-    "privacidade": "Politique de Confidentialité",
-    "suporte": "Assistance 24h",
-    "direitos": "Tous droits réservés"
+    "termos": "Conditions d'utilisation",
+    "privacidade": "Politique de confidentialité",
+    "suporte": "Support 24h",
+    "direitos": "Tous les droits réservés"
   },
 
   "paginas_legais": {
-    "termos_titulo": "Conditions d'Utilisation",
-    "privacidade_titulo": "Politique de Confidentialité",
-    "suporte_titulo": "Assistance 24h"
+    "termos_titulo": "Conditions d'utilisation",
+    "privacidade_titulo": "Politique de confidentialité",
+    "suporte_titulo": "Support 24h"
   },
 
   "pagamento": {
-    "sucesso_titulo": "Paiement Approuvé !",
-    "sucesso_texto": "Votre paiement a été confirmé. Votre forfait est maintenant actif.",
-    "pendente_titulo": "Paiement en Attente",
-    "pendente_texto": "Nous attendons la confirmation de votre paiement par Mercado Pago.",
-    "erro_titulo": "Paiement Non Effectué",
-    "erro_texto": "Un problème est survenu lors du traitement de votre paiement. Veuillez réessayer.",
-    "voltar_home": "Retour à l'Accueil",
-    "ir_painel": "Aller au Tableau de Bord"
-  },
-
-  "blog": {
-    "titulo": "Blog",
-    "carregando": "Chargement des articles...",
-    "vazio": "Nous n'avons pas encore d'articles publiés.",
-    "erro": "Impossible de charger les articles pour le moment.",
-    "sem_titulo": "Sans titre",
-    "voltar": "Retour au Blog",
-    "artigo_nao_encontrado": "Article introuvable.",
-    "sem_conteudo": "Cet article ne contient pas encore de contenu.",
-    "sem_capa": "Article"
+    "sucesso_titulo": "Paiement approuvé !",
+    "sucesso_texto": "Votre paiement a été confirmé. Votre plan est maintenant actif.",
+    "pendente_titulo": "Paiement en attente",
+    "pendente_texto": "Nous attendons la confirmation de votre paiement.",
+    "erro_titulo": "Paiement non terminé",
+    "erro_texto": "Un problème est survenu lors du traitement du paiement.",
+    "voltar_home": "Retour à l'accueil",
+    "ir_painel": "Aller au tableau"
   }
 }
