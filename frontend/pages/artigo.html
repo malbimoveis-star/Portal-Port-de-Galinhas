@@ -1,53 +1,792 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Artigo — Portal Porto de Galinhas</title>
-<style>
-  * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
-  body { margin: 0; background: #f2f5f8; color: #1c2b36; }
-  header { background: #0a5c8a; padding: 18px 24px; }
-  header a { color: #fff; text-decoration: none; font-weight: bold; font-size: 1.1em; }
-  main { max-width: 760px; margin: 30px auto; padding: 0 16px 60px; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-  #conteudo { padding: 30px; line-height: 1.65; }
-  #conteudo img { max-width: 100%; border-radius: 8px; margin: 12px 0; }
-  #conteudo h1 { color: #0a5c8a; }
-  #conteudo h2, #conteudo h3 { color: #0a5c8a; margin-top: 28px; }
-  #conteudo a { color: #0a5c8a; }
-  #conteudo p { margin: 14px 0; }
-  .capa { width: 100%; height: 280px; object-fit: cover; border-radius: 10px 10px 0 0; }
-</style>
-</head>
-<body>
-<header><a href="/">← Portal Porto de Galinhas</a></header>
-<main>
-  <img id="capa" class="capa" style="display:none">
-  <div id="conteudo">Carregando...</div>
-</main>
-<script>
-  const params = new URLSearchParams(location.search);
-  const id = params.get('id');
 
-  fetch(`/api/blog/${id}`).then(r => {
-    if (!r.ok) throw new Error('nao encontrado');
-    return r.json();
-  }).then(artigo => {
-    document.title = artigo.titulo + ' — Portal Porto de Galinhas';
-    if (artigo.capa_url) {
-      const capa = document.getElementById('capa');
-      capa.src = artigo.capa_url;
-      capa.style.display = 'block';
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    Artigo — Portal Porto de Galinhas
+  </title>
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
     }
-    document.getElementById('conteudo').innerHTML = artigo.conteudo;
-    if (window.adsbygoogle) {
-      document.querySelectorAll('#conteudo .adsbygoogle').forEach(() => {
-        try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
-      });
+
+    body {
+      margin: 0;
+      background: #f2f5f8;
+      color: #1c2b36;
     }
-  }).catch(() => {
-    document.getElementById('conteudo').innerHTML = '<p>Artigo não encontrado. <a href="/blog">Voltar ao blog</a>.</p>';
-  });
-</script>
+
+    /* =====================================================
+       CABEÇALHO
+    ===================================================== */
+
+    header {
+      background: #0a5c8a;
+      padding: 18px 24px;
+    }
+
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1.1em;
+    }
+
+    header a:hover {
+      text-decoration: underline;
+    }
+
+    /* =====================================================
+       CONTAINER PRINCIPAL
+    ===================================================== */
+
+    main {
+      max-width: 900px;
+      margin: 30px auto 60px;
+      padding: 0;
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow:
+        0 2px 12px
+        rgba(0, 0, 0, 0.08);
+    }
+
+    /* =====================================================
+       CAPA
+    ===================================================== */
+
+    .capa {
+      width: 100%;
+      height: 360px;
+      object-fit: cover;
+      display: none;
+      background: #dde5ea;
+    }
+
+    /* =====================================================
+       ÁREA DO ARTIGO
+    ===================================================== */
+
+    .artigo {
+      padding: 35px 45px 50px;
+    }
+
+    /* =====================================================
+       TÍTULO
+    ===================================================== */
+
+    #titulo {
+      margin: 0 0 18px;
+
+      color: #0a5c8a;
+
+      font-size: 2.4rem;
+
+      line-height: 1.2;
+    }
+
+    /* =====================================================
+       RESUMO
+    ===================================================== */
+
+    #resumo {
+      margin: 0 0 28px;
+
+      color: #55707f;
+
+      font-size: 1.15rem;
+
+      line-height: 1.6;
+
+      border-bottom:
+        1px solid #e1e7eb;
+
+      padding-bottom: 25px;
+    }
+
+    /* =====================================================
+       DATA
+    ===================================================== */
+
+    #data {
+      color: #7b8b94;
+
+      font-size: 0.9rem;
+
+      margin-bottom: 25px;
+    }
+
+    /* =====================================================
+       CONTEÚDO DO ARTIGO
+    ===================================================== */
+
+    #conteudo {
+      line-height: 1.75;
+
+      font-size: 1.05rem;
+
+      color: #263842;
+    }
+
+    #conteudo h1 {
+      color: #0a5c8a;
+
+      font-size: 2rem;
+
+      margin-top: 30px;
+      margin-bottom: 15px;
+    }
+
+    #conteudo h2 {
+      color: #0a5c8a;
+
+      font-size: 1.6rem;
+
+      margin-top: 30px;
+      margin-bottom: 15px;
+    }
+
+    #conteudo h3 {
+      color: #0a5c8a;
+
+      font-size: 1.3rem;
+
+      margin-top: 25px;
+      margin-bottom: 12px;
+    }
+
+    #conteudo p {
+      margin: 16px 0;
+    }
+
+    #conteudo strong {
+      font-weight: bold;
+    }
+
+    #conteudo em {
+      font-style: italic;
+    }
+
+    #conteudo blockquote {
+      margin: 25px 0;
+
+      padding: 18px 22px;
+
+      border-left:
+        5px solid #0a5c8a;
+
+      background: #f2f7fa;
+
+      color: #55707f;
+
+      font-style: italic;
+    }
+
+    /* =====================================================
+       IMAGENS DENTRO DO ARTIGO
+    ===================================================== */
+
+    #conteudo img {
+      display: block;
+
+      max-width: 100%;
+
+      width: auto;
+
+      height: auto;
+
+      margin: 25px auto;
+
+      border-radius: 10px;
+
+      box-shadow:
+        0 2px 8px
+        rgba(0, 0, 0, 0.10);
+    }
+
+    /* =====================================================
+       LINKS
+    ===================================================== */
+
+    #conteudo a {
+      color: #0a5c8a;
+
+      font-weight: 600;
+    }
+
+    /* =====================================================
+       LISTAS
+    ===================================================== */
+
+    #conteudo ul,
+    #conteudo ol {
+      padding-left: 30px;
+
+      margin: 18px 0;
+    }
+
+    #conteudo li {
+      margin: 8px 0;
+    }
+
+    /* =====================================================
+       BOTÃO VOLTAR
+    ===================================================== */
+
+    .voltar {
+      display: inline-block;
+
+      margin-top: 35px;
+
+      padding: 12px 20px;
+
+      background: #0a5c8a;
+
+      color: #fff;
+
+      text-decoration: none;
+
+      border-radius: 7px;
+
+      font-weight: bold;
+    }
+
+    .voltar:hover {
+      background: #084c73;
+    }
+
+    /* =====================================================
+       CARREGANDO
+    ===================================================== */
+
+    #carregando {
+      padding: 50px;
+
+      text-align: center;
+
+      color: #55707f;
+    }
+
+    /* =====================================================
+       ERRO
+    ===================================================== */
+
+    #erro {
+      display: none;
+
+      padding: 50px;
+
+      text-align: center;
+
+      color: #b42318;
+    }
+
+    /* =====================================================
+       RESPONSIVO
+    ===================================================== */
+
+    @media (
+      max-width: 700px
+    ) {
+
+      main {
+        margin:
+          15px
+          10px
+          40px;
+      }
+
+      .capa {
+        height: 220px;
+      }
+
+      .artigo {
+        padding:
+          25px
+          20px
+          35px;
+      }
+
+      #titulo {
+        font-size: 1.8rem;
+      }
+
+      #resumo {
+        font-size: 1rem;
+      }
+
+      #conteudo {
+        font-size: 1rem;
+      }
+
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <!-- =====================================================
+       CABEÇALHO
+  ====================================================== -->
+
+  <header>
+
+    <a href="/blog">
+      ← Voltar para o Blog
+    </a>
+
+  </header>
+
+
+  <!-- =====================================================
+       ARTIGO
+  ====================================================== -->
+
+  <main>
+
+    <!-- CAPA DO ARTIGO -->
+
+    <img
+      id="capa"
+      class="capa"
+      alt="Capa do artigo"
+    >
+
+
+    <!-- CARREGANDO -->
+
+    <div id="carregando">
+
+      Carregando artigo...
+
+    </div>
+
+
+    <!-- ERRO -->
+
+    <div id="erro">
+
+      <h2>
+        Artigo não encontrado
+      </h2>
+
+      <p>
+        Não foi possível carregar este artigo.
+      </p>
+
+      <a
+        class="voltar"
+        href="/blog"
+      >
+        Voltar para o Blog
+      </a>
+
+    </div>
+
+
+    <!-- CONTEÚDO -->
+
+    <article
+      id="artigo"
+      class="artigo"
+      style="display:none"
+    >
+
+      <!-- TÍTULO -->
+
+      <h1 id="titulo">
+      </h1>
+
+
+      <!-- DATA -->
+
+      <div id="data">
+      </div>
+
+
+      <!-- RESUMO -->
+
+      <p id="resumo">
+      </p>
+
+
+      <!-- CONTEÚDO DO ARTIGO -->
+
+      <div id="conteudo">
+      </div>
+
+
+      <!-- VOLTAR -->
+
+      <a
+        class="voltar"
+        href="/blog"
+      >
+        ← Voltar para o Blog
+      </a>
+
+    </article>
+
+  </main>
+
+
+  <!-- =====================================================
+       JAVASCRIPT
+  ====================================================== -->
+
+  <script>
+
+    'use strict';
+
+
+    // =====================================================
+    // PEGAR ID DO ARTIGO
+    // =====================================================
+
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+    const id =
+      params.get('id');
+
+
+    // =====================================================
+    // ELEMENTOS
+    // =====================================================
+
+    const elementoCapa =
+      document.getElementById(
+        'capa'
+      );
+
+    const elementoTitulo =
+      document.getElementById(
+        'titulo'
+      );
+
+    const elementoResumo =
+      document.getElementById(
+        'resumo'
+      );
+
+    const elementoConteudo =
+      document.getElementById(
+        'conteudo'
+      );
+
+    const elementoData =
+      document.getElementById(
+        'data'
+      );
+
+    const elementoArtigo =
+      document.getElementById(
+        'artigo'
+      );
+
+    const elementoCarregando =
+      document.getElementById(
+        'carregando'
+      );
+
+    const elementoErro =
+      document.getElementById(
+        'erro'
+      );
+
+
+    // =====================================================
+    // VERIFICAR ID
+    // =====================================================
+
+    if (!id) {
+
+      elementoCarregando.style.display =
+        'none';
+
+      elementoErro.style.display =
+        'block';
+
+    } else {
+
+      carregarArtigo();
+
+    }
+
+
+    // =====================================================
+    // CARREGAR ARTIGO
+    // =====================================================
+
+    async function carregarArtigo() {
+
+      try {
+
+        console.log(
+          '[ARTIGO] Carregando artigo:',
+          id
+        );
+
+
+        // -------------------------------------------------
+        // BUSCAR API
+        // -------------------------------------------------
+
+        const resposta =
+          await fetch(
+            `/api/blog/${encodeURIComponent(id)}`
+          );
+
+
+        console.log(
+          '[ARTIGO] Status:',
+          resposta.status
+        );
+
+
+        if (!resposta.ok) {
+
+          throw new Error(
+            'Artigo não encontrado.'
+          );
+
+        }
+
+
+        // -------------------------------------------------
+        // CONVERTER JSON
+        // -------------------------------------------------
+
+        const artigo =
+          await resposta.json();
+
+
+        console.log(
+          '[ARTIGO] Dados:',
+          artigo
+        );
+
+
+        // -------------------------------------------------
+        // TÍTULO DA ABA
+        // -------------------------------------------------
+
+        document.title =
+          (
+            artigo.titulo ||
+            'Artigo'
+          ) +
+          ' — Portal Porto de Galinhas';
+
+
+        // -------------------------------------------------
+        // TÍTULO VISÍVEL
+        // -------------------------------------------------
+
+        elementoTitulo.textContent =
+          artigo.titulo ||
+          'Sem título';
+
+
+        // -------------------------------------------------
+        // RESUMO
+        // -------------------------------------------------
+
+        if (
+          artigo.resumo &&
+          artigo.resumo.trim()
+        ) {
+
+          elementoResumo.textContent =
+            artigo.resumo;
+
+          elementoResumo.style.display =
+            'block';
+
+        } else {
+
+          elementoResumo.style.display =
+            'none';
+
+        }
+
+
+        // -------------------------------------------------
+        // DATA
+        // -------------------------------------------------
+
+        if (
+          artigo.criado_em
+        ) {
+
+          try {
+
+            const data =
+              new Date(
+                artigo.criado_em
+              );
+
+            if (
+              !isNaN(
+                data.getTime()
+              )
+            ) {
+
+              elementoData.textContent =
+                'Publicado em ' +
+                data.toLocaleDateString(
+                  'pt-BR'
+                );
+
+            }
+
+          } catch (erroData) {
+
+            console.warn(
+              '[ARTIGO] Erro na data:',
+              erroData
+            );
+
+          }
+
+        }
+
+
+        // -------------------------------------------------
+        // CAPA
+        // -------------------------------------------------
+
+        if (
+          artigo.capa_url &&
+          String(
+            artigo.capa_url
+          ).trim()
+        ) {
+
+          elementoCapa.src =
+            artigo.capa_url;
+
+          elementoCapa.alt =
+            artigo.titulo ||
+            'Capa do artigo';
+
+          elementoCapa.style.display =
+            'block';
+
+
+          // -----------------------------------------------
+          // ERRO AO CARREGAR CAPA
+          // -----------------------------------------------
+
+          elementoCapa.onerror =
+            function () {
+
+              console.warn(
+                '[ARTIGO] Não foi possível carregar a capa:',
+                artigo.capa_url
+              );
+
+              elementoCapa.style.display =
+                'none';
+
+            };
+
+        } else {
+
+          elementoCapa.style.display =
+            'none';
+
+        }
+
+
+        // -------------------------------------------------
+        // CONTEÚDO
+        // -------------------------------------------------
+
+        if (
+          artigo.conteudo
+        ) {
+
+          elementoConteudo.innerHTML =
+            artigo.conteudo;
+
+        } else {
+
+          elementoConteudo.innerHTML =
+            '<p>Este artigo não possui conteúdo.</p>';
+
+        }
+
+
+        // -------------------------------------------------
+        // ESCONDER CARREGANDO
+        // -------------------------------------------------
+
+        elementoCarregando.style.display =
+          'none';
+
+
+        // -------------------------------------------------
+        // MOSTRAR ARTIGO
+        // -------------------------------------------------
+
+        elementoArtigo.style.display =
+          'block';
+
+
+        console.log(
+          '[ARTIGO] Artigo carregado com sucesso.'
+        );
+
+
+      } catch (erro) {
+
+        console.error(
+          '[ARTIGO] Erro:',
+          erro
+        );
+
+
+        // -----------------------------------------------
+        // ESCONDER CARREGAMENTO
+        // -----------------------------------------------
+
+        elementoCarregando.style.display =
+          'none';
+
+
+        // -----------------------------------------------
+        // MOSTRAR ERRO
+        // -----------------------------------------------
+
+        elementoErro.style.display =
+          'block';
+
+      }
+
+    }
+
+  </script>
+
 </body>
+
 </html>
