@@ -27,7 +27,7 @@
     "destaques_titulo": "Destaques Premium para Você",
     "saiba_mais": "Saiba mais",
     "cta_titulo": "Fique por dentro das Melhores Opções em Porto!",
-    "cta_subtitulo": "Desbloqueie uma jornada tropical e ágil moderna a Porto de Galinhas!",
+    "cta_subtitulo": "Desbloqueie uma jornada tropical e moderna a Porto de Galinhas!",
     "btn_sou_turista": "Sou Turista",
     "btn_cadastrar_negocio": "Cadastre seu negócio"
   },
@@ -58,16 +58,13 @@
     "excluir": "Excluir",
     "salvar": "Salvar",
     "cancelar": "Cancelar",
-    "alerta_expirado": "Seu plano expirou. Renove agora para voltar a aparecer nas listagens públicas.",
     "login": "Entrar",
     "cadastro": "Cadastrar",
     "email": "E-mail",
     "senha": "Senha",
     "nome": "Nome",
     "telefone": "Telefone",
-    "sair": "Sair",
-    "nao_tenho_conta": "Não tenho conta, quero me cadastrar",
-    "ja_tenho_conta": "Já tenho conta, quero entrar"
+    "sair": "Sair"
   },
 
   "planos": {
@@ -109,11 +106,12 @@
 
   "blog": {
     "titulo": "Blog",
+    "subtitulo": "Descubra novidades, dicas e experiências em Porto de Galinhas.",
     "carregando": "Carregando artigos...",
     "vazio": "Ainda não temos artigos publicados.",
     "erro": "Não foi possível carregar os artigos agora.",
     "sem_titulo": "Sem título",
-    "voltar": "Voltar para o Blog",
+    "voltar": "Voltar ao Blog",
     "artigo_nao_encontrado": "Artigo não encontrado.",
     "sem_conteudo": "Este artigo ainda não possui conteúdo.",
     "sem_capa": "Artigo"
