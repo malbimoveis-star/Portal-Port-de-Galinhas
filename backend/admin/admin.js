@@ -13,7 +13,7 @@
   const btnSair = document.getElementById('btnSair');
 
   // =========================================================
-  // AUTENTICAÇÃO
+  // AUTENTICACAO
   // =========================================================
 
   function getToken() {
@@ -70,6 +70,7 @@
     if (resp.status === 401 || resp.status === 403) {
       limparToken();
       mostrarLogin();
+
       throw new Error(
         data.erro || 'Sessao expirada. Faca login novamente.'
       );
@@ -90,58 +91,64 @@
   // LOGIN
   // =========================================================
 
-  formLogin.addEventListener('submit', async (e) => {
-    e.preventDefault();
+  if (formLogin) {
+    formLogin.addEventListener('submit', async (e) => {
+      e.preventDefault();
 
-    erroLogin.textContent = '';
+      erroLogin.textContent = '';
 
-    const usuario = document
-      .getElementById('usuario')
-      .value
-      .trim();
+      const usuario = document
+        .getElementById('usuario')
+        .value
+        .trim();
 
-    const senha = document
-      .getElementById('senha')
-      .value;
+      const senha = document
+        .getElementById('senha')
+        .value;
 
-    try {
-      const resp = await fetch(`${API}/api/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          usuario,
-          senha
-        })
-      });
+      try {
+        const resp = await fetch(`${API}/api/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            usuario,
+            senha
+          })
+        });
 
-      const data = await resp.json();
+        const data = await resp.json();
 
-      if (!resp.ok) {
+        if (!resp.ok) {
+          erroLogin.textContent =
+            data.erro || 'Credenciais invalidas.';
+          return;
+        }
+
+        setToken(data.token);
+
+        mostrarAdmin();
+
+      } catch (err) {
+        console.error('[login]', err);
+
         erroLogin.textContent =
-          data.erro || 'Credenciais invalidas.';
-        return;
+          'Erro ao conectar com o servidor.';
       }
-
-      setToken(data.token);
-      mostrarAdmin();
-
-    } catch (err) {
-      console.error('[login]', err);
-      erroLogin.textContent =
-        'Erro ao conectar com o servidor.';
-    }
-  });
+    });
+  }
 
   // =========================================================
   // SAIR
   // =========================================================
 
-  btnSair.addEventListener('click', () => {
-    limparToken();
-    mostrarLogin();
-  });
+  if (btnSair) {
+    btnSair.addEventListener('click', () => {
+      limparToken();
+      mostrarLogin();
+    });
+  }
 
   // =========================================================
   // TABS
@@ -177,9 +184,20 @@
           tab.classList.remove('escondido');
         }
 
-        // Quando abrir a aba Blog, atualiza os artigos
         if (btn.dataset.tab === 'blog') {
           carregarArtigos();
+        }
+
+        if (btn.dataset.tab === 'pendentes') {
+          carregarPendentes();
+        }
+
+        if (btn.dataset.tab === 'todos') {
+          carregarTodos();
+        }
+
+        if (btn.dataset.tab === 'categorias') {
+          carregarCategorias();
         }
       });
     });
@@ -189,7 +207,7 @@
   }
 
   // =========================================================
-  // ANÚNCIOS PENDENTES
+  // ANUNCIOS PENDENTES
   // =========================================================
 
   async function carregarPendentes() {
@@ -200,6 +218,10 @@
       const container =
         document.getElementById('listaPendentes');
 
+      if (!container) {
+        return;
+      }
+
       if (!Array.isArray(pendentes)) {
         container.innerHTML =
           '<p>Nenhum anuncio pendente.</p>';
@@ -209,14 +231,22 @@
       container.innerHTML =
         pendentes.map((a) => `
           <div style="padding:12px;border-bottom:1px solid #ddd;">
+
             <strong>${a.titulo || ''}</strong>
+
             <br>
-            Comerciante: ${a.id_comerciante || '-'}
+
+            Comerciante:
+            ${a.id_comerciante || '-'}
+
             <br>
+
             Status:
-            <span class="badge badge--${a.status}">
+
+            <span class="badge badge--${a.status || 'pendente'}">
               ${a.status || '-'}
             </span>
+
             <br><br>
 
             <button
@@ -232,6 +262,7 @@
               data-id="${a.id}">
               Rejeitar
             </button>
+
           </div>
         `).join('') ||
         '<p>Nenhum anuncio pendente.</p>';
@@ -246,6 +277,7 @@
             const id = btn.dataset.id;
 
             try {
+
               await apiFetch(
                 `/api/admin/anuncios/${id}/${acao}`,
                 {
@@ -257,44 +289,65 @@
               await carregarTodos();
 
             } catch (err) {
-              console.error('[anuncio]', err);
+
+              console.error(
+                '[anuncio]',
+                err
+              );
+
               alert(err.message);
             }
           });
         });
 
     } catch (err) {
-      console.error('[pendentes]', err);
+
+      console.error(
+        '[pendentes]',
+        err
+      );
     }
   }
 
   // =========================================================
-  // TODOS OS ANÚNCIOS
+  // TODOS OS ANUNCIOS
   // =========================================================
 
   async function carregarTodos() {
     try {
+
       const todos =
         await apiFetch('/api/admin/anuncios/todos');
 
       const tbody =
         document.getElementById('listaTodos');
 
+      if (!tbody) {
+        return;
+      }
+
       if (!Array.isArray(todos)) {
+
         tbody.innerHTML =
           '<tr><td colspan="5">Nenhum anuncio cadastrado.</td></tr>';
+
         return;
       }
 
       tbody.innerHTML =
         todos.map((a) => `
           <tr>
-            <td>${a.id}</td>
-
-            <td>${a.titulo || ''}</td>
 
             <td>
-              <span class="badge badge--${a.status}">
+              ${a.id}
+            </td>
+
+            <td>
+              ${a.titulo || ''}
+            </td>
+
+            <td>
+              <span class="badge badge--${a.status || 'pendente'}">
                 ${a.status || '-'}
               </span>
             </td>
@@ -305,12 +358,15 @@
             </td>
 
             <td>
+
               <button
                 class="btn btn--excluir"
                 data-id="${a.id}">
                 Excluir
               </button>
+
             </td>
+
           </tr>
         `).join('') ||
         '<tr><td colspan="5">Nenhum anuncio cadastrado.</td></tr>';
@@ -330,6 +386,7 @@
             }
 
             try {
+
               await apiFetch(
                 `/api/admin/anuncios/${btn.dataset.id}`,
                 {
@@ -341,14 +398,23 @@
               await carregarPendentes();
 
             } catch (err) {
-              console.error('[excluir anuncio]', err);
+
+              console.error(
+                '[excluir anuncio]',
+                err
+              );
+
               alert(err.message);
             }
           });
         });
 
     } catch (err) {
-      console.error('[todos anuncios]', err);
+
+      console.error(
+        '[todos anuncios]',
+        err
+      );
     }
   }
 
@@ -358,24 +424,36 @@
 
   async function carregarCategorias() {
     try {
+
       const categorias =
         await apiFetch('/api/admin/categorias');
 
       const tbody =
         document.getElementById('listaCategorias');
 
+      if (!tbody) {
+        return;
+      }
+
       if (!Array.isArray(categorias)) {
+
         tbody.innerHTML =
           '<tr><td colspan="5">Nenhuma categoria cadastrada.</td></tr>';
+
         return;
       }
 
       tbody.innerHTML =
         categorias.map((c) => `
           <tr>
-            <td>${c.id}</td>
 
-            <td>${c.nome || ''}</td>
+            <td>
+              ${c.id}
+            </td>
+
+            <td>
+              ${c.nome || ''}
+            </td>
 
             <td>
               ${c.icone_url || '-'}
@@ -386,12 +464,15 @@
             </td>
 
             <td>
+
               <button
                 class="btn btn--excluir"
                 data-id="${c.id}">
                 Excluir
               </button>
+
             </td>
+
           </tr>
         `).join('') ||
         '<tr><td colspan="5">Nenhuma categoria cadastrada.</td></tr>';
@@ -411,6 +492,7 @@
             }
 
             try {
+
               await apiFetch(
                 `/api/admin/categorias/${btn.dataset.id}`,
                 {
@@ -421,14 +503,23 @@
               await carregarCategorias();
 
             } catch (err) {
-              console.error('[excluir categoria]', err);
+
+              console.error(
+                '[excluir categoria]',
+                err
+              );
+
               alert(err.message);
             }
           });
         });
 
     } catch (err) {
-      console.error('[categorias]', err);
+
+      console.error(
+        '[categorias]',
+        err
+      );
     }
   }
 
@@ -458,9 +549,11 @@
             .trim();
 
         if (!nome) {
+
           alert(
             'Digite o nome da categoria.'
           );
+
           return;
         }
 
@@ -494,7 +587,12 @@
           await carregarCategorias();
 
         } catch (err) {
-          console.error('[adicionar categoria]', err);
+
+          console.error(
+            '[adicionar categoria]',
+            err
+          );
+
           alert(err.message);
         }
       }
@@ -516,10 +614,6 @@
       'click',
       async () => {
 
-        console.log(
-          '[blog] Botao Salvar artigo clicado'
-        );
-
         const erroBlog =
           document.getElementById(
             'erroBlog'
@@ -539,7 +633,7 @@
             .value
             .trim();
 
-        const capa =
+        const capa_url =
           document
             .getElementById('blogCapa')
             .value
@@ -556,30 +650,28 @@
             .getElementById('blogPublicado')
             .checked;
 
-        // Validação
         if (!titulo) {
+
           erroBlog.textContent =
             'Digite o titulo do artigo.';
+
           return;
         }
 
         if (!conteudo) {
+
           erroBlog.textContent =
             'Digite o conteudo do artigo.';
+
           return;
         }
 
-        // Evita duplo clique
         btnSalvarArtigo.disabled = true;
+
         btnSalvarArtigo.textContent =
           'Salvando...';
 
         try {
-
-          console.log(
-            '[blog] Enviando artigo para:',
-            `${API}/api/blog`
-          );
 
           const resultado =
             await apiFetch(
@@ -595,9 +687,8 @@
                 body: JSON.stringify({
                   titulo,
                   resumo,
-                  capa,
-                  imagem_capa: capa,
                   conteudo,
+                  capa_url,
                   publicado
                 })
               }
@@ -612,7 +703,6 @@
             'Artigo salvo com sucesso!'
           );
 
-          // Limpa o formulário
           document
             .getElementById('blogTitulo')
             .value = '';
@@ -633,7 +723,6 @@
             .getElementById('blogPublicado')
             .checked = true;
 
-          // Atualiza lista
           await carregarArtigos();
 
         } catch (err) {
@@ -656,13 +745,6 @@
         }
       }
     );
-
-  } else {
-
-    console.error(
-      '[blog] ERRO: botao btnSalvarArtigo nao encontrado no HTML.'
-    );
-
   }
 
   // =========================================================
@@ -686,9 +768,11 @@
         '[blog] Carregando artigos...'
       );
 
+      // IMPORTANTE:
+      // Esta e a rota correta existente no blogRoutes.js
       const artigos =
         await apiFetch(
-          '/api/blog/admin'
+          '/api/blog/admin/todos'
         );
 
       if (!Array.isArray(artigos)) {
@@ -703,10 +787,14 @@
         artigos.map((artigo) => {
 
           const status =
-            artigo.publicado ||
-            artigo.status === 'publicado'
+            artigo.publicado
               ? 'Publicado'
               : 'Rascunho';
+
+          const classeStatus =
+            artigo.publicado
+              ? 'ativo'
+              : 'pendente';
 
           return `
             <tr>
@@ -720,21 +808,25 @@
               </td>
 
               <td>
-                <span class="badge badge--${artigo.publicado ? 'ativo' : 'pendente'}">
+
+                <span class="badge badge--${classeStatus}">
                   ${status}
                 </span>
+
               </td>
 
               <td>
-                ${artigo.created_at || artigo.criado_em || '-'}
+                ${artigo.criado_em || '-'}
               </td>
 
               <td>
+
                 <button
                   class="btn btn--excluir"
                   data-blog-id="${artigo.id}">
                   Excluir
                 </button>
+
               </td>
 
             </tr>
@@ -743,7 +835,10 @@
         }).join('') ||
         '<tr><td colspan="5">Nenhum artigo cadastrado.</td></tr>';
 
-      // Botões excluir artigo
+      // =====================================================
+      // EXCLUIR ARTIGO
+      // =====================================================
+
       tbody
         .querySelectorAll(
           'button[data-blog-id]'
@@ -753,6 +848,9 @@
           btn.addEventListener(
             'click',
             async () => {
+
+              const id =
+                btn.dataset.blogId;
 
               if (
                 !confirm(
@@ -765,10 +863,14 @@
               try {
 
                 await apiFetch(
-                  `/api/blog/${btn.dataset.blogId}`,
+                  `/api/blog/${id}`,
                   {
                     method: 'DELETE'
                   }
+                );
+
+                alert(
+                  'Artigo excluido com sucesso!'
                 );
 
                 await carregarArtigos();
@@ -807,7 +909,7 @@
   }
 
   // =========================================================
-  // INICIALIZAÇÃO
+  // INICIALIZACAO
   // =========================================================
 
   console.log(
