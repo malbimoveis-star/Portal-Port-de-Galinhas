@@ -19,311 +19,6 @@
     href="./admin.css"
   >
 
-  <style>
-
-    /* =====================================================
-       EDITOR VISUAL DO BLOG
-    ===================================================== */
-
-    .editor-toolbar {
-
-      display: flex;
-
-      flex-wrap: wrap;
-
-      gap: 8px;
-
-      padding: 12px;
-
-      background: #f1f5f9;
-
-      border: 1px solid #cbd5e1;
-
-      border-bottom: none;
-
-      border-radius: 10px 10px 0 0;
-
-    }
-
-
-    .editor-toolbar button {
-
-      min-width: 40px;
-
-      height: 38px;
-
-      padding: 0 12px;
-
-      border: 1px solid #cbd5e1;
-
-      border-radius: 6px;
-
-      background: #ffffff;
-
-      color: #334155;
-
-      font-size: 14px;
-
-      font-weight: 600;
-
-      cursor: pointer;
-
-      transition: 0.2s ease;
-
-    }
-
-
-    .editor-toolbar button:hover {
-
-      background: #e2e8f0;
-
-      border-color: #94a3b8;
-
-    }
-
-
-    .editor-toolbar button:active {
-
-      transform: scale(0.96);
-
-    }
-
-
-    .editor-toolbar select {
-
-      height: 38px;
-
-      padding: 0 10px;
-
-      border: 1px solid #cbd5e1;
-
-      border-radius: 6px;
-
-      background: #ffffff;
-
-      color: #334155;
-
-      cursor: pointer;
-
-    }
-
-
-    .blog-editor {
-
-      width: 100%;
-
-      min-height: 400px;
-
-      padding: 20px;
-
-      border: 1px solid #cbd5e1;
-
-      border-radius: 0 0 10px 10px;
-
-      background: #ffffff;
-
-      color: #1e293b;
-
-      font-family: Arial, Helvetica, sans-serif;
-
-      font-size: 16px;
-
-      line-height: 1.7;
-
-      outline: none;
-
-      overflow-y: auto;
-
-    }
-
-
-    .blog-editor:focus {
-
-      border-color: #0f766e;
-
-      box-shadow:
-        0 0 0 3px
-        rgba(15, 118, 110, 0.12);
-
-    }
-
-
-    .blog-editor:empty::before {
-
-      content:
-        'Escreva o conteúdo do artigo aqui...';
-
-      color: #94a3b8;
-
-      pointer-events: none;
-
-    }
-
-
-    .blog-editor h1 {
-
-      margin-top: 20px;
-
-      margin-bottom: 15px;
-
-      font-size: 32px;
-
-      line-height: 1.2;
-
-      color: #0f172a;
-
-    }
-
-
-    .blog-editor h2 {
-
-      margin-top: 20px;
-
-      margin-bottom: 12px;
-
-      font-size: 26px;
-
-      line-height: 1.3;
-
-      color: #0f172a;
-
-    }
-
-
-    .blog-editor h3 {
-
-      margin-top: 18px;
-
-      margin-bottom: 10px;
-
-      font-size: 21px;
-
-      line-height: 1.4;
-
-      color: #0f172a;
-
-    }
-
-
-    .blog-editor p {
-
-      margin-top: 0;
-
-      margin-bottom: 16px;
-
-    }
-
-
-    .blog-editor img {
-
-      display: block;
-
-      max-width: 100%;
-
-      height: auto;
-
-      margin: 20px auto;
-
-      border-radius: 10px;
-
-      box-shadow:
-        0 5px 20px
-        rgba(0, 0, 0, 0.12);
-
-    }
-
-
-    .blog-editor a {
-
-      color: #0f766e;
-
-      text-decoration: underline;
-
-    }
-
-
-    .blog-editor ul,
-
-    .blog-editor ol {
-
-      margin-top: 10px;
-
-      margin-bottom: 20px;
-
-      padding-left: 30px;
-
-    }
-
-
-    .editor-ajuda {
-
-      margin-top: 10px;
-
-      color: #64748b;
-
-      font-size: 13px;
-
-      line-height: 1.5;
-
-    }
-
-
-    .editor-separador {
-
-      width: 1px;
-
-      height: 30px;
-
-      background: #cbd5e1;
-
-      margin: 4px;
-
-    }
-
-
-    @media (max-width: 600px) {
-
-      .editor-toolbar {
-
-        gap: 5px;
-
-        padding: 8px;
-
-      }
-
-
-      .editor-toolbar button {
-
-        min-width: 36px;
-
-        height: 34px;
-
-        padding: 0 8px;
-
-      }
-
-
-      .editor-toolbar select {
-
-        height: 34px;
-
-        max-width: 130px;
-
-      }
-
-
-      .blog-editor {
-
-        min-height: 350px;
-
-        padding: 15px;
-
-      }
-
-    }
-
-  </style>
-
 </head>
 
 
@@ -408,8 +103,8 @@
 
     </div>
 
-
   </div>
+
 
 
   <!-- =====================================================
@@ -452,6 +147,7 @@
 
 
     </header>
+
 
 
     <!-- =================================================
@@ -497,11 +193,13 @@
     </nav>
 
 
+
     <!-- =================================================
          CONTEÚDO
     ================================================== -->
 
     <main>
+
 
 
       <!-- ===============================================
@@ -537,6 +235,7 @@
 
 
       </section>
+
 
 
       <!-- ===============================================
@@ -596,7 +295,6 @@
                 id="listaTodos"
               >
 
-
                 <tr>
 
                   <td colspan="5">
@@ -604,7 +302,6 @@
                   </td>
 
                 </tr>
-
 
               </tbody>
 
@@ -619,6 +316,7 @@
 
 
       </section>
+
 
 
       <!-- ===============================================
@@ -637,6 +335,7 @@
           <h2>
             Categorias
           </h2>
+
 
 
           <div class="form-categoria">
@@ -660,6 +359,7 @@
             </div>
 
 
+
             <div class="campo">
 
 
@@ -678,6 +378,7 @@
             </div>
 
 
+
             <button
               type="button"
               id="btnAddCategoria"
@@ -690,6 +391,7 @@
           </div>
 
 
+
           <div class="table-container">
 
 
@@ -698,37 +400,29 @@
 
               <thead>
 
-
                 <tr>
-
 
                   <th>
                     ID
                   </th>
 
-
                   <th>
                     Nome
                   </th>
-
 
                   <th>
                     Ícone
                   </th>
 
-
                   <th>
                     Slug
                   </th>
-
 
                   <th>
                     Ações
                   </th>
 
-
                 </tr>
-
 
               </thead>
 
@@ -737,7 +431,6 @@
                 id="listaCategorias"
               >
 
-
                 <tr>
 
                   <td colspan="5">
@@ -745,7 +438,6 @@
                   </td>
 
                 </tr>
-
 
               </tbody>
 
@@ -760,6 +452,7 @@
 
 
       </section>
+
 
 
       <!-- ===============================================
@@ -785,8 +478,7 @@
 
 
           <p>
-            Crie artigos completos com títulos,
-            textos, links e imagens.
+            Crie artigos com títulos, textos, links e imagens.
           </p>
 
 
@@ -796,29 +488,32 @@
           ></p>
 
 
-          <!-- ===========================================
-               TÍTULO
-          ============================================ -->
 
           <div class="blog-form">
 
+
+
+            <!-- =========================================
+                 TÍTULO
+            ========================================== -->
 
             <div class="campo">
 
 
               <label for="blogTitulo">
-                Título do artigo
+                Título
               </label>
 
 
               <input
                 type="text"
                 id="blogTitulo"
-                placeholder="Digite o título do artigo"
+                placeholder="Título do artigo"
               >
 
 
             </div>
+
 
 
             <!-- =========================================
@@ -836,11 +531,12 @@
               <textarea
                 id="blogResumo"
                 rows="4"
-                placeholder="Digite um resumo do artigo"
+                placeholder="Resumo do artigo"
               ></textarea>
 
 
             </div>
+
 
 
             <!-- =========================================
@@ -851,30 +547,32 @@
 
 
               <label for="blogCapa">
-                URL da imagem de capa
+                URL da capa
               </label>
 
 
               <input
-                type="url"
+                type="text"
                 id="blogCapa"
-                placeholder="https://exemplo.com/imagem.jpg"
+                placeholder="https://..."
               >
 
 
             </div>
 
 
+
             <!-- =========================================
-                 EDITOR VISUAL
+                 EDITOR DE CONTEÚDO
             ========================================== -->
 
             <div class="campo">
 
 
-              <label>
+              <label for="blogConteudo">
                 Conteúdo do artigo
               </label>
+
 
 
               <!-- =======================================
@@ -882,197 +580,254 @@
               ======================================== -->
 
               <div
-                class="editor-toolbar"
-                id="editorToolbar"
+                id="blogToolbar"
+                class="blog-toolbar"
               >
 
 
-                <!-- TIPO DE TÍTULO -->
-
-                <select
-                  id="editorFormato"
-                  title="Escolha o tipo de texto"
+                <button
+                  type="button"
+                  class="editor-btn"
+                  data-editor-action="h1"
+                  title="Título H1"
                 >
+                  H1
+                </button>
 
-                  <option value="p">
-                    Texto normal
-                  </option>
-
-                  <option value="h1">
-                    Título H1
-                  </option>
-
-                  <option value="h2">
-                    Título H2
-                  </option>
-
-                  <option value="h3">
-                    Título H3
-                  </option>
-
-                </select>
-
-
-                <span
-                  class="editor-separador"
-                ></span>
-
-
-                <!-- NEGRITO -->
 
                 <button
                   type="button"
-                  data-comando="bold"
+                  class="editor-btn"
+                  data-editor-action="h2"
+                  title="Título H2"
+                >
+                  H2
+                </button>
+
+
+                <button
+                  type="button"
+                  class="editor-btn"
+                  data-editor-action="h3"
+                  title="Título H3"
+                >
+                  H3
+                </button>
+
+
+                <span class="editor-separador"></span>
+
+
+                <button
+                  type="button"
+                  class="editor-btn"
+                  data-editor-action="bold"
                   title="Negrito"
                 >
-                  <strong>
-                    B
-                  </strong>
+                  <strong>B</strong>
                 </button>
 
 
-                <!-- ITÁLICO -->
-
                 <button
                   type="button"
-                  data-comando="italic"
+                  class="editor-btn"
+                  data-editor-action="italic"
                   title="Itálico"
                 >
-                  <em>
-                    I
-                  </em>
+                  <em>I</em>
                 </button>
 
 
-                <!-- SUBLINHADO -->
-
-                <button
-                  type="button"
-                  data-comando="underline"
-                  title="Sublinhado"
-                >
-                  <u>
-                    U
-                  </u>
-                </button>
-
-
-                <span
-                  class="editor-separador"
-                ></span>
-
-
-                <!-- LISTA -->
-
-                <button
-                  type="button"
-                  data-comando="insertUnorderedList"
-                  title="Lista com marcadores"
-                >
-                  • Lista
-                </button>
+                <span class="editor-separador"></span>
 
 
                 <button
                   type="button"
-                  data-comando="insertOrderedList"
-                  title="Lista numerada"
-                >
-                  1. Lista
-                </button>
-
-
-                <span
-                  class="editor-separador"
-                ></span>
-
-
-                <!-- LINK -->
-
-                <button
-                  type="button"
-                  id="btnInserirLink"
+                  class="editor-btn"
+                  data-editor-action="link"
                   title="Inserir link"
                 >
                   🔗 Link
                 </button>
 
 
-                <!-- IMAGEM -->
-
                 <button
                   type="button"
-                  id="btnInserirImagem"
+                  class="editor-btn"
+                  data-editor-action="image"
                   title="Inserir imagem"
                 >
                   🖼️ Imagem
                 </button>
 
 
-                <!-- LINHA -->
-
                 <button
                   type="button"
-                  data-comando="insertHorizontalRule"
-                  title="Inserir linha"
+                  class="editor-btn"
+                  data-editor-action="imageMultiple"
+                  title="Inserir várias imagens"
                 >
-                  Linha
+                  📷 Várias imagens
                 </button>
 
 
-                <!-- LIMPAR FORMATAÇÃO -->
+                <span class="editor-separador"></span>
+
 
                 <button
                   type="button"
-                  data-comando="removeFormat"
-                  title="Limpar formatação"
+                  class="editor-btn"
+                  data-editor-action="paragraph"
+                  title="Parágrafo"
                 >
-                  Limpar
+                  ¶ Parágrafo
+                </button>
+
+
+                <button
+                  type="button"
+                  class="editor-btn"
+                  data-editor-action="quote"
+                  title="Citação"
+                >
+                  ❝ Citação
                 </button>
 
 
               </div>
 
 
+
               <!-- =======================================
-                   ÁREA EDITÁVEL
+                   EDITOR VISUAL
               ======================================== -->
 
               <div
-                id="blogConteudoEditor"
+                id="blogConteudo"
                 class="blog-editor"
                 contenteditable="true"
-                spellcheck="true"
+                role="textbox"
+                aria-multiline="true"
+                data-placeholder="Digite o conteúdo do artigo aqui..."
               ></div>
 
 
-              <p class="editor-ajuda">
-
-                <strong>
-                  Como usar:
-                </strong>
-
-                selecione o texto e escolha H1, H2 ou H3.
-                Use B para negrito, I para itálico.
-                Clique em 🔗 para inserir links.
-                Clique em 🖼️ para adicionar imagens.
-                Você pode adicionar quantas imagens quiser
-                dentro do mesmo artigo.
-
-              </p>
-
 
               <!-- =======================================
-                   CAMPO OCULTO DE COMPATIBILIDADE
+                   MENU BOTÃO DIREITO
               ======================================== -->
 
-              <textarea
-                id="blogConteudo"
-                style="display:none;"
-              ></textarea>
+              <div
+                id="editorContextMenu"
+                class="editor-context-menu escondido"
+              >
+
+
+                <button
+                  type="button"
+                  data-context-action="h1"
+                >
+                  H1 - Título principal
+                </button>
+
+
+                <button
+                  type="button"
+                  data-context-action="h2"
+                >
+                  H2 - Subtítulo
+                </button>
+
+
+                <button
+                  type="button"
+                  data-context-action="h3"
+                >
+                  H3 - Seção
+                </button>
+
+
+                <div class="context-separador"></div>
+
+
+                <button
+                  type="button"
+                  data-context-action="bold"
+                >
+                  <strong>B</strong> Negrito
+                </button>
+
+
+                <button
+                  type="button"
+                  data-context-action="italic"
+                >
+                  <em>I</em> Itálico
+                </button>
+
+
+                <div class="context-separador"></div>
+
+
+                <button
+                  type="button"
+                  data-context-action="link"
+                >
+                  🔗 Inserir link
+                </button>
+
+
+                <button
+                  type="button"
+                  data-context-action="image"
+                >
+                  🖼️ Inserir imagem
+                </button>
+
+
+                <button
+                  type="button"
+                  data-context-action="imageMultiple"
+                >
+                  📷 Inserir várias imagens
+                </button>
+
+
+                <div class="context-separador"></div>
+
+
+                <button
+                  type="button"
+                  data-context-action="paragraph"
+                >
+                  ¶ Transformar em parágrafo
+                </button>
+
+
+                <button
+                  type="button"
+                  data-context-action="quote"
+                >
+                  ❝ Transformar em citação
+                </button>
+
+
+              </div>
+
+
+
+              <small class="editor-ajuda">
+
+                💡
+                Você pode selecionar um texto e usar a barra acima.
+                Também pode clicar com o botão direito dentro do editor
+                para abrir as opções de formatação.
+
+              </small>
 
 
             </div>
+
 
 
             <!-- =========================================
@@ -1101,6 +856,7 @@
             </div>
 
 
+
             <!-- =========================================
                  BOTÃO SALVAR
             ========================================== -->
@@ -1118,6 +874,7 @@
 
 
         </div>
+
 
 
         <!-- =============================================
@@ -1140,37 +897,29 @@
 
               <thead>
 
-
                 <tr>
-
 
                   <th>
                     ID
                   </th>
 
-
                   <th>
                     Título
                   </th>
-
 
                   <th>
                     Status
                   </th>
 
-
                   <th>
                     Data
                   </th>
-
 
                   <th>
                     Ações
                   </th>
 
-
                 </tr>
-
 
               </thead>
 
@@ -1182,11 +931,9 @@
 
                 <tr>
 
-
                   <td colspan="5">
                     Carregando...
                   </td>
-
 
                 </tr>
 
@@ -1212,469 +959,9 @@
   </div>
 
 
-  <!-- =====================================================
-       JAVASCRIPT
-  ====================================================== -->
-
-  <script>
-
-    // =====================================================
-    // EDITOR VISUAL DO BLOG
-    // =====================================================
-
-    (function () {
-
-      'use strict';
-
-
-      const editor =
-        document.getElementById(
-          'blogConteudoEditor'
-        );
-
-
-      const toolbar =
-        document.getElementById(
-          'editorToolbar'
-        );
-
-
-      const formato =
-        document.getElementById(
-          'editorFormato'
-        );
-
-
-      if (!editor) {
-
-        return;
-
-      }
-
-
-      // ===================================================
-      // MANTER FOCO NO EDITOR
-      // ===================================================
-
-      let ultimaSelecao = null;
-
-
-      editor.addEventListener(
-        'keyup',
-        salvarSelecao
-      );
-
-
-      editor.addEventListener(
-        'mouseup',
-        salvarSelecao
-      );
-
-
-      editor.addEventListener(
-        'focus',
-        salvarSelecao
-      );
-
-
-      function salvarSelecao() {
-
-        const selecao =
-          window.getSelection();
-
-
-        if (
-          selecao &&
-          selecao.rangeCount > 0
-        ) {
-
-          ultimaSelecao =
-            selecao.getRangeAt(0);
-
-        }
-
-      }
-
-
-      function restaurarSelecao() {
-
-        if (!ultimaSelecao) {
-
-          editor.focus();
-
-          return;
-
-        }
-
-
-        const selecao =
-          window.getSelection();
-
-
-        selecao.removeAllRanges();
-
-
-        selecao.addRange(
-          ultimaSelecao
-        );
-
-
-        editor.focus();
-
-      }
-
-
-      // ===================================================
-      // BOTÕES DE FORMATAÇÃO
-      // ===================================================
-
-      if (toolbar) {
-
-        toolbar
-          .querySelectorAll(
-            'button[data-comando]'
-          )
-          .forEach(
-            (button) => {
-
-              button.addEventListener(
-                'mousedown',
-                (e) => {
-
-                  e.preventDefault();
-
-                }
-              );
-
-
-              button.addEventListener(
-                'click',
-                () => {
-
-                  restaurarSelecao();
-
-
-                  const comando =
-                    button.dataset.comando;
-
-
-                  document.execCommand(
-                    comando,
-                    false,
-                    null
-                  );
-
-
-                  salvarSelecao();
-
-                  editor.focus();
-
-                }
-              );
-
-            }
-          );
-
-      }
-
-
-      // ===================================================
-      // H1 / H2 / H3 / PARÁGRAFO
-      // ===================================================
-
-      if (formato) {
-
-        formato.addEventListener(
-          'change',
-          () => {
-
-            restaurarSelecao();
-
-
-            document.execCommand(
-              'formatBlock',
-              false,
-              formato.value
-            );
-
-
-            salvarSelecao();
-
-            editor.focus();
-
-          }
-        );
-
-      }
-
-
-      // ===================================================
-      // INSERIR LINK
-      // ===================================================
-
-      const btnInserirLink =
-        document.getElementById(
-          'btnInserirLink'
-        );
-
-
-      if (btnInserirLink) {
-
-        btnInserirLink.addEventListener(
-          'mousedown',
-          (e) => {
-
-            e.preventDefault();
-
-          }
-        );
-
-
-        btnInserirLink.addEventListener(
-          'click',
-          () => {
-
-            restaurarSelecao();
-
-
-            const url =
-              prompt(
-                'Digite a URL do link:',
-                'https://'
-              );
-
-
-            if (!url) {
-
-              editor.focus();
-
-              return;
-
-            }
-
-
-            const textoSelecionado =
-              window
-                .getSelection()
-                .toString()
-                .trim();
-
-
-            if (
-              textoSelecionado
-            ) {
-
-              document.execCommand(
-                'createLink',
-                false,
-                url
-              );
-
-            } else {
-
-              const texto =
-                prompt(
-                  'Digite o texto que aparecerá no link:',
-                  'Clique aqui'
-                );
-
-
-              if (
-                texto
-              ) {
-
-                const link =
-                  `<a href="${escapeAttribute(
-                    url
-                  )}" target="_blank" rel="noopener noreferrer">${escapeHtml(
-                    texto
-                  )}</a>`;
-
-
-                document.execCommand(
-                  'insertHTML',
-                  false,
-                  link
-                );
-
-              }
-
-            }
-
-
-            salvarSelecao();
-
-            editor.focus();
-
-          }
-        );
-
-      }
-
-
-      // ===================================================
-      // INSERIR IMAGEM
-      // ===================================================
-
-      const btnInserirImagem =
-        document.getElementById(
-          'btnInserirImagem'
-        );
-
-
-      if (btnInserirImagem) {
-
-        btnInserirImagem.addEventListener(
-          'mousedown',
-          (e) => {
-
-            e.preventDefault();
-
-          }
-        );
-
-
-        btnInserirImagem.addEventListener(
-          'click',
-          () => {
-
-            restaurarSelecao();
-
-
-            const url =
-              prompt(
-                'Digite a URL da imagem:',
-                'https://'
-              );
-
-
-            if (!url) {
-
-              editor.focus();
-
-              return;
-
-            }
-
-
-            const alt =
-              prompt(
-                'Digite uma descrição para a imagem:',
-                'Imagem do artigo'
-              ) ||
-              'Imagem do artigo';
-
-
-            const imagem =
-              `
-
-                <p>
-
-                  <img
-                    src="${escapeAttribute(
-                      url
-                    )}"
-                    alt="${escapeAttribute(
-                      alt
-                    )}"
-                    loading="lazy"
-                  >
-
-                </p>
-
-              `;
-
-
-            document.execCommand(
-              'insertHTML',
-              false,
-              imagem
-            );
-
-
-            salvarSelecao();
-
-            editor.focus();
-
-          }
-        );
-
-      }
-
-
-      // ===================================================
-      // ESCAPAR ATRIBUTOS
-      // ===================================================
-
-      function escapeAttribute(
-        value
-      ) {
-
-        return String(
-          value || ''
-        )
-          .replace(
-            /&/g,
-            '&amp;'
-          )
-          .replace(
-            /"/g,
-            '&quot;'
-          )
-          .replace(
-            /</g,
-            '&lt;'
-          )
-          .replace(
-            />/g,
-            '&gt;'
-          );
-
-      }
-
-
-      // ===================================================
-      // ESCAPAR TEXTO
-      // ===================================================
-
-      function escapeHtml(
-        value
-      ) {
-
-        return String(
-          value || ''
-        )
-          .replace(
-            /&/g,
-            '&amp;'
-          )
-          .replace(
-            /</g,
-            '&lt;'
-          )
-          .replace(
-            />/g,
-            '&gt;'
-          )
-          .replace(
-            /"/g,
-            '&quot;'
-          )
-          .replace(
-            /'/g,
-            '&#039;'
-          );
-
-      }
-
-
-    })();
-
-  </script>
-
 
   <!-- =====================================================
-       JAVASCRIPT PRINCIPAL DO PAINEL
+       JAVASCRIPT DO PAINEL
   ====================================================== -->
 
   <script src="./admin.js"></script>
