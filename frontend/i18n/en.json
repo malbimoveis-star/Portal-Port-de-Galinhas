@@ -4,8 +4,8 @@
     "blog": "Blog",
     "como_funciona": "How It Works",
     "contato": "Contact",
-    "sou_comerciante": "I Am a Business Owner",
-    "sou_turista": "I Am a Tourist",
+    "sou_comerciante": "I am a Merchant",
+    "sou_turista": "I am a Tourist",
     "idioma": "Language"
   },
 
@@ -16,7 +16,7 @@
     "passeios-de-barco": "Boat Tours",
     "buggys-traslados": "Buggies & Transfers",
     "restaurantes-bares": "Restaurants & Bars",
-    "comercios-regionais": "Regional Shops",
+    "comercios-regionais": "Local Shops",
     "mergulho": "Diving",
     "jet-ski": "Jet Ski",
     "servicos-de-praia": "Beach Services"
@@ -25,11 +25,11 @@
   "home": {
     "hero_titulo": "Discover the Best Experiences in Porto de Galinhas!",
     "destaques_titulo": "Premium Highlights for You",
-    "saiba_mais": "Learn More",
-    "cta_titulo": "Discover the Best Options in Porto!",
-    "cta_subtitulo": "Unlock a modern and tropical journey through Porto de Galinhas!",
-    "btn_sou_turista": "I Am a Tourist",
-    "btn_cadastrar_negocio": "Register Your Business"
+    "saiba_mais": "Learn more",
+    "cta_titulo": "Stay Updated with the Best Options in Porto!",
+    "cta_subtitulo": "Unlock a modern tropical journey to Porto de Galinhas!",
+    "btn_sou_turista": "I am a Tourist",
+    "btn_cadastrar_negocio": "Register your business"
   },
 
   "comerciante_pagina": {
@@ -38,49 +38,46 @@
     "localizacao": "Location",
     "contato": "Contact",
     "whatsapp": "WhatsApp",
-    "status_ativo": "Active Listing",
-    "status_degustacao": "Free Trial Period",
+    "status_ativo": "Active listing",
+    "status_degustacao": "Free trial period",
     "status_expirado": "This listing is currently unavailable.",
-    "sem_whatsapp": "WhatsApp contact is only available to advertisers with an active plan."
+    "sem_whatsapp": "WhatsApp contact available only for active advertisers."
   },
 
   "painel": {
-    "titulo": "Business Owner Dashboard",
+    "titulo": "Merchant Dashboard",
     "plano_atual": "Current Plan",
     "status": "Status",
-    "degustacao_restante": "Remaining Trial Time",
+    "degustacao_restante": "Remaining trial time",
     "dias": "days",
     "horas": "hours",
-    "renovar_plano": "Renew Plan",
+    "renovar_plano": "Renew plan",
     "meus_anuncios": "My Listings",
     "novo_anuncio": "New Listing",
     "editar": "Edit",
     "excluir": "Delete",
     "salvar": "Save",
     "cancelar": "Cancel",
-    "alerta_expirado": "Your plan has expired. Renew now to appear in public listings again.",
-    "login": "Log In",
-    "cadastro": "Sign Up",
+    "login": "Login",
+    "cadastro": "Register",
     "email": "Email",
     "senha": "Password",
     "nome": "Name",
     "telefone": "Phone",
-    "sair": "Log Out",
-    "nao_tenho_conta": "I don't have an account, I want to sign up",
-    "ja_tenho_conta": "I already have an account, I want to log in"
+    "sair": "Logout"
   },
 
   "planos": {
     "turista": "Tourist",
-    "comerciante_basico": "Basic Business",
-    "comerciante_premium": "Premium Business",
+    "comerciante_basico": "Basic Merchant",
+    "comerciante_premium": "Premium Merchant",
     "mes": "/month",
     "assinar": "Subscribe"
   },
 
   "rodape_mobile": {
-    "cadastre_negocio": "Register Your Business",
-    "assine_ja": "Subscribe Now"
+    "cadastre_negocio": "Register your business",
+    "assine_ja": "Subscribe now"
   },
 
   "rodape": {
@@ -93,29 +90,30 @@
   "paginas_legais": {
     "termos_titulo": "Terms of Use",
     "privacidade_titulo": "Privacy Policy",
-    "suporte_titulo": "24h Support"
+    "suporte_titulo": "Support"
   },
 
   "pagamento": {
-    "sucesso_titulo": "Payment Approved!",
-    "sucesso_texto": "Your payment has been confirmed. Your plan is now active.",
-    "pendente_titulo": "Payment Pending",
-    "pendente_texto": "We are waiting for confirmation of your payment from Mercado Pago.",
-    "erro_titulo": "Payment Not Completed",
-    "erro_texto": "There was a problem processing your payment. Please try again.",
+    "sucesso_titulo": "Payment approved!",
+    "sucesso_texto": "Your payment has been confirmed. Your plan is active.",
+    "pendente_titulo": "Pending payment",
+    "pendente_texto": "We are waiting for Mercado Pago confirmation.",
+    "erro_titulo": "Payment not completed",
+    "erro_texto": "There was a problem processing your payment.",
     "voltar_home": "Back to Home",
     "ir_painel": "Go to Dashboard"
   },
 
   "blog": {
     "titulo": "Blog",
+    "subtitulo": "Discover news, tips and experiences in Porto de Galinhas.",
     "carregando": "Loading articles...",
-    "vazio": "We don't have any published articles yet.",
-    "erro": "Unable to load the articles at this time.",
-    "sem_titulo": "Untitled",
+    "vazio": "We do not have published articles yet.",
+    "erro": "Unable to load articles now.",
+    "sem_titulo": "No title",
     "voltar": "Back to Blog",
     "artigo_nao_encontrado": "Article not found.",
-    "sem_conteudo": "This article does not have any content yet.",
+    "sem_conteudo": "This article has no content yet.",
     "sem_capa": "Article"
   }
 }
