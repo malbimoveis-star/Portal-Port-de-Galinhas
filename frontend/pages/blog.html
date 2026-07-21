@@ -2,211 +2,171 @@
 <html lang="pt-BR">
 
 <head>
-  <meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+<meta charset="UTF-8">
 
-  <title>Blog — Portal Porto de Galinhas</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- CSS PRINCIPAL DO SITE -->
-  <link
-    rel="stylesheet"
-    href="../CSS/styles.css"
-  >
+<title>Blog — Portal Porto de Galinhas</title>
 
-  <style>
-    /* =====================================================
-       BLOG
-    ===================================================== */
+<link rel="stylesheet" href="../CSS/styles.css">
 
-    .blog-principal {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 40px 20px 80px;
-    }
+<style>
 
-    .blog-titulo {
-      color: var(--azul-primario, #0a5c8a);
-      margin: 0 0 10px;
-      font-size: 2rem;
-    }
+.blog-principal {
+  max-width:1100px;
+  margin:0 auto;
+  padding:40px 20px 80px;
+}
 
-    .blog-subtitulo {
-      color: #55707f;
-      margin: 0 0 30px;
-    }
+.blog-titulo {
+  color:var(--azul-primario,#0a5c8a);
+  margin-bottom:10px;
+  font-size:2rem;
+}
 
-    /* =====================================================
-       GRID
-    ===================================================== */
+.blog-subtitulo {
+  color:#55707f;
+  margin-bottom:30px;
+}
 
-    .blog-grid {
-      display: grid;
-      grid-template-columns: repeat(
-        auto-fill,
-        minmax(260px, 1fr)
-      );
 
-      gap: 24px;
-    }
+.blog-grid {
 
-    /* =====================================================
-       CARD
-    ===================================================== */
+  display:grid;
 
-    .blog-card {
-      display: block;
+  grid-template-columns:
+  repeat(auto-fill,minmax(260px,1fr));
 
-      background: #ffffff;
+  gap:24px;
 
-      border-radius: 12px;
+}
 
-      overflow: hidden;
 
-      text-decoration: none;
+.blog-card {
 
-      color: inherit;
+  display:block;
 
-      box-shadow:
-        0 2px 10px
-        rgba(0, 0, 0, 0.08);
+  background:#fff;
 
-      transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease;
-    }
+  border-radius:12px;
 
-    .blog-card:hover {
-      transform: translateY(-4px);
+  overflow:hidden;
 
-      box-shadow:
-        0 8px 22px
-        rgba(0, 0, 0, 0.14);
-    }
+  text-decoration:none;
 
-    /* =====================================================
-       IMAGEM DA CAPA
-    ===================================================== */
+  color:inherit;
 
-    .blog-card-imagem {
-      width: 100%;
+  box-shadow:
+  0 2px 10px rgba(0,0,0,.08);
 
-      height: 190px;
+  transition:.2s;
 
-      object-fit: cover;
+}
 
-      display: block;
 
-      background: #dde5ea;
-    }
+.blog-card:hover {
 
-    /* =====================================================
-       QUANDO NÃO TEM IMAGEM
-    ===================================================== */
+  transform:translateY(-4px);
 
-    .blog-card-sem-imagem {
-      width: 100%;
+}
 
-      height: 190px;
 
-      display: flex;
+.blog-card-imagem {
 
-      align-items: center;
+  width:100%;
 
-      justify-content: center;
+  height:190px;
 
-      padding: 24px;
+  object-fit:cover;
 
-      text-align: center;
+  display:block;
 
-      color: #ffffff;
+}
 
-      font-size: 1.1rem;
 
-      font-weight: bold;
+.blog-card-sem-imagem {
 
-      background:
-        linear-gradient(
-          135deg,
-          #0a5c8a,
-          #1385bd
-        );
-    }
+  width:100%;
 
-    /* =====================================================
-       CONTEÚDO DO CARD
-    ===================================================== */
+  height:190px;
 
-    .blog-card-conteudo {
-      padding: 18px;
-    }
+  display:flex;
 
-    .blog-card-titulo {
-      margin: 0 0 10px;
+  align-items:center;
 
-      color:
-        var(--azul-primario, #0a5c8a);
+  justify-content:center;
 
-      font-size: 1.1rem;
+  text-align:center;
 
-      line-height: 1.35;
-    }
+  padding:20px;
 
-    .blog-card-resumo {
-      margin: 0;
+  color:white;
 
-      color: #55707f;
+  font-weight:bold;
 
-      font-size: 0.95rem;
+  background:
+  linear-gradient(
+  135deg,
+  #0a5c8a,
+  #1385bd
+  );
 
-      line-height: 1.5;
-    }
+}
 
-    /* =====================================================
-       ESTADOS
-    ===================================================== */
 
-    .blog-mensagem {
-      color: #55707f;
+.blog-card-conteudo {
 
-      padding: 30px 0;
+  padding:18px;
 
-      text-align: center;
-    }
+}
 
-    .blog-erro {
-      color: #b42318;
 
-      padding: 30px 0;
+.blog-card-titulo {
 
-      text-align: center;
-    }
+  margin:0 0 10px;
 
-    /* =====================================================
-       RESPONSIVO
-    ===================================================== */
+  color:var(--azul-primario,#0a5c8a);
 
-    @media (max-width: 600px) {
+  font-size:1.1rem;
 
-      .blog-principal {
-        padding:
-          30px 16px 60px;
-      }
+}
 
-      .blog-titulo {
-        font-size: 1.7rem;
-      }
 
-      .blog-grid {
-        grid-template-columns: 1fr;
-      }
+.blog-card-resumo {
 
-    }
+  margin:0;
 
-  </style>
+  color:#55707f;
+
+  line-height:1.5;
+
+}
+
+
+.blog-mensagem {
+
+  color:#55707f;
+
+  text-align:center;
+
+  padding:30px;
+
+}
+
+
+.blog-erro {
+
+  color:#b42318;
+
+  text-align:center;
+
+  padding:30px;
+
+}
+
+
+</style>
 
 </head>
 
@@ -214,371 +174,231 @@
 <body>
 
 
-  <!-- =====================================================
-       HEADER DO SITE
-  ===================================================== -->
+<div id="layout-header"></div>
 
-  <div id="layout-header"></div>
 
+<main class="blog-principal">
 
-  <!-- =====================================================
-       CONTEÚDO DO BLOG
-  ===================================================== -->
 
-  <main class="blog-principal">
+<h1 
+class="blog-titulo"
+data-i18n="blog.titulo">
+Blog
+</h1>
 
-    <h1
-      class="blog-titulo"
-      data-i18n="blog.titulo"
-    >
-      Blog
-    </h1>
 
-    <p
-      class="blog-subtitulo"
-      data-i18n="blog.subtitulo"
-    >
-      Descubra novidades, dicas e experiências em Porto de Galinhas.
-    </p>
+<p
+class="blog-subtitulo"
+data-i18n="blog.subtitulo">
+Descubra novidades, dicas e experiências em Porto de Galinhas.
+</p>
 
 
-    <div
-      id="lista"
-      class="blog-grid"
-    ></div>
+<div
+id="lista"
+class="blog-grid">
+</div>
 
 
-    <p
-      id="vazio"
-      class="blog-mensagem"
-      style="display: none;"
-      data-i18n="blog.vazio"
-    >
-      Ainda não temos artigos publicados.
-    </p>
+<p
+id="vazio"
+class="blog-mensagem"
+style="display:none"
+data-i18n="blog.vazio">
+Ainda não temos artigos publicados.
+</p>
 
 
-    <p
-      id="erro"
-      class="blog-erro"
-      style="display: none;"
-      data-i18n="blog.erro"
-    >
-      Não foi possível carregar os artigos agora.
-    </p>
+<p
+id="erro"
+class="blog-erro"
+style="display:none"
+data-i18n="blog.erro">
+Não foi possível carregar os artigos agora.
+</p>
 
-  </main>
 
+</main>
 
-  <!-- =====================================================
-       RODAPÉ DO SITE
-  ===================================================== -->
 
-  <div id="layout-rodape"></div>
+<div id="layout-rodape"></div>
 
 
-  <!-- =====================================================
-       LAYOUT
-  ===================================================== -->
+<script src="../js/layout.js"></script>
 
-  <script src="../js/layout.js"></script>
+<script src="../js/i18n.js"></script>
 
 
-  <!-- =====================================================
-       I18N
-  ===================================================== -->
+<script>
 
-  <script src="../js/i18n.js"></script>
+'use strict';
 
 
-  <!-- =====================================================
-       BLOG
-  ===================================================== -->
+function escapar(valor){
 
-  <script>
+if(valor===undefined || valor===null){
 
-    'use strict';
+return '';
 
+}
 
-    // =====================================================
-    // ESCAPAR HTML
-    // =====================================================
 
-    function escapeHtml(valor) {
+return String(valor)
 
-      if (
-        valor === null ||
-        valor === undefined
-      ) {
-        return '';
-      }
+.replace(/&/g,'&amp;')
 
-      return String(valor)
+.replace(/</g,'&lt;')
 
-        .replace(
-          /&/g,
-          '&amp;'
-        )
+.replace(/>/g,'&gt;')
 
-        .replace(
-          /</g,
-          '&lt;'
-        )
+.replace(/"/g,'&quot;')
 
-        .replace(
-          />/g,
-          '&gt;'
-        )
+.replace(/'/g,'&#039;');
 
-        .replace(
-          /"/g,
-          '&quot;'
-        )
+}
 
-        .replace(
-          /'/g,
-          '&#039;'
-        );
 
-    }
+async function carregarBlog(){
 
 
-    // =====================================================
-    // CARREGAR ARTIGOS
-    // =====================================================
+const lista=document.getElementById('lista');
 
-    async function carregarBlog() {
+const vazio=document.getElementById('vazio');
 
-      const lista =
-        document.getElementById(
-          'lista'
-        );
+const erro=document.getElementById('erro');
 
-      const vazio =
-        document.getElementById(
-          'vazio'
-        );
 
-      const erro =
-        document.getElementById(
-          'erro'
-        );
+try{
 
 
-      try {
+const resposta=await fetch('/api/blog');
 
-        const resposta =
-          await fetch(
-            '/api/blog'
-          );
 
+if(!resposta.ok){
 
-        if (
-          !resposta.ok
-        ) {
+throw new Error();
 
-          throw new Error(
-            'Erro ao carregar artigos.'
-          );
+}
 
-        }
 
+const artigos=await resposta.json();
 
-        const artigos =
-          await resposta.json();
 
+console.log(
+'[BLOG]',
+artigos
+);
 
-        console.log(
-          '[BLOG] Artigos recebidos:',
-          artigos
-        );
 
+if(!Array.isArray(artigos) || artigos.length===0){
 
-        // =================================================
-        // NENHUM ARTIGO
-        // =================================================
+vazio.style.display='block';
 
-        if (
-          !Array.isArray(artigos) ||
-          artigos.length === 0
-        ) {
+return;
 
-          vazio.style.display =
-            'block';
+}
 
-          return;
 
-        }
+lista.innerHTML=
 
+artigos.map((artigo)=>{
 
-        // =================================================
-        // MONTAR CARDS
-        // =================================================
 
-        lista.innerHTML =
-          artigos
-            .map(
-              function (artigo) {
+const titulo=
+escapar(
+artigo.titulo || 'Sem título'
+);
 
 
-                const titulo =
-                  escapeHtml(
-                    artigo.titulo ||
-                    'Sem título'
-                  );
+const resumo=
+escapar(
+artigo.resumo || ''
+);
 
 
-                const resumo =
-                  escapeHtml(
-                    artigo.resumo ||
-                    ''
-                  );
+const id=
+encodeURIComponent(
+artigo.id
+);
 
 
-                const capa =
-                  artigo.capa_url
-                    ? String(
-                        artigo.capa_url
-                      )
-                    : '';
+const imagem=
+artigo.capa_url
+?
+`
+<img
+class="blog-card-imagem"
+src="${escapar(artigo.capa_url)}"
+alt="${titulo}"
+loading="lazy"
+>
+`
+:
+`
+<div class="blog-card-sem-imagem">
+${titulo}
+</div>
+`;
 
 
-                const id =
-                  encodeURIComponent(
-                    artigo.id
-                  );
 
+return `
+<a
+class="blog-card"
+href="artigo.html?id=${id}"
+>
 
-                // =========================================
-                // IMAGEM
-                // =========================================
+${imagem}
 
-                let imagemHtml =
-                  '';
 
+<div class="blog-card-conteudo">
 
-                if (
-                  capa
-                ) {
+<h2 class="blog-card-titulo">
+${titulo}
+</h2>
+<p class="blog-card-resumo">
+${resumo}
+</p>
 
-                  imagemHtml = `
+</div>
 
-                    <img
-                      class="blog-card-imagem"
-                      src="${escapeHtml(capa)}"
-                      alt="${titulo}"
-                      loading="lazy"
-                      onerror="
-                        this.style.display='none';
-                        this.nextElementSibling.style.display='flex';
-                      "
-                    >
+</a>
 
-                    <div
-                      class="blog-card-sem-imagem"
-                      style="display:none;"
-                    >
-                      ${titulo}
-                    </div>
+`;
 
-                  `;
+}).join('');
 
-                } else {
 
-                  imagemHtml = `
+}catch(erroCarregamento){
 
-                    <div
-                      class="blog-card-sem-imagem"
-                    >
-                      ${titulo}
-                    </div>
 
-                  `;
+console.error(
+'[BLOG] Erro:',
+erroCarregamento
+);
 
-                }
 
+erro.style.display='block';
 
-                // =========================================
-                // CARD
-                // =========================================
 
-                return `
+}
 
-                  <a
-                    class="blog-card"
-                    href="artigo.html?id=${id}"
-                  >
 
-                    ${imagemHtml}
+}
 
 
-                    <div
-                      class="blog-card-conteudo"
-                    >
 
-                      <h2
-                        class="blog-card-titulo"
-                      >
-                        ${titulo}
-                      </h2>
+document.addEventListener(
+'DOMContentLoaded',
+function(){
 
+carregarBlog();
 
-                      ${
-                        resumo
-                          ? `
+}
+);
 
-                            <p
-                              class="blog-card-resumo"
-                            >
-                              ${resumo}
-                            </p>
 
-                          `
-                          : ''
-                      }
-
-                    </div>
-
-                  </a>
-
-                `;
-
-              }
-            )
-            .join('');
-
-
-      } catch (err) {
-
-
-        console.error(
-          '[BLOG] Erro ao carregar:',
-          err
-        );
-
-
-        erro.style.display =
-          'block';
-
-      }
-
-    }
-
-
-    // =====================================================
-    // INICIALIZAÇÃO
-    // =====================================================
-
-    document.addEventListener(
-      'DOMContentLoaded',
-      function () {
-
-        carregarBlog();
-
-      }
-    );
-
-  </script>
+</script>
 
 
 </body>
