@@ -1,100 +1,116 @@
+
 {
   "menu": {
     "home": "Home",
     "blog": "Blog",
-    "como_funciona": "How It Works",
-    "contato": "Contact",
-    "sou_comerciante": "I'm a Merchant",
-    "sou_turista": "I'm a Tourist",
-    "idioma": "Language"
+    "como_funciona": "Como Funciona",
+    "contato": "Contato",
+    "sou_comerciante": "Sou Comerciante",
+    "sou_turista": "Sou Turista",
+    "idioma": "Idioma"
   },
+
   "categorias": {
-    "titulo": "Services & Tourism",
-    "hoteis-pousadas": "Hotels & Inns",
+    "titulo": "Serviços & Turismo",
+    "hoteis-pousadas": "Hotéis & Pousadas",
     "resorts": "Resorts",
-    "passeios-de-barco": "Boat Tours",
-    "buggys-traslados": "Buggies & Transfers",
-    "restaurantes-bares": "Restaurants & Bars",
-    "comercios-regionais": "Local Shops",
-    "mergulho": "Diving",
+    "passeios-de-barco": "Passeios de Barco",
+    "buggys-traslados": "Buggys & Traslados",
+    "restaurantes-bares": "Restaurantes & Bares",
+    "comercios-regionais": "Comércios Regionais",
+    "mergulho": "Mergulho",
     "jet-ski": "Jet Ski",
-    "servicos-de-praia": "Beach Services"
+    "servicos-de-praia": "Serviços de Praia"
   },
+
   "home": {
-    "hero_titulo": "Discover the Best Experiences in Porto de Galinhas!",
-    "destaques_titulo": "Premium Highlights for You",
-    "saiba_mais": "Learn more",
-    "cta_titulo": "Stay Updated on the Best Options in Porto!",
-    "cta_subtitulo": "Unlock a modern tropical journey to Porto de Galinhas!",
-    "btn_sou_turista": "I'm a Tourist",
-    "btn_cadastrar_negocio": "Register your business"
+    "hero_titulo": "Descubra as Melhores Experiências de Porto de Galinhas!",
+    "destaques_titulo": "Destaques Premium para Você",
+    "saiba_mais": "Saiba mais",
+    "cta_titulo": "Fique por dentro das Melhores Opções em Porto!",
+    "cta_subtitulo": "Desbloqueie uma jornada tropical e ágil moderna a Porto de Galinhas!",
+    "btn_sou_turista": "Sou Turista",
+    "btn_cadastrar_negocio": "Cadastre seu negócio"
   },
+
   "comerciante_pagina": {
-    "sobre": "About",
-    "galeria": "Photo Gallery",
-    "localizacao": "Location",
-    "contato": "Contact",
+    "sobre": "Sobre",
+    "galeria": "Galeria de Fotos",
+    "localizacao": "Localização",
+    "contato": "Contato",
     "whatsapp": "WhatsApp",
-    "status_ativo": "Active listing",
-    "status_degustacao": "Free trial period",
-    "status_expirado": "This listing is currently unavailable.",
-    "sem_whatsapp": "WhatsApp contact is only available for advertisers with an active plan."
+    "status_ativo": "Anúncio ativo",
+    "status_degustacao": "Período de degustação gratuita",
+    "status_expirado": "Este anúncio está indisponível no momento.",
+    "sem_whatsapp": "Contato via WhatsApp disponível apenas para anunciantes com plano ativo."
   },
+
   "painel": {
-    "titulo": "Merchant Dashboard",
-    "plano_atual": "Current Plan",
+    "titulo": "Painel do Comerciante",
+    "plano_atual": "Plano Atual",
     "status": "Status",
-    "degustacao_restante": "Trial time remaining",
-    "dias": "days",
-    "horas": "hours",
-    "renovar_plano": "Renew plan",
-    "meus_anuncios": "My Listings",
-    "novo_anuncio": "New Listing",
-    "editar": "Edit",
-    "excluir": "Delete",
-    "salvar": "Save",
-    "cancelar": "Cancel",
-    "alerta_expirado": "Your plan has expired. Renew now to appear in public listings again.",
-    "login": "Sign in",
-    "cadastro": "Sign up",
-    "email": "Email",
-    "senha": "Password",
-    "nome": "Name",
-    "telefone": "Phone",
-    "sair": "Log out",
-    "nao_tenho_conta": "I don't have an account, sign me up",
-    "ja_tenho_conta": "I already have an account, sign me in"
+    "degustacao_restante": "Tempo restante de degustação",
+    "dias": "dias",
+    "horas": "horas",
+    "renovar_plano": "Renovar plano",
+    "meus_anuncios": "Meus Anúncios",
+    "novo_anuncio": "Novo Anúncio",
+    "editar": "Editar",
+    "excluir": "Excluir",
+    "salvar": "Salvar",
+    "cancelar": "Cancelar",
+    "alerta_expirado": "Seu plano expirou. Renove agora para voltar a aparecer nas listagens públicas.",
+    "login": "Entrar",
+    "cadastro": "Cadastrar",
+    "email": "E-mail",
+    "senha": "Senha",
+    "nome": "Nome",
+    "telefone": "Telefone",
+    "sair": "Sair",
+    "nao_tenho_conta": "Não tenho conta, quero me cadastrar",
+    "ja_tenho_conta": "Já tenho conta, quero entrar"
   },
+
   "planos": {
-    "turista": "Tourist",
-    "comerciante_basico": "Basic Merchant",
-    "comerciante_premium": "Premium Merchant",
-    "mes": "/month",
-"assinar": "Subscribe"
+    "turista": "Turista",
+    "comerciante_basico": "Comerciante Básico",
+    "comerciante_premium": "Comerciante Premium",
+    "mes": "/mês",
+    "assinar": "Assinar"
   },
+
   "rodape_mobile": {
-    "cadastre_negocio": "Register your business",
-    "assine_ja": "Subscribe now"
+    "cadastre_negocio": "Cadastre seu negócio",
+    "assine_ja": "Assine já"
   },
+
   "rodape": {
-    "termos": "Terms of Use",
-    "privacidade": "Privacy Policy",
-    "suporte": "24h Support",
-    "direitos": "All rights reserved"
+    "termos": "Termos de Uso",
+    "privacidade": "Política de Privacidade",
+    "suporte": "Suporte 24h",
+    "direitos": "Todos os direitos reservados"
   },
+
   "paginas_legais": {
-    "termos_titulo": "Terms of Use",
-    "privacidade_titulo": "Privacy Policy",
-    "suporte_titulo": "24h Support"
+    "termos_titulo": "Termos de Uso",
+    "privacidade_titulo": "Política de Privacidade",
+    "suporte_titulo": "Suporte 24h"
   },
+
   "pagamento": {
-    "sucesso_titulo": "Payment approved!",
-    "sucesso_texto": "Your payment has been confirmed. Your plan is now active.",
-    "pendente_titulo": "Payment pending",
-    "pendente_texto": "We are waiting for confirmation of your payment from Mercado Pago.",
-    "erro_titulo": "Payment not completed",
-    "erro_texto": "There was a problem processing your payment. Please try again.",
-    "voltar_home": "Back to Home",
-    "ir_painel": "Go to Dashboard"
+    "sucesso_titulo": "Pagamento aprovado!",
+    "sucesso_texto": "Seu pagamento foi confirmado. Seu plano já está ativo.",
+    "pendente_titulo": "Pagamento pendente",
+    "pendente_texto": "Estamos aguardando a confirmação do seu pagamento pelo Mercado Pago.",
+    "erro_titulo": "Pagamento não concluído",
+    "erro_texto": "Houve um problema ao processar seu pagamento. Tente novamente.",
+    "voltar_home": "Voltar para a Home",
+    "ir_painel": "Ir para o Painel"
+  },
+
+  "blog": {
+    "titulo": "Blog",
+    "vazio": "Ainda não temos artigos publicados.",
+    "erro": "Não foi possível carregar os artigos agora."
   }
 }
