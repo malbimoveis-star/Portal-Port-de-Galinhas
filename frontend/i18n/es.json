@@ -2,98 +2,120 @@
   "menu": {
     "home": "Inicio",
     "blog": "Blog",
-    "como_funciona": "Como Funciona",
+    "como_funciona": "Cómo Funciona",
     "contato": "Contacto",
     "sou_comerciante": "Soy Comerciante",
     "sou_turista": "Soy Turista",
     "idioma": "Idioma"
   },
+
   "categorias": {
-    "titulo": "Servicios & Turismo",
-    "hoteis-pousadas": "Hoteles & Posadas",
+    "titulo": "Servicios y Turismo",
+    "hoteis-pousadas": "Hoteles y Posadas",
     "resorts": "Resorts",
     "passeios-de-barco": "Paseos en Barco",
-    "buggys-traslados": "Buggies & Traslados",
-    "restaurantes-bares": "Restaurantes & Bares",
+    "buggys-traslados": "Buggys y Traslados",
+    "restaurantes-bares": "Restaurantes y Bares",
     "comercios-regionais": "Comercios Regionales",
     "mergulho": "Buceo",
     "jet-ski": "Jet Ski",
     "servicos-de-praia": "Servicios de Playa"
   },
+
   "home": {
-    "hero_titulo": "Descubre las Mejores Experiencias de Porto de Galinhas!",
+    "hero_titulo": "¡Descubre las Mejores Experiencias de Porto de Galinhas!",
     "destaques_titulo": "Destacados Premium para Ti",
-    "saiba_mais": "Saber mas",
-    "cta_titulo": "Mantente al tanto de las Mejores Opciones en Porto!",
-    "cta_subtitulo": "Desbloquea un viaje tropical y moderno a Porto de Galinhas!",
+    "saiba_mais": "Saber Más",
+    "cta_titulo": "¡Descubre las Mejores Opciones en Porto!",
+    "cta_subtitulo": "¡Descubre un viaje tropical y moderno por Porto de Galinhas!",
     "btn_sou_turista": "Soy Turista",
-    "btn_cadastrar_negocio": "Registra tu negocio"
+    "btn_cadastrar_negocio": "Registra tu Negocio"
   },
+
   "comerciante_pagina": {
     "sobre": "Sobre",
-    "galeria": "Galeria de Fotos",
-    "localizacao": "Ubicacion",
+    "galeria": "Galería de Fotos",
+    "localizacao": "Ubicación",
     "contato": "Contacto",
     "whatsapp": "WhatsApp",
-    "status_ativo": "Anuncio activo",
-    "status_degustacao": "Periodo de prueba gratuita",
-    "status_expirado": "Este anuncio no esta disponible en este momento.",
-    "sem_whatsapp": "Contacto por WhatsApp disponible solo para anunciantes con plan activo."
+    "status_ativo": "Anuncio Activo",
+    "status_degustacao": "Período de Prueba Gratuita",
+    "status_expirado": "Este anuncio no está disponible en este momento.",
+    "sem_whatsapp": "El contacto por WhatsApp está disponible solo para anunciantes con un plan activo."
   },
+
   "painel": {
     "titulo": "Panel del Comerciante",
     "plano_atual": "Plan Actual",
     "status": "Estado",
-    "degustacao_restante": "Tiempo restante de prueba",
-    "dias": "dias",
+    "degustacao_restante": "Tiempo Restante de Prueba",
+    "dias": "días",
     "horas": "horas",
-    "renovar_plano": "Renovar plan",
+    "renovar_plano": "Renovar Plan",
     "meus_anuncios": "Mis Anuncios",
     "novo_anuncio": "Nuevo Anuncio",
     "editar": "Editar",
     "excluir": "Eliminar",
     "salvar": "Guardar",
     "cancelar": "Cancelar",
-    "alerta_expirado": "Tu plan ha expirado. Renueva ahora para volver a aparecer en las listas publicas.",
-    "login": "Entrar",
+    "alerta_expirado": "Tu plan ha expirado. Renueva ahora para volver a aparecer en los listados públicos.",
+    "login": "Iniciar Sesión",
     "cadastro": "Registrarse",
-    "email": "Correo electronico",
-    "senha": "Contrasena",
+    "email": "Correo Electrónico",
+    "senha": "Contraseña",
     "nome": "Nombre",
-    "telefone": "Telefono",
-    "sair": "Salir",
-    "nao_tenho_conta": "No tengo cuenta, quiero registrarme",
-    "ja_tenho_conta": "Ya tengo cuenta, quiero entrar"
+    "telefone": "Teléfono",
+    "sair": "Cerrar Sesión",
+    "nao_tenho_conta": "No tengo una cuenta, quiero registrarme",
+    "ja_tenho_conta": "Ya tengo una cuenta, quiero iniciar sesión"
   },
+
   "planos": {
     "turista": "Turista",
-    "comerciante_basico": "Comerciante Basico",
+    "comerciante_basico": "Comerciante Básico",
     "comerciante_premium": "Comerciante Premium",
-    "mes": "/mes","assinar": "Suscribirse"
+    "mes": "/mes",
+    "assinar": "Suscribirse"
   },
+
   "rodape_mobile": {
-    "cadastre_negocio": "Registra tu negocio",
-    "assine_ja": "Suscribete ya"
+    "cadastre_negocio": "Registra tu Negocio",
+    "assine_ja": "Suscríbete Ahora"
   },
+
   "rodape": {
-    "termos": "Terminos de Uso",
-    "privacidade": "Politica de Privacidad",
+    "termos": "Términos de Uso",
+    "privacidade": "Política de Privacidad",
     "suporte": "Soporte 24h",
     "direitos": "Todos los derechos reservados"
   },
+
   "paginas_legais": {
-    "termos_titulo": "Terminos de Uso",
-    "privacidade_titulo": "Politica de Privacidad",
+    "termos_titulo": "Términos de Uso",
+    "privacidade_titulo": "Política de Privacidad",
     "suporte_titulo": "Soporte 24h"
   },
+
   "pagamento": {
-    "sucesso_titulo": "Pago aprobado!",
-    "sucesso_texto": "Tu pago fue confirmado. Tu plan ya esta activo.",
-    "pendente_titulo": "Pago pendiente",
-    "pendente_texto": "Estamos esperando la confirmacion de tu pago por Mercado Pago.",
-    "erro_titulo": "Pago no completado",
-    "erro_texto": "Hubo un problema al procesar tu pago. Intenta de nuevo.",
+    "sucesso_titulo": "¡Pago Aprobado!",
+    "sucesso_texto": "Tu pago ha sido confirmado. Tu plan ya está activo.",
+    "pendente_titulo": "Pago Pendiente",
+    "pendente_texto": "Estamos esperando la confirmación de tu pago por Mercado Pago.",
+    "erro_titulo": "Pago No Completado",
+    "erro_texto": "Hubo un problema al procesar tu pago. Inténtalo de nuevo.",
     "voltar_home": "Volver al Inicio",
     "ir_painel": "Ir al Panel"
+  },
+
+  "blog": {
+    "titulo": "Blog",
+    "carregando": "Cargando artículos...",
+    "vazio": "Todavía no tenemos artículos publicados.",
+    "erro": "No fue posible cargar los artículos en este momento.",
+    "sem_titulo": "Sin título",
+    "voltar": "Volver al Blog",
+    "artigo_nao_encontrado": "Artículo no encontrado.",
+    "sem_conteudo": "Este artículo todavía no tiene contenido.",
+    "sem_capa": "Artículo"
   }
 }
