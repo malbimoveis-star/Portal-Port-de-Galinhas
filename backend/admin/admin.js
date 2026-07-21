@@ -9,7 +9,7 @@
   const TOKEN_KEY = 'portal_admin_token';
 
   // =========================================================
-  // ELEMENTOS
+  // ELEMENTOS PRINCIPAIS
   // =========================================================
 
   const telaLogin = document.getElementById('telaLogin');
@@ -18,14 +18,14 @@
   const erroLogin = document.getElementById('erroLogin');
   const btnSair = document.getElementById('btnSair');
 
-  const blogEditor = document.getElementById('blogConteudo');
-  const blogConteudoAntigo = document.getElementById('blogConteudoTextarea');
-
   const btnSalvarArtigo =
     document.getElementById('btnSalvarArtigo');
 
   const erroBlog =
     document.getElementById('erroBlog');
+
+  const blogEditor =
+    document.getElementById('blogConteudo');
 
   // =========================================================
   // AUTENTICAÇÃO
@@ -44,6 +44,7 @@
   }
 
   function mostrarLogin() {
+
     if (telaLogin) {
       telaLogin.classList.remove('escondido');
     }
@@ -51,9 +52,11 @@
     if (telaAdmin) {
       telaAdmin.classList.add('escondido');
     }
+
   }
 
   function mostrarAdmin() {
+
     if (telaLogin) {
       telaLogin.classList.add('escondido');
     }
@@ -66,6 +69,7 @@
     carregarTodos();
     carregarCategorias();
     carregarArtigos();
+
   }
 
   // =========================================================
@@ -97,9 +101,14 @@
     let data = {};
 
     try {
-      data = await resposta.json();
+
+      data =
+        await resposta.json();
+
     } catch (e) {
+
       data = {};
+
     }
 
     if (
@@ -114,6 +123,7 @@
         data.erro ||
         'Sessão expirada. Faça login novamente.'
       );
+
     }
 
     if (!resposta.ok) {
@@ -123,9 +133,11 @@
         data.error ||
         `Erro HTTP ${resposta.status}`
       );
+
     }
 
     return data;
+
   }
 
   // =========================================================
@@ -189,6 +201,7 @@
             }
 
             return;
+
           }
 
           setToken(data.token);
@@ -269,15 +282,23 @@
 
             });
 
+          const nomeTab =
+            btn.dataset.tab
+              .charAt(0)
+              .toUpperCase() +
+            btn.dataset.tab.slice(1);
+
           const tab =
             document.getElementById(
-              `tab${capitalize(btn.dataset.tab)}`
+              `tab${nomeTab}`
             );
 
           if (tab) {
+
             tab.classList.remove(
               'escondido'
             );
+
           }
 
           if (
@@ -292,15 +313,6 @@
       );
 
     });
-
-  function capitalize(texto) {
-
-    return texto
-      .charAt(0)
-      .toUpperCase() +
-      texto.slice(1);
-
-  }
 
   // =========================================================
   // ANÚNCIOS PENDENTES
@@ -333,6 +345,7 @@
           '<p>Nenhum anúncio pendente.</p>';
 
         return;
+
       }
 
       container.innerHTML =
@@ -402,16 +415,10 @@
             'click',
             async function () {
 
-              const acao =
-                btn.dataset.acao;
-
-              const id =
-                btn.dataset.id;
-
               try {
 
                 await apiFetch(
-                  `/api/admin/anuncios/${id}/${acao}`,
+                  `/api/admin/anuncios/${btn.dataset.id}/${btn.dataset.acao}`,
                   {
                     method: 'PUT'
                   }
@@ -421,11 +428,6 @@
                 await carregarTodos();
 
               } catch (err) {
-
-                console.error(
-                  '[anuncio]',
-                  err
-                );
 
                 alert(
                   err.message
@@ -480,6 +482,7 @@
           '<tr><td colspan="5">Nenhum anúncio cadastrado.</td></tr>';
 
         return;
+
       }
 
       tbody.innerHTML =
@@ -563,11 +566,6 @@
 
               } catch (err) {
 
-                console.error(
-                  '[excluir anuncio]',
-                  err
-                );
-
                 alert(
                   err.message
                 );
@@ -582,7 +580,7 @@
     } catch (err) {
 
       console.error(
-        '[todos anuncios]',
+        '[todos]',
         err
       );
 
@@ -621,6 +619,7 @@
           '<tr><td colspan="5">Nenhuma categoria cadastrada.</td></tr>';
 
         return;
+
       }
 
       tbody.innerHTML =
@@ -696,11 +695,6 @@
 
               } catch (err) {
 
-                console.error(
-                  '[excluir categoria]',
-                  err
-                );
-
                 alert(
                   err.message
                 );
@@ -761,6 +755,7 @@
           );
 
           return;
+
         }
 
         try {
@@ -789,11 +784,6 @@
 
         } catch (err) {
 
-          console.error(
-            '[adicionar categoria]',
-            err
-          );
-
           alert(
             err.message
           );
@@ -807,18 +797,6 @@
 
   // =========================================================
   // EDITOR DO BLOG
-  // =========================================================
-
-  if (!blogEditor) {
-
-    console.warn(
-      '[blog] Editor visual não encontrado.'
-    );
-
-  }
-
-  // =========================================================
-  // MEMÓRIA DA SELEÇÃO DO CURSOR
   // =========================================================
 
   let ultimaSelecao = null;
@@ -857,9 +835,7 @@
 
   function restaurarSelecao() {
 
-    if (
-      !ultimaSelecao
-    ) {
+    if (!ultimaSelecao) {
       return;
     }
 
@@ -886,11 +862,6 @@
       salvarSelecao
     );
 
-    blogEditor.addEventListener(
-      'input',
-      salvarSelecao
-    );
-
   }
 
   // =========================================================
@@ -910,32 +881,23 @@
 
     blogEditor.focus();
 
-    try {
-
-      document.execCommand(
-        comando,
-        false,
-        valor
-      );
-
-    } catch (err) {
-
-      console.error(
-        '[editor]',
-        err
-      );
-
-    }
+    document.execCommand(
+      comando,
+      false,
+      valor
+    );
 
     salvarSelecao();
 
   }
 
   // =========================================================
-  // FORMATAR H1 H2 H3
+  // FORMATAR BLOCO
   // =========================================================
 
-  function aplicarTitulo(tipo) {
+  function formatarBloco(
+    tipo
+  ) {
 
     executarComando(
       'formatBlock',
@@ -945,7 +907,7 @@
   }
 
   // =========================================================
-  // INSERIR LINK
+  // LINK
   // =========================================================
 
   function inserirLink() {
@@ -955,8 +917,6 @@
     }
 
     restaurarSelecao();
-
-    blogEditor.focus();
 
     const url =
       prompt(
@@ -975,10 +935,54 @@
   }
 
   // =========================================================
-  // INSERIR IMAGEM DO COMPUTADOR
+  // INSERIR IMAGEM POR URL
   // =========================================================
 
-  function abrirBibliotecaImagem(
+  function inserirImagemUrl() {
+
+    if (!blogEditor) {
+      return;
+    }
+
+    restaurarSelecao();
+
+    const url =
+      prompt(
+        'Cole a URL da imagem:'
+      );
+
+    if (!url) {
+      return;
+    }
+
+    const imagem =
+      document.createElement(
+        'img'
+      );
+
+    imagem.src =
+      url;
+
+    imagem.alt =
+      'Imagem do artigo';
+
+    imagem.className =
+      'editor-imagem';
+
+    imagem.loading =
+      'lazy';
+
+    inserirElementoNoCursor(
+      imagem
+    );
+
+  }
+
+  // =========================================================
+  // ESCOLHER IMAGEM DO COMPUTADOR
+  // =========================================================
+
+  function escolherImagemComputador(
     varias = false
   ) {
 
@@ -986,7 +990,7 @@
       return;
     }
 
-    restaurarSelecao();
+    salvarSelecao();
 
     const input =
       document.createElement(
@@ -1028,8 +1032,14 @@
 
         }
 
-        inserirArquivosImagem(
-          arquivos
+        arquivos.forEach(
+          function (arquivo) {
+
+            inserirImagemArquivo(
+              arquivo
+            );
+
+          }
         );
 
         input.remove();
@@ -1042,11 +1052,62 @@
   }
 
   // =========================================================
-  // INSERIR ARQUIVOS COMO IMAGENS
+  // INSERIR IMAGEM DO ARQUIVO
   // =========================================================
 
-  function inserirArquivosImagem(
-    arquivos
+  function inserirImagemArquivo(
+    arquivo
+  ) {
+
+    if (
+      !arquivo.type.startsWith(
+        'image/'
+      )
+    ) {
+      return;
+    }
+
+    const leitor =
+      new FileReader();
+
+    leitor.onload =
+      function (evento) {
+
+        const imagem =
+          document.createElement(
+            'img'
+          );
+
+        imagem.src =
+          evento.target.result;
+
+        imagem.alt =
+          arquivo.name;
+
+        imagem.className =
+          'editor-imagem';
+
+        imagem.loading =
+          'lazy';
+
+        inserirElementoNoCursor(
+          imagem
+        );
+
+      };
+
+    leitor.readAsDataURL(
+      arquivo
+    );
+
+  }
+
+  // =========================================================
+  // INSERIR ELEMENTO NO CURSOR
+  // =========================================================
+
+  function inserirElementoNoCursor(
+    elemento
   ) {
 
     if (!blogEditor) {
@@ -1060,142 +1121,57 @@
     const selecao =
       window.getSelection();
 
-    let range = null;
-
     if (
       selecao &&
       selecao.rangeCount > 0
     ) {
 
-      range =
+      const range =
         selecao.getRangeAt(0);
 
-    }
+      if (
+        blogEditor.contains(
+          range.commonAncestorContainer
+        )
+      ) {
 
-    arquivos.forEach(
-      function (arquivo) {
+        range.deleteContents();
 
-        if (
-          !arquivo.type.startsWith(
-            'image/'
-          )
-        ) {
-          return;
-        }
-
-        const imagem =
-          document.createElement(
-            'img'
-          );
-
-        imagem.className =
-          'editor-imagem';
-
-        imagem.alt =
-          arquivo.name;
-
-        imagem.loading =
-          'lazy';
-
-        imagem.style.maxWidth =
-          '100%';
-
-        imagem.style.height =
-          'auto';
-
-        const leitor =
-          new FileReader();
-
-        leitor.onload =
-          function (evento) {
-
-            imagem.src =
-              evento.target.result;
-
-          };
-
-        leitor.readAsDataURL(
-          arquivo
+        range.insertNode(
+          elemento
         );
 
-        if (range) {
+        range.setStartAfter(
+          elemento
+        );
 
-          range.deleteContents();
+        range.collapse(
+          true
+        );
 
-          range.insertNode(
-            imagem
-          );
+        selecao.removeAllRanges();
 
-          range.setStartAfter(
-            imagem
-          );
+        selecao.addRange(
+          range
+        );
 
-          range.collapse(
-            true
-          );
+        salvarSelecao();
 
-        } else {
-
-          blogEditor.appendChild(
-            imagem
-          );
-
-        }
+        return;
 
       }
-    );
-
-    if (
-      range &&
-      selecao
-    ) {
-
-      selecao.removeAllRanges();
-
-      selecao.addRange(
-        range
-      );
 
     }
 
-    salvarSelecao();
+    blogEditor.appendChild(
+      elemento
+    );
 
   }
 
   // =========================================================
-  // BOTÕES DA BARRA DE FERRAMENTAS
+  // MENU DE AÇÕES DO EDITOR
   // =========================================================
-
-  document
-    .querySelectorAll(
-      '[data-editor-action]'
-    )
-    .forEach(function (btn) {
-
-      btn.addEventListener(
-        'mousedown',
-        function (e) {
-
-          e.preventDefault();
-
-        }
-      );
-
-      btn.addEventListener(
-        'click',
-        function () {
-
-          const acao =
-            btn.dataset.editorAction;
-
-          executarAcaoEditor(
-            acao
-          );
-
-        }
-      );
-
-    });
 
   function executarAcaoEditor(
     acao
@@ -1205,7 +1181,7 @@
 
       case 'h1':
 
-        aplicarTitulo(
+        formatarBloco(
           'H1'
         );
 
@@ -1213,7 +1189,7 @@
 
       case 'h2':
 
-        aplicarTitulo(
+        formatarBloco(
           'H2'
         );
 
@@ -1221,8 +1197,24 @@
 
       case 'h3':
 
-        aplicarTitulo(
+        formatarBloco(
           'H3'
+        );
+
+        break;
+
+      case 'paragraph':
+
+        formatarBloco(
+          'P'
+        );
+
+        break;
+
+      case 'quote':
+
+        formatarBloco(
+          'BLOCKQUOTE'
         );
 
         break;
@@ -1259,7 +1251,13 @@
 
       case 'image':
 
-        abrirBibliotecaImagem(
+        inserirImagemUrl();
+
+        break;
+
+      case 'imageComputer':
+
+        escolherImagemComputador(
           false
         );
 
@@ -1267,24 +1265,8 @@
 
       case 'imageMultiple':
 
-        abrirBibliotecaImagem(
+        escolherImagemComputador(
           true
-        );
-
-        break;
-
-      case 'paragraph':
-
-        aplicarTitulo(
-          'P'
-        );
-
-        break;
-
-      case 'quote':
-
-        aplicarTitulo(
-          'BLOCKQUOTE'
         );
 
         break;
@@ -1310,10 +1292,42 @@
   }
 
   // =========================================================
-  // MENU DO BOTÃO DIREITO
+  // BOTÕES DA BARRA
   // =========================================================
 
-  let menuContexto =
+  document
+    .querySelectorAll(
+      '[data-editor-action]'
+    )
+    .forEach(function (btn) {
+
+      btn.addEventListener(
+        'mousedown',
+        function (e) {
+
+          e.preventDefault();
+
+        }
+      );
+
+      btn.addEventListener(
+        'click',
+        function () {
+
+          executarAcaoEditor(
+            btn.dataset.editorAction
+          );
+
+        }
+      );
+
+    });
+
+  // =========================================================
+  // MENU BOTÃO DIREITO
+  // =========================================================
+
+  const menuContexto =
     document.getElementById(
       'editorContextMenu'
     );
@@ -1370,13 +1384,13 @@
 
   function esconderMenuContexto() {
 
-    if (!menuContexto) {
-      return;
-    }
+    if (menuContexto) {
 
-    menuContexto.classList.add(
-      'escondido'
-    );
+      menuContexto.classList.add(
+        'escondido'
+      );
+
+    }
 
   }
 
@@ -1493,6 +1507,13 @@
             .value
             .trim();
 
+        const publicado =
+          document
+            .getElementById(
+              'blogPublicado'
+            )
+            .checked;
+
         let conteudo =
           '';
 
@@ -1501,24 +1522,7 @@
           conteudo =
             blogEditor.innerHTML.trim();
 
-        } else if (
-          blogConteudoAntigo
-        ) {
-
-          conteudo =
-            blogConteudoAntigo.value.trim();
-
         }
-
-        const checkboxPublicado =
-          document.getElementById(
-            'blogPublicado'
-          );
-
-        const publicado =
-          checkboxPublicado
-            ? checkboxPublicado.checked
-            : true;
 
         if (!titulo) {
 
@@ -1530,6 +1534,7 @@
           }
 
           return;
+
         }
 
         if (!conteudo) {
@@ -1542,6 +1547,7 @@
           }
 
           return;
+
         }
 
         btnSalvarArtigo.disabled =
@@ -1608,15 +1614,6 @@
 
           }
 
-          if (
-            checkboxPublicado
-          ) {
-
-            checkboxPublicado.checked =
-              true;
-
-          }
-
           await carregarArtigos();
 
         } catch (err) {
@@ -1680,16 +1677,12 @@
           '<tr><td colspan="5">Nenhum artigo cadastrado.</td></tr>';
 
         return;
+
       }
 
       tbody.innerHTML =
         artigos
           .map(function (artigo) {
-
-            const status =
-              artigo.publicado
-                ? 'Publicado'
-                : 'Rascunho';
 
             return `
 
@@ -1712,7 +1705,11 @@
                         : 'pendente'
                     }"
                   >
-                    ${status}
+                    ${
+                      artigo.publicado
+                        ? 'Publicado'
+                        : 'Rascunho'
+                    }
                   </span>
 
                 </td>
@@ -1745,7 +1742,7 @@
 
       tbody
         .querySelectorAll(
-          'button[data-blog-id]'
+          '[data-blog-id]'
         )
         .forEach(function (btn) {
 
@@ -1778,11 +1775,6 @@
 
               } catch (err) {
 
-                console.error(
-                  '[blog excluir]',
-                  err
-                );
-
                 alert(
                   err.message
                 );
@@ -1797,7 +1789,7 @@
     } catch (err) {
 
       console.error(
-        '[blog carregar]',
+        '[blog]',
         err
       );
 
@@ -1821,7 +1813,7 @@
   }
 
   // =========================================================
-  // ESCAPAR HTML
+  // SEGURANÇA
   // =========================================================
 
   function escapeHtml(valor) {
