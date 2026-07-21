@@ -30,18 +30,12 @@
   margin-bottom:30px;
 }
 
-
 .blog-grid {
-
   display:grid;
-
   grid-template-columns:
   repeat(auto-fill,minmax(260px,1fr));
-
   gap:24px;
-
 }
-
 
 .blog-card {
 
@@ -63,7 +57,6 @@
   transition:.2s;
 
 }
-
 
 .blog-card:hover {
 
@@ -107,9 +100,9 @@
 
   background:
   linear-gradient(
-  135deg,
-  #0a5c8a,
-  #1385bd
+    135deg,
+    #0a5c8a,
+    #1385bd
   );
 
 }
@@ -126,7 +119,8 @@
 
   margin:0 0 10px;
 
-  color:var(--azul-primario,#0a5c8a);
+  color:
+  var(--azul-primario,#0a5c8a);
 
   font-size:1.1rem;
 
@@ -180,7 +174,7 @@
 <main class="blog-principal">
 
 
-<h1 
+<h1
 class="blog-titulo"
 data-i18n="blog.titulo">
 Blog
@@ -224,11 +218,9 @@ Não foi possível carregar os artigos agora.
 <div id="layout-rodape"></div>
 
 
-<script src="../js/layout.js"></script>
+<script src="/js/layout.js"></script>
 
-<script src="../js/i18n.js"></script>
-
-
+<script src="/js/i18n.js"></script>
 <script>
 
 'use strict';
@@ -236,165 +228,323 @@ Não foi possível carregar os artigos agora.
 
 function escapar(valor){
 
-if(valor===undefined || valor===null){
+  if(
+    valor === undefined ||
+    valor === null
+  ){
 
-return '';
+    return '';
+
+  }
+
+
+  return String(valor)
+
+  .replace(
+    /&/g,
+    '&amp;'
+  )
+
+  .replace(
+    /</g,
+    '&lt;'
+  )
+
+  .replace(
+    />/g,
+    '&gt;'
+  )
+
+  .replace(
+    /"/g,
+    '&quot;'
+  )
+
+  .replace(
+    /'/g,
+    '&#039;'
+  );
 
 }
 
 
-return String(valor)
-
-.replace(/&/g,'&amp;')
-
-.replace(/</g,'&lt;')
-
-.replace(/>/g,'&gt;')
-
-.replace(/"/g,'&quot;')
-
-.replace(/'/g,'&#039;');
-
-}
 
 
 async function carregarBlog(){
 
 
-const lista=document.getElementById('lista');
-
-const vazio=document.getElementById('vazio');
-
-const erro=document.getElementById('erro');
-
-
-try{
+  const lista =
+    document.getElementById(
+      'lista'
+    );
 
 
-const resposta=await fetch('/api/blog');
+  const vazio =
+    document.getElementById(
+      'vazio'
+    );
 
 
-if(!resposta.ok){
+  const erro =
+    document.getElementById(
+      'erro'
+    );
 
-throw new Error();
+
+
+  try {
+
+
+
+    const resposta =
+      await fetch(
+        '/api/blog'
+      );
+
+
+
+    if(
+      !resposta.ok
+    ){
+
+      throw new Error(
+        'Erro ao carregar artigos'
+      );
+
+    }
+
+
+
+    const artigos =
+      await resposta.json();
+
+
+
+    console.log(
+      '[BLOG] Artigos:',
+      artigos
+    );
+
+
+
+    if(
+      !Array.isArray(artigos) ||
+      artigos.length === 0
+    ){
+
+      vazio.style.display =
+        'block';
+
+      return;
+
+    }
+
+
+
+
+    lista.innerHTML =
+
+      artigos
+      .map(
+        function(artigo){
+
+
+
+          const titulo =
+            escapar(
+              artigo.titulo ||
+              'Sem título'
+            );
+
+
+
+          const resumo =
+            escapar(
+              artigo.resumo ||
+              ''
+            );
+
+
+
+          const id =
+            encodeURIComponent(
+              artigo.id
+            );
+
+
+
+          let imagem =
+            '';
+
+
+
+
+          if(
+            artigo.capa_url
+          ){
+
+
+
+            imagem = `
+
+              <img
+
+                class="blog-card-imagem"
+
+                src="${escapar(
+                  artigo.capa_url
+                )}"
+
+                alt="${titulo}"
+
+                loading="lazy"
+
+              >
+
+            `;
+
+
+
+          } else {
+
+
+
+            imagem = `
+
+              <div
+                class="blog-card-sem-imagem"
+              >
+
+                ${titulo}
+
+              </div>
+
+            `;
+
+
+          }
+
+
+
+
+
+          return `
+
+            <a
+
+              class="blog-card"
+
+              href="/artigo?id=${id}"
+
+            >
+
+
+
+              ${imagem}
+
+
+
+
+              <div
+
+                class="blog-card-conteudo"
+
+              >
+
+
+
+                <h2
+
+                  class="blog-card-titulo"
+
+                >
+
+                  ${titulo}
+
+                </h2>
+
+
+
+
+
+                ${
+                  resumo
+                  ?
+
+                  `
+
+                  <p
+
+                    class="blog-card-resumo"
+
+                  >
+
+                    ${resumo}
+
+                  </p>
+
+
+                  `
+
+                  :
+
+                  ''
+
+                }
+
+
+
+
+              </div>
+
+
+
+            </a>
+
+
+          `;
+
+
+
+        }
+
+      )
+
+      .join('');
+
+
+
+
+
+  } catch(
+    erroCarregamento
+  ){
+
+
+
+    console.error(
+      '[BLOG] Erro:',
+      erroCarregamento
+    );
+
+
+
+    erro.style.display =
+      'block';
+
+
+
+  }
+
 
 }
-
-
-const artigos=await resposta.json();
-
-
-console.log(
-'[BLOG]',
-artigos
-);
-
-
-if(!Array.isArray(artigos) || artigos.length===0){
-
-vazio.style.display='block';
-
-return;
-
-}
-
-
-lista.innerHTML=
-
-artigos.map((artigo)=>{
-
-
-const titulo=
-escapar(
-artigo.titulo || 'Sem título'
-);
-
-
-const resumo=
-escapar(
-artigo.resumo || ''
-);
-
-
-const id=
-encodeURIComponent(
-artigo.id
-);
-
-
-const imagem=
-artigo.capa_url
-?
-`
-<img
-class="blog-card-imagem"
-src="${escapar(artigo.capa_url)}"
-alt="${titulo}"
-loading="lazy"
->
-`
-:
-`
-<div class="blog-card-sem-imagem">
-${titulo}
-</div>
-`;
-
-
-
-return `
-<a
-class="blog-card"
-href="artigo.html?id=${id}"
->
-
-${imagem}
-
-
-<div class="blog-card-conteudo">
-
-<h2 class="blog-card-titulo">
-${titulo}
-</h2>
-<p class="blog-card-resumo">
-${resumo}
-</p>
-
-</div>
-
-</a>
-
-`;
-
-}).join('');
-
-
-}catch(erroCarregamento){
-
-
-console.error(
-'[BLOG] Erro:',
-erroCarregamento
-);
-
-
-erro.style.display='block';
-
-
-}
-
-
-}
-
-
-
 document.addEventListener(
-'DOMContentLoaded',
-function(){
+  'DOMContentLoaded',
+  function(){
 
-carregarBlog();
+    carregarBlog();
 
-}
+  }
 );
 
 
