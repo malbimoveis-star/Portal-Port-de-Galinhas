@@ -8,53 +8,57 @@
     "sou_turista": "Sou Turista",
     "idioma": "Idioma"
   },
+
   "categorias": {
-    "titulo": "Servicos & Turismo",
-    "hoteis-pousadas": "Hoteis & Pousadas",
+    "titulo": "Serviços & Turismo",
+    "hoteis-pousadas": "Hotéis & Pousadas",
     "resorts": "Resorts",
     "passeios-de-barco": "Passeios de Barco",
     "buggys-traslados": "Buggys & Traslados",
     "restaurantes-bares": "Restaurantes & Bares",
-    "comercios-regionais": "Comercios Regionais",
+    "comercios-regionais": "Comércios Regionais",
     "mergulho": "Mergulho",
     "jet-ski": "Jet Ski",
-    "servicos-de-praia": "Servicos de Praia"
+    "servicos-de-praia": "Serviços de Praia"
   },
+
   "home": {
-    "hero_titulo": "Descubra as Melhores Experiencias de Porto de Galinhas!",
-    "destaques_titulo": "Destaques Premium para Voce",
+    "hero_titulo": "Descubra as Melhores Experiências de Porto de Galinhas!",
+    "destaques_titulo": "Destaques Premium para Você",
     "saiba_mais": "Saiba mais",
-    "cta_titulo": "Fique por dentro das Melhores Opcoes em Porto!",
-    "cta_subtitulo": "Desbloqueie uma jornada tropical e agil moderna a Porto de Galinhas!",
+    "cta_titulo": "Fique por dentro das Melhores Opções em Porto!",
+    "cta_subtitulo": "Desbloqueie uma jornada tropical e ágil moderna a Porto de Galinhas!",
     "btn_sou_turista": "Sou Turista",
-    "btn_cadastrar_negocio": "Cadastre seu negocio"
+    "btn_cadastrar_negocio": "Cadastre seu negócio"
   },
+
   "comerciante_pagina": {
     "sobre": "Sobre",
     "galeria": "Galeria de Fotos",
-    "localizacao": "Localizacao",
+    "localizacao": "Localização",
     "contato": "Contato",
     "whatsapp": "WhatsApp",
-    "status_ativo": "Anuncio ativo",
-    "status_degustacao": "Periodo de degustacao gratuita",
-    "status_expirado": "Este anuncio esta indisponivel no momento.",
-    "sem_whatsapp": "Contato via WhatsApp disponivel apenas para anunciantes com plano ativo."
+    "status_ativo": "Anúncio ativo",
+    "status_degustacao": "Período de degustação gratuita",
+    "status_expirado": "Este anúncio está indisponível no momento.",
+    "sem_whatsapp": "Contato via WhatsApp disponível apenas para anunciantes com plano ativo."
   },
+
   "painel": {
     "titulo": "Painel do Comerciante",
     "plano_atual": "Plano Atual",
     "status": "Status",
-    "degustacao_restante": "Tempo restante de degustacao",
+    "degustacao_restante": "Tempo restante de degustação",
     "dias": "dias",
     "horas": "horas",
     "renovar_plano": "Renovar plano",
-    "meus_anuncios": "Meus Anuncios",
-    "novo_anuncio": "Novo Anuncio",
+    "meus_anuncios": "Meus Anúncios",
+    "novo_anuncio": "Novo Anúncio",
     "editar": "Editar",
     "excluir": "Excluir",
     "salvar": "Salvar",
     "cancelar": "Cancelar",
-    "alerta_expirado": "Seu plano expirou. Renove agora para voltar a aparecer nas listagens publicas.",
+    "alerta_expirado": "Seu plano expirou. Renove agora para voltar a aparecer nas listagens públicas.",
     "login": "Entrar",
     "cadastro": "Cadastrar",
     "email": "E-mail",
@@ -62,47 +66,56 @@
     "nome": "Nome",
     "telefone": "Telefone",
     "sair": "Sair",
-    "nao_tenho_conta": "Nao tenho conta, quero me cadastrar",
-    "ja_tenho_conta": "Ja tenho conta, quero entrar"
+    "nao_tenho_conta": "Não tenho conta, quero me cadastrar",
+    "ja_tenho_conta": "Já tenho conta, quero entrar"
   },
+
   "planos": {
     "turista": "Turista",
-    "comerciante_basico": "Comerciante Basico",
+    "comerciante_basico": "Comerciante Básico",
     "comerciante_premium": "Comerciante Premium",
-    "mes": "/mes",
+    "mes": "/mês",
     "assinar": "Assinar"
   },
+
   "rodape_mobile": {
-    "cadastre_negocio": "Cadastre seu negocio",
-    "assine_ja": "Assine ja"
+    "cadastre_negocio": "Cadastre seu negócio",
+    "assine_ja": "Assine já"
   },
+
   "rodape": {
     "termos": "Termos de Uso",
-    "privacidade": "Politica de Privacidade",
+    "privacidade": "Política de Privacidade",
     "suporte": "Suporte 24h",
     "direitos": "Todos os direitos reservados"
   },
+
   "paginas_legais": {
     "termos_titulo": "Termos de Uso",
-    "privacidade_titulo": "Politica de Privacidade",
+    "privacidade_titulo": "Política de Privacidade",
     "suporte_titulo": "Suporte 24h"
   },
+
   "pagamento": {
     "sucesso_titulo": "Pagamento aprovado!",
-    "sucesso_texto": "Seu pagamento foi confirmado. Seu plano ja esta ativo.",
+    "sucesso_texto": "Seu pagamento foi confirmado. Seu plano já está ativo.",
     "pendente_titulo": "Pagamento pendente",
-    "pendente_texto": "Estamos aguardando a confirmacao do seu pagamento pelo Mercado Pago.",
-    "erro_titulo": "Pagamento nao concluido",
+    "pendente_texto": "Estamos aguardando a confirmação do seu pagamento pelo Mercado Pago.",
+    "erro_titulo": "Pagamento não concluído",
     "erro_texto": "Houve um problema ao processar seu pagamento. Tente novamente.",
     "voltar_home": "Voltar para a Home",
     "ir_painel": "Ir para o Painel"
   },
+
   "blog": {
     "titulo": "Blog",
-    "descricao": "Notícias, dicas e informações sobre Porto de Galinhas.",
     "carregando": "Carregando artigos...",
     "vazio": "Ainda não temos artigos publicados.",
+    "erro": "Não foi possível carregar os artigos agora.",
     "sem_titulo": "Sem título",
-    "erro": "Não foi possível carregar os artigos agora."
+    "voltar": "Voltar para o Blog",
+    "artigo_nao_encontrado": "Artigo não encontrado.",
+    "sem_conteudo": "Este artigo ainda não possui conteúdo.",
+    "sem_capa": "Artigo"
   }
 }
