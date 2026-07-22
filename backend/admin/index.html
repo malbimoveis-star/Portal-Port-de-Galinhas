@@ -21,7 +21,6 @@
 
 </head>
 
-
 <body>
 
 
@@ -239,6 +238,10 @@
             Todos os Anúncios
           </h2>
 
+          <p>
+            Gerencie, edite ou exclua os anúncios cadastrados no portal.
+          </p>
+
 
           <div class="table-container">
 
@@ -281,6 +284,7 @@
 
                   <td colspan="5">
                     Carregando...
+
                   </td>
 
                 </tr>
@@ -288,6 +292,195 @@
               </tbody>
 
             </table>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+
+      <!-- ===============================================
+           FORMULÁRIO DE EDIÇÃO DE ANÚNCIO
+      ================================================ -->
+
+      <section
+        id="tabEditarAnuncio"
+        class="escondido"
+      >
+
+        <div class="card">
+
+          <h2>
+            Editar Anúncio
+          </h2>
+
+          <p>
+            Altere os dados do anúncio selecionado.
+          </p>
+
+
+          <p
+            id="erroEditarAnuncio"
+            class="erro"
+          ></p>
+
+
+          <input
+            type="hidden"
+            id="editarAnuncioId"
+            value=""
+          >
+
+
+          <div class="blog-form">
+
+
+            <div class="campo">
+
+              <label for="editarAnuncioTitulo">
+                Título
+              </label>
+
+              <input
+                type="text"
+                id="editarAnuncioTitulo"
+                placeholder="Título do anúncio"
+              >
+
+            </div>
+
+
+            <div class="campo">
+
+              <label for="editarAnuncioDescricao">
+                Descrição
+              </label>
+
+              <textarea
+                id="editarAnuncioDescricao"
+                rows="5"
+                placeholder="Descrição do anúncio"
+              ></textarea>
+
+            </div>
+
+
+            <div class="campo">
+
+              <label for="editarAnuncioTelefone">
+                Telefone
+              </label>
+
+              <input
+                type="text"
+                id="editarAnuncioTelefone"
+                placeholder="Telefone"
+              >
+
+            </div>
+
+
+            <div class="campo">
+
+              <label for="editarAnuncioEndereco">
+                Endereço
+              </label>
+
+              <input
+                type="text"
+                id="editarAnuncioEndereco"
+                placeholder="Endereço"
+              >
+
+            </div>
+
+
+            <div class="campo">
+
+              <label for="editarAnuncioLatitude">
+                Latitude
+              </label>
+
+              <input
+                type="text"
+                id="editarAnuncioLatitude"
+                placeholder="-8.5..."
+              >
+
+            </div>
+
+
+            <div class="campo">
+
+              <label for="editarAnuncioLongitude">
+                Longitude
+              </label>
+
+              <input
+                type="text"
+                id="editarAnuncioLongitude"
+                placeholder="-35.0..."
+              >
+
+            </div>
+
+
+            <div class="campo">
+
+              <label for="editarAnuncioStatus">
+                Status
+              </label>
+
+              <select
+                id="editarAnuncioStatus"
+              >
+
+                <option value="pendente">
+                  Pendente
+                </option>
+
+                <option value="aprovado">
+                  Aprovado
+                </option>
+
+                <option value="rejeitado">
+                  Rejeitado
+                </option>
+
+              </select>
+
+            </div>
+
+
+            <div
+              style="
+                display:flex;
+                gap:10px;
+                flex-wrap:wrap;
+                margin-top:15px;
+              "
+            >
+
+              <button
+                type="button"
+                id="btnSalvarEdicaoAnuncio"
+                class="btn btn--principal"
+              >
+                Salvar alterações
+              </button>
+
+
+              <button
+                type="button"
+                id="btnCancelarEdicaoAnuncio"
+                class="btn"
+              >
+                Cancelar
+              </button>
+
+            </div>
 
           </div>
 
@@ -311,6 +504,10 @@
           <h2>
             Categorias
           </h2>
+
+          <p>
+            Cadastre, edite ou exclua as categorias do portal.
+          </p>
 
 
           <div class="form-categoria">
@@ -397,6 +594,7 @@
 
                   <td colspan="5">
                     Carregando...
+
                   </td>
 
                 </tr>
@@ -404,6 +602,108 @@
               </tbody>
 
             </table>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+
+      <!-- ===============================================
+           FORMULÁRIO DE EDIÇÃO DE CATEGORIA
+      ================================================ -->
+
+      <section
+        id="tabEditarCategoria"
+        class="escondido"
+      >
+
+        <div class="card">
+
+          <h2>
+            Editar Categoria
+          </h2>
+
+          <p>
+            Altere os dados da categoria selecionada.
+          </p>
+
+
+          <p
+            id="erroEditarCategoria"
+            class="erro"
+          ></p>
+
+
+          <input
+            type="hidden"
+            id="editarCategoriaId"
+            value=""
+          >
+
+
+          <div class="form-categoria">
+
+
+            <div class="campo">
+
+              <label for="editarCategoriaNome">
+                Nome da categoria
+              </label>
+
+              <input
+                type="text"
+                id="editarCategoriaNome"
+                placeholder="Nome da categoria"
+              >
+
+            </div>
+
+
+            <div class="campo">
+
+              <label for="editarCategoriaIcone">
+                URL do ícone
+              </label>
+
+              <input
+                type="text"
+                id="editarCategoriaIcone"
+                placeholder="https://..."
+              >
+
+            </div>
+
+
+            <div
+              style="
+                display:flex;
+                gap:10px;
+                flex-wrap:wrap;
+                margin-top:15px;
+              "
+            >
+
+              <button
+                type="button"
+                id="btnSalvarEdicaoCategoria"
+                class="btn btn--principal"
+              >
+                Salvar alterações
+              </button>
+
+
+              <button
+                type="button"
+                id="btnCancelarEdicaoCategoria"
+                class="btn"
+              >
+                Cancelar
+              </button>
+
+            </div>
 
           </div>
 
@@ -438,8 +738,6 @@
           </p>
 
 
-          <!-- ID DO ARTIGO EM EDIÇÃO -->
-
           <input
             type="hidden"
             id="blogIdEdicao"
@@ -457,9 +755,7 @@
           <div class="blog-form">
 
 
-            <!-- =========================================
-                 TÍTULO DO ARTIGO
-            ========================================== -->
+            <!-- TÍTULO -->
 
             <div class="campo">
 
@@ -477,9 +773,7 @@
 
 
 
-            <!-- =========================================
-                 RESUMO DO ARTIGO
-            ========================================== -->
+            <!-- RESUMO -->
 
             <div class="campo">
 
@@ -497,9 +791,7 @@
 
 
 
-            <!-- =========================================
-                 EDITOR DE CONTEÚDO
-            ========================================== -->
+            <!-- EDITOR -->
 
             <div class="campo">
 
@@ -508,15 +800,10 @@
               </label>
 
 
-              <!-- =======================================
-                   BARRA DE FERRAMENTAS
-              ======================================== -->
-
               <div
                 id="blogToolbar"
                 class="blog-toolbar"
               >
-
 
                 <button
                   type="button"
@@ -626,14 +913,9 @@
                   ❝ Citação
                 </button>
 
-
               </div>
 
 
-
-              <!-- =======================================
-                   EDITOR VISUAL
-              ======================================== -->
 
               <div
                 id="blogConteudo"
@@ -646,15 +928,12 @@
 
 
 
-              <!-- =======================================
-                   MENU DO BOTÃO DIREITO
-              ======================================== -->
+              <!-- MENU DIREITO -->
 
               <div
                 id="editorContextMenu"
                 class="editor-context-menu escondido"
               >
-
 
                 <button
                   type="button"
@@ -746,14 +1025,8 @@
                   ❝ Transformar em citação
                 </button>
 
-
               </div>
 
-
-
-              <!-- =======================================
-                   AJUDA DO EDITOR
-              ======================================== -->
 
               <small class="editor-ajuda">
 
@@ -765,14 +1038,11 @@
 
               </small>
 
-
             </div>
 
 
 
-            <!-- =========================================
-                 PUBLICAÇÃO
-            ========================================== -->
+            <!-- PUBLICAÇÃO -->
 
             <div class="campo checkbox">
 
@@ -792,9 +1062,7 @@
 
 
 
-            <!-- =========================================
-                 BOTÕES DO ARTIGO
-            ========================================== -->
+            <!-- BOTÕES -->
 
             <div
               style="
@@ -889,6 +1157,7 @@
 
                   <td colspan="5">
                     Carregando...
+
                   </td>
 
                 </tr>
