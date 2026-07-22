@@ -77,6 +77,12 @@
     document.getElementById('editorContextMenu');
 
   // =========================================================
+  // CONTROLE DE EDIÇÃO DO BLOG
+  // =========================================================
+
+  let artigoEmEdicaoId = null;
+
+  // =========================================================
   // LOGIN / LOGOUT
   // =========================================================
 
@@ -1529,7 +1535,218 @@
   }
 
   // =========================================================
-  // SALVAR ARTIGO
+  // CANCELAR EDIÇÃO
+  // =========================================================
+
+  function cancelarEdicaoArtigo() {
+
+    artigoEmEdicaoId = null;
+
+    const campoTitulo =
+      document.getElementById(
+        'blogTitulo'
+      );
+
+    const campoResumo =
+      document.getElementById(
+        'blogResumo'
+      );
+
+    const campoPublicado =
+      document.getElementById(
+        'blogPublicado'
+      );
+
+    if (campoTitulo) {
+      campoTitulo.value = '';
+    }
+
+    if (campoResumo) {
+      campoResumo.value = '';
+    }
+
+    if (blogEditor) {
+      blogEditor.innerHTML = '';
+    }
+
+    if (campoPublicado) {
+      campoPublicado.checked = true;
+    }
+
+    ultimaSelecao = null;
+
+    if (btnSalvarArtigo) {
+      btnSalvarArtigo.textContent =
+        'Salvar artigo';
+
+      btnSalvarArtigo.dataset.mode =
+        'create';
+    }
+
+    const btnCancelarEdicao =
+      document.getElementById(
+        'btnCancelarEdicao'
+      );
+
+    if (btnCancelarEdicao) {
+      btnCancelarEdicao.classList.add(
+        'escondido'
+      );
+    }
+
+    mostrarErro(
+      erroBlog,
+      ''
+    );
+
+    esconderMenu();
+
+    console.log(
+      '[BLOG] Edição cancelada.'
+    );
+  }
+
+  // =========================================================
+  // BOTÃO CANCELAR EDIÇÃO
+  // =========================================================
+
+  const btnCancelarEdicao =
+    document.getElementById(
+      'btnCancelarEdicao'
+    );
+
+  if (btnCancelarEdicao) {
+
+    btnCancelarEdicao.addEventListener(
+      'click',
+      function (event) {
+
+        event.preventDefault();
+
+        cancelarEdicaoArtigo();
+      }
+    );
+  }
+
+  // =========================================================
+  // CARREGAR ARTIGO PARA EDIÇÃO
+  // =========================================================
+
+  async function editarArtigo(id) {
+
+    try {
+
+      console.log(
+        '[BLOG] Carregando artigo para edição:',
+        id
+      );
+
+      const artigo =
+        await apiFetch(
+          `/api/blog/admin/${id}`
+        );
+
+      const campoTitulo =
+        document.getElementById(
+          'blogTitulo'
+        );
+
+      const campoResumo =
+        document.getElementById(
+          'blogResumo'
+        );
+
+      const campoPublicado =
+        document.getElementById(
+          'blogPublicado'
+        );
+
+      if (campoTitulo) {
+        campoTitulo.value =
+          artigo.titulo || '';
+      }
+
+      if (campoResumo) {
+        campoResumo.value =
+          artigo.resumo || '';
+      }
+
+      if (blogEditor) {
+        blogEditor.innerHTML =
+          artigo.conteudo || '';
+      }
+
+      if (campoPublicado) {
+        campoPublicado.checked =
+          Boolean(
+            artigo.publicado
+          );
+      }
+
+      artigoEmEdicaoId =
+        artigo.id;
+
+      if (btnSalvarArtigo) {
+
+        btnSalvarArtigo.textContent =
+          'Atualizar artigo';
+
+        btnSalvarArtigo.dataset.mode =
+          'edit';
+      }
+
+      if (btnCancelarEdicao) {
+
+        btnCancelarEdicao.classList.remove(
+          'escondido'
+        );
+      }
+
+      mostrarErro(
+        erroBlog,
+        ''
+      );
+
+      ultimaSelecao = null;
+
+      // Tenta levar o usuário para o editor
+      if (blogEditor) {
+
+        blogEditor.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        });
+
+        setTimeout(
+          function () {
+
+            blogEditor.focus();
+
+          },
+          500
+        );
+      }
+
+      console.log(
+        '[BLOG] Artigo carregado para edição.'
+      );
+
+    } catch (erro) {
+
+      console.error(
+        '[BLOG EDITAR]',
+        erro
+      );
+
+      alert(
+        'Não foi possível carregar o artigo para edição.\n\n' +
+        erro.message
+      );
+    }
+  }
+
+  // =========================================================
+  // SALVAR / ATUALIZAR ARTIGO
   // =========================================================
 
   if (btnSalvarArtigo) {
@@ -1594,6 +1811,7 @@
             titulo,
             resumo,
             publicado,
+            artigoEmEdicaoId,
             tamanhoConteudo:
               conteudo.length
           }
@@ -1634,83 +1852,126 @@
         btnSalvarArtigo.disabled =
           true;
 
+        const textoOriginal =
+          btnSalvarArtigo.textContent;
+
         btnSalvarArtigo.textContent =
-          'Salvando...';
+          artigoEmEdicaoId
+            ? 'Atualizando...'
+            : 'Salvando...';
 
         try {
 
-          console.log(
-            '[BLOG] Enviando artigo para API.'
-          );
+          let resultado;
 
-          const resultado =
-            await apiFetch(
-              '/api/blog',
-              {
-                method: 'POST',
+          // ===================================================
+          // EDITAR ARTIGO EXISTENTE
+          // ===================================================
 
-                headers: {
-                  'Content-Type':
-                    'application/json'
-                },
+          if (artigoEmEdicaoId) {
 
-                body:
-                  JSON.stringify({
-                    titulo:
-                      titulo,
-
-                    resumo:
-                      resumo,
-
-                    conteudo:
-                      conteudo,
-
-                    publicado:
-                      publicado
-                  })
-              }
+            console.log(
+              '[BLOG] Atualizando artigo:',
+              artigoEmEdicaoId
             );
 
-          console.log(
-            '[BLOG] ARTIGO SALVO:',
-            resultado
-          );
+            resultado =
+              await apiFetch(
+                `/api/blog/${artigoEmEdicaoId}`,
+                {
+                  method: 'PUT',
 
-          alert(
-            'Artigo salvo com sucesso!'
-          );
+                  headers: {
+                    'Content-Type':
+                      'application/json'
+                  },
+
+                  body:
+                    JSON.stringify({
+                      titulo:
+                        titulo,
+
+                      resumo:
+                        resumo,
+
+                      conteudo:
+                        conteudo,
+
+                      publicado:
+                        publicado
+                    })
+                }
+              );
+
+            console.log(
+              '[BLOG] ARTIGO ATUALIZADO:',
+              resultado
+            );
+
+            alert(
+              'Artigo atualizado com sucesso!'
+            );
+
+          } else {
+
+            // =================================================
+            // CRIAR NOVO ARTIGO
+            // =================================================
+
+            console.log(
+              '[BLOG] Criando novo artigo.'
+            );
+
+            resultado =
+              await apiFetch(
+                '/api/blog',
+                {
+                  method: 'POST',
+
+                  headers: {
+                    'Content-Type':
+                      'application/json'
+                  },
+
+                  body:
+                    JSON.stringify({
+                      titulo:
+                        titulo,
+
+                      resumo:
+                        resumo,
+
+                      conteudo:
+                        conteudo,
+
+                      publicado:
+                        publicado
+                    })
+                }
+              );
+
+            console.log(
+              '[BLOG] ARTIGO SALVO:',
+              resultado
+            );
+
+            alert(
+              'Artigo salvo com sucesso!'
+            );
+          }
 
           // ===================================================
           // LIMPAR FORMULÁRIO
           // ===================================================
 
-          if (campoTitulo) {
-            campoTitulo.value = '';
-          }
-
-          if (campoResumo) {
-            campoResumo.value = '';
-          }
-
-          if (blogEditor) {
-            blogEditor.innerHTML = '';
-          }
-
-          if (campoPublicado) {
-            campoPublicado.checked = true;
-          }
-
-          ultimaSelecao =
-            null;
-
-          esconderMenu();
+          cancelarEdicaoArtigo();
 
           await carregarArtigos();
 
         } catch (erro) {
 
           console.error(
-            '[BLOG] ERRO AO SALVAR:',
+            '[BLOG] ERRO AO SALVAR/ATUALIZAR:',
             erro
           );
 
@@ -1731,7 +1992,9 @@
             false;
 
           btnSalvarArtigo.textContent =
-            'Salvar artigo';
+            artigoEmEdicaoId
+              ? 'Atualizar artigo'
+              : textoOriginal;
         }
       }
     );
@@ -1811,6 +2074,14 @@
 
                   <button
                     type="button"
+                    class="btn btn--editar"
+                    data-blog-editar="${escapeHtml(artigo.id)}"
+                  >
+                    Editar
+                  </button>
+
+                  <button
+                    type="button"
                     class="btn btn--excluir"
                     data-blog-id="${escapeHtml(artigo.id)}"
                   >
@@ -1824,6 +2095,51 @@
           }
         ).join('');
 
+      // =====================================================
+      // BOTÕES EDITAR
+      // =====================================================
+
+      tbody
+        .querySelectorAll(
+          '[data-blog-editar]'
+        )
+        .forEach(
+          function (botao) {
+
+            botao.addEventListener(
+              'click',
+              async function () {
+
+                const id =
+                  botao.dataset.blogEditar;
+
+                if (!id) {
+                  return;
+                }
+
+                botao.disabled =
+                  true;
+
+                try {
+
+                  await editarArtigo(
+                    id
+                  );
+
+                } finally {
+
+                  botao.disabled =
+                    false;
+                }
+              }
+            );
+          }
+        );
+
+      // =====================================================
+      // BOTÕES EXCLUIR
+      // =====================================================
+
       tbody
         .querySelectorAll(
           '[data-blog-id]'
@@ -1835,6 +2151,13 @@
               'click',
               async function () {
 
+                const id =
+                  botao.dataset.blogId;
+
+                if (!id) {
+                  return;
+                }
+
                 if (
                   !confirm(
                     'Excluir este artigo?'
@@ -1845,14 +2168,28 @@
 
                 try {
 
-                  botao.disabled = true;
+                  botao.disabled =
+                    true;
 
                   await apiFetch(
-                    `/api/blog/${botao.dataset.blogId}`,
+                    `/api/blog/${id}`,
                     {
                       method: 'DELETE'
                     }
                   );
+
+                  // Se o artigo excluído
+                  // estava sendo editado,
+                  // limpa o editor.
+
+                  if (
+                    String(
+                      artigoEmEdicaoId
+                    ) === String(id)
+                  ) {
+
+                    cancelarEdicaoArtigo();
+                  }
 
                   await carregarArtigos();
 
@@ -1862,7 +2199,8 @@
                     erro.message
                   );
 
-                  botao.disabled = false;
+                  botao.disabled =
+                    false;
                 }
               }
             );
