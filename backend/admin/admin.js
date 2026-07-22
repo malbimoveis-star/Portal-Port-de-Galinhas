@@ -11,6 +11,12 @@
   const TOKEN_KEY = 'portal_admin_token';
 
   // =========================================================
+  // ESTADO DA EDIÇÃO DO BLOG
+  // =========================================================
+
+  let artigoEmEdicaoId = null;
+
+  // =========================================================
   // AUXILIARES
   // =========================================================
 
@@ -70,17 +76,23 @@
   const btnSalvarArtigo =
     document.getElementById('btnSalvarArtigo');
 
+  const btnCancelarEdicao =
+    document.getElementById('btnCancelarEdicao');
+
   const erroBlog =
     document.getElementById('erroBlog');
 
   const editorContextMenu =
     document.getElementById('editorContextMenu');
 
-  // =========================================================
-  // CONTROLE DE EDIÇÃO DO BLOG
-  // =========================================================
+  const blogIdEdicao =
+    document.getElementById('blogIdEdicao');
 
-  let artigoEmEdicaoId = null;
+  const tituloFormularioBlog =
+    document.getElementById('tituloFormularioBlog');
+
+  const descricaoFormularioBlog =
+    document.getElementById('descricaoFormularioBlog');
 
   // =========================================================
   // LOGIN / LOGOUT
@@ -204,6 +216,7 @@
     formLogin.addEventListener(
       'submit',
       async function (event) {
+
         event.preventDefault();
 
         mostrarErro(
@@ -228,6 +241,7 @@
             : '';
 
         if (!usuario || !senha) {
+
           mostrarErro(
             erroLogin,
             'Digite usuário e senha.'
@@ -237,6 +251,7 @@
         }
 
         try {
+
           const resposta =
             await fetch(
               API + '/api/login',
@@ -260,6 +275,7 @@
             await resposta.json();
 
           if (!resposta.ok) {
+
             throw new Error(
               data.erro ||
               'Usuário ou senha inválidos.'
@@ -267,6 +283,7 @@
           }
 
           if (!data.token) {
+
             throw new Error(
               'O servidor não retornou o token.'
             );
@@ -279,6 +296,7 @@
           await mostrarAdmin();
 
         } catch (erro) {
+
           console.error(
             '[LOGIN ERROR]',
             erro
@@ -298,10 +316,15 @@
   // =========================================================
 
   if (btnSair) {
+
     btnSair.addEventListener(
       'click',
       function () {
+
         removerToken();
+
+        cancelarEdicaoArtigo();
+
         mostrarLogin();
       }
     );
@@ -315,6 +338,7 @@
     .querySelectorAll('.tabs button')
     .forEach(
       function (botao) {
+
         botao.addEventListener(
           'click',
           async function () {
@@ -377,6 +401,7 @@
   // =========================================================
 
   async function carregarPendentes() {
+
     const container =
       document.getElementById(
         'listaPendentes'
@@ -387,6 +412,7 @@
     }
 
     try {
+
       const anuncios =
         await apiFetch(
           '/api/admin/anuncios'
@@ -396,6 +422,7 @@
         !Array.isArray(anuncios) ||
         anuncios.length === 0
       ) {
+
         container.innerHTML =
           '<p>Nenhum anúncio pendente.</p>';
 
@@ -405,6 +432,7 @@
       container.innerHTML =
         anuncios.map(
           function (anuncio) {
+
             return `
               <div
                 style="
@@ -507,6 +535,7 @@
   // =========================================================
 
   async function carregarTodos() {
+
     const tbody =
       document.getElementById(
         'listaTodos'
@@ -636,6 +665,7 @@
   // =========================================================
 
   async function carregarCategorias() {
+
     const tbody =
       document.getElementById(
         'listaCategorias'
@@ -1270,22 +1300,6 @@
             if (acao === 'quote') {
               formatar('BLOCKQUOTE');
             }
-
-            if (acao === 'fontSmall') {
-              alterarTamanhoTexto(2);
-            }
-
-            if (acao === 'fontNormal') {
-              alterarTamanhoTexto(3);
-            }
-
-            if (acao === 'fontLarge') {
-              alterarTamanhoTexto(5);
-            }
-
-            if (acao === 'fontHuge') {
-              alterarTamanhoTexto(7);
-            }
           }
         );
       }
@@ -1460,22 +1474,6 @@
               if (acao === 'quote') {
                 formatar('BLOCKQUOTE');
               }
-
-              if (acao === 'fontSmall') {
-                alterarTamanhoTexto(2);
-              }
-
-              if (acao === 'fontNormal') {
-                alterarTamanhoTexto(3);
-              }
-
-              if (acao === 'fontLarge') {
-                alterarTamanhoTexto(5);
-              }
-
-              if (acao === 'fontHuge') {
-                alterarTamanhoTexto(7);
-              }
             }
           );
         }
@@ -1535,12 +1533,72 @@
   }
 
   // =========================================================
-  // CANCELAR EDIÇÃO
+  // ATUALIZAR INTERFACE DO FORMULÁRIO
   // =========================================================
 
-  function cancelarEdicaoArtigo() {
+  function atualizarModoFormulario() {
 
-    artigoEmEdicaoId = null;
+    if (artigoEmEdicaoId) {
+
+      if (tituloFormularioBlog) {
+        tituloFormularioBlog.textContent =
+          'Editar artigo';
+      }
+
+      if (descricaoFormularioBlog) {
+        descricaoFormularioBlog.textContent =
+          'Altere os dados do artigo e salve as modificações.';
+      }
+
+      if (btnSalvarArtigo) {
+        btnSalvarArtigo.textContent =
+          'Salvar alterações';
+      }
+
+      if (btnCancelarEdicao) {
+        btnCancelarEdicao.style.display =
+          'inline-block';
+      }
+
+      if (blogIdEdicao) {
+        blogIdEdicao.value =
+          artigoEmEdicaoId;
+      }
+
+    } else {
+
+      if (tituloFormularioBlog) {
+        tituloFormularioBlog.textContent =
+          'Criar novo artigo';
+      }
+
+      if (descricaoFormularioBlog) {
+        descricaoFormularioBlog.textContent =
+          'Crie seu artigo usando o editor visual abaixo.';
+      }
+
+      if (btnSalvarArtigo) {
+        btnSalvarArtigo.textContent =
+          'Salvar artigo';
+      }
+
+      if (btnCancelarEdicao) {
+        btnCancelarEdicao.style.display =
+          'none';
+      }
+
+      if (blogIdEdicao) {
+        blogIdEdicao.value =
+          '';
+      }
+    }
+  }
+
+  // =========================================================
+  // LIMPAR FORMULÁRIO
+  // =========================================================
+
+  function limparFormularioArtigo() {
 
     const campoTitulo =
       document.getElementById(
@@ -1558,70 +1616,67 @@
       );
 
     if (campoTitulo) {
-      campoTitulo.value = '';
+      campoTitulo.value =
+        '';
     }
 
     if (campoResumo) {
-      campoResumo.value = '';
+      campoResumo.value =
+        '';
     }
 
     if (blogEditor) {
-      blogEditor.innerHTML = '';
+      blogEditor.innerHTML =
+        '';
     }
 
     if (campoPublicado) {
-      campoPublicado.checked = true;
+      campoPublicado.checked =
+        true;
     }
 
-    ultimaSelecao = null;
+    artigoEmEdicaoId =
+      null;
 
-    if (btnSalvarArtigo) {
-      btnSalvarArtigo.textContent =
-        'Salvar artigo';
+    ultimaSelecao =
+      null;
 
-      btnSalvarArtigo.dataset.mode =
-        'create';
-    }
+    atualizarModoFormulario();
 
-    const btnCancelarEdicao =
-      document.getElementById(
-        'btnCancelarEdicao'
-      );
+    esconderMenu();
+  }
 
-    if (btnCancelarEdicao) {
-      btnCancelarEdicao.classList.add(
-        'escondido'
-      );
-    }
+  // =========================================================
+  // CANCELAR EDIÇÃO
+  // =========================================================
+
+  function cancelarEdicaoArtigo() {
+
+    limparFormularioArtigo();
 
     mostrarErro(
       erroBlog,
       ''
     );
 
-    esconderMenu();
-
     console.log(
       '[BLOG] Edição cancelada.'
     );
   }
 
-  // =========================================================
-  // BOTÃO CANCELAR EDIÇÃO
-  // =========================================================
-
-  const btnCancelarEdicao =
-    document.getElementById(
-      'btnCancelarEdicao'
-    );
-
   if (btnCancelarEdicao) {
 
     btnCancelarEdicao.addEventListener(
       'click',
-      function (event) {
+      function () {
 
-        event.preventDefault();
+        if (
+          !confirm(
+            'Cancelar a edição? As alterações que ainda não foram salvas serão perdidas.'
+          )
+        ) {
+          return;
+        }
 
         cancelarEdicaoArtigo();
       }
@@ -1633,6 +1688,10 @@
   // =========================================================
 
   async function editarArtigo(id) {
+
+    if (!id) {
+      return;
+    }
 
     try {
 
@@ -1678,53 +1737,78 @@
 
       if (campoPublicado) {
         campoPublicado.checked =
-          Boolean(
-            artigo.publicado
-          );
+          Number(artigo.publicado) === 1 ||
+          artigo.publicado === true;
       }
 
       artigoEmEdicaoId =
         artigo.id;
 
-      if (btnSalvarArtigo) {
-
-        btnSalvarArtigo.textContent =
-          'Atualizar artigo';
-
-        btnSalvarArtigo.dataset.mode =
-          'edit';
-      }
-
-      if (btnCancelarEdicao) {
-
-        btnCancelarEdicao.classList.remove(
-          'escondido'
-        );
-      }
+      atualizarModoFormulario();
 
       mostrarErro(
         erroBlog,
         ''
       );
 
-      ultimaSelecao = null;
+      ultimaSelecao =
+        null;
 
-      // Tenta levar o usuário para o editor
-      if (blogEditor) {
+      esconderMenu();
 
-        blogEditor.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center'
-        });
-
-        setTimeout(
-          function () {
-
-            blogEditor.focus();
-
-          },
-          500
+      const tabBlog =
+        document.getElementById(
+          'tabBlog'
         );
+
+      if (tabBlog) {
+        tabBlog.classList.remove(
+          'escondido'
+        );
+      }
+
+      document
+        .querySelectorAll(
+          'main section'
+        )
+        .forEach(
+          function (section) {
+
+            if (
+              section.id !==
+              'tabBlog'
+            ) {
+              section.classList.add(
+                'escondido'
+              );
+            }
+          }
+        );
+
+      document
+        .querySelectorAll(
+          '.tabs button'
+        )
+        .forEach(
+          function (botao) {
+
+            botao.classList.remove(
+              'ativa'
+            );
+
+            if (
+              botao.dataset.tab ===
+              'blog'
+            ) {
+              botao.classList.add(
+                'ativa'
+              );
+            }
+          }
+        );
+
+      if (campoTitulo) {
+        campoTitulo.focus();
       }
 
       console.log(
@@ -1734,7 +1818,7 @@
     } catch (erro) {
 
       console.error(
-        '[BLOG EDITAR]',
+        '[BLOG] Erro ao carregar artigo para edição:',
         erro
       );
 
@@ -1746,7 +1830,7 @@
   }
 
   // =========================================================
-  // SALVAR / ATUALIZAR ARTIGO
+  // SALVAR ARTIGO
   // =========================================================
 
   if (btnSalvarArtigo) {
@@ -1808,10 +1892,15 @@
         console.log(
           '[BLOG] Dados enviados:',
           {
+            id:
+              artigoEmEdicaoId,
+
             titulo,
+
             resumo,
+
             publicado,
-            artigoEmEdicaoId,
+
             tamanhoConteudo:
               conteudo.length
           }
@@ -1852,20 +1941,18 @@
         btnSalvarArtigo.disabled =
           true;
 
-        const textoOriginal =
+        const textoOriginalBotao =
           btnSalvarArtigo.textContent;
 
         btnSalvarArtigo.textContent =
           artigoEmEdicaoId
-            ? 'Atualizando...'
+            ? 'Salvando alterações...'
             : 'Salvando...';
 
         try {
 
-          let resultado;
-
           // ===================================================
-          // EDITAR ARTIGO EXISTENTE
+          // MODO EDIÇÃO
           // ===================================================
 
           if (artigoEmEdicaoId) {
@@ -1875,7 +1962,7 @@
               artigoEmEdicaoId
             );
 
-            resultado =
+            const resultado =
               await apiFetch(
                 `/api/blog/${artigoEmEdicaoId}`,
                 {
@@ -1888,6 +1975,7 @@
 
                   body:
                     JSON.stringify({
+
                       titulo:
                         titulo,
 
@@ -1915,14 +2003,14 @@
           } else {
 
             // =================================================
-            // CRIAR NOVO ARTIGO
+            // MODO CRIAÇÃO
             // =================================================
 
             console.log(
               '[BLOG] Criando novo artigo.'
             );
 
-            resultado =
+            const resultado =
               await apiFetch(
                 '/api/blog',
                 {
@@ -1935,6 +2023,7 @@
 
                   body:
                     JSON.stringify({
+
                       titulo:
                         titulo,
 
@@ -1964,14 +2053,14 @@
           // LIMPAR FORMULÁRIO
           // ===================================================
 
-          cancelarEdicaoArtigo();
+          limparFormularioArtigo();
 
           await carregarArtigos();
 
         } catch (erro) {
 
           console.error(
-            '[BLOG] ERRO AO SALVAR/ATUALIZAR:',
+            '[BLOG] ERRO AO SALVAR:',
             erro
           );
 
@@ -1993,8 +2082,16 @@
 
           btnSalvarArtigo.textContent =
             artigoEmEdicaoId
-              ? 'Atualizar artigo'
-              : textoOriginal;
+              ? 'Salvar alterações'
+              : 'Salvar artigo';
+
+          if (
+            !artigoEmEdicaoId &&
+            textoOriginalBotao
+          ) {
+            btnSalvarArtigo.textContent =
+              'Salvar artigo';
+          }
         }
       }
     );
@@ -2074,8 +2171,8 @@
 
                   <button
                     type="button"
-                    class="btn btn--editar"
-                    data-blog-editar="${escapeHtml(artigo.id)}"
+                    class="btn btn--principal"
+                    data-blog-editar-id="${escapeHtml(artigo.id)}"
                   >
                     Editar
                   </button>
@@ -2101,7 +2198,7 @@
 
       tbody
         .querySelectorAll(
-          '[data-blog-editar]'
+          '[data-blog-editar-id]'
         )
         .forEach(
           function (botao) {
@@ -2111,7 +2208,7 @@
               async function () {
 
                 const id =
-                  botao.dataset.blogEditar;
+                  botao.dataset.blogEditarId;
 
                 if (!id) {
                   return;
@@ -2178,17 +2275,13 @@
                     }
                   );
 
-                  // Se o artigo excluído
-                  // estava sendo editado,
-                  // limpa o editor.
-
                   if (
                     String(
                       artigoEmEdicaoId
-                    ) === String(id)
+                    ) ===
+                    String(id)
                   ) {
-
-                    cancelarEdicaoArtigo();
+                    limparFormularioArtigo();
                   }
 
                   await carregarArtigos();
@@ -2227,6 +2320,8 @@
   // =========================================================
   // INICIALIZAÇÃO
   // =========================================================
+
+  atualizarModoFormulario();
 
   console.log(
     '[ADMIN] Inicialização concluída.'
