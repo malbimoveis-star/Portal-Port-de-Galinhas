@@ -2,107 +2,767 @@
 
 const express = require('express');
 const bcrypt = require('bcryptjs');
+
 const db = require('../db/connection');
-const { autenticar, gerarToken } = require('../middleware/auth');
-const { verificarEAtualizarStatus, calcularTempoRestanteDegustacao } = require('../utils/status');
-const { PLANOS } = require('../utils/planos');
+
+const {
+  autenticar,
+  gerarToken
+} = require('../middleware/auth');
+
+const {
+  verificarEAtualizarStatus,
+  calcularTempoRestanteDegustacao
+} = require('../utils/status');
+
+const {
+  PLANOS,
+  DIAS_DEGUSTACAO
+} = require('../utils/planos');
 
 const router = express.Router();
 
-function comercianteSemSenha(c) {
-  if (!c) return c;
-  const { senha_hash, ...resto } = c;
+
+// =========================================================
+// AUXILIAR
+// =========================================================
+
+function comercianteSemSenha(comerciante) {
+
+  if (!comerciante) {
+    return comerciante;
+  }
+
+  const {
+    senha_hash,
+    ...resto
+  } = comerciante;
+
   return resto;
 }
 
-// POST /api/comerciantes/cadastro - cria novo comerciante (inicia degustacao)
-router.post('/cadastro', async (req, res) => {
-  const { nome, email, telefone, senha } = req.body;
-  if (!nome || !email || !senha) {
-    return res.status(400).json({ erro: 'Campos "nome", "email" e "senha" sao obrigatorios.' });
+
+// =========================================================
+// AUXILIAR
+// BUSCAR COMERCIANTE ATUALIZADO
+// =========================================================
+
+function buscarComerciante(id) {
+
+  const comerciante =
+    db
+      .prepare(`
+        SELECT *
+        FROM comerciantes
+        WHERE id = ?
+      `)
+      .get(id);
+
+  if (comerciante) {
+    verificarEAtualizarStatus(comerciante);
   }
 
-  const existente = db.prepare('SELECT id FROM comerciantes WHERE email = ?').get(email);
-  if (existente) {
-    return res.status(409).json({ erro: 'Ja existe um comerciante cadastrado com este e-mail.' });
+  return comerciante;
+}
+
+
+// =========================================================
+// CADASTRO
+// POST /api/comerciantes/cadastro
+//
+// Novo comerciante começa automaticamente com:
+// - plano gratuito
+// - status degustacao
+// - prazo inicial definido pelos planos
+// =========================================================
+
+router.post(
+  '/cadastro',
+  async (req, res) => {
+
+    try {
+
+      const {
+        nome,
+        email,
+        telefone,
+        senha
+      } = req.body;
+
+
+      // -----------------------------------------------------
+      // VALIDAR CAMPOS
+      // -----------------------------------------------------
+
+      if (
+        !nome ||
+        !email ||
+        !senha
+      ) {
+
+        return res.status(400).json({
+          erro:
+            'Campos "nome", "email" e "senha" sao obrigatorios.'
+        });
+      }
+
+
+      // -----------------------------------------------------
+      // NORMALIZAR EMAIL
+      // -----------------------------------------------------
+
+      const emailNormalizado =
+        String(email)
+          .trim()
+          .toLowerCase();
+
+
+      // -----------------------------------------------------
+      // VERIFICAR EMAIL EXISTENTE
+      // -----------------------------------------------------
+
+      const existente =
+        db
+          .prepare(`
+            SELECT id
+            FROM comerciantes
+            WHERE email = ?
+          `)
+          .get(emailNormalizado);
+
+
+      if (existente) {
+
+        return res.status(409).json({
+          erro:
+            'Ja existe um comerciante cadastrado com este e-mail.'
+        });
+      }
+
+
+      // -----------------------------------------------------
+      // CRIAR HASH DA SENHA
+      // -----------------------------------------------------
+
+      const senha_hash =
+        await bcrypt.hash(
+          senha,
+          10
+        );
+
+
+      const agora =
+        new Date().toISOString();
+
+
+      // -----------------------------------------------------
+      // INSERIR COMERCIANTE
+      // -----------------------------------------------------
+
+      const info =
+        db
+          .prepare(`
+            INSERT INTO comerciantes (
+              nome,
+              email,
+              telefone,
+              senha_hash,
+              plano,
+              status,
+              data_criacao,
+              data_inicio_degustacao,
+              data_expiracao
+            )
+            VALUES (
+              ?,
+              ?,
+              ?,
+              'gratuito',
+              'degustacao',
+              ?,
+              ?,
+              NULL
+            )
+          `)
+          .run(
+
+            String(nome).trim(),
+
+            emailNormalizado,
+
+            telefone
+              ? String(telefone).trim()
+              : null,
+
+            agora,
+
+            agora
+
+          );
+
+
+      // -----------------------------------------------------
+      // BUSCAR COMERCIANTE CRIADO
+      // -----------------------------------------------------
+
+      const comerciante =
+        buscarComerciante(
+          info.lastInsertRowid
+        );
+
+
+      // -----------------------------------------------------
+      // GERAR TOKEN
+      // -----------------------------------------------------
+
+      const token =
+        gerarToken(
+          comerciante
+        );
+
+
+      return res
+        .status(201)
+        .json({
+
+          comerciante:
+            comercianteSemSenha(
+              comerciante
+            ),
+
+          token,
+
+          degustacao: {
+            dias:
+              DIAS_DEGUSTACAO,
+
+            dataInicio:
+              comerciante.data_inicio_degustacao
+          }
+
+        });
+
+
+    } catch (err) {
+
+      console.error(
+        '[COMERCIANTES] Erro ao cadastrar:',
+        err
+      );
+
+
+      return res.status(500).json({
+        erro:
+          'Erro ao cadastrar comerciante: ' +
+          err.message
+      });
+    }
+
   }
+);
 
-  const senha_hash = await bcrypt.hash(senha, 10);
-  const agora = new Date().toISOString();
 
-  const info = db
-    .prepare(
-      `INSERT INTO comerciantes (nome, email, telefone, senha_hash, plano, status, data_criacao, data_inicio_degustacao)
-       VALUES (?, ?, ?, ?, 'gratuito', 'degustacao', ?, ?)`
-    )
-    .run(nome, email, telefone || null, senha_hash, agora, agora);
-
-  const comerciante = db.prepare('SELECT * FROM comerciantes WHERE id = ?').get(info.lastInsertRowid);
-  const token = gerarToken(comerciante);
-
-  res.status(201).json({ comerciante: comercianteSemSenha(comerciante), token });
-});
-
+// =========================================================
+// LOGIN
 // POST /api/comerciantes/login
-router.post('/login', async (req, res) => {
-  const { email, senha } = req.body;
-  if (!email || !senha) {
-    return res.status(400).json({ erro: 'Campos "email" e "senha" sao obrigatorios.' });
+// =========================================================
+
+router.post(
+  '/login',
+  async (req, res) => {
+
+    try {
+
+      const {
+        email,
+        senha
+      } = req.body;
+
+
+      if (
+        !email ||
+        !senha
+      ) {
+
+        return res.status(400).json({
+          erro:
+            'Campos "email" e "senha" sao obrigatorios.'
+        });
+      }
+
+
+      const emailNormalizado =
+        String(email)
+          .trim()
+          .toLowerCase();
+
+
+      const comerciante =
+        db
+          .prepare(`
+            SELECT *
+            FROM comerciantes
+            WHERE email = ?
+          `)
+          .get(
+            emailNormalizado
+          );
+
+
+      if (!comerciante) {
+
+        return res.status(401).json({
+          erro:
+            'Credenciais invalidas.'
+        });
+      }
+
+
+      const senhaOk =
+        await bcrypt.compare(
+          senha,
+          comerciante.senha_hash
+        );
+
+
+      if (!senhaOk) {
+
+        return res.status(401).json({
+          erro:
+            'Credenciais invalidas.'
+        });
+      }
+
+
+      // -----------------------------------------------------
+      // ATUALIZAR STATUS AUTOMATICAMENTE
+      // -----------------------------------------------------
+
+      verificarEAtualizarStatus(
+        comerciante
+      );
+
+
+      const token =
+        gerarToken(
+          comerciante
+        );
+
+
+      const degustacao =
+        calcularTempoRestanteDegustacao(
+          comerciante
+        );
+
+
+      return res.json({
+
+        comerciante:
+          comercianteSemSenha(
+            comerciante
+          ),
+
+        token,
+
+        degustacao
+
+      });
+
+
+    } catch (err) {
+
+      console.error(
+        '[COMERCIANTES] Erro no login:',
+        err
+      );
+
+
+      return res.status(500).json({
+        erro:
+          'Erro ao realizar login: ' +
+          err.message
+      });
+    }
+
   }
+);
 
-  const comerciante = db.prepare('SELECT * FROM comerciantes WHERE email = ?').get(email);
-  if (!comerciante) {
-    return res.status(401).json({ erro: 'Credenciais invalidas.' });
+
+// =========================================================
+// ME
+// GET /api/comerciantes/me
+//
+// Retorna os dados do comerciante autenticado.
+// =========================================================
+
+router.get(
+  '/me',
+  autenticar,
+  (req, res) => {
+
+    try {
+
+      const comerciante =
+        buscarComerciante(
+          req.comerciante.id
+        );
+
+
+      if (!comerciante) {
+
+        return res.status(404).json({
+          erro:
+            'Comerciante nao encontrado.'
+        });
+      }
+
+
+      const degustacao =
+        calcularTempoRestanteDegustacao(
+          comerciante
+        );
+
+
+      return res.json({
+
+        comerciante:
+          comercianteSemSenha(
+            comerciante
+          ),
+
+        degustacao,
+
+        plano_info:
+          PLANOS[
+            comerciante.plano
+          ] || null
+
+      });
+
+
+    } catch (err) {
+
+      console.error(
+        '[COMERCIANTES] Erro ao buscar perfil:',
+        err
+      );
+
+
+      return res.status(500).json({
+        erro:
+          'Erro ao carregar dados do comerciante.'
+      });
+    }
+
   }
+);
 
-  const senhaOk = await bcrypt.compare(senha, comerciante.senha_hash);
-  if (!senhaOk) {
-    return res.status(401).json({ erro: 'Credenciais invalidas.' });
+
+// =========================================================
+// EDITAR MEUS DADOS
+// PUT /api/comerciantes/me
+//
+// Permite editar:
+// - nome
+// - telefone
+//
+// O email permanece protegido nesta etapa.
+// =========================================================
+
+router.put(
+  '/me',
+  autenticar,
+  (req, res) => {
+
+    try {
+
+      const {
+        nome,
+        telefone
+      } = req.body;
+
+
+      const comerciante =
+        buscarComerciante(
+          req.comerciante.id
+        );
+
+
+      if (!comerciante) {
+
+        return res.status(404).json({
+          erro:
+            'Comerciante nao encontrado.'
+        });
+      }
+
+
+      const novoNome =
+        nome !== undefined
+          ? String(nome).trim()
+          : comerciante.nome;
+
+
+      const novoTelefone =
+        telefone !== undefined
+          ? String(telefone).trim()
+          : comerciante.telefone;
+
+
+      if (!novoNome) {
+
+        return res.status(400).json({
+          erro:
+            'O nome e obrigatorio.'
+        });
+      }
+
+
+      db
+        .prepare(`
+          UPDATE comerciantes
+
+          SET
+            nome = ?,
+            telefone = ?
+
+          WHERE id = ?
+        `)
+        .run(
+
+          novoNome,
+
+          novoTelefone,
+
+          comerciante.id
+
+        );
+
+
+      const atualizado =
+        buscarComerciante(
+          comerciante.id
+        );
+
+
+      return res.json({
+
+        comerciante:
+          comercianteSemSenha(
+            atualizado
+          ),
+
+        degustacao:
+          calcularTempoRestanteDegustacao(
+            atualizado
+          )
+
+      });
+
+
+    } catch (err) {
+
+      console.error(
+        '[COMERCIANTES] Erro ao editar:',
+        err
+      );
+
+
+      return res.status(500).json({
+        erro:
+          'Erro ao atualizar comerciante: ' +
+          err.message
+      });
+    }
+
   }
+);
 
-  verificarEAtualizarStatus(comerciante);
-  const token = gerarToken(comerciante);
-  res.json({ comerciante: comercianteSemSenha(comerciante), token });
-});
 
-// GET /api/comerciantes/me - dados do comerciante autenticado (painel)
-router.get('/me', autenticar, (req, res) => {
-  const comerciante = db.prepare('SELECT * FROM comerciantes WHERE id = ?').get(req.comerciante.id);
-  if (!comerciante) return res.status(404).json({ erro: 'Comerciante nao encontrado.' });
+// =========================================================
+// ALTERAR SENHA
+// PUT /api/comerciantes/me/senha
+//
+// Permite ao comerciante alterar a própria senha.
+// =========================================================
 
-  verificarEAtualizarStatus(comerciante);
-  const degustacao = calcularTempoRestanteDegustacao(comerciante);
+router.put(
+  '/me/senha',
+  autenticar,
+  async (req, res) => {
 
-  res.json({
-    comerciante: comercianteSemSenha(comerciante),
-    degustacao,
-    plano_info: PLANOS[comerciante.plano] || null,
-  });
-});
+    try {
 
-// GET /api/comerciantes/:id - dados publicos de um comerciante (pagina do comerciante)
-router.get('/:id', (req, res) => {
-  const comerciante = db.prepare('SELECT * FROM comerciantes WHERE id = ?').get(req.params.id);
-  if (!comerciante) return res.status(404).json({ erro: 'Comerciante nao encontrado.' });
+      const {
+        senhaAtual,
+        novaSenha
+      } = req.body;
 
-  verificarEAtualizarStatus(comerciante);
-  res.json({ comerciante: comercianteSemSenha(comerciante) });
-});
 
-// PUT /api/comerciantes/me - atualiza dados do comerciante autenticado
-router.put('/me', autenticar, (req, res) => {
-  const { nome, telefone } = req.body;
-  const comerciante = db.prepare('SELECT * FROM comerciantes WHERE id = ?').get(req.comerciante.id);
-  if (!comerciante) return res.status(404).json({ erro: 'Comerciante nao encontrado.' });
+      if (
+        !senhaAtual ||
+        !novaSenha
+      ) {
 
-  db.prepare('UPDATE comerciantes SET nome = ?, telefone = ? WHERE id = ?').run(
-    nome || comerciante.nome,
-    telefone !== undefined ? telefone : comerciante.telefone,
-    comerciante.id
-  );
+        return res.status(400).json({
+          erro:
+            'Informe a senha atual e a nova senha.'
+        });
+      }
 
-  const atualizado = db.prepare('SELECT * FROM comerciantes WHERE id = ?').get(comerciante.id);
-  res.json({ comerciante: comercianteSemSenha(atualizado) });
-});
+
+      if (
+        String(novaSenha).length < 6
+      ) {
+
+        return res.status(400).json({
+          erro:
+            'A nova senha deve ter pelo menos 6 caracteres.'
+        });
+      }
+
+
+      const comerciante =
+        db
+          .prepare(`
+            SELECT *
+            FROM comerciantes
+            WHERE id = ?
+          `)
+          .get(
+            req.comerciante.id
+          );
+
+
+      if (!comerciante) {
+
+        return res.status(404).json({
+          erro:
+            'Comerciante nao encontrado.'
+        });
+      }
+
+
+      const senhaOk =
+        await bcrypt.compare(
+          senhaAtual,
+          comerciante.senha_hash
+        );
+
+
+      if (!senhaOk) {
+
+        return res.status(401).json({
+          erro:
+            'A senha atual esta incorreta.'
+        });
+      }
+
+
+      const novaSenhaHash =
+        await bcrypt.hash(
+          novaSenha,
+          10
+        );
+
+
+      db
+        .prepare(`
+          UPDATE comerciantes
+
+          SET senha_hash = ?
+
+          WHERE id = ?
+        `)
+        .run(
+
+          novaSenhaHash,
+
+          comerciante.id
+
+        );
+
+
+      return res.json({
+        sucesso:
+          true,
+
+        mensagem:
+          'Senha alterada com sucesso.'
+      });
+
+
+    } catch (err) {
+
+      console.error(
+        '[COMERCIANTES] Erro ao alterar senha:',
+        err
+      );
+
+
+      return res.status(500).json({
+        erro:
+          'Erro ao alterar senha: ' +
+          err.message
+      });
+    }
+
+  }
+);
+
+
+// =========================================================
+// DADOS PUBLICOS DO COMERCIANTE
+// GET /api/comerciantes/:id
+// =========================================================
+
+router.get(
+  '/:id',
+  (req, res) => {
+
+    try {
+
+      const comerciante =
+        buscarComerciante(
+          req.params.id
+        );
+
+
+      if (!comerciante) {
+
+        return res.status(404).json({
+          erro:
+            'Comerciante nao encontrado.'
+        });
+      }
+
+
+      return res.json({
+
+        comerciante:
+          comercianteSemSenha(
+            comerciante
+          )
+
+      });
+
+
+    } catch (err) {
+
+      console.error(
+        '[COMERCIANTES] Erro ao buscar comerciante:',
+        err
+      );
+
+
+      return res.status(500).json({
+        erro:
+          'Erro ao carregar comerciante.'
+      });
+    }
+
+  }
+);
+
 
 module.exports = router;
