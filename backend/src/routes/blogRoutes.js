@@ -31,20 +31,6 @@ function normalizarPublicado(valor, padrao = 1) {
 // =========================================================
 // OBTER CAPA
 // =========================================================
-//
-// Se o admin informar uma capa manualmente,
-// usamos essa capa.
-//
-// Se não informar,
-// procuramos a primeira imagem dentro do conteúdo.
-//
-// Exemplo:
-//
-// <p>Texto do artigo...</p>
-// <img src="data:image/jpeg;base64,..." />
-//
-// A imagem encontrada será usada como capa.
-//
 
 function obterCapa(body = {}) {
   const capaInformada =
@@ -77,7 +63,6 @@ function obterCapa(body = {}) {
     return null;
   }
 
-  // Procura a primeira tag <img>
   const resultado =
     conteudo.match(
       /<img\b[^>]*\bsrc\s*=\s*["']([^"']+)["'][^>]*>/i
@@ -215,6 +200,69 @@ router.get(
 );
 
 // =========================================================
+// ADMIN - OBTER ARTIGO PARA EDIÇÃO
+// GET /api/blog/admin/:id
+// =========================================================
+//
+// Esta rota é usada pelo botão "Editar" do painel administrativo.
+//
+// IMPORTANTE:
+// Ela precisa ficar ANTES de:
+// GET /api/blog/:id
+//
+// Assim o Express não interpreta "admin" como sendo um ID.
+//
+
+router.get(
+  '/admin/:id',
+  autenticarAdmin,
+  (req, res) => {
+
+    try {
+
+      const artigo =
+        db.prepare(`
+          SELECT *
+          FROM artigos
+          WHERE id = ?
+        `).get(
+          req.params.id
+        );
+
+      if (!artigo) {
+
+        return res.status(404).json({
+          erro:
+            'Artigo não encontrado.'
+        });
+      }
+
+      console.log(
+        '[BLOG ADMIN] Artigo carregado para edição:',
+        artigo.id
+      );
+
+      return res.json(
+        artigo
+      );
+
+    } catch (err) {
+
+      console.error(
+        '[BLOG ADMIN] Erro ao carregar artigo para edição:',
+        err
+      );
+
+      return res.status(500).json({
+        erro:
+          'Erro ao carregar artigo para edição: ' +
+          err.message
+      });
+    }
+  }
+);
+
+// =========================================================
 // ADMIN - CRIAR ARTIGO
 // POST /api/blog
 // =========================================================
@@ -236,12 +284,6 @@ router.post(
       // -----------------------------------------------------
       // OBTER CAPA
       // -----------------------------------------------------
-      //
-      // Primeiro tenta usar capa_url.
-      //
-      // Se não existir,
-      // pega automaticamente a primeira imagem do artigo.
-      //
 
       const capa_url =
         obterCapa(
@@ -416,7 +458,6 @@ router.put(
 
       let novaCapa;
 
-      // Se enviou capa manualmente
       const capaInformada =
         req.body.capa_url ??
         req.body.capa ??
@@ -435,9 +476,6 @@ router.put(
         conteudo !== undefined
       ) {
 
-        // Se o conteúdo foi alterado,
-        // procura a primeira imagem nova.
-
         const capaAutomatica =
           obterCapa({
             conteudo:
@@ -450,9 +488,6 @@ router.put(
           null;
 
       } else {
-
-        // Se o conteúdo não mudou,
-        // mantém a capa existente.
 
         novaCapa =
           artigo.capa_url ||
@@ -537,6 +572,11 @@ router.put(
         `).get(
           req.params.id
         );
+
+      console.log(
+        '[BLOG ADMIN] Artigo atualizado:',
+        atualizado
+      );
 
       return res.json(
         atualizado
