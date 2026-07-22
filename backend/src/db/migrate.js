@@ -513,7 +513,7 @@ function migrate() {
   // =========================================================
 
   console.log(
-    '[db] migrations aplicadas com sucesso.'
+    '[db] migrations aplicadas com sucesso - deploy atualizado.'
   );
 
 }
