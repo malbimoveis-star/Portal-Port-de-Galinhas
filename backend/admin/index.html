@@ -1,308 +1,5 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-
-<head>
-
-  <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
-  <title>
-    Painel Administrativo - Portal Porto de Galinhas
-  </title>
-
-  <link
-    rel="stylesheet"
-    href="./admin.css"
-  >
-
-</head>
-
-<body>
-
-
-  <!-- =====================================================
-       TELA DE LOGIN
-  ====================================================== -->
-
-  <div
-    id="telaLogin"
-    class="tela-login"
-  >
-
-    <div class="login-card">
-
-      <h1>
-        Painel Administrativo
-      </h1>
-
-      <p>
-        Portal Porto de Galinhas
-      </p>
-
-
-      <form id="formLogin">
-
-        <div class="campo">
-
-          <label for="usuario">
-            Usuário
-          </label>
-
-          <input
-            type="text"
-            id="usuario"
-            name="usuario"
-            placeholder="Digite seu usuário"
-            autocomplete="username"
-            required
-          >
-
-        </div>
-
-
-        <div class="campo">
-
-          <label for="senha">
-            Senha
-          </label>
-
-          <input
-            type="password"
-            id="senha"
-            name="senha"
-            placeholder="Digite sua senha"
-            autocomplete="current-password"
-            required
-          >
-
-        </div>
-
-
-        <p
-          id="erroLogin"
-          class="erro"
-        ></p>
-
-
-        <button
-          type="submit"
-          class="btn btn--principal"
-        >
-          Entrar
-        </button>
-
-      </form>
-
-    </div>
-
-  </div>
-
-
-
-  <!-- =====================================================
-       PAINEL ADMINISTRATIVO
-  ====================================================== -->
-
-  <div
-    id="telaAdmin"
-    class="admin-container escondido"
-  >
-
-
-    <!-- =================================================
-         CABEÇALHO
-    ================================================== -->
-
-    <header class="admin-header">
-
-      <div>
-
-        <h1>
-          Painel Administrativo
-        </h1>
-
-        <p>
-          Portal Porto de Galinhas
-        </p>
-
-      </div>
-
-
-      <button
-        id="btnSair"
-        type="button"
-        class="btn btn--sair"
-      >
-        Sair
-      </button>
-
-    </header>
-
-
-
-    <!-- =================================================
-         ABAS
-    ================================================== -->
-
-    <nav class="tabs">
-
-      <button
-        type="button"
-        data-tab="pendentes"
-        class="ativa"
-      >
-        Anúncios Pendentes
-      </button>
-
-
-      <button
-        type="button"
-        data-tab="todos"
-      >
-        Todos os Anúncios
-      </button>
-
-
-      <button
-        type="button"
-        data-tab="categorias"
-      >
-        Categorias
-      </button>
-
-
-      <button
-        type="button"
-        data-tab="blog"
-      >
-        Blog
-      </button>
-
-    </nav>
-
-
-
-    <!-- =================================================
-         CONTEÚDO
-    ================================================== -->
-
-    <main>
-
-
       <!-- ===============================================
-           ANÚNCIOS PENDENTES
-      ================================================ -->
-
-      <section
-        id="tabPendentes"
-      >
-
-        <div class="card">
-
-          <h2>
-            Anúncios Pendentes
-          </h2>
-
-          <p>
-            Anúncios aguardando aprovação ou rejeição.
-          </p>
-
-          <div
-            id="listaPendentes"
-          >
-            Carregando...
-          </div>
-
-        </div>
-
-      </section>
-
-
-
-      <!-- ===============================================
-           TODOS OS ANÚNCIOS
-      ================================================ -->
-
-      <section
-        id="tabTodos"
-        class="escondido"
-      >
-
-        <div class="card">
-
-          <h2>
-            Todos os Anúncios
-          </h2>
-
-          <p>
-            Gerencie, edite ou exclua os anúncios cadastrados no portal.
-          </p>
-
-
-          <div class="table-container">
-
-            <table>
-
-              <thead>
-
-                <tr>
-
-                  <th>
-                    ID
-                  </th>
-
-                  <th>
-                    Título
-                  </th>
-
-                  <th>
-                    Status
-                  </th>
-
-                  <th>
-                    Localização
-                  </th>
-
-                  <th>
-                    Ações
-                  </th>
-
-                </tr>
-
-              </thead>
-
-
-              <tbody
-                id="listaTodos"
-              >
-
-                <tr>
-
-                  <td colspan="5">
-                    Carregando...
-
-                  </td>
-
-                </tr>
-
-              </tbody>
-
-            </table>
-
-          </div>
-
-        </div>
-
-      </section>
-
-
-
-      <!-- ===============================================
-           FORMULÁRIO DE EDIÇÃO DE ANÚNCIO
+           EDITAR ANÚNCIO
       ================================================ -->
 
       <section
@@ -313,19 +10,12 @@
         <div class="card">
 
           <h2>
-            Editar Anúncio
+            Editar anúncio
           </h2>
 
           <p>
-            Altere os dados do anúncio selecionado.
+            Edite os dados do anúncio selecionado.
           </p>
-
-
-          <p
-            id="erroEditarAnuncio"
-            class="erro"
-          ></p>
-
 
           <input
             type="hidden"
@@ -334,23 +24,33 @@
           >
 
 
+          <p
+            id="erroEditarAnuncio"
+            class="erro"
+          ></p>
+
+
           <div class="blog-form">
 
+
+            <!-- TÍTULO -->
 
             <div class="campo">
 
               <label for="editarAnuncioTitulo">
-                Título
+                Título do anúncio
               </label>
 
               <input
                 type="text"
                 id="editarAnuncioTitulo"
-                placeholder="Título do anúncio"
+                placeholder="Digite o título do anúncio"
               >
 
             </div>
 
+
+            <!-- DESCRIÇÃO -->
 
             <div class="campo">
 
@@ -360,12 +60,14 @@
 
               <textarea
                 id="editarAnuncioDescricao"
-                rows="5"
-                placeholder="Descrição do anúncio"
+                rows="6"
+                placeholder="Digite a descrição do anúncio"
               ></textarea>
 
             </div>
 
+
+            <!-- TELEFONE -->
 
             <div class="campo">
 
@@ -376,11 +78,13 @@
               <input
                 type="text"
                 id="editarAnuncioTelefone"
-                placeholder="Telefone"
+                placeholder="Digite o telefone"
               >
 
             </div>
 
+
+            <!-- ENDEREÇO -->
 
             <div class="campo">
 
@@ -391,11 +95,13 @@
               <input
                 type="text"
                 id="editarAnuncioEndereco"
-                placeholder="Endereço"
+                placeholder="Digite o endereço"
               >
 
             </div>
 
+
+            <!-- LATITUDE -->
 
             <div class="campo">
 
@@ -406,11 +112,13 @@
               <input
                 type="text"
                 id="editarAnuncioLatitude"
-                placeholder="-8.5..."
+                placeholder="Ex.: -8.5069"
               >
 
             </div>
 
+
+            <!-- LONGITUDE -->
 
             <div class="campo">
 
@@ -421,11 +129,13 @@
               <input
                 type="text"
                 id="editarAnuncioLongitude"
-                placeholder="-35.0..."
+                placeholder="Ex.: -35.0068"
               >
 
             </div>
 
+
+            <!-- STATUS -->
 
             <div class="campo">
 
@@ -441,8 +151,8 @@
                   Pendente
                 </option>
 
-                <option value="aprovado">
-                  Aprovado
+                <option value="ativo">
+                  Ativo
                 </option>
 
                 <option value="rejeitado">
@@ -453,6 +163,8 @@
 
             </div>
 
+
+            <!-- BOTÕES -->
 
             <div
               style="
@@ -477,7 +189,7 @@
                 id="btnCancelarEdicaoAnuncio"
                 class="btn"
               >
-                Cancelar
+                Cancelar edição
               </button>
 
             </div>
@@ -491,128 +203,7 @@
 
 
       <!-- ===============================================
-           CATEGORIAS
-      ================================================ -->
-
-      <section
-        id="tabCategorias"
-        class="escondido"
-      >
-
-        <div class="card">
-
-          <h2>
-            Categorias
-          </h2>
-
-          <p>
-            Cadastre, edite ou exclua as categorias do portal.
-          </p>
-
-
-          <div class="form-categoria">
-
-            <div class="campo">
-
-              <label for="novaCategoriaNome">
-                Nome da categoria
-              </label>
-
-              <input
-                type="text"
-                id="novaCategoriaNome"
-                placeholder="Ex.: Restaurantes"
-              >
-
-            </div>
-
-
-            <div class="campo">
-
-              <label for="novaCategoriaIcone">
-                URL do ícone
-              </label>
-
-              <input
-                type="text"
-                id="novaCategoriaIcone"
-                placeholder="https://..."
-              >
-
-            </div>
-
-
-            <button
-              type="button"
-              id="btnAddCategoria"
-              class="btn btn--principal"
-            >
-              Adicionar Categoria
-            </button>
-
-          </div>
-
-
-          <div class="table-container">
-
-            <table>
-
-              <thead>
-
-                <tr>
-
-                  <th>
-                    ID
-                  </th>
-
-                  <th>
-                    Nome
-                  </th>
-
-                  <th>
-                    Ícone
-                  </th>
-
-                  <th>
-                    Slug
-                  </th>
-
-                  <th>
-                    Ações
-                  </th>
-
-                </tr>
-
-              </thead>
-
-
-              <tbody
-                id="listaCategorias"
-              >
-
-                <tr>
-
-                  <td colspan="5">
-                    Carregando...
-
-                  </td>
-
-                </tr>
-
-              </tbody>
-
-            </table>
-
-          </div>
-
-        </div>
-
-      </section>
-
-
-
-      <!-- ===============================================
-           FORMULÁRIO DE EDIÇÃO DE CATEGORIA
+           EDITAR CATEGORIA
       ================================================ -->
 
       <section
@@ -623,19 +214,12 @@
         <div class="card">
 
           <h2>
-            Editar Categoria
+            Editar categoria
           </h2>
 
           <p>
             Altere os dados da categoria selecionada.
           </p>
-
-
-          <p
-            id="erroEditarCategoria"
-            class="erro"
-          ></p>
-
 
           <input
             type="hidden"
@@ -644,8 +228,16 @@
           >
 
 
+          <p
+            id="erroEditarCategoria"
+            class="erro"
+          ></p>
+
+
           <div class="form-categoria">
 
+
+            <!-- NOME -->
 
             <div class="campo">
 
@@ -656,11 +248,13 @@
               <input
                 type="text"
                 id="editarCategoriaNome"
-                placeholder="Nome da categoria"
+                placeholder="Digite o nome da categoria"
               >
 
             </div>
 
+
+            <!-- ÍCONE -->
 
             <div class="campo">
 
@@ -676,6 +270,8 @@
 
             </div>
 
+
+            <!-- BOTÕES -->
 
             <div
               style="
@@ -700,494 +296,13 @@
                 id="btnCancelarEdicaoCategoria"
                 class="btn"
               >
-                Cancelar
-              </button>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </section>
-
-
-
-      <!-- ===============================================
-           BLOG
-      ================================================ -->
-
-      <section
-        id="tabBlog"
-        class="escondido"
-      >
-
-
-        <!-- =============================================
-             FORMULÁRIO DO ARTIGO
-        ============================================== -->
-
-        <div class="card">
-
-          <h2 id="tituloFormularioBlog">
-            Criar novo artigo
-          </h2>
-
-          <p id="descricaoFormularioBlog">
-            Crie seu artigo usando o editor visual abaixo.
-          </p>
-
-
-          <input
-            type="hidden"
-            id="blogIdEdicao"
-            value=""
-          >
-
-
-          <p
-            id="erroBlog"
-            class="erro"
-          ></p>
-
-
-
-          <div class="blog-form">
-
-
-            <!-- TÍTULO -->
-
-            <div class="campo">
-
-              <label for="blogTitulo">
-                Título do artigo
-              </label>
-
-              <input
-                type="text"
-                id="blogTitulo"
-                placeholder="Digite o título principal do artigo"
-              >
-
-            </div>
-
-
-
-            <!-- RESUMO -->
-
-            <div class="campo">
-
-              <label for="blogResumo">
-                Resumo do artigo
-              </label>
-
-              <textarea
-                id="blogResumo"
-                rows="4"
-                placeholder="Digite um resumo curto do artigo"
-              ></textarea>
-
-            </div>
-
-
-
-            <!-- EDITOR -->
-
-            <div class="campo">
-
-              <label>
-                Conteúdo do artigo
-              </label>
-
-
-              <div
-                id="blogToolbar"
-                class="blog-toolbar"
-              >
-
-                <button
-                  type="button"
-                  class="editor-btn"
-                  data-editor-action="h1"
-                  title="Título principal"
-                >
-                  H1
-                </button>
-
-
-                <button
-                  type="button"
-                  class="editor-btn"
-                  data-editor-action="h2"
-                  title="Subtítulo"
-                >
-                  H2
-                </button>
-
-
-                <button
-                  type="button"
-                  class="editor-btn"
-                  data-editor-action="h3"
-                  title="Título de seção"
-                >
-                  H3
-                </button>
-
-
-                <span class="editor-separador"></span>
-
-
-                <button
-                  type="button"
-                  class="editor-btn"
-                  data-editor-action="bold"
-                  title="Negrito"
-                >
-                  <strong>B</strong>
-                </button>
-
-
-                <button
-                  type="button"
-                  class="editor-btn"
-                  data-editor-action="italic"
-                  title="Itálico"
-                >
-                  <em>I</em>
-                </button>
-
-
-                <span class="editor-separador"></span>
-
-
-                <button
-                  type="button"
-                  class="editor-btn"
-                  data-editor-action="link"
-                  title="Inserir link"
-                >
-                  🔗 Link
-                </button>
-
-
-                <button
-                  type="button"
-                  class="editor-btn"
-                  data-editor-action="image"
-                  title="Inserir imagem por URL"
-                >
-                  🖼️ Imagem
-                </button>
-
-
-                <button
-                  type="button"
-                  class="editor-btn"
-                  data-editor-action="imageMultiple"
-                  title="Inserir várias imagens do computador"
-                >
-                  📷 Várias imagens
-                </button>
-
-
-                <span class="editor-separador"></span>
-
-
-                <button
-                  type="button"
-                  class="editor-btn"
-                  data-editor-action="paragraph"
-                  title="Transformar em parágrafo"
-                >
-                  ¶ Parágrafo
-                </button>
-
-
-                <button
-                  type="button"
-                  class="editor-btn"
-                  data-editor-action="quote"
-                  title="Transformar em citação"
-                >
-                  ❝ Citação
-                </button>
-
-              </div>
-
-
-
-              <div
-                id="blogConteudo"
-                class="blog-editor"
-                contenteditable="true"
-                role="textbox"
-                aria-multiline="true"
-                data-placeholder="Comece a escrever seu artigo aqui..."
-              ></div>
-
-
-
-              <!-- MENU DIREITO -->
-
-              <div
-                id="editorContextMenu"
-                class="editor-context-menu escondido"
-              >
-
-                <button
-                  type="button"
-                  data-context-action="h1"
-                >
-                  H1 - Título principal
-                </button>
-
-
-                <button
-                  type="button"
-                  data-context-action="h2"
-                >
-                  H2 - Subtítulo
-                </button>
-
-
-                <button
-                  type="button"
-                  data-context-action="h3"
-                >
-                  H3 - Seção
-                </button>
-
-
-                <div class="context-separador"></div>
-
-
-                <button
-                  type="button"
-                  data-context-action="bold"
-                >
-                  <strong>B</strong>
-                  Negrito
-                </button>
-
-
-                <button
-                  type="button"
-                  data-context-action="italic"
-                >
-                  <em>I</em>
-                  Itálico
-                </button>
-
-
-                <div class="context-separador"></div>
-
-
-                <button
-                  type="button"
-                  data-context-action="link"
-                >
-                  🔗 Inserir link
-                </button>
-
-
-                <button
-                  type="button"
-                  data-context-action="image"
-                >
-                  🖼️ Inserir imagem
-                </button>
-
-
-                <button
-                  type="button"
-                  data-context-action="imageMultiple"
-                >
-                  📷 Inserir várias imagens
-                </button>
-
-
-                <div class="context-separador"></div>
-
-
-                <button
-                  type="button"
-                  data-context-action="paragraph"
-                >
-                  ¶ Transformar em parágrafo
-                </button>
-
-
-                <button
-                  type="button"
-                  data-context-action="quote"
-                >
-                  ❝ Transformar em citação
-                </button>
-
-              </div>
-
-
-              <small class="editor-ajuda">
-
-                💡
-                Escreva o artigo diretamente no editor.
-                Selecione um texto para aplicar formatação.
-                Você também pode clicar com o botão direito
-                dentro do editor para acessar as opções.
-
-              </small>
-
-            </div>
-
-
-
-            <!-- PUBLICAÇÃO -->
-
-            <div class="campo checkbox">
-
-              <label>
-
-                <input
-                  type="checkbox"
-                  id="blogPublicado"
-                  checked
-                >
-
-                Publicar artigo imediatamente
-
-              </label>
-
-            </div>
-
-
-
-            <!-- BOTÕES -->
-
-            <div
-              style="
-                display:flex;
-                gap:10px;
-                flex-wrap:wrap;
-                margin-top:15px;
-              "
-            >
-
-              <button
-                type="button"
-                id="btnSalvarArtigo"
-                class="btn btn--principal"
-              >
-                Salvar artigo
-              </button>
-
-
-              <button
-                type="button"
-                id="btnCancelarEdicao"
-                class="btn"
-                style="display:none;"
-              >
                 Cancelar edição
               </button>
 
             </div>
 
-
           </div>
 
         </div>
-
-
-
-        <!-- =============================================
-             ARTIGOS CADASTRADOS
-        ============================================== -->
-
-        <div class="card">
-
-          <h2>
-            Artigos cadastrados
-          </h2>
-
-
-          <p>
-            Aqui você pode editar ou excluir os artigos existentes.
-          </p>
-
-
-          <div class="table-container">
-
-            <table>
-
-              <thead>
-
-                <tr>
-
-                  <th>
-                    ID
-                  </th>
-
-                  <th>
-                    Título
-                  </th>
-
-                  <th>
-                    Status
-                  </th>
-
-                  <th>
-                    Data
-                  </th>
-
-                  <th>
-                    Ações
-                  </th>
-
-                </tr>
-
-              </thead>
-
-
-              <tbody
-                id="listaArtigos"
-              >
-
-                <tr>
-
-                  <td colspan="5">
-                    Carregando...
-
-                  </td>
-
-                </tr>
-
-              </tbody>
-
-            </table>
-
-          </div>
-
-        </div>
-
 
       </section>
-
-
-    </main>
-
-
-  </div>
-
-
-
-  <!-- =====================================================
-       JAVASCRIPT DO PAINEL
-  ====================================================== -->
-
-  <script src="./admin.js"></script>
-
-
-</body>
-
-</html>
