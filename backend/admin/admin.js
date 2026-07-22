@@ -11,10 +11,11 @@
   const TOKEN_KEY = 'portal_admin_token';
 
   // =========================================================
-  // ESTADO DA EDIÇÃO DO BLOG
+  // ESTADO
   // =========================================================
 
   let artigoEmEdicaoId = null;
+  let ultimaSelecao = null;
 
   // =========================================================
   // AUXILIARES
@@ -38,7 +39,9 @@
   }
 
   function salvarToken(token) {
-    localStorage.setItem(TOKEN_KEY, token);
+    if (token) {
+      localStorage.setItem(TOKEN_KEY, token);
+    }
   }
 
   function removerToken() {
@@ -49,6 +52,14 @@
     if (elemento) {
       elemento.textContent = mensagem || '';
     }
+  }
+
+  function valorElemento(id) {
+    const elemento = document.getElementById(id);
+
+    return elemento
+      ? elemento.value
+      : '';
   }
 
   // =========================================================
@@ -192,6 +203,7 @@
       throw new Error(
         data.erro ||
         data.error ||
+        data.mensagem ||
         'Sessão expirada.'
       );
     }
@@ -241,7 +253,6 @@
             : '';
 
         if (!usuario || !senha) {
-
           mostrarErro(
             erroLogin,
             'Digite usuário e senha.'
@@ -271,19 +282,32 @@
               }
             );
 
-          const data =
-            await resposta.json();
+          const texto =
+            await resposta.text();
+
+          let data = {};
+
+          try {
+            data =
+              texto
+                ? JSON.parse(texto)
+                : {};
+          } catch (erro) {
+            data = {
+              mensagem: texto
+            };
+          }
 
           if (!resposta.ok) {
-
             throw new Error(
               data.erro ||
+              data.error ||
+              data.mensagem ||
               'Usuário ou senha inválidos.'
             );
           }
 
           if (!data.token) {
-
             throw new Error(
               'O servidor não retornou o token.'
             );
@@ -364,6 +388,10 @@
             const nomeTab =
               botao.dataset.tab;
 
+            if (!nomeTab) {
+              return;
+            }
+
             const idTab =
               'tab' +
               nomeTab.charAt(0).toUpperCase() +
@@ -376,20 +404,30 @@
               tab.classList.remove('escondido');
             }
 
-            if (nomeTab === 'pendentes') {
-              await carregarPendentes();
-            }
+            try {
 
-            if (nomeTab === 'todos') {
-              await carregarTodos();
-            }
+              if (nomeTab === 'pendentes') {
+                await carregarPendentes();
+              }
 
-            if (nomeTab === 'categorias') {
-              await carregarCategorias();
-            }
+              if (nomeTab === 'todos') {
+                await carregarTodos();
+              }
 
-            if (nomeTab === 'blog') {
-              await carregarArtigos();
+              if (nomeTab === 'categorias') {
+                await carregarCategorias();
+              }
+
+              if (nomeTab === 'blog') {
+                await carregarArtigos();
+              }
+
+            } catch (erro) {
+
+              console.error(
+                '[ADMIN] Erro ao trocar aba:',
+                erro
+              );
             }
           }
         );
@@ -413,13 +451,19 @@
 
     try {
 
-      const anuncios =
+      const resposta =
         await apiFetch(
           '/api/admin/anuncios'
         );
 
+      const anuncios =
+        Array.isArray(resposta)
+          ? resposta
+          : Array.isArray(resposta.anuncios)
+            ? resposta.anuncios
+            : [];
+
       if (
-        !Array.isArray(anuncios) ||
         anuncios.length === 0
       ) {
 
@@ -490,12 +534,16 @@
                 const acao =
                   botao.dataset.acao;
 
+                if (!id || !acao) {
+                  return;
+                }
+
                 try {
 
                   botao.disabled = true;
 
                   await apiFetch(
-                    `/api/admin/anuncios/${id}/${acao}`,
+                    `/api/admin/anuncios/${encodeURIComponent(id)}/${encodeURIComponent(acao)}`,
                     {
                       method: 'PUT'
                     }
@@ -505,6 +553,11 @@
                   await carregarTodos();
 
                 } catch (erro) {
+
+                  console.error(
+                    '[ADMIN] Erro ao alterar anúncio:',
+                    erro
+                  );
 
                   alert(
                     erro.message
@@ -520,6 +573,7 @@
     } catch (erro) {
 
       console.error(
+        '[ADMIN] Erro ao carregar pendentes:',
         erro
       );
 
@@ -547,13 +601,19 @@
 
     try {
 
-      const anuncios =
+      const resposta =
         await apiFetch(
           '/api/admin/anuncios/todos'
         );
 
+      const anuncios =
+        Array.isArray(resposta)
+          ? resposta
+          : Array.isArray(resposta.anuncios)
+            ? resposta.anuncios
+            : [];
+
       if (
-        !Array.isArray(anuncios) ||
         anuncios.length === 0
       ) {
 
@@ -614,6 +674,13 @@
               'click',
               async function () {
 
+                const id =
+                  botao.dataset.id;
+
+                if (!id) {
+                  return;
+                }
+
                 if (
                   !confirm(
                     'Excluir este anúncio?'
@@ -627,7 +694,7 @@
                   botao.disabled = true;
 
                   await apiFetch(
-                    `/api/admin/anuncios/${botao.dataset.id}`,
+                    `/api/admin/anuncios/${encodeURIComponent(id)}`,
                     {
                       method: 'DELETE'
                     }
@@ -637,6 +704,11 @@
                   await carregarPendentes();
 
                 } catch (erro) {
+
+                  console.error(
+                    '[ADMIN] Erro ao excluir anúncio:',
+                    erro
+                  );
 
                   alert(
                     erro.message
@@ -650,6 +722,11 @@
         );
 
     } catch (erro) {
+
+      console.error(
+        '[ADMIN] Erro ao carregar anúncios:',
+        erro
+      );
 
       tbody.innerHTML =
         `<tr>
@@ -677,13 +754,19 @@
 
     try {
 
-      const categorias =
+      const resposta =
         await apiFetch(
           '/api/admin/categorias'
         );
 
+      const categorias =
+        Array.isArray(resposta)
+          ? resposta
+          : Array.isArray(resposta.categorias)
+            ? resposta.categorias
+            : [];
+
       if (
-        !Array.isArray(categorias) ||
         categorias.length === 0
       ) {
 
@@ -742,6 +825,13 @@
               'click',
               async function () {
 
+                const id =
+                  botao.dataset.id;
+
+                if (!id) {
+                  return;
+                }
+
                 if (
                   !confirm(
                     'Excluir esta categoria?'
@@ -752,8 +842,10 @@
 
                 try {
 
+                  botao.disabled = true;
+
                   await apiFetch(
-                    `/api/admin/categorias/${botao.dataset.id}`,
+                    `/api/admin/categorias/${encodeURIComponent(id)}`,
                     {
                       method: 'DELETE'
                     }
@@ -763,9 +855,16 @@
 
                 } catch (erro) {
 
+                  console.error(
+                    '[ADMIN] Erro ao excluir categoria:',
+                    erro
+                  );
+
                   alert(
                     erro.message
                   );
+
+                  botao.disabled = false;
                 }
               }
             );
@@ -773,6 +872,11 @@
         );
 
     } catch (erro) {
+
+      console.error(
+        '[ADMIN] Erro ao carregar categorias:',
+        erro
+      );
 
       tbody.innerHTML =
         `<tr>
@@ -849,12 +953,22 @@
             }
           );
 
-          campoNome.value = '';
-          campoIcone.value = '';
+          if (campoNome) {
+            campoNome.value = '';
+          }
+
+          if (campoIcone) {
+            campoIcone.value = '';
+          }
 
           await carregarCategorias();
 
         } catch (erro) {
+
+          console.error(
+            '[ADMIN] Erro ao adicionar categoria:',
+            erro
+          );
 
           alert(
             erro.message
@@ -871,8 +985,6 @@
   // =========================================================
   // EDITOR DO BLOG
   // =========================================================
-
-  let ultimaSelecao = null;
 
   function editorEstaAtivo() {
     return (
@@ -893,6 +1005,7 @@
     if (
       selecao &&
       selecao.rangeCount > 0 &&
+      selecao.anchorNode &&
       blogEditor.contains(
         selecao.anchorNode
       )
@@ -997,10 +1110,6 @@
     }
   }
 
-  // =========================================================
-  // TAMANHO DO TEXTO
-  // =========================================================
-
   function alterarTamanhoTexto(tamanho) {
 
     restaurarSelecao();
@@ -1054,7 +1163,7 @@
     alt
   ) {
 
-    if (!blogEditor) {
+    if (!blogEditor || !src) {
       return;
     }
 
@@ -1095,6 +1204,7 @@
     if (
       selecao &&
       selecao.rangeCount > 0 &&
+      selecao.anchorNode &&
       blogEditor.contains(
         selecao.anchorNode
       )
@@ -1203,7 +1313,7 @@
     }
 
     inserirImagem(
-      url,
+      url.trim(),
       'Imagem do artigo'
     );
   }
@@ -1229,7 +1339,7 @@
 
     comandoEditor(
       'createLink',
-      url
+      url.trim()
     );
   }
 
@@ -1299,6 +1409,17 @@
 
             if (acao === 'quote') {
               formatar('BLOCKQUOTE');
+            }
+
+            if (acao === 'fontSize') {
+              const tamanho =
+                botao.dataset.editorValue ||
+                botao.dataset.value ||
+                '3';
+
+              alterarTamanhoTexto(
+                tamanho
+              );
             }
           }
         );
@@ -1474,6 +1595,17 @@
               if (acao === 'quote') {
                 formatar('BLOCKQUOTE');
               }
+
+              if (acao === 'fontSize') {
+                const tamanho =
+                  botao.dataset.contextValue ||
+                  botao.dataset.value ||
+                  '3';
+
+                alterarTamanhoTexto(
+                  tamanho
+                );
+              }
             }
           );
         }
@@ -1511,7 +1643,7 @@
   );
 
   // =========================================================
-  // SALVAR SELEÇÃO DO EDITOR
+  // SALVAR SELEÇÃO
   // =========================================================
 
   if (blogEditor) {
@@ -1533,7 +1665,7 @@
   }
 
   // =========================================================
-  // ATUALIZAR INTERFACE DO FORMULÁRIO
+  // ATUALIZAR INTERFACE
   // =========================================================
 
   function atualizarModoFormulario() {
@@ -1684,7 +1816,7 @@
   }
 
   // =========================================================
-  // CARREGAR ARTIGO PARA EDIÇÃO
+  // EDITAR ARTIGO
   // =========================================================
 
   async function editarArtigo(id) {
@@ -1700,10 +1832,22 @@
         id
       );
 
-      const artigo =
+      const resposta =
         await apiFetch(
-          `/api/blog/admin/${id}`
+          `/api/blog/admin/${encodeURIComponent(id)}`
         );
+
+      const artigo =
+        resposta &&
+        resposta.artigo
+          ? resposta.artigo
+          : resposta;
+
+      if (!artigo) {
+        throw new Error(
+          'Artigo não encontrado.'
+        );
+      }
 
       const campoTitulo =
         document.getElementById(
@@ -1738,7 +1882,8 @@
       if (campoPublicado) {
         campoPublicado.checked =
           Number(artigo.publicado) === 1 ||
-          artigo.publicado === true;
+          artigo.publicado === true ||
+          artigo.publicado === '1';
       }
 
       artigoEmEdicaoId =
@@ -1889,27 +2034,6 @@
             ? blogEditor.innerHTML.trim()
             : '';
 
-        console.log(
-          '[BLOG] Dados enviados:',
-          {
-            id:
-              artigoEmEdicaoId,
-
-            titulo,
-
-            resumo,
-
-            publicado,
-
-            tamanhoConteudo:
-              conteudo.length
-          }
-        );
-
-        // =====================================================
-        // VALIDAÇÕES
-        // =====================================================
-
         if (!titulo) {
 
           mostrarErro(
@@ -1934,66 +2058,49 @@
           return;
         }
 
-        // =====================================================
-        // BOTÃO SALVANDO
-        // =====================================================
-
         btnSalvarArtigo.disabled =
           true;
-
-        const textoOriginalBotao =
-          btnSalvarArtigo.textContent;
 
         btnSalvarArtigo.textContent =
           artigoEmEdicaoId
             ? 'Salvando alterações...'
             : 'Salvando...';
 
+        const idEdicaoAtual =
+          artigoEmEdicaoId;
+
         try {
 
-          // ===================================================
-          // MODO EDIÇÃO
-          // ===================================================
+          const dados =
+            {
+              titulo,
+              resumo,
+              conteudo,
+              publicado
+            };
 
-          if (artigoEmEdicaoId) {
+          if (idEdicaoAtual) {
 
             console.log(
               '[BLOG] Atualizando artigo:',
-              artigoEmEdicaoId
+              idEdicaoAtual
             );
 
-            const resultado =
-              await apiFetch(
-                `/api/blog/${artigoEmEdicaoId}`,
-                {
-                  method: 'PUT',
+            await apiFetch(
+              `/api/blog/${encodeURIComponent(idEdicaoAtual)}`,
+              {
+                method: 'PUT',
 
-                  headers: {
-                    'Content-Type':
-                      'application/json'
-                  },
+                headers: {
+                  'Content-Type':
+                    'application/json'
+                },
 
-                  body:
-                    JSON.stringify({
-
-                      titulo:
-                        titulo,
-
-                      resumo:
-                        resumo,
-
-                      conteudo:
-                        conteudo,
-
-                      publicado:
-                        publicado
-                    })
-                }
-              );
-
-            console.log(
-              '[BLOG] ARTIGO ATUALIZADO:',
-              resultado
+                body:
+                  JSON.stringify(
+                    dados
+                  )
+              }
             );
 
             alert(
@@ -2002,56 +2109,31 @@
 
           } else {
 
-            // =================================================
-            // MODO CRIAÇÃO
-            // =================================================
-
             console.log(
               '[BLOG] Criando novo artigo.'
             );
 
-            const resultado =
-              await apiFetch(
-                '/api/blog',
-                {
-                  method: 'POST',
+            await apiFetch(
+              '/api/blog',
+              {
+                method: 'POST',
 
-                  headers: {
-                    'Content-Type':
-                      'application/json'
-                  },
+                headers: {
+                  'Content-Type':
+                    'application/json'
+                },
 
-                  body:
-                    JSON.stringify({
-
-                      titulo:
-                        titulo,
-
-                      resumo:
-                        resumo,
-
-                      conteudo:
-                        conteudo,
-
-                      publicado:
-                        publicado
-                    })
-                }
-              );
-
-            console.log(
-              '[BLOG] ARTIGO SALVO:',
-              resultado
+                body:
+                  JSON.stringify(
+                    dados
+                  )
+              }
             );
 
             alert(
               'Artigo salvo com sucesso!'
             );
           }
-
-          // ===================================================
-          // LIMPAR FORMULÁRIO
-          // ===================================================
 
           limparFormularioArtigo();
 
@@ -2080,18 +2162,7 @@
           btnSalvarArtigo.disabled =
             false;
 
-          btnSalvarArtigo.textContent =
-            artigoEmEdicaoId
-              ? 'Salvar alterações'
-              : 'Salvar artigo';
-
-          if (
-            !artigoEmEdicaoId &&
-            textoOriginalBotao
-          ) {
-            btnSalvarArtigo.textContent =
-              'Salvar artigo';
-          }
+          atualizarModoFormulario();
         }
       }
     );
@@ -2120,13 +2191,19 @@
 
     try {
 
-      const artigos =
+      const resposta =
         await apiFetch(
           '/api/blog/admin/todos'
         );
 
+      const artigos =
+        Array.isArray(resposta)
+          ? resposta
+          : Array.isArray(resposta.artigos)
+            ? resposta.artigos
+            : [];
+
       if (
-        !Array.isArray(artigos) ||
         artigos.length === 0
       ) {
 
@@ -2139,6 +2216,11 @@
       tbody.innerHTML =
         artigos.map(
           function (artigo) {
+
+            const publicado =
+              artigo.publicado === true ||
+              Number(artigo.publicado) === 1 ||
+              artigo.publicado === '1';
 
             return `
               <tr>
@@ -2153,7 +2235,7 @@
 
                 <td>
                   ${
-                    artigo.publicado
+                    publicado
                       ? 'Publicado'
                       : 'Rascunho'
                   }
@@ -2192,10 +2274,6 @@
           }
         ).join('');
 
-      // =====================================================
-      // BOTÕES EDITAR
-      // =====================================================
-
       tbody
         .querySelectorAll(
           '[data-blog-editar-id]'
@@ -2233,10 +2311,6 @@
           }
         );
 
-      // =====================================================
-      // BOTÕES EXCLUIR
-      // =====================================================
-
       tbody
         .querySelectorAll(
           '[data-blog-id]'
@@ -2269,7 +2343,7 @@
                     true;
 
                   await apiFetch(
-                    `/api/blog/${id}`,
+                    `/api/blog/${encodeURIComponent(id)}`,
                     {
                       method: 'DELETE'
                     }
@@ -2287,6 +2361,11 @@
                   await carregarArtigos();
 
                 } catch (erro) {
+
+                  console.error(
+                    '[BLOG] Erro ao excluir artigo:',
+                    erro
+                  );
 
                   alert(
                     erro.message
