@@ -424,18 +424,27 @@
 
 
         <!-- =============================================
-             CRIAR ARTIGO
+             FORMULÁRIO DO ARTIGO
         ============================================== -->
 
         <div class="card">
 
-          <h2>
+          <h2 id="tituloFormularioBlog">
             Criar novo artigo
           </h2>
 
-          <p>
+          <p id="descricaoFormularioBlog">
             Crie seu artigo usando o editor visual abaixo.
           </p>
+
+
+          <!-- ID DO ARTIGO EM EDIÇÃO -->
+
+          <input
+            type="hidden"
+            id="blogIdEdicao"
+            value=""
+          >
 
 
           <p
@@ -463,6 +472,26 @@
                 id="blogTitulo"
                 placeholder="Digite o título principal do artigo"
               >
+
+            </div>
+
+
+
+            <!-- =========================================
+                 RESUMO DO ARTIGO
+            ========================================== -->
+
+            <div class="campo">
+
+              <label for="blogResumo">
+                Resumo do artigo
+              </label>
+
+              <textarea
+                id="blogResumo"
+                rows="4"
+                placeholder="Digite um resumo curto do artigo"
+              ></textarea>
 
             </div>
 
@@ -559,7 +588,7 @@
                   type="button"
                   class="editor-btn"
                   data-editor-action="image"
-                  title="Inserir imagem"
+                  title="Inserir imagem por URL"
                 >
                   🖼️ Imagem
                 </button>
@@ -569,7 +598,7 @@
                   type="button"
                   class="editor-btn"
                   data-editor-action="imageMultiple"
-                  title="Inserir várias imagens"
+                  title="Inserir várias imagens do computador"
                 >
                   📷 Várias imagens
                 </button>
@@ -764,16 +793,37 @@
 
 
             <!-- =========================================
-                 BOTÃO SALVAR
+                 BOTÕES DO ARTIGO
             ========================================== -->
 
-            <button
-              type="button"
-              id="btnSalvarArtigo"
-              class="btn btn--principal"
+            <div
+              style="
+                display:flex;
+                gap:10px;
+                flex-wrap:wrap;
+                margin-top:15px;
+              "
             >
-              Salvar artigo
-            </button>
+
+              <button
+                type="button"
+                id="btnSalvarArtigo"
+                class="btn btn--principal"
+              >
+                Salvar artigo
+              </button>
+
+
+              <button
+                type="button"
+                id="btnCancelarEdicao"
+                class="btn"
+                style="display:none;"
+              >
+                Cancelar edição
+              </button>
+
+            </div>
 
 
           </div>
@@ -791,6 +841,11 @@
           <h2>
             Artigos cadastrados
           </h2>
+
+
+          <p>
+            Aqui você pode editar ou excluir os artigos existentes.
+          </p>
 
 
           <div class="table-container">
