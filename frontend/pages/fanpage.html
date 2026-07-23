@@ -3,157 +3,269 @@
 
 <head>
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Fanpage - Portal Porto de Galinhas</title>
+<title>Fanpage - Portal Porto de Galinhas</title>
 
-    <link rel="stylesheet" href="../css/fanpage.css">
+<link rel="stylesheet" href="../css/fanpage.css">
 
 </head>
 
 <body>
 
-    <!-- Banner -->
+<!-- ========================================= -->
+<!-- CAPA -->
+<!-- ========================================= -->
 
-    <section class="banner">
+<header class="banner">
 
-        <img id="bannerImagem"
-            src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e"
-            alt="Banner">
+    <img
+        id="bannerImagem"
+        src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e"
+        alt="Banner">
 
-        <div class="perfil">
-            <img id="logoImagem"
-                src="https://via.placeholder.com/180"
-                alt="Logo">
-        </div>
+    <div class="perfil">
 
-    </section>
+        <img
+            id="logoImagem"
+            src="https://via.placeholder.com/220"
+            alt="Logo">
 
-    <!-- Cabeçalho -->
+    </div>
 
-    <section class="cabecalho">
+</header>
 
-        <h1 id="nomeEmpresa">
-            Carregando...
-        </h1>
+<!-- ========================================= -->
+<!-- CABEÇALHO -->
+<!-- ========================================= -->
 
-        <p id="categoriaCidade">
-            Carregando informações...
-        </p>
+<section class="cabecalho">
 
-        <nav class="menu">
+    <h1 id="nomeEmpresa">
+        Carregando...
+    </h1>
 
-            <a href="#informacoes">Visão Geral</a>
-            <a href="#galeria">Fotos</a>
-            <a href="#avaliacoes">Avaliações</a>
-            <a href="#contato">Contato</a>
+    <p id="categoriaCidade">
+        Categoria • Porto de Galinhas
+    </p>
 
-        </nav>
+    <nav class="menu">
 
-    </section>
+        <a class="ativo" href="#">Visão Geral</a>
 
-    <!-- Conteúdo -->
+        <a href="#feed">
+            Publicações
+        </a>
 
-    <main class="container">
+        <a href="#galeria">
+            Fotos
+        </a>
 
-        <!-- Lado esquerdo -->
+        <a href="#avaliacoes">
+            Avaliações
+        </a>
 
-        <aside class="sidebar">
+        <a href="#contato">
+            Contato
+        </a>
 
-            <div class="card" id="informacoes">
+    </nav>
 
-                <h3>Informações</h3>
+</section>
 
-                <p id="cidade">
-                    📍 Porto de Galinhas
-                </p>
+<!-- ========================================= -->
+<!-- CONTEÚDO -->
+<!-- ========================================= -->
 
-                <p id="telefone">
-                    📞
-                </p>
+<main class="container">
 
-                <p id="site">
-                    🌐
-                </p>
+<!-- ========================================= -->
+<!-- COLUNA ESQUERDA -->
+<!-- ========================================= -->
 
-                <div id="whatsapp"></div>
+<aside class="sidebar">
 
-            </div>
+<div class="card">
 
-            <div class="card">
+<h3>Sobre</h3>
 
-                <h3>Mapa</h3>
+<p id="cidade">
+📍 Porto de Galinhas
+</p>
 
-                <div id="mapa">
-                    Aqui aparecerá o mapa do comerciante.
-                </div>
+<p id="telefone">
+📞 Telefone
+</p>
 
-            </div>
+<p id="site">
+🌐 Site
+</p>
 
-        </aside>
+<div id="whatsapp"></div>
 
-        <!-- Feed -->
+</div>
 
-        <section class="feed" id="feed">
+<div class="card">
 
-            <div class="post">
+<h3>Localização</h3>
 
-                <div class="post-header">
+<div id="mapaComerciante"></div>
 
-                    Bem-vindo!
+</div>
 
-                </div>
+<div class="card">
 
-                <img src="https://images.unsplash.com/photo-1540541338287-41700207dee6"
-                    alt="Imagem">
+<h3>Horário</h3>
 
-                <div class="post-footer">
+<p>Segunda a Domingo</p>
 
-                    Em breve os anúncios do comerciante aparecerão aqui.
+<p>08:00 às 22:00</p>
 
-                </div>
+</div>
 
-            </div>
+</aside>
 
-        </section>
+<!-- ========================================= -->
+<!-- FEED -->
+<!-- ========================================= -->
 
-    </main>
+<section class="feed" id="feed">
 
-    <!-- Galeria -->
+<div class="post">
 
-    <section id="galeria" class="galeria">
+<div class="post-header">
 
-        <!-- Fotos serão carregadas pelo JavaScript -->
+<img
+id="logoPost"
+src="https://via.placeholder.com/60"
+alt="logo">
 
-    </section>
+<div>
 
-    <!-- Avaliações -->
+<h4 id="nomeEmpresaPost">
 
-    <section id="avaliacoes" class="avaliacoes">
+Empresa
 
-        <h2>Avaliações</h2>
+</h4>
 
-        <div id="listaAvaliacoes">
+<span>
 
-            Ainda não existem avaliações.
+Agora mesmo
 
-        </div>
+</span>
 
-    </section>
+</div>
 
-    <!-- Contato -->
+</div>
 
-    <section id="contato">
+<div class="post-texto">
 
-    </section>
+Bem-vindo à nossa Fanpage.
 
-    <!-- Scripts -->
+Aqui aparecerão todas as publicações do comerciante.
 
-    <script src="../js/config.js"></script>
+</div>
 
-    <script src="../js/fanpage.js"></script>
+<img
+src="https://images.unsplash.com/photo-1540541338287-41700207dee6"
+alt="Publicação">
+
+<div class="post-footer">
+
+<button>
+
+👍 Curtir
+
+</button>
+
+<button>
+
+💬 Comentar
+
+</button>
+
+<button>
+
+↗ Compartilhar
+
+</button>
+
+</div>
+
+</div>
+
+<div id="listaAnunciosComerciante"></div>
+
+</section>
+
+</main>
+
+<!-- ========================================= -->
+<!-- GALERIA -->
+<!-- ========================================= -->
+
+<section
+id="galeria"
+class="container">
+
+<div class="card" style="grid-column:1/-1;">
+
+<h2>Galeria de Fotos</h2>
+
+<div id="galeriaAnuncios"></div>
+
+</div>
+
+</section>
+
+<!-- ========================================= -->
+<!-- AVALIAÇÕES -->
+<!-- ========================================= -->
+
+<section
+id="avaliacoes"
+class="container">
+
+<div class="card" style="grid-column:1/-1;">
+
+<h2>Avaliações</h2>
+
+<div id="listaAvaliacoes">
+
+Ainda não existem avaliações.
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ========================================= -->
+<!-- CONTATO -->
+<!-- ========================================= -->
+
+<section
+id="contato"
+class="container">
+
+<div class="card" style="grid-column:1/-1;">
+
+<h2>Contato</h2>
+
+<p id="contatoEmpresa">
+
+As informações serão carregadas automaticamente.
+
+</p>
+
+</div>
+
+</section>
+
+<script src="../js/config.js"></script>
+
+<script src="../js/fanpage.js"></script>
 
 </body>
-
 </html>
