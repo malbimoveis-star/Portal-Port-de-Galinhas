@@ -1,55 +1,123 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Fanpage - Portal Porto de Galinhas</title>
 
     <link rel="stylesheet" href="../css/fanpage.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
-
 <body>
 
-    <!-- Cabeçalho do Portal -->
-    <header id="portal-header"></header>
+<header class="topbar">
+    <div class="logo">
+        <img src="../assets/logo.png" alt="Portal">
+    </div>
 
-    <!-- Banner -->
-    <section class="fanpage-cover">
-
-    </section>
-
-    <!-- Perfil -->
-    <section class="fanpage-profile">
-
-    </section>
-
-    <!-- Menu -->
-    <nav class="fanpage-tabs">
-
+    <nav>
+        <a href="../index.html">Início</a>
+        <a href="#">Praias</a>
+        <a href="#">Passeios</a>
+        <a href="#">Hotéis</a>
+        <a href="#">Gastronomia</a>
+        <a href="#">Contato</a>
     </nav>
+</header>
 
-    <!-- Conteúdo -->
-    <main class="fanpage-container">
+<section class="cover">
+    <img src="../assets/capa.jpg" class="cover-image">
 
-        <!-- Sidebar -->
-        <aside class="fanpage-sidebar">
+    <div class="profile">
+        <img src="../assets/perfil.png">
 
-        </aside>
+        <div class="info">
+            <h1>Hotel Armação Porto de Galinhas</h1>
 
-        <!-- Feed -->
-        <section class="fanpage-feed">
+            <p>Hotel • Porto de Galinhas - PE</p>
 
-        </section>
+            <div class="buttons">
+                <button class="blue">
+                    <i class="fa-solid fa-phone"></i>
+                    Ligar
+                </button>
+
+                <button class="green">
+                    <i class="fa-brands fa-whatsapp"></i>
+                    WhatsApp
+                </button>
+
+                <button>
+                    <i class="fa-solid fa-location-dot"></i>
+                    Como chegar
+                </button>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<div class="container">
+
+    <aside class="sidebar">
+
+        <div class="card">
+            <h3>Informações</h3>
+
+            <p><i class="fa-solid fa-location-dot"></i> Porto de Galinhas</p>
+
+            <p><i class="fa-solid fa-phone"></i> (81) 99999-9999</p>
+
+            <p><i class="fa-solid fa-globe"></i> www.portal.com.br</p>
+        </div>
+
+        <div class="card">
+            <h3>Mapa</h3>
+
+            <div class="map">
+                MAPA
+            </div>
+        </div>
+
+    </aside>
+
+    <main class="feed">
+
+        <div class="post">
+
+            <div class="post-header">
+
+                <img src="../assets/perfil.png">
+
+                <div>
+
+                    <strong>Hotel Armação</strong>
+
+                    <span>há 2 horas</span>
+
+                </div>
+
+            </div>
+
+            <p>Vista incrível da praia hoje 🌴☀️</p>
+
+            <img src="../assets/post1.jpg" class="post-image">
+
+            <div class="actions">
+
+                <span><i class="fa-solid fa-heart"></i> 328</span>
+
+                <span><i class="fa-solid fa-comment"></i> 45</span>
+
+                <span><i class="fa-solid fa-share"></i> Compartilhar</span>
+
+            </div>
+
+        </div>
 
     </main>
 
-    <!-- Rodapé -->
-    <footer id="portal-footer"></footer>
-
-    <script src="../js/fanpage.js"></script>
+</div>
 
 </body>
-
 </html>
