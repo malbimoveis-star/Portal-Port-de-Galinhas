@@ -1,72 +1,149 @@
 (() => {
-  const API = window.APP_CONFIG?.API_BASE_URL || "";
 
-  function getId() {
-    return new URLSearchParams(location.search).get("id");
-  }
+const API = window.APP_CONFIG?.API_BASE_URL || "";
 
-  async function carregarFanpage() {
+function getId() {
+    return new URLSearchParams(window.location.search).get("id");
+}
+
+async function carregarFanpage() {
 
     const id = getId();
 
     if (!id) {
-      console.error("ID não informado");
-      return;
+        alert("ID do comerciante não informado.");
+        return;
     }
 
     try {
 
-      const resposta = await fetch(`${API}/api/comerciantes/${id}`);
-      const dados = await resposta.json();
+        const resposta = await fetch(`${API}/api/comerciantes/${id}`);
 
-      if (!dados.comerciante) return;
+        if (!resposta.ok)
+            throw new Error("Comerciante não encontrado.");
 
-      const c = dados.comerciante;
+        const dados = await resposta.json();
 
-      document.getElementById("nomeEmpresa").textContent =
-        c.nome || "";
+        const comerciante = dados.comerciante || dados;
 
-      document.getElementById("categoriaEmpresa").textContent =
-        c.categoria || "";
+        // Banner
+        if (document.getElementById("bannerImagem")) {
 
-      document.getElementById("descricaoEmpresa").textContent =
-        c.descricao || "";
+            document.getElementById("bannerImagem").src =
+                comerciante.banner
+                ? API + comerciante.banner
+                : "https://images.unsplash.com/photo-1507525428034-b723cf961d3e";
 
-      document.getElementById("telefoneEmpresa").textContent =
-        c.telefone || "";
+        }
 
-      document.getElementById("enderecoEmpresa").textContent =
-        c.endereco || "";
+        // Logo
+        if (document.getElementById("logoImagem")) {
 
-      if (c.logo) {
-        document.getElementById("fotoPerfil").src =
-          API + c.logo;
-      }
+            document.getElementById("logoImagem").src =
+                comerciante.logo
+                ? API + comerciante.logo
+                : "https://via.placeholder.com/180";
 
-      if (c.capa) {
-        document.getElementById("fotoCapa").src =
-          API + c.capa;
-      }
+        }
 
-      if (c.telefone) {
+        // Nome
+        if (document.getElementById("nomeEmpresa"))
+            document.getElementById("nomeEmpresa").textContent =
+                comerciante.nome || "";
 
-        const numero = c.telefone.replace(/\D/g, "");
+        // Categoria + Cidade
+        if (document.getElementById("categoriaCidade"))
+            document.getElementById("categoriaCidade").textContent =
+                `${comerciante.categoria || ""} • ${comerciante.cidade || ""}`;
 
-        document.getElementById("btnWhatsapp").href =
-          `https://wa.me/55${numero}`;
+        // Cidade
+        if (document.getElementById("cidade"))
+            document.getElementById("cidade").innerHTML =
+                "📍 " + (comerciante.cidade || "");
 
-        document.getElementById("btnLigar").href =
-          `tel:${numero}`;
-      }
+        // Telefone
+        if (document.getElementById("telefone"))
+            document.getElementById("telefone").innerHTML =
+                "📞 " + (comerciante.telefone || "");
 
-    } catch (erro) {
+        // Site
+        if (document.getElementById("site"))
+            document.getElementById("site").innerHTML =
+                comerciante.site
+                ? `🌐 <a href="${comerciante.site}" target="_blank">${comerciante.site}</a>`
+                : "";
 
-      console.error(erro);
+        // WhatsApp
+        if (document.getElementById("whatsapp") && comerciante.telefone) {
+
+            const numero = comerciante.telefone.replace(/\D/g, "");
+
+            document.getElementById("whatsapp").innerHTML = `
+                <br>
+                <a href="https://wa.me/${numero}" target="_blank">
+                    💬 Falar no WhatsApp
+                </a>
+            `;
+
+        }
+
+        // Carregar anúncios
+
+        const respostaAnuncios = await fetch(`${API}/api/anuncios/comerciante/${id}`);
+
+        if (respostaAnuncios.ok) {
+
+            const anuncios = await respostaAnuncios.json();
+
+            const feed = document.getElementById("feed");
+
+            feed.innerHTML = "";
+
+            anuncios.anuncios.forEach(anuncio => {
+
+                let foto = "https://images.unsplash.com/photo-1540541338287-41700207dee6";
+
+                if (anuncio.fotos && anuncio.fotos.length > 0)
+                    foto = API + anuncio.fotos[0];
+
+                feed.innerHTML += `
+
+                    <div class="post">
+
+                        <div class="post-header">
+
+                            ${anuncio.titulo}
+
+                        </div>
+
+                        <img src="${foto}" alt="Foto">
+
+                        <div class="post-footer">
+
+                            ${anuncio.descricao || ""}
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            });
+
+        }
 
     }
 
-  }
+    catch (erro) {
 
-  document.addEventListener("DOMContentLoaded", carregarFanpage);
+        console.error(erro);
+
+        alert("Erro ao carregar a fanpage.");
+
+    }
+
+}
+
+document.addEventListener("DOMContentLoaded", carregarFanpage);
 
 })();
