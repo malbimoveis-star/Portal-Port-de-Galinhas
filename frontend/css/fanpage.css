@@ -87,7 +87,47 @@ body{
     color:#65676b;
     margin-bottom:25px;
 
+}}
+    
+/*==================================================
+=           ESTATÍSTICAS
+==================================================*/
+
+.estatisticas{
+
+    display:flex;
+    justify-content:center;
+    gap:40px;
+    margin:25px 0;
+    flex-wrap:wrap;
+
 }
+
+.estatistica{
+
+    text-align:center;
+
+}
+
+.estatistica span{
+
+    display:block;
+    font-size:30px;
+    font-weight:bold;
+    color:#1877f2;
+
+}
+
+.estatistica small{
+
+    color:#65676b;
+    font-size:15px;
+
+}
+
+/*==================================================
+=              MENU FACEBOOK
+==================================================*/
 
 
 /*==================================================
