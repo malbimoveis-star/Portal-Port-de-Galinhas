@@ -294,7 +294,33 @@ app.get(
 
   }
 );
+app.get(
+  '/fanpage',
+  (req, res) => {
 
+    res.sendFile(
+      path.join(
+        PAGES_DIR,
+        'fanpage.html'
+      )
+    );
+
+  }
+);
+
+app.get(
+  '/fanpage.html',
+  (req, res) => {
+
+    res.sendFile(
+      path.join(
+        PAGES_DIR,
+        'fanpage.html'
+      )
+    );
+
+  }
+);
 app.get(
   '/como-funciona',
   (req, res) => {
