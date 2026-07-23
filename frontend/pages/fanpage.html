@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
 
 <meta charset="UTF-8">
@@ -15,112 +14,104 @@
 <body>
 
 <!-- Banner -->
+<section class="banner">
 
-<div class="banner">
+    <img id="fotoCapa"
+         src="https://placehold.co/1400x420?text=Capa"
+         alt="Capa">
 
-<img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e" alt="Banner">
+</section>
 
-<div class="perfil">
+<!-- Perfil -->
+<section class="perfil-area">
 
-<img src="https://via.placeholder.com/180" alt="Logo">
+    <img id="fotoPerfil"
+         class="foto-perfil"
+         src="https://placehold.co/180x180?text=Logo"
+         alt="Logo">
 
-</div>
+    <div class="perfil-info">
 
-</div>
+        <h1 id="nomeEmpresa">Carregando...</h1>
 
-<!-- Cabeçalho -->
+        <p id="categoriaEmpresa"></p>
 
-<div class="cabecalho">
+        <p id="descricaoEmpresa"></p>
 
-<h1>Hotel Armação Porto de Galinhas</h1>
+    </div>
 
-<p>Hotel • Porto de Galinhas • Pernambuco</p>
+</section>
 
-<div class="menu">
+<!-- Menu -->
+<nav class="menu-fanpage">
 
-<a href="#">Visão Geral</a>
-<a href="#">Fotos</a>
-<a href="#">Avaliações</a>
-<a href="#">Contato</a>
+    <a href="#">Visão Geral</a>
+    <a href="#">Fotos</a>
+    <a href="#">Avaliações</a>
+    <a href="#">Eventos</a>
+    <a href="#">Contato</a>
 
-</div>
-
-</div>
-
-<!-- Conteúdo -->
+</nav>
 
 <div class="container">
 
-<!-- Esquerda -->
+    <!-- Lado esquerdo -->
+    <aside class="sidebar">
 
-<div class="sidebar">
+        <div class="card">
 
-<div class="card">
+            <h2>Informações</h2>
 
-<h3>Informações</h3>
+            <p id="telefoneEmpresa"></p>
 
-<p>📍 Porto de Galinhas</p>
+            <p id="enderecoEmpresa"></p>
 
-<p>📞 (81) 99999-9999</p>
+            <div class="botoes">
 
-<p>🌐 portalportodegalinhas.com.br</p>
+                <a id="btnWhatsapp"
+                   class="botao whatsapp"
+                   target="_blank">
+                    WhatsApp
+                </a>
 
-</div>
+                <a id="btnLigar"
+                   class="botao ligar">
+                    Ligar
+                </a>
 
-<div class="card">
+            </div>
 
-<h3>Mapa</h3>
+        </div>
 
-<p>Aqui ficará o mapa.</p>
+        <div class="card">
 
-</div>
+            <h2>Mapa</h2>
 
-</div>
+            <div id="mapaComerciante"></div>
 
-<!-- Feed -->
+        </div>
 
-<div class="feed">
+    </aside>
 
-<div class="post">
+    <!-- Feed -->
+    <main class="feed">
 
-<div class="post-header">
+        <div id="listaPosts">
 
-Hotel Armação
+            <div class="post">
 
-</div>
+                Carregando publicações...
 
-<img src="https://images.unsplash.com/photo-1540541338287-41700207dee6">
+            </div>
 
-<div class="post-footer">
+        </div>
 
-❤️ 324 Curtidas • 💬 45 Comentários
-
-</div>
-
-</div>
-
-<div class="post">
-
-<div class="post-header">
-
-Promoção de Final de Semana
-
-</div>
-
-<img src="https://images.unsplash.com/photo-1566073771259-6a8506099945">
-
-<div class="post-footer">
-
-❤️ 210 Curtidas • 💬 28 Comentários
+    </main>
 
 </div>
 
-</div>
-
-</div>
-
-</div>
+<script src="../js/config.js"></script>
+<script src="../js/fanpage.js"></script>
 
 </body>
-
 </html>
