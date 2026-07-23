@@ -187,6 +187,8 @@ function migrate() {
 
       criado_em TEXT NOT NULL DEFAULT (datetime('now')),
 
+      endereco TEXT,
+
       latitude REAL,
 
       longitude REAL,
@@ -212,6 +214,16 @@ function migrate() {
     .prepare('PRAGMA table_info(anuncios)')
     .all()
     .map((c) => c.name);
+
+
+  if (!colunasAnuncios.includes('endereco')) {
+
+    db.exec(`
+      ALTER TABLE anuncios
+      ADD COLUMN endereco TEXT;
+    `);
+
+  }
 
 
   if (!colunasAnuncios.includes('latitude')) {
