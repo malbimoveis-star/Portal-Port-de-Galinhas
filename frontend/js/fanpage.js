@@ -106,7 +106,7 @@ async function carregarFanpage(){
         }
 
         //---------------------------------------
-        // FOTO DA PUBLICAÇÃO
+        // FOTO DO POST
         //---------------------------------------
 
         if($("logoPost")){
@@ -183,9 +183,9 @@ async function carregarFanpage(){
 
                 $("site").innerHTML =
 
-                `🌐 <a href="${comerciante.site}" target="_blank">
+                `<a href="${comerciante.site}" target="_blank">
 
-                ${comerciante.site}
+                🌐 ${comerciante.site}
 
                 </a>`;
 
@@ -219,7 +219,6 @@ async function carregarFanpage(){
             <br>
 
             🌐 ${texto(comerciante.site)}
-
             `;
 
         }
@@ -239,19 +238,12 @@ async function carregarFanpage(){
                 $("whatsapp").innerHTML=
 
                 `
-
                 <a
-
                 class="btn btn--verde"
-
                 target="_blank"
-
                 href="https://wa.me/${numero}">
-
                 💬 Falar no WhatsApp
-
                 </a>
-
                 `;
 
             }
@@ -259,11 +251,7 @@ async function carregarFanpage(){
         }
 
         //---------------------------------------
-        // DAQUI PARA BAIXO
-        // COMEÇA O FEED
-        //---------------------------------------
-            //---------------------------------------
-        // CARREGAR ANÚNCIOS / PUBLICAÇÕES
+        // CARREGAR ANÚNCIOS
         //---------------------------------------
 
         const respostaAnuncios = await fetch(
@@ -272,105 +260,103 @@ async function carregarFanpage(){
 
         );
 
+        let dadosAnuncios = { anuncios: [] };
+
         if(respostaAnuncios.ok){
 
-            const dadosAnuncios =
+            dadosAnuncios =
                 await respostaAnuncios.json();
 
-            const anuncios =
-                dadosAnuncios.anuncios || [];
+        }
 
-            const feed =
-                $("feed");
+        const anuncios =
+            dadosAnuncios.anuncios || [];
+                const lista =
+            $("listaAnunciosComerciante");
 
-            const lista =
-                $("listaAnunciosComerciante");
+        if(lista){
 
-            if(lista){
+            lista.innerHTML="";
 
-                lista.innerHTML="";
+            anuncios.forEach(anuncio=>{
 
-                anuncios.forEach(anuncio=>{
+                let foto =
+                "https://images.unsplash.com/photo-1540541338287-41700207dee6";
 
-                    let foto =
-                    "https://images.unsplash.com/photo-1540541338287-41700207dee6";
+                if(
+                    anuncio.fotos &&
+                    anuncio.fotos.length>0
+                ){
 
-                    if(
-                        anuncio.fotos &&
-                        anuncio.fotos.length>0
-                    ){
+                    foto =
+                    imagem(
+                        anuncio.fotos[0],
+                        foto
+                    );
 
-                        foto =
-                        imagem(
-                            anuncio.fotos[0],
-                            foto
-                        );
+                }
 
-                    }
+                lista.innerHTML += `
 
-                    lista.innerHTML += `
+                <div class="post">
 
-                    <div class="post">
-
-                        <div class="post-header">
-
-                            <img
-                                src="${imagem(comerciante.logo,PLACEHOLDER_LOGO)}"
-                                alt="Logo">
-
-                            <div>
-
-                                <h4>
-
-                                    ${texto(comerciante.nome)}
-
-                                </h4>
-
-                                <span>
-
-                                    Publicado agora
-
-                                </span>
-
-                            </div>
-
-                        </div>
-
-                        <div class="post-texto">
-
-                            <strong>
-
-                            ${texto(anuncio.titulo)}
-
-                            </strong>
-
-                            <br><br>
-
-                            ${texto(anuncio.descricao)}
-
-                        </div>
+                    <div class="post-header">
 
                         <img
-                            src="${foto}"
-                            alt="Imagem">
+                            src="${imagem(comerciante.logo,PLACEHOLDER_LOGO)}"
+                            alt="Logo">
 
-                        <div class="post-footer">
+                        <div>
 
-                            <button>👍 Curtir</button>
+                            <h4>
 
-                            <button>💬 Comentar</button>
+                                ${texto(comerciante.nome)}
 
-                            <button>↗ Compartilhar</button>
+                            </h4>
+
+                            <span>
+
+                                Publicado agora
+
+                            </span>
 
                         </div>
 
                     </div>
 
-                    `;
+                    <div class="post-texto">
 
-                });
+                        <strong>
 
-            }
+                        ${texto(anuncio.titulo)}
+
+                        </strong>
+
+                        <br><br>
+
+                        ${texto(anuncio.descricao)}
+
+                    </div>
+
+                    <img
+                        src="${foto}"
+                        alt="Imagem">
+
+                    <div class="post-footer">
+
+                        <button>👍 Curtir</button>
+
+                        <button>💬 Comentar</button>
+
+                        <button>↗ Compartilhar</button>
+
+                    </div>
+
+                </div>
+
+                `;
+
+            });
 
         }
 
@@ -385,35 +371,28 @@ async function carregarFanpage(){
 
             galeria.innerHTML="";
 
-            if(
-                respostaAnuncios.ok &&
-                dadosAnuncios.anuncios
-            ){
+            anuncios.forEach(anuncio=>{
 
-                dadosAnuncios.anuncios.forEach(anuncio=>{
+                if(
+                    anuncio.fotos &&
+                    anuncio.fotos.length
+                ){
 
-                    if(
-                        anuncio.fotos &&
-                        anuncio.fotos.length
-                    ){
+                    anuncio.fotos.forEach(foto=>{
 
-                        anuncio.fotos.forEach(foto=>{
+                        galeria.innerHTML += `
 
-                            galeria.innerHTML += `
+                        <img
+                            src="${imagem(foto,"")}"
+                            alt="Foto">
 
-                            <img
-                                src="${imagem(foto,"")}"
-                                alt="Foto">
+                        `;
 
-                            `;
+                    });
 
-                        });
+                }
 
-                    }
-
-                });
-
-            }
+            });
 
         }
 
@@ -456,14 +435,12 @@ async function carregarFanpage(){
             }else{
 
                 mapa.innerHTML =
-
                 "<p>Mapa ainda não cadastrado.</p>";
 
             }
 
         }
-
-        //---------------------------------------
+                //---------------------------------------
         // AVALIAÇÕES
         //---------------------------------------
 
@@ -486,8 +463,9 @@ async function carregarFanpage(){
             `;
 
         }
-                //---------------------------------------
-        // ESTATÍSTICAS (PREPARADO)
+
+        //---------------------------------------
+        // ESTATÍSTICAS
         //---------------------------------------
 
         if(document.getElementById("totalCurtidas")){
