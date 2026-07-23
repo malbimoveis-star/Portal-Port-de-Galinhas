@@ -1,117 +1,159 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Fanpage - Portal Porto de Galinhas</title>
+    <title>Fanpage - Portal Porto de Galinhas</title>
 
-<link rel="stylesheet" href="../css/fanpage.css">
+    <link rel="stylesheet" href="../css/fanpage.css">
 
 </head>
 
 <body>
 
-<!-- Banner -->
-<section class="banner">
+    <!-- Banner -->
 
-    <img id="fotoCapa"
-         src="https://placehold.co/1400x420?text=Capa"
-         alt="Capa">
+    <section class="banner">
 
-</section>
+        <img id="bannerImagem"
+            src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e"
+            alt="Banner">
 
-<!-- Perfil -->
-<section class="perfil-area">
+        <div class="perfil">
+            <img id="logoImagem"
+                src="https://via.placeholder.com/180"
+                alt="Logo">
+        </div>
 
-    <img id="fotoPerfil"
-         class="foto-perfil"
-         src="https://placehold.co/180x180?text=Logo"
-         alt="Logo">
+    </section>
 
-    <div class="perfil-info">
+    <!-- Cabeçalho -->
 
-        <h1 id="nomeEmpresa">Carregando...</h1>
+    <section class="cabecalho">
 
-        <p id="categoriaEmpresa"></p>
+        <h1 id="nomeEmpresa">
+            Carregando...
+        </h1>
 
-        <p id="descricaoEmpresa"></p>
+        <p id="categoriaCidade">
+            Carregando informações...
+        </p>
 
-    </div>
+        <nav class="menu">
 
-</section>
+            <a href="#informacoes">Visão Geral</a>
+            <a href="#galeria">Fotos</a>
+            <a href="#avaliacoes">Avaliações</a>
+            <a href="#contato">Contato</a>
 
-<!-- Menu -->
-<nav class="menu-fanpage">
+        </nav>
 
-    <a href="#">Visão Geral</a>
-    <a href="#">Fotos</a>
-    <a href="#">Avaliações</a>
-    <a href="#">Eventos</a>
-    <a href="#">Contato</a>
+    </section>
 
-</nav>
+    <!-- Conteúdo -->
 
-<div class="container">
+    <main class="container">
 
-    <!-- Lado esquerdo -->
-    <aside class="sidebar">
+        <!-- Lado esquerdo -->
 
-        <div class="card">
+        <aside class="sidebar">
 
-            <h2>Informações</h2>
+            <div class="card" id="informacoes">
 
-            <p id="telefoneEmpresa"></p>
+                <h3>Informações</h3>
 
-            <p id="enderecoEmpresa"></p>
+                <p id="cidade">
+                    📍 Porto de Galinhas
+                </p>
 
-            <div class="botoes">
+                <p id="telefone">
+                    📞
+                </p>
 
-                <a id="btnWhatsapp"
-                   class="botao whatsapp"
-                   target="_blank">
-                    WhatsApp
-                </a>
+                <p id="site">
+                    🌐
+                </p>
 
-                <a id="btnLigar"
-                   class="botao ligar">
-                    Ligar
-                </a>
+                <div id="whatsapp"></div>
 
             </div>
 
-        </div>
+            <div class="card">
 
-        <div class="card">
+                <h3>Mapa</h3>
 
-            <h2>Mapa</h2>
+                <div id="mapa">
+                    Aqui aparecerá o mapa do comerciante.
+                </div>
 
-            <div id="mapaComerciante"></div>
+            </div>
 
-        </div>
+        </aside>
 
-    </aside>
+        <!-- Feed -->
 
-    <!-- Feed -->
-    <main class="feed">
-
-        <div id="listaPosts">
+        <section class="feed" id="feed">
 
             <div class="post">
 
-                Carregando publicações...
+                <div class="post-header">
+
+                    Bem-vindo!
+
+                </div>
+
+                <img src="https://images.unsplash.com/photo-1540541338287-41700207dee6"
+                    alt="Imagem">
+
+                <div class="post-footer">
+
+                    Em breve os anúncios do comerciante aparecerão aqui.
+
+                </div>
 
             </div>
 
-        </div>
+        </section>
 
     </main>
 
-</div>
+    <!-- Galeria -->
 
-<script src="../js/config.js"></script>
-<script src="../js/fanpage.js"></script>
+    <section id="galeria" class="galeria">
+
+        <!-- Fotos serão carregadas pelo JavaScript -->
+
+    </section>
+
+    <!-- Avaliações -->
+
+    <section id="avaliacoes" class="avaliacoes">
+
+        <h2>Avaliações</h2>
+
+        <div id="listaAvaliacoes">
+
+            Ainda não existem avaliações.
+
+        </div>
+
+    </section>
+
+    <!-- Contato -->
+
+    <section id="contato">
+
+    </section>
+
+    <!-- Scripts -->
+
+    <script src="../js/config.js"></script>
+
+    <script src="../js/fanpage.js"></script>
 
 </body>
+
 </html>
