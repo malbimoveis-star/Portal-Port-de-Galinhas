@@ -1,4 +1,5 @@
 /* RESET */
+
 *{
     margin:0;
     padding:0;
@@ -7,16 +8,17 @@
 }
 
 body{
-    background:#f0f2f5;
+    background:#eef2f5;
+    color:#222;
 }
 
-/* Banner */
+/* BANNER */
 
 .banner{
     width:100%;
-    height:350px;
+    height:420px;
     overflow:hidden;
-    position:relative;
+    background:#ddd;
 }
 
 .banner img{
@@ -25,122 +27,274 @@ body{
     object-fit:cover;
 }
 
-/* Foto do perfil */
+/* PERFIL */
 
-.perfil{
-    width:170px;
-    height:170px;
-    border-radius:50%;
-    border:6px solid #fff;
-    overflow:hidden;
-    position:absolute;
-    left:70px;
-    bottom:-80px;
-    background:#fff;
-}
+.perfil-area{
 
-.perfil img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-}
+    max-width:1200px;
 
-/* Cabeçalho */
+    margin:auto;
 
-.cabecalho{
-    background:#fff;
-    padding:100px 70px 30px;
-    box-shadow:0 2px 5px rgba(0,0,0,.1);
-}
+    margin-top:-90px;
 
-.cabecalho h1{
-    font-size:36px;
-    color:#1c1e21;
-}
-
-.cabecalho p{
-    color:#666;
-    margin-top:10px;
-    font-size:18px;
-}
-
-/* Menu */
-
-.menu{
     display:flex;
-    gap:40px;
-    margin-top:30px;
-    border-top:1px solid #ddd;
-    padding-top:15px;
+
+    gap:30px;
+
+    align-items:flex-end;
+
+    padding:0 20px;
+
 }
 
-.menu a{
+.foto-perfil{
+
+    width:180px;
+
+    height:180px;
+
+    border-radius:50%;
+
+    border:6px solid white;
+
+    object-fit:cover;
+
+    background:white;
+
+    box-shadow:0 5px 15px rgba(0,0,0,.2);
+
+}
+
+.perfil-info{
+
+    padding-bottom:25px;
+
+}
+
+.perfil-info h1{
+
+    font-size:38px;
+
+}
+
+.perfil-info p{
+
+    margin-top:10px;
+
+    color:#666;
+
+}
+
+/* MENU */
+
+.menu-fanpage{
+
+    max-width:1200px;
+
+    margin:25px auto;
+
+    background:white;
+
+    display:flex;
+
+    gap:30px;
+
+    padding:18px 25px;
+
+    border-radius:10px;
+
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
+
+}
+
+.menu-fanpage a{
+
     text-decoration:none;
+
     color:#1877f2;
+
     font-weight:bold;
+
 }
 
-/* Layout */
+/* CONTAINER */
 
 .container{
-    width:1400px;
-    max-width:95%;
-    margin:30px auto;
+
+    max-width:1200px;
+
+    margin:auto;
 
     display:grid;
-    grid-template-columns:340px 1fr;
+
+    grid-template-columns:320px 1fr;
+
     gap:25px;
+
+    padding:20px;
+
 }
 
-/* Coluna esquerda */
-
-.sidebar{
-    display:flex;
-    flex-direction:column;
-    gap:20px;
-}
+/* SIDEBAR */
 
 .card{
-    background:#fff;
-    border-radius:10px;
+
+    background:white;
+
+    border-radius:12px;
+
     padding:20px;
-    box-shadow:0 2px 5px rgba(0,0,0,.08);
+
+    margin-bottom:20px;
+
+    box-shadow:0 2px 8px rgba(0,0,0,.08);
+
 }
 
-.card h3{
-    margin-bottom:15px;
+.card h2{
+
+    margin-bottom:20px;
+
 }
 
 .card p{
-    margin:10px 0;
+
+    margin-bottom:12px;
+
 }
 
-/* Feed */
+/* BOTÕES */
+
+.botoes{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+    margin-top:20px;
+
+}
+
+.botao{
+
+    padding:14px;
+
+    text-align:center;
+
+    color:white;
+
+    text-decoration:none;
+
+    border-radius:8px;
+
+    font-weight:bold;
+
+}
+
+.whatsapp{
+
+    background:#25d366;
+
+}
+
+.ligar{
+
+    background:#ff6a00;
+
+}
+
+/* MAPA */
+
+#mapaComerciante{
+
+    width:100%;
+
+    height:280px;
+
+    background:#ddd;
+
+    border-radius:10px;
+
+}
+
+/* FEED */
 
 .feed{
+
     display:flex;
+
     flex-direction:column;
-    gap:20px;
+
+    gap:25px;
+
 }
 
 .post{
-    background:#fff;
-    border-radius:10px;
-    box-shadow:0 2px 6px rgba(0,0,0,.08);
+
+    background:white;
+
+    border-radius:12px;
+
     overflow:hidden;
+
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
+
 }
 
 .post-header{
-    padding:18px;
+
+    padding:20px;
+
     font-weight:bold;
+
+    font-size:18px;
+
 }
 
 .post img{
+
     width:100%;
+
     display:block;
+
 }
 
 .post-footer{
-    padding:15px;
-    color:#65676b;
+
+    padding:18px;
+
+    color:#666;
+
+}
+
+/* RESPONSIVO */
+
+@media(max-width:900px){
+
+.container{
+
+grid-template-columns:1fr;
+
+}
+
+.perfil-area{
+
+flex-direction:column;
+
+align-items:center;
+
+text-align:center;
+
+margin-top:-70px;
+
+}
+
+.menu-fanpage{
+
+overflow:auto;
+
+}
+
 }
