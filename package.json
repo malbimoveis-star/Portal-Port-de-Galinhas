@@ -2,7 +2,7 @@
   "name": "portal-porto-galinhas",
   "private": true,
   "version": "1.0.0",
-  "description": "Portal Porto de Galinhas - teste de deploy Railway",
+  "description": "Portal Porto de Galinhas - deploy Railway",
   "scripts": {
     "postinstall": "npm install --prefix backend",
     "start": "node backend/src/server.js",
@@ -13,6 +13,10 @@
   },
   "dependencies": {
     "express": "^4.19.2",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "dotenv": "^16.4.5",
+    "sqlite3": "^5.1.6",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5"
   }
 }
