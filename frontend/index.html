@@ -78,7 +78,14 @@
       th, td { padding: 10px; font-size: 0.85rem; }
     }
   </style>
-  <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+  <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.min.js"></script>
+  <style>
+    .ql-editor { min-height: 300px; font-size: 1rem; }
+    .ql-toolbar { border-radius: 10px 10px 0 0; border-color: #dde1e7 !important; }
+    .ql-container { border-radius: 0 0 10px 10px; border-color: #dde1e7 !important; }
+    .ql-toolbar button:hover { color: #e94560 !important; }
+  </style>
 <base target="_blank">
 </head>
 <body>
@@ -194,7 +201,7 @@
             </div>
             <div class="campo">
               <label for="novoArtigoConteudo">Conteúdo do artigo</label>
-              <textarea id="novoArtigoConteudo" rows="12" placeholder="Digite o conteúdo HTML do artigo"></textarea>
+              <div id="novoArtigoConteudoEditor" style="min-height:300px;"><p>Digite o conteúdo do artigo aqui...</p></div>
             </div>
             <div class="campo">
               <label for="novoArtigoPublicado">Publicação</label>
@@ -263,12 +270,13 @@
           <h2>Editar artigo</h2>
           <p>Edite o artigo selecionado.</p>
           <input type="hidden" id="editarBlogId" value="">
+          <input type="hidden" id="editarBlogConteudo" value="">
           <p id="erroEditarBlog" class="erro"></p>
           <div class="blog-form">
             <div class="campo"><label for="editarBlogTitulo">Título</label><input type="text" id="editarBlogTitulo" placeholder="Digite o título"></div>
             <div class="campo"><label for="editarBlogResumo">Resumo</label><textarea id="editarBlogResumo" rows="4" placeholder="Digite o resumo"></textarea></div>
             <div class="campo"><label for="editarBlogCapa">URL da capa</label><input type="text" id="editarBlogCapa" placeholder="https://..."></div>
-            <div class="campo"><label for="editarBlogConteudo">Conteúdo</label><textarea id="editarBlogConteudo" rows="15" placeholder="Digite o conteúdo HTML"></textarea></div>
+            <div class="campo"><label for="editarBlogConteudo">Conteúdo</label><div id="editarBlogConteudoEditor" style="min-height:300px;"><p>Digite o conteúdo do artigo aqui...</p></div></div>
             <div class="campo">
               <label for="editarBlogPublicado">Publicação</label>
               <select id="editarBlogPublicado">
@@ -311,6 +319,29 @@
     const tabEditarAnuncio = document.getElementById('tabEditarAnuncio');
     const tabEditarCategoria = document.getElementById('tabEditarCategoria');
     const tabEditarBlog = document.getElementById('tabEditarBlog');
+
+    let quillNovo = null;
+    let quillEditar = null;
+
+    function criarQuillEditor(selector, placeholder) {
+      return new Quill(selector, {
+        theme: 'snow',
+        placeholder: placeholder || 'Digite o conteúdo do artigo...',
+        modules: {
+          toolbar: [
+            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'color': [] }, { 'background': [] }],
+            [{ 'align': [] }],
+            ['link', 'image'],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            [{ 'indent': '-1'}, { 'indent': '+1' }],
+            ['blockquote', 'code-block'],
+            ['clean']
+          ]
+        }
+      });
+    }
 
     function mostrarErro(el, msg) { el.textContent = msg || ''; }
     function esconder(el) { el.classList.add('escondido'); }
@@ -603,11 +634,7 @@
       const titulo = document.getElementById('novoArtigoTitulo').value.trim();
       const resumo = document.getElementById('novoArtigoResumo').value.trim();
       const capa_url = document.getElementById('novoArtigoCapa').value.trim();
-      // Salva o conteúdo do TinyMCE no textarea antes de enviar
-      if (tinymce.get('novoArtigoConteudo')) {
-        tinymce.get('novoArtigoConteudo').save();
-      }
-      const conteudo = document.getElementById('novoArtigoConteudo').value;
+      const conteudo = quillNovo ? quillNovo.root.innerHTML : '';
       const publicado = document.getElementById('novoArtigoPublicado').value;
       const erroEl = document.getElementById('erroNovoArtigo');
       mostrarErro(erroEl, '');
@@ -618,22 +645,19 @@
         document.getElementById('novoArtigoTitulo').value = '';
         document.getElementById('novoArtigoResumo').value = '';
         document.getElementById('novoArtigoCapa').value = '';
-        document.getElementById('novoArtigoConteudo').value = '';
+        if (quillNovo) quillNovo.setContents([]);
         document.getElementById('novoArtigoPublicado').value = '1';
         mostrarErro(erroEl, '');
         alert('Artigo criado com sucesso.');
-        if (tinymce.get('novoArtigoConteudo')) {
-          tinymce.get('novoArtigoConteudo').setContent('');
-        }
         carregarBlog();
       } catch (e) { mostrarErro(erroEl, e.message || 'Erro ao criar artigo.'); }
     });
 
     async function abrirEdicaoBlog(id) {
       mostrarErro(document.getElementById('erroEditarBlog'), '');
-      // Remove TinyMCE anterior do editor de blog se existir
-      if (tinymce.get('editarBlogConteudo')) {
-        tinymce.get('editarBlogConteudo').remove();
+      // Destrói Quill anterior se existir
+      if (quillEditar) {
+        quillEditar = null;
       }
       try {
         const artigo = await apiGet('/blog/admin/' + id);
@@ -648,24 +672,15 @@
         esconder(tabEditarCategoria);
         mostrar(tabEditarBlog);
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        // Reinicializa TinyMCE no campo de edição
-        setTimeout(function() {
-          tinymce.init({
-            selector: '#editarBlogConteudo',
-            plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
-            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
-            blocks: 'h1,h2,h3,h4,h5,h6,p',
-            height: 400,
-            menubar: false,
-            branding: false,
-            promotion: false,
-            language: 'pt_BR',
-            setup: function(editor) {
-              editor.on('change', function() {
-                editor.save();
-              });
+        // Cria o Quill de edição com o conteúdo carregado
+        setTimeout(() => {
+          if (document.getElementById('editarBlogConteudoEditor')) {
+            quillEditar = criarQuillEditor('#editarBlogConteudoEditor', 'Digite o conteúdo do artigo...');
+            const conteudoAtual = document.getElementById('editarBlogConteudo').value || '';
+            if (conteudoAtual) {
+              quillEditar.root.innerHTML = conteudoAtual;
             }
-          });
+          }
         }, 100);
       } catch (e) { alert(e.message || 'Erro ao carregar artigo para edição.'); }
     }
@@ -675,11 +690,7 @@
       const titulo = document.getElementById('editarBlogTitulo').value.trim();
       const resumo = document.getElementById('editarBlogResumo').value.trim();
       const capa_url = document.getElementById('editarBlogCapa').value.trim();
-      // Salva o conteúdo do TinyMCE no textarea antes de enviar
-      if (tinymce.get('editarBlogConteudo')) {
-        tinymce.get('editarBlogConteudo').save();
-      }
-      const conteudo = document.getElementById('editarBlogConteudo').value;
+      const conteudo = quillEditar ? quillEditar.root.innerHTML : document.getElementById('editarBlogConteudo').value;
       const publicado = document.getElementById('editarBlogPublicado').value;
       const erroEl = document.getElementById('erroEditarBlog');
       mostrarErro(erroEl, '');
@@ -691,15 +702,12 @@
         mostrar(abas.blog);
         carregarBlog();
         alert('Artigo atualizado com sucesso.');
-        if (tinymce.get('editarBlogConteudo')) {
-          tinymce.get('editarBlogConteudo').remove();
-        }
       } catch (e) { mostrarErro(erroEl, e.message || 'Erro ao atualizar artigo.'); }
     });
 
     document.getElementById('btnCancelarEdicaoBlog').addEventListener('click', () => {
-      if (tinymce.get('editarBlogConteudo')) {
-        tinymce.get('editarBlogConteudo').remove();
+      if (quillEditar) {
+        quillEditar = null;
       }
       esconder(tabEditarBlog);
       mostrar(abas.blog);
