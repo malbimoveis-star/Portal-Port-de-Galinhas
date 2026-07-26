@@ -3,46 +3,683 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TESTE - Admin Portal</title>
+  <title>Painel Administrativo — Portal Porto de Galinhas</title>
+  <link rel="icon" href="/assets/icons/logo-tucano.svg">
   <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: #f5f7fa;
+      color: #1a1a2e;
+      line-height: 1.6;
       min-height: 100vh;
+    }
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; font-family: inherit; }
+
+    #telaLogin {
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0;
+      min-height: 100vh;
+      padding: 20px;
     }
-    .card {
-      background: white;
-      padding: 40px;
+    .login-card {
+      background: #fff;
       border-radius: 16px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-      text-align: center;
-      max-width: 400px;
-      width: 90%;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      padding: 40px;
+      width: 100%;
+      max-width: 420px;
     }
-    h1 { color: #333; margin-bottom: 10px; }
-    p { color: #666; margin-bottom: 20px; }
+    .login-card h1 {
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+      color: #0f3460;
+    }
+    .login-card p { color: #666; margin-bottom: 24px; font-size: 0.95rem; }
+    .campo { margin-bottom: 16px; }
+    .campo label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #444;
+    }
+    .campo input,
+    .campo select,
+    .campo textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid #dde1e7;
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .campo input:focus,
+    .campo select:focus,
+    .campo textarea:focus {
+      outline: none;
+      border-color: #e94560;
+      box-shadow: 0 0 0 3px rgba(233,69,96,0.1);
+    }
+    .campo textarea { resize: vertical; min-height: 80px; }
+
     .btn {
-      background: #e94560;
-      color: white;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 20px;
       border: none;
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: transform 0.15s, opacity 0.15s;
     }
-    .btn:hover { background: #c73e54; }
+    .btn:hover { transform: translateY(-1px); opacity: 0.9; }
+    .btn--principal {
+      background: linear-gradient(135deg, #e94560, #c73e54);
+      color: #fff;
+    }
+    .btn--secundario {
+      background: #eef2f7;
+      color: #0f3460;
+    }
+    .btn--perigo {
+      background: #dc3545;
+      color: #fff;
+    }
+    .btn--sucesso {
+      background: #28a745;
+      color: #fff;
+    }
+
+    .erro {
+      color: #dc3545;
+      font-size: 0.9rem;
+      margin-bottom: 12px;
+      min-height: 1.2em;
+    }
+
+    #telaDashboard { display: none; }
+    .admin-header {
+      background: #0f3460;
+      color: #fff;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    }
+    .admin-header h1 { font-size: 1.25rem; }
+    .admin-header .usuario {
+      font-size: 0.85rem;
+      opacity: 0.85;
+    }
+    .admin-nav {
+      background: #16213e;
+      display: flex;
+      gap: 4px;
+      padding: 8px 16px;
+      overflow-x: auto;
+    }
+    .admin-nav button {
+      background: transparent;
+      color: #a0aec0;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .admin-nav button:hover,
+    .admin-nav button.ativo {
+      background: rgba(233,69,96,0.15);
+      color: #e94560;
+    }
+
+    .admin-conteudo {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .card h2 {
+      font-size: 1.15rem;
+      color: #0f3460;
+      margin-bottom: 8px;
+    }
+    .card > p { color: #666; margin-bottom: 20px; font-size: 0.95rem; }
+
+    .tabela-container { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    th, td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid #eef2f7;
+    }
+    th {
+      background: #f8fafc;
+      font-weight: 600;
+      color: #4a5568;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    tr:hover td { background: #f8fafc; }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .badge--pendente { background: #fff3cd; color: #856404; }
+    .badge--ativo { background: #d4edda; color: #155724; }
+    .badge--rejeitado { background: #f8d7da; color: #721c24; }
+    .badge--expirado { background: #e2e3e5; color: #383d41; }
+
+    .acoes { display: flex; gap: 6px; flex-wrap: wrap; }
+    .acoes .btn { padding: 6px 12px; font-size: 0.8rem; border-radius: 6px; }
+
+    .blog-form { max-width: 600px; }
+
+    .escondido { display: none !important; }
+    .vazio {
+      text-align: center;
+      padding: 40px 20px;
+      color: #888;
+    }
+
+    @media (max-width: 640px) {
+      .login-card { padding: 24px; }
+      .admin-conteudo { padding: 16px; }
+      .card { padding: 16px; }
+      th, td { padding: 10px; font-size: 0.85rem; }
+    }
   </style>
 <base target="_blank">
 </head>
 <body>
-  <div class="card">
-    <h1>✅ Funcionou!</h1>
-    <p>O arquivo novo foi criado com sucesso.</p>
-    <button class="btn" onclick="alert('JavaScript funciona!')">Testar</button>
+
+  <div id="telaLogin">
+    <div class="login-card">
+      <h1>Painel Administrativo</h1>
+      <p>Portal Porto de Galinhas</p>
+      <div id="erroLogin" class="erro"></div>
+      <div class="campo">
+        <label for="loginUsuario">Usuário</label>
+        <input type="text" id="loginUsuario" placeholder="admin">
+      </div>
+      <div class="campo">
+        <label for="loginSenha">Senha</label>
+        <input type="password" id="loginSenha" placeholder="••••••">
+      </div>
+      <button type="button" id="btnEntrar" class="btn btn--principal" style="width:100%;">
+        Entrar
+      </button>
+    </div>
   </div>
+
+  <div id="telaDashboard">
+    <header class="admin-header">
+      <div>
+        <h1>Portal Porto de Galinhas</h1>
+        <span class="usuario">Painel Administrativo</span>
+      </div>
+      <button type="button" id="btnSair" class="btn btn--secundario" style="font-size:0.85rem;">
+        Sair
+      </button>
+    </header>
+
+    <nav class="admin-nav">
+      <button type="button" data-aba="anuncios" class="ativo">Anúncios</button>
+      <button type="button" data-aba="categorias">Categorias</button>
+      <button type="button" data-aba="comerciantes">Comerciantes</button>
+    </nav>
+
+    <main class="admin-conteudo">
+
+      <section id="abaAnuncios">
+        <div class="card">
+          <h2>Anúncios Pendentes de Revisão</h2>
+          <p>Anúncios aguardando aprovação para aparecer no portal.</p>
+          <div id="listaAnunciosPendentes" class="tabela-container">
+            <div class="vazio">Carregando...</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Todos os Anúncios</h2>
+          <p>Gerencie todos os anúncios cadastrados na plataforma.</p>
+          <div id="listaAnunciosTodos" class="tabela-container">
+            <div class="vazio">Carregando...</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="abaCategorias" class="escondido">
+        <div class="card">
+          <h2>Categorias</h2>
+          <p>Gerencie as categorias do portal.</p>
+          <div id="listaCategorias" class="tabela-container">
+            <div class="vazio">Carregando...</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Nova Categoria</h2>
+          <p>Adicione uma nova categoria ao portal.</p>
+          <div class="blog-form">
+            <div class="campo">
+              <label for="novaCategoriaNome">Nome da categoria</label>
+              <input type="text" id="novaCategoriaNome" placeholder="Ex.: Restaurantes">
+            </div>
+            <div class="campo">
+              <label for="novaCategoriaIcone">URL do ícone (opcional)</label>
+              <input type="text" id="novaCategoriaIcone" placeholder="https://...">
+            </div>
+            <p id="erroNovaCategoria" class="erro"></p>
+            <button type="button" id="btnCriarCategoria" class="btn btn--principal">
+              Criar categoria
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section id="abaComerciantes" class="escondido">
+        <div class="card">
+          <h2>Comerciantes Cadastrados</h2>
+          <p>Lista de todos os comerciantes da plataforma.</p>
+          <div id="listaComerciantes" class="tabela-container">
+            <div class="vazio">Carregando...</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tabEditarAnuncio" class="escondido">
+        <div class="card">
+          <h2>Editar anúncio</h2>
+          <p>Edite os dados do anúncio selecionado.</p>
+          <input type="hidden" id="editarAnuncioId" value="">
+          <p id="erroEditarAnuncio" class="erro"></p>
+          <div class="blog-form">
+            <div class="campo">
+              <label for="editarAnuncioTitulo">Título do anúncio</label>
+              <input type="text" id="editarAnuncioTitulo" placeholder="Digite o título do anúncio">
+            </div>
+            <div class="campo">
+              <label for="editarAnuncioDescricao">Descrição</label>
+              <textarea id="editarAnuncioDescricao" rows="6" placeholder="Digite a descrição do anúncio"></textarea>
+            </div>
+            <div class="campo">
+              <label for="editarAnuncioTelefone">Telefone</label>
+              <input type="text" id="editarAnuncioTelefone" placeholder="Digite o telefone">
+            </div>
+            <div class="campo">
+              <label for="editarAnuncioEndereco">Endereço</label>
+              <input type="text" id="editarAnuncioEndereco" placeholder="Digite o endereço">
+            </div>
+            <div class="campo">
+              <label for="editarAnuncioLatitude">Latitude</label>
+              <input type="text" id="editarAnuncioLatitude" placeholder="Ex.: -8.5069">
+            </div>
+            <div class="campo">
+              <label for="editarAnuncioLongitude">Longitude</label>
+              <input type="text" id="editarAnuncioLongitude" placeholder="Ex.: -35.0068">
+            </div>
+            <div class="campo">
+              <label for="editarAnuncioStatus">Status</label>
+              <select id="editarAnuncioStatus">
+                <option value="pendente">Pendente</option>
+                <option value="ativo">Ativo</option>
+                <option value="rejeitado">Rejeitado</option>
+              </select>
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:15px;">
+              <button type="button" id="btnSalvarEdicaoAnuncio" class="btn btn--principal">Salvar alterações</button>
+              <button type="button" id="btnCancelarEdicaoAnuncio" class="btn btn--secundario">Cancelar edição</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tabEditarCategoria" class="escondido">
+        <div class="card">
+          <h2>Editar categoria</h2>
+          <p>Altere os dados da categoria selecionada.</p>
+          <input type="hidden" id="editarCategoriaId" value="">
+          <p id="erroEditarCategoria" class="erro"></p>
+          <div class="blog-form">
+            <div class="campo">
+              <label for="editarCategoriaNome">Nome da categoria</label>
+              <input type="text" id="editarCategoriaNome" placeholder="Digite o nome da categoria">
+            </div>
+            <div class="campo">
+              <label for="editarCategoriaIcone">URL do ícone</label>
+              <input type="text" id="editarCategoriaIcone" placeholder="https://...">
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:15px;">
+              <button type="button" id="btnSalvarEdicaoCategoria" class="btn btn--principal">Salvar alterações</button>
+              <button type="button" id="btnCancelarEdicaoCategoria" class="btn btn--secundario">Cancelar edição</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    (function() {
+      'use strict';
+      const API_BASE = '/api';
+      let token = localStorage.getItem('admin_token') || '';
+
+      const telaLogin = document.getElementById('telaLogin');
+      const telaDashboard = document.getElementById('telaDashboard');
+      const loginUsuario = document.getElementById('loginUsuario');
+      const loginSenha = document.getElementById('loginSenha');
+      const btnEntrar = document.getElementById('btnEntrar');
+      const erroLogin = document.getElementById('erroLogin');
+      const btnSair = document.getElementById('btnSair');
+
+      const abas = {
+        anuncios: document.getElementById('abaAnuncios'),
+        categorias: document.getElementById('abaCategorias'),
+        comerciantes: document.getElementById('abaComerciantes'),
+      };
+      const navButtons = document.querySelectorAll('.admin-nav button[data-aba]');
+      const tabEditarAnuncio = document.getElementById('tabEditarAnuncio');
+      const tabEditarCategoria = document.getElementById('tabEditarCategoria');
+
+      function mostrarErro(el, msg) { el.textContent = msg || ''; }
+      function esconder(el) { el.classList.add('escondido'); }
+      function mostrar(el) { el.classList.remove('escondido'); }
+
+      async function apiGet(path) {
+        const r = await fetch(API_BASE + path, { headers: token ? { 'Authorization': 'Bearer ' + token } : {} });
+        if (!r.ok) throw new Error('Erro ' + r.status);
+        return r.json();
+      }
+      async function apiPost(path, body) {
+        const r = await fetch(API_BASE + path, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': 'Bearer ' + token } : {}) },
+          body: JSON.stringify(body)
+        });
+        if (!r.ok) throw new Error('Erro ' + r.status);
+        return r.json();
+      }
+      async function apiPut(path, body) {
+        const r = await fetch(API_BASE + path, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': 'Bearer ' + token } : {}) },
+          body: JSON.stringify(body)
+        });
+        if (!r.ok) throw new Error('Erro ' + r.status);
+        return r.json();
+      }
+      async function apiDelete(path) {
+        const r = await fetch(API_BASE + path, { method: 'DELETE', headers: token ? { 'Authorization': 'Bearer ' + token } : {} });
+        if (!r.ok) throw new Error('Erro ' + r.status);
+        return r.json();
+      }
+
+      async function fazerLogin() {
+        mostrarErro(erroLogin, '');
+        const usuario = loginUsuario.value.trim();
+        const senha = loginSenha.value.trim();
+        if (!usuario || !senha) { mostrarErro(erroLogin, 'Preencha usuário e senha.'); return; }
+        try {
+          const data = await apiPost('/login', { usuario, senha });
+          if (data.token) {
+            token = data.token;
+            localStorage.setItem('admin_token', token);
+            mostrarDashboard();
+          } else {
+            mostrarErro(erroLogin, 'Credenciais inválidas.');
+          }
+        } catch (e) {
+          mostrarErro(erroLogin, 'Erro ao fazer login. Verifique as credenciais.');
+        }
+      }
+
+      function mostrarDashboard() {
+        esconder(telaLogin);
+        mostrar(telaDashboard);
+        carregarAnunciosPendentes();
+        carregarAnunciosTodos();
+        carregarCategorias();
+        carregarComerciantes();
+      }
+
+      function fazerLogout() {
+        token = '';
+        localStorage.removeItem('admin_token');
+        esconder(telaDashboard);
+        mostrar(telaLogin);
+        loginUsuario.value = '';
+        loginSenha.value = '';
+      }
+
+      navButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          navButtons.forEach(b => b.classList.remove('ativo'));
+          btn.classList.add('ativo');
+          const aba = btn.dataset.aba;
+          Object.values(abas).forEach(a => esconder(a));
+          esconder(tabEditarAnuncio);
+          esconder(tabEditarCategoria);
+          if (abas[aba]) mostrar(abas[aba]);
+        });
+      });
+
+      async function carregarAnunciosPendentes() {
+        const container = document.getElementById('listaAnunciosPendentes');
+        try {
+          const data = await apiGet('/admin/anuncios');
+          const anuncios = data.anuncios || data || [];
+          const pendentes = anuncios.filter(a => a.status === 'pendente');
+          if (pendentes.length === 0) { container.innerHTML = '<div class="vazio">Nenhum anúncio pendente.</div>'; return; }
+          container.innerHTML = renderTabelaAnuncios(pendentes, true);
+          bindAcoesAnuncios();
+        } catch (e) { container.innerHTML = '<div class="vazio">Erro ao carregar anúncios.</div>'; }
+      }
+
+      async function carregarAnunciosTodos() {
+        const container = document.getElementById('listaAnunciosTodos');
+        try {
+          const data = await apiGet('/admin/anuncios/todos');
+          const anuncios = data.anuncios || data || [];
+          if (anuncios.length === 0) { container.innerHTML = '<div class="vazio">Nenhum anúncio cadastrado.</div>'; return; }
+          container.innerHTML = renderTabelaAnuncios(anuncios, false);
+          bindAcoesAnuncios();
+        } catch (e) { container.innerHTML = '<div class="vazio">Erro ao carregar anúncios.</div>'; }
+      }
+
+      function renderTabelaAnuncios(anuncios, mostrarAcoesRapidas) {
+        const linhas = anuncios.map(a => {
+          const statusClass = 'badge--' + (a.status || 'pendente');
+          const acoes = mostrarAcoesRapidas
+            ? '<div class="acoes"><button class="btn btn--sucesso btn-aprovar" data-id="' + a.id + '">Aprovar</button><button class="btn btn--perigo btn-rejeitar" data-id="' + a.id + '">Rejeitar</button></div>'
+            : '<div class="acoes"><button class="btn btn--secundario btn-editar" data-id="' + a.id + '">Editar</button><button class="btn btn--perigo btn-excluir" data-id="' + a.id + '">Excluir</button></div>';
+          return '<tr><td>' + a.id + '</td><td><strong>' + escapeHtml(a.titulo || '—') + '</strong></td><td>' + escapeHtml(a.comerciante_nome || a.comerciante_email || '—') + '</td><td><span class="badge ' + statusClass + '">' + (a.status || 'pendente') + '</span></td><td>' + acoes + '</td></tr>';
+        }).join('');
+        return '<table><thead><tr><th>ID</th><th>Título</th><th>Comerciante</th><th>Status</th><th>Ações</th></tr></thead><tbody>' + linhas + '</tbody></table>';
+      }
+
+      function bindAcoesAnuncios() {
+        document.querySelectorAll('.btn-aprovar').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            try { await apiPut('/admin/anuncios/' + btn.dataset.id + '/aprovar', {}); carregarAnunciosPendentes(); carregarAnunciosTodos(); }
+            catch (e) { alert('Erro ao aprovar.'); }
+          });
+        });
+        document.querySelectorAll('.btn-rejeitar').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            try { await apiPut('/admin/anuncios/' + btn.dataset.id + '/rejeitar', {}); carregarAnunciosPendentes(); carregarAnunciosTodos(); }
+            catch (e) { alert('Erro ao rejeitar.'); }
+          });
+        });
+        document.querySelectorAll('.btn-editar').forEach(btn => {
+          btn.addEventListener('click', () => abrirEdicaoAnuncio(btn.dataset.id));
+        });
+        document.querySelectorAll('.btn-excluir').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            if (!confirm('Tem certeza que deseja excluir este anúncio?')) return;
+            try { await apiDelete('/admin/anuncios/' + btn.dataset.id); carregarAnunciosTodos(); }
+            catch (e) { alert('Erro ao excluir.'); }
+          });
+        });
+      }
+
+      async function abrirEdicaoAnuncio(id) {
+        mostrarErro(document.getElementById('erroEditarAnuncio'), '');
+        try {
+          const data = await apiGet('/admin/anuncios/todos');
+          const anuncios = data.anuncios || data || [];
+          const anuncio = anuncios.find(a => String(a.id) === String(id));
+          if (!anuncio) { alert('Anúncio não encontrado.'); return; }
+          document.getElementById('editarAnuncioId').value = anuncio.id;
+          document.getElementById('editarAnuncioTitulo').value = anuncio.titulo || '';
+          document.getElementById('editarAnuncioDescricao').value = anuncio.descricao || '';
+          document.getElementById('editarAnuncioTelefone').value = anuncio.telefone || '';
+          document.getElementById('editarAnuncioEndereco').value = anuncio.endereco || '';
+          document.getElementById('editarAnuncioLatitude').value = anuncio.latitude || '';
+          document.getElementById('editarAnuncioLongitude').value = anuncio.longitude || '';
+          document.getElementById('editarAnuncioStatus').value = anuncio.status || 'pendente';
+          Object.values(abas).forEach(a => esconder(a));
+          mostrar(tabEditarAnuncio);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (e) { alert('Erro ao carregar anúncio para edição.'); }
+      }
+
+      document.getElementById('btnSalvarEdicaoAnuncio').addEventListener('click', async () => {
+        const id = document.getElementById('editarAnuncioId').value;
+        const body = {
+          titulo: document.getElementById('editarAnuncioTitulo').value,
+          descricao: document.getElementById('editarAnuncioDescricao').value,
+          telefone: document.getElementById('editarAnuncioTelefone').value,
+          endereco: document.getElementById('editarAnuncioEndereco').value,
+          latitude: document.getElementById('editarAnuncioLatitude').value,
+          longitude: document.getElementById('editarAnuncioLongitude').value,
+          status: document.getElementById('editarAnuncioStatus').value,
+        };
+        try {
+          await apiPut('/admin/anuncios/' + id, body);
+          esconder(tabEditarAnuncio);
+          mostrar(abas.anuncios);
+          carregarAnunciosTodos();
+          carregarAnunciosPendentes();
+        } catch (e) { mostrarErro(document.getElementById('erroEditarAnuncio'), 'Erro ao salvar alterações.'); }
+      });
+
+      document.getElementById('btnCancelarEdicaoAnuncio').addEventListener('click', () => {
+        esconder(tabEditarAnuncio);
+        mostrar(abas.anuncios);
+      });
+
+      async function carregarCategorias() {
+        const container = document.getElementById('listaCategorias');
+        try {
+          const data = await apiGet('/categorias');
+          const cats = data.categorias || data || [];
+          if (cats.length === 0) { container.innerHTML = '<div class="vazio">Nenhuma categoria cadastrada.</div>'; return; }
+          const linhas = cats.map(c => '<tr><td>' + c.id + '</td><td><strong>' + escapeHtml(c.nome) + '</strong></td><td>' + (c.icone ? '<img src="' + escapeHtml(c.icone) + '" style="width:24px;height:24px;">' : '—') + '</td><td><div class="acoes"><button class="btn btn--secundario btn-editar-cat" data-id="' + c.id + '" data-nome="' + escapeHtml(c.nome) + '" data-icone="' + escapeHtml(c.icone || '') + '">Editar</button><button class="btn btn--perigo btn-excluir-cat" data-id="' + c.id + '">Excluir</button></div></td></tr>').join('');
+          container.innerHTML = '<table><thead><tr><th>ID</th><th>Nome</th><th>Ícone</th><th>Ações</th></tr></thead><tbody>' + linhas + '</tbody></table>';
+          document.querySelectorAll('.btn-editar-cat').forEach(btn => {
+            btn.addEventListener('click', () => {
+              document.getElementById('editarCategoriaId').value = btn.dataset.id;
+              document.getElementById('editarCategoriaNome').value = btn.dataset.nome;
+              document.getElementById('editarCategoriaIcone').value = btn.dataset.icone;
+              mostrarErro(document.getElementById('erroEditarCategoria'), '');
+              Object.values(abas).forEach(a => esconder(a));
+              mostrar(tabEditarCategoria);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+          });
+          document.querySelectorAll('.btn-excluir-cat').forEach(btn => {
+            btn.addEventListener('click', async () => {
+              if (!confirm('Tem certeza que deseja excluir esta categoria?')) return;
+              try { await apiDelete('/admin/categorias/' + btn.dataset.id); carregarCategorias(); }
+              catch (e) { alert('Erro ao excluir categoria.'); }
+            });
+          });
+        } catch (e) { container.innerHTML = '<div class="vazio">Erro ao carregar categorias.</div>'; }
+      }
+
+      document.getElementById('btnCriarCategoria').addEventListener('click', async () => {
+        const nome = document.getElementById('novaCategoriaNome').value.trim();
+        const icone = document.getElementById('novaCategoriaIcone').value.trim();
+        const erroEl = document.getElementById('erroNovaCategoria');
+        if (!nome) { mostrarErro(erroEl, 'Digite o nome da categoria.'); return; }
+        try {
+          await apiPost('/admin/categorias', { nome, icone });
+          document.getElementById('novaCategoriaNome').value = '';
+          document.getElementById('novaCategoriaIcone').value = '';
+          mostrarErro(erroEl, '');
+          carregarCategorias();
+        } catch (e) { mostrarErro(erroEl, 'Erro ao criar categoria.'); }
+      });
+
+      document.getElementById('btnSalvarEdicaoCategoria').addEventListener('click', async () => {
+        const id = document.getElementById('editarCategoriaId').value;
+        const body = { nome: document.getElementById('editarCategoriaNome').value, icone: document.getElementById('editarCategoriaIcone').value };
+        try {
+          await apiPut('/admin/categorias/' + id, body);
+          esconder(tabEditarCategoria);
+          mostrar(abas.categorias);
+          carregarCategorias();
+        } catch (e) { mostrarErro(document.getElementById('erroEditarCategoria'), 'Erro ao salvar categoria.'); }
+      });
+
+      document.getElementById('btnCancelarEdicaoCategoria').addEventListener('click', () => {
+        esconder(tabEditarCategoria);
+        mostrar(abas.categorias);
+      });
+
+      async function carregarComerciantes() {
+        const container = document.getElementById('listaComerciantes');
+        try {
+          const data = await apiGet('/comerciantes');
+          const coms = data.comerciantes || data || [];
+          if (coms.length === 0) { container.innerHTML = '<div class="vazio">Nenhum comerciante cadastrado.</div>'; return; }
+          const linhas = coms.map(c => {
+            const statusClass = 'badge--' + (c.status || 'ativo');
+            return '<tr><td>' + c.id + '</td><td><strong>' + escapeHtml(c.nome || '—') + '</strong></td><td>' + escapeHtml(c.email || '—') + '</td><td>' + escapeHtml(c.telefone || '—') + '</td><td><span class="badge ' + statusClass + '">' + (c.status || 'ativo') + '</span></td></tr>';
+          }).join('');
+          container.innerHTML = '<table><thead><tr><th>ID</th><th>Nome</th><th>E-mail</th><th>Telefone</th><th>Status</th></tr></thead><tbody>' + linhas + '</tbody></table>';
+        } catch (e) { container.innerHTML = '<div class="vazio">Erro ao carregar comerciantes.</div>'; }
+      }
+
+      function escapeHtml(text) {
+        if (text == null) return '';
+        return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+      }
+
+      btnEntrar.addEventListener('click', fazerLogin);
+      loginSenha.addEventListener('keydown', e => { if (e.key === 'Enter') fazerLogin(); });
+      btnSair.addEventListener('click', fazerLogout);
+
+      if (token) { mostrarDashboard(); } else { mostrar(telaLogin); esconder(telaDashboard); }
+    })();
+  </script>
 </body>
 </html>
