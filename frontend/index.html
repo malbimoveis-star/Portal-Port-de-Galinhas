@@ -3,792 +3,215 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Painel Administrativo — Portal Porto de Galinhas</title>
+  <title>Portal Porto de Galinhas — Descubra o Paraíso</title>
   <link rel="icon" href="/assets/icons/logo-tucano.svg">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #f5f7fa; color: #1a1a2e; line-height: 1.6; min-height: 100vh; }
+    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #f5f7fa; color: #1a1a2e; line-height: 1.6; }
     a { text-decoration: none; color: inherit; }
     button { cursor: pointer; font-family: inherit; }
 
-    #telaLogin { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
-    .login-card { background: #fff; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); padding: 40px; width: 100%; max-width: 420px; }
-    .login-card h1 { font-size: 1.5rem; margin-bottom: 8px; color: #0f3460; }
-    .login-card p { color: #666; margin-bottom: 24px; font-size: 0.95rem; }
+    /* Header */
+    .site-header { background: linear-gradient(135deg, #0f3460, #16213e); color: #fff; padding: 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 20px rgba(0,0,0,0.15); }
+    .header-top { max-width: 1200px; margin: 0 auto; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo-icon { width: 40px; height: 40px; background: #e94560; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+    .logo-text h1 { font-size: 1.3rem; font-weight: 700; }
+    .logo-text span { font-size: 0.8rem; opacity: 0.8; }
+    .header-actions { display: flex; gap: 12px; align-items: center; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; transition: all 0.2s; }
+    .btn:hover { transform: translateY(-2px); }
+    .btn--admin { background: #e94560; color: #fff; }
+    .btn--admin:hover { background: #c73e54; }
+    .btn--outline { background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,0.3); }
+    .btn--outline:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
 
-    .campo { margin-bottom: 16px; }
-    .campo label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: #444; }
-    .campo input, .campo select, .campo textarea { width: 100%; padding: 12px 14px; border: 1.5px solid #dde1e7; border-radius: 10px; font-size: 1rem; transition: border-color 0.2s, box-shadow 0.2s; }
-    .campo input:focus, .campo select:focus, .campo textarea:focus { outline: none; border-color: #e94560; box-shadow: 0 0 0 3px rgba(233,69,96,0.1); }
-    .campo textarea { resize: vertical; min-height: 80px; }
+    /* Hero */
+    .hero { background: linear-gradient(135deg, #0f3460 0%, #1a4a7a 50%, #2d6a9f 100%); color: #fff; padding: 80px 24px; text-align: center; position: relative; overflow: hidden; }
+    .hero::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(233,69,96,0.1) 0%, transparent 70%); }
+    .hero-content { position: relative; max-width: 800px; margin: 0 auto; }
+    .hero h2 { font-size: 2.8rem; font-weight: 800; margin-bottom: 16px; line-height: 1.2; }
+    .hero p { font-size: 1.2rem; opacity: 0.9; margin-bottom: 32px; max-width: 600px; margin-left: auto; margin-right: auto; }
+    .hero-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .btn--large { padding: 14px 32px; font-size: 1rem; border-radius: 10px; }
+    .btn--principal { background: #e94560; color: #fff; }
+    .btn--principal:hover { background: #c73e54; }
+    .btn--secundario { background: rgba(255,255,255,0.15); color: #fff; backdrop-filter: blur(10px); }
+    .btn--secundario:hover { background: rgba(255,255,255,0.25); }
 
-    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 20px; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 600; transition: transform 0.15s, opacity 0.15s; }
-    .btn:hover { transform: translateY(-1px); opacity: 0.9; }
-    .btn--principal { background: linear-gradient(135deg, #e94560, #c73e54); color: #fff; }
-    .btn--secundario { background: #eef2f7; color: #0f3460; }
-    .btn--perigo { background: #dc3545; color: #fff; }
-    .btn--sucesso { background: #28a745; color: #fff; }
+    /* Stats */
+    .stats { background: #fff; padding: 40px 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .stats-grid { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; text-align: center; }
+    .stat-item h3 { font-size: 2rem; color: #e94560; font-weight: 700; }
+    .stat-item p { color: #666; font-size: 0.9rem; }
 
-    .erro { color: #dc3545; font-size: 0.9rem; margin-bottom: 12px; min-height: 1.2em; }
+    /* Sections */
+    .section { max-width: 1200px; margin: 0 auto; padding: 60px 24px; }
+    .section-title { text-align: center; margin-bottom: 40px; }
+    .section-title h2 { font-size: 2rem; color: #0f3460; margin-bottom: 8px; }
+    .section-title p { color: #666; font-size: 1.05rem; }
 
-    .admin-header { background: #0f3460; color: #fff; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.1); }
-    .admin-header h1 { font-size: 1.25rem; }
-    .admin-header .usuario { font-size: 0.85rem; opacity: 0.85; }
+    /* Cards */
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+    .card { background: #fff; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(0,0,0,0.12); }
+    .card-img { height: 180px; background: linear-gradient(135deg, #e94560, #ff6b6b); display: flex; align-items: center; justify-content: center; font-size: 3rem; }
+    .card-body { padding: 24px; }
+    .card-body h3 { font-size: 1.15rem; color: #0f3460; margin-bottom: 8px; }
+    .card-body p { color: #666; font-size: 0.95rem; }
+    .card-body .btn { margin-top: 16px; width: 100%; justify-content: center; }
 
-    .admin-nav { background: #16213e; display: flex; gap: 4px; padding: 8px 16px; overflow-x: auto; }
-    .admin-nav button { background: transparent; color: #a0aec0; border: none; padding: 10px 18px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; white-space: nowrap; transition: all 0.2s; }
-    .admin-nav button:hover, .admin-nav button.ativo { background: rgba(233,69,96,0.15); color: #e94560; }
+    /* Features */
+    .feature-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; }
+    .feature { display: flex; gap: 16px; align-items: flex-start; }
+    .feature-icon { width: 48px; height: 48px; background: rgba(233,69,96,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+    .feature h4 { font-size: 1.05rem; color: #0f3460; margin-bottom: 4px; }
+    .feature p { color: #666; font-size: 0.9rem; }
 
-    .admin-conteudo { max-width: 1200px; margin: 0 auto; padding: 24px; }
-
-    .card { background: #fff; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); padding: 24px; margin-bottom: 24px; }
-    .card h2 { font-size: 1.15rem; color: #0f3460; margin-bottom: 8px; }
-    .card > p { color: #666; margin-bottom: 20px; font-size: 0.95rem; }
-
-    .tabela-container { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-    th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid #eef2f7; }
-    th { background: #f8fafc; font-weight: 600; color: #4a5568; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; }
-    tr:hover td { background: #f8fafc; }
-
-    .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
-    .badge--pendente { background: #fff3cd; color: #856404; }
-    .badge--ativo { background: #d4edda; color: #155724; }
-    .badge--rejeitado { background: #f8d7da; color: #721c24; }
-    .badge--expirado { background: #e2e3e5; color: #383d41; }
-    .badge--publicado { background: #d4edda; color: #155724; }
-    .badge--rascunho { background: #fff3cd; color: #856404; }
-
-    .acoes { display: flex; gap: 6px; flex-wrap: wrap; }
-    .acoes .btn { padding: 6px 12px; font-size: 0.8rem; border-radius: 6px; }
-
-    .blog-form { max-width: 700px; }
-    .blog-form textarea { min-height: 180px; }
-
-    .blog-capa-preview { max-width: 220px; max-height: 130px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd; display: block; margin-top: 8px; }
-    .artigo-conteudo-preview { max-width: 350px; max-height: 100px; overflow: hidden; color: #666; font-size: 0.85rem; }
-
-    /* ===== EDITOR WYSIWYG ESTILO WORDPRESS ===== */
-    .wp-editor-wrap { border: 1.5px solid #c5c5c5; border-radius: 4px; background: #fff; }
-    .wp-editor-tabs { display: flex; background: #f0f0f1; border-bottom: 1px solid #c5c5c5; }
-    .wp-editor-tabs button { background: transparent; border: none; padding: 8px 16px; font-size: 0.85rem; color: #50575e; cursor: pointer; border-bottom: 2px solid transparent; }
-    .wp-editor-tabs button.active { background: #fff; color: #1d2327; border-bottom-color: #e94560; font-weight: 600; }
-    .wp-toolbar { display: flex; flex-wrap: wrap; gap: 1px; padding: 6px; background: #f6f7f7; border-bottom: 1px solid #dcdcde; }
-    .wp-toolbar button, .wp-toolbar select { background: #fff; border: 1px solid #c5c5c5; border-radius: 3px; padding: 4px 8px; font-size: 0.8rem; color: #1d2327; cursor: pointer; min-height: 30px; }
-    .wp-toolbar button:hover { background: #e94560; color: #fff; border-color: #e94560; }
-    .wp-toolbar button:active { background: #c73e54; }
-    .wp-toolbar select { padding: 4px 6px; min-width: 100px; }
-    .wp-toolbar .sep { width: 1px; background: #c5c5c5; margin: 0 3px; }
-    .wp-editor { min-height: 350px; padding: 16px; font-size: 1rem; line-height: 1.8; outline: none; background: #fff; }
-    .wp-editor:empty:before { content: attr(data-placeholder); color: #999; }
-    .wp-editor h1 { font-size: 2em; margin: 0.5em 0; color: #1a1a2e; font-weight: 700; }
-    .wp-editor h2 { font-size: 1.75em; margin: 0.5em 0; color: #1a1a2e; font-weight: 700; }
-    .wp-editor h3 { font-size: 1.5em; margin: 0.5em 0; color: #1a1a2e; font-weight: 600; }
-    .wp-editor h4 { font-size: 1.25em; margin: 0.5em 0; color: #1a1a2e; font-weight: 600; }
-    .wp-editor p { margin: 0.6em 0; }
-    .wp-editor blockquote { border-left: 4px solid #e94560; padding-left: 16px; margin: 0.8em 0; color: #555; font-style: italic; background: #f9f9f9; padding: 12px 12px 12px 20px; }
-    .wp-editor ul, .wp-editor ol { margin: 0.6em 0; padding-left: 28px; }
-    .wp-editor a { color: #e94560; text-decoration: underline; }
-    .wp-editor img { max-width: 100%; height: auto; border-radius: 6px; margin: 8px 0; }
-    .wp-editor strong { font-weight: 700; }
-    .wp-editor em { font-style: italic; }
-    .wp-editor u { text-decoration: underline; }
-    .wp-editor s { text-decoration: line-through; }
-    .wp-editor code { background: #f4f4f5; padding: 2px 6px; border-radius: 3px; font-family: monospace; font-size: 0.9em; }
-    .wp-editor pre { background: #f4f4f5; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: monospace; }
-
-    .escondido { display: none !important; }
-    .vazio { text-align: center; padding: 40px 20px; color: #888; }
+    /* Footer */
+    .site-footer { background: #0f3460; color: #fff; padding: 40px 24px; text-align: center; }
+    .site-footer p { opacity: 0.8; font-size: 0.9rem; }
+    .site-footer a { color: #e94560; }
 
     @media (max-width: 640px) {
-      .login-card { padding: 24px; }
-      .admin-conteudo { padding: 16px; }
-      .card { padding: 16px; }
-      th, td { padding: 10px; font-size: 0.85rem; }
-      .wp-toolbar button { padding: 3px 5px; font-size: 0.7rem; }
+      .hero h2 { font-size: 2rem; }
+      .hero p { font-size: 1rem; }
+      .header-top { flex-wrap: wrap; gap: 12px; }
     }
   </style>
 <base target="_blank">
 </head>
 <body>
 
-  <!-- LOGIN -->
-  <div id="telaLogin">
-    <div class="login-card">
-      <h1>Painel Administrativo</h1>
-      <p>Portal Porto de Galinhas</p>
-      <div id="erroLogin" class="erro"></div>
-      <div class="campo">
-        <label for="loginUsuario">Usuário</label>
-        <input type="text" id="loginUsuario" placeholder="admin">
+  <header class="site-header">
+    <div class="header-top">
+      <div class="logo">
+        <div class="logo-icon">🦜</div>
+        <div class="logo-text">
+          <h1>Portal Porto de Galinhas</h1>
+          <span>Descubra o paraíso pernambucano</span>
+        </div>
       </div>
-      <div class="campo">
-        <label for="loginSenha">Senha</label>
-        <input type="password" id="loginSenha" placeholder="••••••">
+      <div class="header-actions">
+        <a href="/admin/index.html" class="btn btn--admin">🔐 Painel Admin</a>
       </div>
-      <button type="button" id="btnEntrar" class="btn btn--principal" style="width:100%;">Entrar</button>
     </div>
-  </div>
+  </header>
 
-  <!-- DASHBOARD -->
-  <div id="telaDashboard" class="escondido">
-
-    <header class="admin-header">
-      <div>
-        <h1>Portal Porto de Galinhas</h1>
-        <span class="usuario">Painel Administrativo</span>
+  <section class="hero">
+    <div class="hero-content">
+      <h2>Descubra Porto de Galinhas</h2>
+      <p>As melhores praias, passeios, restaurantes e hospedagens do litoral sul de Pernambuco, em um só lugar.</p>
+      <div class="hero-buttons">
+        <a href="#explorar" class="btn btn--principal btn--large">🗺️ Explorar o Portal</a>
+        <a href="/admin/index.html" class="btn btn--secundario btn--large">⚙️ Área do Comerciante</a>
       </div>
-      <button type="button" id="btnSair" class="btn btn--secundario" style="font-size:0.85rem;">Sair</button>
-    </header>
+    </div>
+  </section>
 
-    <nav class="admin-nav">
-      <button type="button" data-aba="anuncios" class="ativo">Anúncios</button>
-      <button type="button" data-aba="categorias">Categorias</button>
-      <button type="button" data-aba="comerciantes">Comerciantes</button>
-      <button type="button" data-aba="blog">Blog</button>
-    </nav>
+  <section class="stats">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <h3>50+</h3>
+        <p>Comerciantes cadastrados</p>
+      </div>
+      <div class="stat-item">
+        <h3>10+</h3>
+        <p>Categorias de serviços</p>
+      </div>
+      <div class="stat-item">
+        <h3>1000+</h3>
+        <p>Visitantes mensais</p>
+      </div>
+      <div class="stat-item">
+        <h3>⭐ 5.0</h3>
+        <p>Avaliação dos turistas</p>
+      </div>
+    </div>
+  </section>
 
-    <main class="admin-conteudo">
-
-      <!-- ABA ANÚNCIOS -->
-      <section id="abaAnuncios">
-        <div class="card">
-          <h2>Anúncios Pendentes de Revisão</h2>
-          <p>Anúncios aguardando aprovação para aparecer no portal.</p>
-          <div id="listaAnunciosPendentes" class="tabela-container"><div class="vazio">Carregando...</div></div>
+  <section class="section" id="explorar">
+    <div class="section-title">
+      <h2>O que você encontra por aqui</h2>
+      <p>Tudo o que você precisa para aproveitar Porto de Galinhas ao máximo</p>
+    </div>
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-img">🏖️</div>
+        <div class="card-body">
+          <h3>Praias e Passeios</h3>
+          <p>Descubra as piscinas naturais, passeios de jangada, buggy e muito mais.</p>
+          <a href="#" class="btn btn--principal">Ver passeios</a>
         </div>
-        <div class="card">
-          <h2>Todos os Anúncios</h2>
-          <p>Gerencie todos os anúncios cadastrados na plataforma.</p>
-          <div id="listaAnunciosTodos" class="tabela-container"><div class="vazio">Carregando...</div></div>
+      </div>
+      <div class="card">
+        <div class="card-img">🍽️</div>
+        <div class="card-body">
+          <h3>Restaurantes</h3>
+          <p>Os melhores sabores da culinária local e internacional.</p>
+          <a href="#" class="btn btn--principal">Ver restaurantes</a>
         </div>
-      </section>
-
-      <!-- ABA CATEGORIAS -->
-      <section id="abaCategorias" class="escondido">
-        <div class="card">
-          <h2>Categorias</h2>
-          <p>Gerencie as categorias do portal.</p>
-          <div id="listaCategorias" class="tabela-container"><div class="vazio">Carregando...</div></div>
+      </div>
+      <div class="card">
+        <div class="card-img">🏨</div>
+        <div class="card-body">
+          <h3>Hospedagens</h3>
+          <p>Pousadas, hotéis e flats para todos os estilos e orçamentos.</p>
+          <a href="#" class="btn btn--principal">Ver hospedagens</a>
         </div>
-        <div class="card">
-          <h2>Nova Categoria</h2>
-          <p>Adicione uma nova categoria ao portal.</p>
-          <div class="blog-form">
-            <div class="campo">
-              <label for="novaCategoriaNome">Nome da categoria</label>
-              <input type="text" id="novaCategoriaNome" placeholder="Ex.: Restaurantes">
-            </div>
-            <div class="campo">
-              <label for="novaCategoriaIcone">URL do ícone (opcional)</label>
-              <input type="text" id="novaCategoriaIcone" placeholder="https://...">
-            </div>
-            <p id="erroNovaCategoria" class="erro"></p>
-            <button type="button" id="btnCriarCategoria" class="btn btn--principal">Criar categoria</button>
-          </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background: #fff; border-radius: 24px; margin: 0 16px 40px;">
+    <div class="section-title">
+      <h2>Por que usar o Portal?</h2>
+      <p>A maneira mais fácil de planejar sua viagem</p>
+    </div>
+    <div class="feature-list">
+      <div class="feature">
+        <div class="feature-icon">📍</div>
+        <div>
+          <h4>Geolocalização</h4>
+          <p>Encontre comércios próximos a você com mapa interativo.</p>
         </div>
-      </section>
-
-      <!-- ABA COMERCIANTES -->
-      <section id="abaComerciantes" class="escondido">
-        <div class="card">
-          <h2>Comerciantes Cadastrados</h2>
-          <p>Lista de todos os comerciantes da plataforma.</p>
-          <div id="listaComerciantes" class="tabela-container"><div class="vazio">Carregando...</div></div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">⭐</div>
+        <div>
+          <h4>Avaliações reais</h4>
+          <p>Leia opiniões de outros turistas antes de escolher.</p>
         </div>
-      </section>
-
-      <!-- ABA BLOG -->
-      <section id="abaBlog" class="escondido">
-        <div class="card">
-          <h2>Gerenciar Blog</h2>
-          <p>Crie, edite, publique ou exclua artigos do blog.</p>
-          <div id="listaBlog" class="tabela-container"><div class="vazio">Carregando artigos...</div></div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📱</div>
+        <div>
+          <h4>100% Responsivo</h4>
+          <p>Acesse de qualquer dispositivo, a qualquer hora.</p>
         </div>
-        <div class="card">
-          <h2>Novo artigo</h2>
-          <p>Crie um novo artigo para o blog.</p>
-          <div class="blog-form">
-            <div class="campo">
-              <label for="novoArtigoTitulo">Título</label>
-              <input type="text" id="novoArtigoTitulo" placeholder="Digite o título do artigo">
-            </div>
-            <div class="campo">
-              <label for="novoArtigoResumo">Resumo</label>
-              <textarea id="novoArtigoResumo" rows="4" placeholder="Digite um resumo do artigo"></textarea>
-            </div>
-            <div class="campo">
-              <label for="novoArtigoCapa">URL da capa</label>
-              <input type="text" id="novoArtigoCapa" placeholder="https://...">
-            </div>
-            <div class="campo">
-              <label>Conteúdo do artigo</label>
-              <div class="wp-editor-wrap">
-                <div class="wp-toolbar">
-                  <select id="novoFmtBlock" onchange="if(this.value){wpFormat('novoArtigoConteudoEditor','formatBlock',this.value);}this.value='';">
-                    <option value="">Parágrafo</option>
-                    <option value="H1">Título H1</option>
-                    <option value="H2">Título H2</option>
-                    <option value="H3">Título H3</option>
-                    <option value="H4">Título H4</option>
-                    <option value="BLOCKQUOTE">Citação</option>
-                    <option value="PRE">Código</option>
-                  </select>
-                  <span class="sep"></span>
-                  <button type="button" onclick="wpFormat('novoArtigoConteudoEditor','bold')" title="Negrito (Ctrl+B)"><b>B</b></button>
-                  <button type="button" onclick="wpFormat('novoArtigoConteudoEditor','italic')" title="Itálico (Ctrl+I)"><i>I</i></button>
-                  <button type="button" onclick="wpFormat('novoArtigoConteudoEditor','underline')" title="Sublinhado (Ctrl+U)"><u>U</u></button>
-                  <button type="button" onclick="wpFormat('novoArtigoConteudoEditor','strikeThrough')" title="Tachado"><s>S</s></button>
-                  <span class="sep"></span>
-                  <button type="button" onclick="wpFormat('novoArtigoConteudoEditor','insertUnorderedList')" title="Lista com marcadores">• Lista</button>
-                  <button type="button" onclick="wpFormat('novoArtigoConteudoEditor','insertOrderedList')" title="Lista numerada">1. Lista</button>
-                  <span class="sep"></span>
-                  <button type="button" onclick="wpInsertLink('novoArtigoConteudoEditor')" title="Inserir link">🔗 Link</button>
-                  <button type="button" onclick="wpInsertImage('novoArtigoConteudoEditor')" title="Inserir imagem">🖼️ Imagem</button>
-                  <span class="sep"></span>
-                  <button type="button" onclick="wpFormat('novoArtigoConteudoEditor','removeFormat')" title="Limpar formatação">🧹 Limpar</button>
-                </div>
-                <div id="novoArtigoConteudoEditor" class="wp-editor" contenteditable="true" data-placeholder="Comece a escrever seu artigo aqui..."></div>
-              </div>
-            </div>
-            <div class="campo">
-              <label for="novoArtigoPublicado">Publicação</label>
-              <select id="novoArtigoPublicado">
-                <option value="1">Publicado</option>
-                <option value="0">Rascunho</option>
-              </select>
-            </div>
-            <p id="erroNovoArtigo" class="erro"></p>
-            <button type="button" id="btnCriarArtigo" class="btn btn--principal">Criar artigo</button>
-          </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🤝</div>
+        <div>
+          <h4>Comércio local</h4>
+          <p>Apoie os comerciantes de Porto de Galinhas.</p>
         </div>
-      </section>
+      </div>
+    </div>
+  </section>
 
-      <!-- EDITAR ANÚNCIO -->
-      <section id="tabEditarAnuncio" class="escondido">
-        <div class="card">
-          <h2>Editar anúncio</h2>
-          <p>Edite os dados do anúncio selecionado.</p>
-          <input type="hidden" id="editarAnuncioId" value="">
-          <p id="erroEditarAnuncio" class="erro"></p>
-          <div class="blog-form">
-            <div class="campo"><label for="editarAnuncioTitulo">Título do anúncio</label><input type="text" id="editarAnuncioTitulo" placeholder="Digite o título do anúncio"></div>
-            <div class="campo"><label for="editarAnuncioDescricao">Descrição</label><textarea id="editarAnuncioDescricao" rows="6" placeholder="Digite a descrição do anúncio"></textarea></div>
-            <div class="campo"><label for="editarAnuncioTelefone">Telefone</label><input type="text" id="editarAnuncioTelefone" placeholder="Digite o telefone"></div>
-            <div class="campo"><label for="editarAnuncioEndereco">Endereço</label><input type="text" id="editarAnuncioEndereco" placeholder="Digite o endereço"></div>
-            <div class="campo"><label for="editarAnuncioLatitude">Latitude</label><input type="text" id="editarAnuncioLatitude" placeholder="Ex.: -8.5069"></div>
-            <div class="campo"><label for="editarAnuncioLongitude">Longitude</label><input type="text" id="editarAnuncioLongitude" placeholder="Ex.: -35.0068"></div>
-            <div class="campo">
-              <label for="editarAnuncioStatus">Status</label>
-              <select id="editarAnuncioStatus">
-                <option value="pendente">Pendente</option>
-                <option value="ativo">Ativo</option>
-                <option value="rejeitado">Rejeitado</option>
-              </select>
-            </div>
-            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:15px;">
-              <button type="button" id="btnSalvarEdicaoAnuncio" class="btn btn--principal">Salvar alterações</button>
-              <button type="button" id="btnCancelarEdicaoAnuncio" class="btn btn--secundario">Cancelar edição</button>
-            </div>
-          </div>
-        </div>
-      </section>
+  <section class="section" style="text-align: center;">
+    <div class="section-title">
+      <h2>Quer anunciar seu negócio?</h2>
+      <p>Cadastre-se gratuitamente e alcance milhares de turistas</p>
+    </div>
+    <a href="/admin/index.html" class="btn btn--principal btn--large" style="font-size: 1.1rem;">🚀 Cadastrar meu negócio</a>
+  </section>
 
-      <!-- EDITAR CATEGORIA -->
-      <section id="tabEditarCategoria" class="escondido">
-        <div class="card">
-          <h2>Editar categoria</h2>
-          <p>Altere os dados da categoria selecionada.</p>
-          <input type="hidden" id="editarCategoriaId" value="">
-          <p id="erroEditarCategoria" class="erro"></p>
-          <div class="blog-form">
-            <div class="campo"><label for="editarCategoriaNome">Nome da categoria</label><input type="text" id="editarCategoriaNome" placeholder="Digite o nome da categoria"></div>
-            <div class="campo"><label for="editarCategoriaIcone">URL do ícone</label><input type="text" id="editarCategoriaIcone" placeholder="https://..."></div>
-            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:15px;">
-              <button type="button" id="btnSalvarEdicaoCategoria" class="btn btn--principal">Salvar alterações</button>
-              <button type="button" id="btnCancelarEdicaoCategoria" class="btn btn--secundario">Cancelar edição</button>
-            </div>
-          </div>
-        </div>
-      </section>
+  <footer class="site-footer">
+    <p>© 2025 Portal Porto de Galinhas — Todos os direitos reservados</p>
+    <p style="margin-top: 8px;"><a href="/admin/index.html">Acessar Painel Administrativo</a></p>
+  </footer>
 
-      <!-- EDITAR ARTIGO DO BLOG -->
-      <section id="tabEditarBlog" class="escondido">
-        <div class="card">
-          <h2>Editar artigo</h2>
-          <p>Edite o artigo selecionado.</p>
-          <input type="hidden" id="editarBlogId" value="">
-          <input type="hidden" id="editarBlogConteudo" value="">
-          <p id="erroEditarBlog" class="erro"></p>
-          <div class="blog-form">
-            <div class="campo"><label for="editarBlogTitulo">Título</label><input type="text" id="editarBlogTitulo" placeholder="Digite o título"></div>
-            <div class="campo"><label for="editarBlogResumo">Resumo</label><textarea id="editarBlogResumo" rows="4" placeholder="Digite o resumo"></textarea></div>
-            <div class="campo"><label for="editarBlogCapa">URL da capa</label><input type="text" id="editarBlogCapa" placeholder="https://..."></div>
-            <div class="campo">
-              <label>Conteúdo</label>
-              <div class="wp-editor-wrap">
-                <div class="wp-toolbar">
-                  <select id="editFmtBlock" onchange="if(this.value){wpFormat('editarBlogConteudoEditor','formatBlock',this.value);}this.value='';">
-                    <option value="">Parágrafo</option>
-                    <option value="H1">Título H1</option>
-                    <option value="H2">Título H2</option>
-                    <option value="H3">Título H3</option>
-                    <option value="H4">Título H4</option>
-                    <option value="BLOCKQUOTE">Citação</option>
-                    <option value="PRE">Código</option>
-                  </select>
-                  <span class="sep"></span>
-                  <button type="button" onclick="wpFormat('editarBlogConteudoEditor','bold')" title="Negrito (Ctrl+B)"><b>B</b></button>
-                  <button type="button" onclick="wpFormat('editarBlogConteudoEditor','italic')" title="Itálico (Ctrl+I)"><i>I</i></button>
-                  <button type="button" onclick="wpFormat('editarBlogConteudoEditor','underline')" title="Sublinhado (Ctrl+U)"><u>U</u></button>
-                  <button type="button" onclick="wpFormat('editarBlogConteudoEditor','strikeThrough')" title="Tachado"><s>S</s></button>
-                  <span class="sep"></span>
-                  <button type="button" onclick="wpFormat('editarBlogConteudoEditor','insertUnorderedList')" title="Lista com marcadores">• Lista</button>
-                  <button type="button" onclick="wpFormat('editarBlogConteudoEditor','insertOrderedList')" title="Lista numerada">1. Lista</button>
-                  <span class="sep"></span>
-                  <button type="button" onclick="wpInsertLink('editarBlogConteudoEditor')" title="Inserir link">🔗 Link</button>
-                  <button type="button" onclick="wpInsertImage('editarBlogConteudoEditor')" title="Inserir imagem">🖼️ Imagem</button>
-                  <span class="sep"></span>
-                  <button type="button" onclick="wpFormat('editarBlogConteudoEditor','removeFormat')" title="Limpar formatação">🧹 Limpar</button>
-                </div>
-                <div id="editarBlogConteudoEditor" class="wp-editor" contenteditable="true" data-placeholder="Comece a escrever seu artigo aqui..."></div>
-              </div>
-            </div>
-            <div class="campo">
-              <label for="editarBlogPublicado">Publicação</label>
-              <select id="editarBlogPublicado">
-                <option value="1">Publicado</option>
-                <option value="0">Rascunho</option>
-              </select>
-            </div>
-            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:15px;">
-              <button type="button" id="btnSalvarEdicaoBlog" class="btn btn--principal">Salvar alterações</button>
-              <button type="button" id="btnCancelarEdicaoBlog" class="btn btn--secundario">Cancelar edição</button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-    </main>
-  </div>
-
-  <script>
-  (function() {
-    'use strict';
-    const API_BASE = '/api';
-    let token = localStorage.getItem('admin_token') || '';
-
-    const telaLogin = document.getElementById('telaLogin');
-    const telaDashboard = document.getElementById('telaDashboard');
-    const loginUsuario = document.getElementById('loginUsuario');
-    const loginSenha = document.getElementById('loginSenha');
-    const btnEntrar = document.getElementById('btnEntrar');
-    const erroLogin = document.getElementById('erroLogin');
-    const btnSair = document.getElementById('btnSair');
-
-    const abas = {
-      anuncios: document.getElementById('abaAnuncios'),
-      categorias: document.getElementById('abaCategorias'),
-      comerciantes: document.getElementById('abaComerciantes'),
-      blog: document.getElementById('abaBlog')
-    };
-    const navButtons = document.querySelectorAll('.admin-nav button[data-aba]');
-    const tabEditarAnuncio = document.getElementById('tabEditarAnuncio');
-    const tabEditarCategoria = document.getElementById('tabEditarCategoria');
-    const tabEditarBlog = document.getElementById('tabEditarBlog');
-
-    function mostrarErro(el, msg) { el.textContent = msg || ''; }
-    function esconder(el) { el.classList.add('escondido'); }
-    function mostrar(el) { el.classList.remove('escondido'); }
-
-    /* ===== EDITOR WYSIWYG — FUNÇÕES GLOBAIS ===== */
-    window.wpFormat = function(editorId, command, value) {
-      const editor = document.getElementById(editorId);
-      if (editor) {
-        editor.focus();
-        document.execCommand(command, false, value || null);
-      }
-    };
-    window.wpInsertLink = function(editorId) {
-      const editor = document.getElementById(editorId);
-      if (!editor) return;
-      editor.focus();
-      const url = prompt('Digite a URL do link:');
-      if (url) { document.execCommand('createLink', false, url); }
-    };
-    window.wpInsertImage = function(editorId) {
-      const editor = document.getElementById(editorId);
-      if (!editor) return;
-      editor.focus();
-      const url = prompt('Digite a URL da imagem:');
-      if (url) { document.execCommand('insertImage', false, url); }
-    };
-    /* ===== FIM EDITOR ===== */
-
-    async function apiGet(path) {
-      const r = await fetch(API_BASE + path, { headers: token ? { 'Authorization': 'Bearer ' + token } : {} });
-      if (!r.ok) { let m = 'Erro ' + r.status; try { const e = await r.json(); if (e.erro) m = e.erro; } catch(x){} throw new Error(m); }
-      return r.json();
-    }
-    async function apiPost(path, body) {
-      const r = await fetch(API_BASE + path, { method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': 'Bearer ' + token } : {}) }, body: JSON.stringify(body) });
-      if (!r.ok) { let m = 'Erro ' + r.status; try { const e = await r.json(); if (e.erro) m = e.erro; } catch(x){} throw new Error(m); }
-      return r.json();
-    }
-    async function apiPut(path, body) {
-      const r = await fetch(API_BASE + path, { method: 'PUT', headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': 'Bearer ' + token } : {}) }, body: JSON.stringify(body) });
-      if (!r.ok) { let m = 'Erro ' + r.status; try { const e = await r.json(); if (e.erro) m = e.erro; } catch(x){} throw new Error(m); }
-      return r.json();
-    }
-    async function apiDelete(path) {
-      const r = await fetch(API_BASE + path, { method: 'DELETE', headers: token ? { 'Authorization': 'Bearer ' + token } : {} });
-      if (!r.ok) { let m = 'Erro ' + r.status; try { const e = await r.json(); if (e.erro) m = e.erro; } catch(x){} throw new Error(m); }
-      return r.json();
-    }
-
-    async function fazerLogin() {
-      mostrarErro(erroLogin, '');
-      const usuario = loginUsuario.value.trim();
-      const senha = loginSenha.value.trim();
-      if (!usuario || !senha) { mostrarErro(erroLogin, 'Preencha usuário e senha.'); return; }
-      try {
-        const data = await apiPost('/login', { usuario, senha });
-        if (data.token) {
-          token = data.token;
-          localStorage.setItem('admin_token', token);
-          mostrarDashboard();
-        } else {
-          mostrarErro(erroLogin, 'Credenciais inválidas.');
-        }
-      } catch (e) {
-        mostrarErro(erroLogin, e.message || 'Erro ao fazer login. Verifique as credenciais.');
-      }
-    }
-
-    function mostrarDashboard() {
-      esconder(telaLogin);
-      mostrar(telaDashboard);
-      carregarAnunciosPendentes();
-      carregarAnunciosTodos();
-      carregarCategorias();
-      carregarComerciantes();
-      carregarBlog();
-    }
-
-    function fazerLogout() {
-      token = '';
-      localStorage.removeItem('admin_token');
-      esconder(telaDashboard);
-      mostrar(telaLogin);
-      loginUsuario.value = '';
-      loginSenha.value = '';
-    }
-
-    navButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        navButtons.forEach(b => b.classList.remove('ativo'));
-        btn.classList.add('ativo');
-        const aba = btn.dataset.aba;
-        Object.values(abas).forEach(a => esconder(a));
-        esconder(tabEditarAnuncio);
-        esconder(tabEditarCategoria);
-        esconder(tabEditarBlog);
-        if (abas[aba]) mostrar(abas[aba]);
-      });
-    });
-
-    async function carregarAnunciosPendentes() {
-      const container = document.getElementById('listaAnunciosPendentes');
-      try {
-        const data = await apiGet('/admin/anuncios');
-        const anuncios = data.anuncios || data || [];
-        const pendentes = anuncios.filter(a => a.status === 'pendente');
-        if (pendentes.length === 0) { container.innerHTML = '<div class="vazio">Nenhum anúncio pendente.</div>'; return; }
-        container.innerHTML = renderTabelaAnuncios(pendentes, true);
-        bindAcoesAnuncios();
-      } catch (e) { container.innerHTML = '<div class="vazio">Erro ao carregar anúncios.</div>'; }
-    }
-
-    async function carregarAnunciosTodos() {
-      const container = document.getElementById('listaAnunciosTodos');
-      try {
-        const data = await apiGet('/admin/anuncios/todos');
-        const anuncios = data.anuncios || data || [];
-        if (anuncios.length === 0) { container.innerHTML = '<div class="vazio">Nenhum anúncio cadastrado.</div>'; return; }
-        container.innerHTML = renderTabelaAnuncios(anuncios, false);
-        bindAcoesAnuncios();
-      } catch (e) { container.innerHTML = '<div class="vazio">Erro ao carregar anúncios.</div>'; }
-    }
-
-    function renderTabelaAnuncios(anuncios, mostrarAcoesRapidas) {
-      const linhas = anuncios.map(a => {
-        const statusClass = 'badge--' + (a.status || 'pendente');
-        const acoes = mostrarAcoesRapidas
-          ? '<div class="acoes"><button class="btn btn--sucesso btn-aprovar" data-id="' + a.id + '">Aprovar</button><button class="btn btn--perigo btn-rejeitar" data-id="' + a.id + '">Rejeitar</button></div>'
-          : '<div class="acoes"><button class="btn btn--secundario btn-editar" data-id="' + a.id + '">Editar</button><button class="btn btn--perigo btn-excluir" data-id="' + a.id + '">Excluir</button></div>';
-        return '<tr><td>' + a.id + '</td><td><strong>' + escapeHtml(a.titulo || '—') + '</strong></td><td>' + escapeHtml(a.comerciante_nome || a.comerciante_email || '—') + '</td><td><span class="badge ' + statusClass + '">' + (a.status || 'pendente') + '</span></td><td>' + acoes + '</td></tr>';
-      }).join('');
-      return '<table><thead><tr><th>ID</th><th>Título</th><th>Comerciante</th><th>Status</th><th>Ações</th></tr></thead><tbody>' + linhas + '</tbody></table>';
-    }
-
-    function bindAcoesAnuncios() {
-      document.querySelectorAll('.btn-aprovar').forEach(btn => {
-        btn.addEventListener('click', async () => {
-          try { await apiPut('/admin/anuncios/' + btn.dataset.id + '/aprovar', {}); carregarAnunciosPendentes(); carregarAnunciosTodos(); }
-          catch (e) { alert('Erro ao aprovar.'); }
-        });
-      });
-      document.querySelectorAll('.btn-rejeitar').forEach(btn => {
-        btn.addEventListener('click', async () => {
-          try { await apiPut('/admin/anuncios/' + btn.dataset.id + '/rejeitar', {}); carregarAnunciosPendentes(); carregarAnunciosTodos(); }
-          catch (e) { alert('Erro ao rejeitar.'); }
-        });
-      });
-      document.querySelectorAll('.btn-editar').forEach(btn => {
-        btn.addEventListener('click', () => abrirEdicaoAnuncio(btn.dataset.id));
-      });
-      document.querySelectorAll('.btn-excluir').forEach(btn => {
-        btn.addEventListener('click', async () => {
-          if (!confirm('Tem certeza que deseja excluir este anúncio?')) return;
-          try { await apiDelete('/admin/anuncios/' + btn.dataset.id); carregarAnunciosTodos(); }
-          catch (e) { alert('Erro ao excluir.'); }
-        });
-      });
-    }
-
-    async function abrirEdicaoAnuncio(id) {
-      mostrarErro(document.getElementById('erroEditarAnuncio'), '');
-      try {
-        const data = await apiGet('/admin/anuncios/todos');
-        const anuncios = data.anuncios || data || [];
-        const anuncio = anuncios.find(a => String(a.id) === String(id));
-        if (!anuncio) { alert('Anúncio não encontrado.'); return; }
-        document.getElementById('editarAnuncioId').value = anuncio.id;
-        document.getElementById('editarAnuncioTitulo').value = anuncio.titulo || '';
-        document.getElementById('editarAnuncioDescricao').value = anuncio.descricao || '';
-        document.getElementById('editarAnuncioTelefone').value = anuncio.telefone || '';
-        document.getElementById('editarAnuncioEndereco').value = anuncio.endereco || '';
-        document.getElementById('editarAnuncioLatitude').value = anuncio.latitude || '';
-        document.getElementById('editarAnuncioLongitude').value = anuncio.longitude || '';
-        document.getElementById('editarAnuncioStatus').value = anuncio.status || 'pendente';
-        Object.values(abas).forEach(a => esconder(a));
-        esconder(tabEditarCategoria);
-        esconder(tabEditarBlog);
-        mostrar(tabEditarAnuncio);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      } catch (e) { alert('Erro ao carregar anúncio para edição.'); }
-    }
-
-    document.getElementById('btnSalvarEdicaoAnuncio').addEventListener('click', async () => {
-      const id = document.getElementById('editarAnuncioId').value;
-      const body = {
-        titulo: document.getElementById('editarAnuncioTitulo').value,
-        descricao: document.getElementById('editarAnuncioDescricao').value,
-        telefone: document.getElementById('editarAnuncioTelefone').value,
-        endereco: document.getElementById('editarAnuncioEndereco').value,
-        latitude: document.getElementById('editarAnuncioLatitude').value,
-        longitude: document.getElementById('editarAnuncioLongitude').value,
-        status: document.getElementById('editarAnuncioStatus').value,
-      };
-      try {
-        await apiPut('/admin/anuncios/' + id, body);
-        esconder(tabEditarAnuncio);
-        mostrar(abas.anuncios);
-        carregarAnunciosTodos();
-        carregarAnunciosPendentes();
-      } catch (e) { mostrarErro(document.getElementById('erroEditarAnuncio'), 'Erro ao salvar alterações.'); }
-    });
-
-    document.getElementById('btnCancelarEdicaoAnuncio').addEventListener('click', () => {
-      esconder(tabEditarAnuncio);
-      mostrar(abas.anuncios);
-    });
-
-    async function carregarCategorias() {
-      const container = document.getElementById('listaCategorias');
-      try {
-        const data = await apiGet('/categorias');
-        const cats = data.categorias || data || [];
-        if (cats.length === 0) { container.innerHTML = '<div class="vazio">Nenhuma categoria cadastrada.</div>'; return; }
-        const linhas = cats.map(c => '<tr><td>' + c.id + '</td><td><strong>' + escapeHtml(c.nome) + '</strong></td><td>' + (c.icone ? '<img src="' + escapeHtml(c.icone) + '" style="width:24px;height:24px;">' : '—') + '</td><td><div class="acoes"><button class="btn btn--secundario btn-editar-cat" data-id="' + c.id + '" data-nome="' + escapeHtml(c.nome) + '" data-icone="' + escapeHtml(c.icone || '') + '">Editar</button><button class="btn btn--perigo btn-excluir-cat" data-id="' + c.id + '">Excluir</button></div></td></tr>').join('');
-        container.innerHTML = '<table><thead><tr><th>ID</th><th>Nome</th><th>Ícone</th><th>Ações</th></tr></thead><tbody>' + linhas + '</tbody></table>';
-        document.querySelectorAll('.btn-editar-cat').forEach(btn => {
-          btn.addEventListener('click', () => {
-            document.getElementById('editarCategoriaId').value = btn.dataset.id;
-            document.getElementById('editarCategoriaNome').value = btn.dataset.nome;
-            document.getElementById('editarCategoriaIcone').value = btn.dataset.icone;
-            mostrarErro(document.getElementById('erroEditarCategoria'), '');
-            Object.values(abas).forEach(a => esconder(a));
-            esconder(tabEditarAnuncio);
-            esconder(tabEditarBlog);
-            mostrar(tabEditarCategoria);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          });
-        });
-        document.querySelectorAll('.btn-excluir-cat').forEach(btn => {
-          btn.addEventListener('click', async () => {
-            if (!confirm('Tem certeza que deseja excluir esta categoria?')) return;
-            try { await apiDelete('/admin/categorias/' + btn.dataset.id); carregarCategorias(); }
-            catch (e) { alert('Erro ao excluir categoria.'); }
-          });
-        });
-      } catch (e) { container.innerHTML = '<div class="vazio">Erro ao carregar categorias.</div>'; }
-    }
-
-    document.getElementById('btnCriarCategoria').addEventListener('click', async () => {
-      const nome = document.getElementById('novaCategoriaNome').value.trim();
-      const icone = document.getElementById('novaCategoriaIcone').value.trim();
-      const erroEl = document.getElementById('erroNovaCategoria');
-      if (!nome) { mostrarErro(erroEl, 'Digite o nome da categoria.'); return; }
-      try {
-        await apiPost('/admin/categorias', { nome, icone });
-        document.getElementById('novaCategoriaNome').value = '';
-        document.getElementById('novaCategoriaIcone').value = '';
-        mostrarErro(erroEl, '');
-        carregarCategorias();
-      } catch (e) { mostrarErro(erroEl, e.message || 'Erro ao criar categoria.'); }
-    });
-
-    document.getElementById('btnSalvarEdicaoCategoria').addEventListener('click', async () => {
-      const id = document.getElementById('editarCategoriaId').value;
-      const body = { nome: document.getElementById('editarCategoriaNome').value, icone: document.getElementById('editarCategoriaIcone').value };
-      try {
-        await apiPut('/admin/categorias/' + id, body);
-        esconder(tabEditarCategoria);
-        mostrar(abas.categorias);
-        carregarCategorias();
-      } catch (e) { mostrarErro(document.getElementById('erroEditarCategoria'), 'Erro ao salvar categoria.'); }
-    });
-
-    document.getElementById('btnCancelarEdicaoCategoria').addEventListener('click', () => {
-      esconder(tabEditarCategoria);
-      mostrar(abas.categorias);
-    });
-
-    async function carregarComerciantes() {
-      const container = document.getElementById('listaComerciantes');
-      try {
-        const data = await apiGet('/comerciantes');
-        const coms = data.comerciantes || data || [];
-        if (coms.length === 0) { container.innerHTML = '<div class="vazio">Nenhum comerciante cadastrado.</div>'; return; }
-        const linhas = coms.map(c => {
-          const statusClass = 'badge--' + (c.status || 'ativo');
-          return '<tr><td>' + c.id + '</td><td><strong>' + escapeHtml(c.nome || '—') + '</strong></td><td>' + escapeHtml(c.email || '—') + '</td><td>' + escapeHtml(c.telefone || '—') + '</td><td><span class="badge ' + statusClass + '">' + (c.status || 'ativo') + '</span></td></tr>';
-        }).join('');
-        container.innerHTML = '<table><thead><tr><th>ID</th><th>Nome</th><th>E-mail</th><th>Telefone</th><th>Status</th></tr></thead><tbody>' + linhas + '</tbody></table>';
-      } catch (e) { container.innerHTML = '<div class="vazio">Erro ao carregar comerciantes.</div>'; }
-    }
-
-    /* ===== BLOG ===== */
-    async function carregarBlog() {
-      const container = document.getElementById('listaBlog');
-      container.innerHTML = '<div class="vazio">Carregando artigos...</div>';
-      try {
-        const artigos = await apiGet('/blog/admin');
-        if (!Array.isArray(artigos) || artigos.length === 0) { container.innerHTML = '<div class="vazio">Nenhum artigo cadastrado.</div>'; return; }
-        const linhas = artigos.map(artigo => {
-          const publicado = Number(artigo.publicado) === 1;
-          const statusClass = publicado ? 'badge--publicado' : 'badge--rascunho';
-          const statusTexto = publicado ? 'Publicado' : 'Rascunho';
-          const capa = artigo.capa_url ? '<img class="blog-capa-preview" src="' + escapeHtml(artigo.capa_url) + '" alt="Capa">' : '—';
-          return '<tr><td>' + artigo.id + '</td><td><strong>' + escapeHtml(artigo.titulo || 'Sem título') + '</strong><div class="artigo-conteudo-preview">' + escapeHtml(artigo.resumo || '') + '</div></td><td>' + capa + '</td><td><span class="badge ' + statusClass + '">' + statusTexto + '</span></td><td>' + escapeHtml(artigo.criado_em || '—') + '</td><td><div class="acoes"><button class="btn btn--secundario btn-editar-blog" data-id="' + artigo.id + '">Editar</button><button class="btn btn--perigo btn-excluir-blog" data-id="' + artigo.id + '">Excluir</button></div></td></tr>';
-        }).join('');
-        container.innerHTML = '<table><thead><tr><th>ID</th><th>Artigo</th><th>Capa</th><th>Status</th><th>Data</th><th>Ações</th></tr></thead><tbody>' + linhas + '</tbody></table>';
-        document.querySelectorAll('.btn-editar-blog').forEach(btn => {
-          btn.addEventListener('click', () => abrirEdicaoBlog(btn.dataset.id));
-        });
-        document.querySelectorAll('.btn-excluir-blog').forEach(btn => {
-          btn.addEventListener('click', async () => {
-            if (!confirm('Tem certeza que deseja excluir este artigo?')) return;
-            try { await apiDelete('/blog/' + btn.dataset.id); carregarBlog(); }
-            catch (e) { alert(e.message || 'Erro ao excluir artigo.'); }
-          });
-        });
-      } catch (e) { console.error('[BLOG ADMIN]', e); container.innerHTML = '<div class="vazio">Erro ao carregar artigos do blog.</div>'; }
-    }
-
-    document.getElementById('btnCriarArtigo').addEventListener('click', async () => {
-      const titulo = document.getElementById('novoArtigoTitulo').value.trim();
-      const resumo = document.getElementById('novoArtigoResumo').value.trim();
-      const capa_url = document.getElementById('novoArtigoCapa').value.trim();
-      const conteudo = document.getElementById('novoArtigoConteudoEditor').innerHTML;
-      const publicado = document.getElementById('novoArtigoPublicado').value;
-      const erroEl = document.getElementById('erroNovoArtigo');
-      mostrarErro(erroEl, '');
-      if (!titulo) { mostrarErro(erroEl, 'Digite o título do artigo.'); return; }
-      if (!conteudo.trim() || conteudo === '<p><br></p>' || conteudo === '<br>') { mostrarErro(erroEl, 'Digite o conteúdo do artigo.'); return; }
-      try {
-        await apiPost('/blog', { titulo, resumo, capa_url, conteudo, publicado: Number(publicado) });
-        document.getElementById('novoArtigoTitulo').value = '';
-        document.getElementById('novoArtigoResumo').value = '';
-        document.getElementById('novoArtigoCapa').value = '';
-        document.getElementById('novoArtigoConteudoEditor').innerHTML = '';
-        document.getElementById('novoArtigoPublicado').value = '1';
-        mostrarErro(erroEl, '');
-        alert('Artigo criado com sucesso.');
-        carregarBlog();
-      } catch (e) { mostrarErro(erroEl, e.message || 'Erro ao criar artigo.'); }
-    });
-
-    async function abrirEdicaoBlog(id) {
-      mostrarErro(document.getElementById('erroEditarBlog'), '');
-      try {
-        const artigo = await apiGet('/blog/admin/' + id);
-        document.getElementById('editarBlogId').value = artigo.id;
-        document.getElementById('editarBlogTitulo').value = artigo.titulo || '';
-        document.getElementById('editarBlogResumo').value = artigo.resumo || '';
-        document.getElementById('editarBlogCapa').value = artigo.capa_url || '';
-        document.getElementById('editarBlogConteudo').value = artigo.conteudo || '';
-        document.getElementById('editarBlogPublicado').value = Number(artigo.publicado) === 1 ? '1' : '0';
-        Object.values(abas).forEach(a => esconder(a));
-        esconder(tabEditarAnuncio);
-        esconder(tabEditarCategoria);
-        mostrar(tabEditarBlog);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        setTimeout(() => {
-          const editor = document.getElementById('editarBlogConteudoEditor');
-          if (editor) { editor.innerHTML = artigo.conteudo || ''; }
-        }, 50);
-      } catch (e) { alert(e.message || 'Erro ao carregar artigo para edição.'); }
-    }
-
-    document.getElementById('btnSalvarEdicaoBlog').addEventListener('click', async () => {
-      const id = document.getElementById('editarBlogId').value;
-      const titulo = document.getElementById('editarBlogTitulo').value.trim();
-      const resumo = document.getElementById('editarBlogResumo').value.trim();
-      const capa_url = document.getElementById('editarBlogCapa').value.trim();
-      const conteudo = document.getElementById('editarBlogConteudoEditor').innerHTML;
-      const publicado = document.getElementById('editarBlogPublicado').value;
-      const erroEl = document.getElementById('erroEditarBlog');
-      mostrarErro(erroEl, '');
-      if (!titulo) { mostrarErro(erroEl, 'Digite o título do artigo.'); return; }
-      if (!conteudo.trim() || conteudo === '<p><br></p>' || conteudo === '<br>') { mostrarErro(erroEl, 'Digite o conteúdo do artigo.'); return; }
-      try {
-        await apiPut('/blog/' + id, { titulo, resumo, capa_url, conteudo, publicado: Number(publicado) });
-        esconder(tabEditarBlog);
-        mostrar(abas.blog);
-        carregarBlog();
-        alert('Artigo atualizado com sucesso.');
-      } catch (e) { mostrarErro(erroEl, e.message || 'Erro ao atualizar artigo.'); }
-    });
-
-    document.getElementById('btnCancelarEdicaoBlog').addEventListener('click', () => {
-      esconder(tabEditarBlog);
-      mostrar(abas.blog);
-    });
-    /* ===== FIM BLOG ===== */
-
-    function escapeHtml(text) {
-      if (text == null) return '';
-      return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
-    }
-
-    btnEntrar.addEventListener('click', fazerLogin);
-    loginSenha.addEventListener('keydown', e => { if (e.key === 'Enter') fazerLogin(); });
-    btnSair.addEventListener('click', fazerLogout);
-
-    if (token) { mostrarDashboard(); } else { mostrar(telaLogin); esconder(telaDashboard); }
-  })();
-  </script>
 </body>
 </html>
