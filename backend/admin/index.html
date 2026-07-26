@@ -543,3 +543,396 @@
             <div class="campo">
               <label for="editarCategoriaNome">Nome da categoria</label>
               <input type="text" id="editarCategoriaNome" placeholder="Dig
+                  <script src="/admin/admin.js"></script>
+  <script>
+    (function() {
+      'use strict';
+
+      const API_BASE = '/api';
+      let token = localStorage.getItem('admin_token') || '';
+
+      const telaLogin      = document.getElementById('telaLogin');
+      const telaDashboard  = document.getElementById('telaDashboard');
+      const loginUsuario   = document.getElementById('loginUsuario');
+      const loginSenha     = document.getElementById('loginSenha');
+      const btnEntrar      = document.getElementById('btnEntrar');
+      const erroLogin      = document.getElementById('erroLogin');
+      const btnSair        = document.getElementById('btnSair');
+
+      const abas = {
+        anuncios:     document.getElementById('abaAnuncios'),
+        categorias:   document.getElementById('abaCategorias'),
+        comerciantes: document.getElementById('abaComerciantes'),
+      };
+      const navButtons = document.querySelectorAll('.admin-nav button[data-aba]');
+
+      const tabEditarAnuncio    = document.getElementById('tabEditarAnuncio');
+      const tabEditarCategoria  = document.getElementById('tabEditarCategoria');
+
+      function mostrarErro(el, msg) { el.textContent = msg || ''; }
+      function esconder(el) { el.classList.add('escondido'); }
+      function mostrar(el)  { el.classList.remove('escondido'); }
+
+      async function apiGet(path) {
+        const r = await fetch(API_BASE + path, {
+          headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+        });
+        if (!r.ok) throw new Error('Erro ' + r.status);
+        return r.json();
+      }
+      async function apiPost(path, body) {
+        const r = await fetch(API_BASE + path, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+          },
+          body: JSON.stringify(body)
+        });
+        if (!r.ok) throw new Error('Erro ' + r.status);
+        return r.json();
+      }
+      async function apiPut(path, body) {
+        const r = await fetch(API_BASE + path, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+          },
+          body: JSON.stringify(body)
+        });
+        if (!r.ok) throw new Error('Erro ' + r.status);
+        return r.json();
+      }
+      async function apiDelete(path) {
+        const r = await fetch(API_BASE + path, {
+          method: 'DELETE',
+          headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+        });
+        if (!r.ok) throw new Error('Erro ' + r.status);
+        return r.json();
+      }
+
+      async function fazerLogin() {
+        mostrarErro(erroLogin, '');
+        const usuario = loginUsuario.value.trim();
+        const senha   = loginSenha.value.trim();
+        if (!usuario || !senha) {
+          mostrarErro(erroLogin, 'Preencha usuário e senha.');
+          return;
+        }
+        try {
+          const data = await apiPost('/login', { usuario, senha });
+          if (data.token) {
+            token = data.token;
+            localStorage.setItem('admin_token', token);
+            mostrarDashboard();
+          } else {
+            mostrarErro(erroLogin, 'Credenciais inválidas.');
+          }
+        } catch (e) {
+          mostrarErro(erroLogin, 'Erro ao fazer login. Verifique as credenciais.');
+        }
+      }
+
+      function mostrarDashboard() {
+        esconder(telaLogin);
+        mostrar(telaDashboard);
+        carregarAnunciosPendentes();
+        carregarAnunciosTodos();
+        carregarCategorias();
+        carregarComerciantes();
+      }
+
+      function fazerLogout() {
+        token = '';
+        localStorage.removeItem('admin_token');
+        esconder(telaDashboard);
+        mostrar(telaLogin);
+        loginUsuario.value = '';
+        loginSenha.value = '';
+      }
+
+      navButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          navButtons.forEach(b => b.classList.remove('ativo'));
+          btn.classList.add('ativo');
+          const aba = btn.dataset.aba;
+          Object.values(abas).forEach(a => esconder(a));
+          esconder(tabEditarAnuncio);
+          esconder(tabEditarCategoria);
+          if (abas[aba]) mostrar(abas[aba]);
+        });
+      });
+
+      async function carregarAnunciosPendentes() {
+        const container = document.getElementById('listaAnunciosPendentes');
+        try {
+          const data = await apiGet('/admin/anuncios');
+          const anuncios = data.anuncios || data || [];
+          const pendentes = anuncios.filter(a => a.status === 'pendente');
+          if (pendentes.length === 0) {
+            container.innerHTML = '<div class="vazio">Nenhum anúncio pendente. 🎉</div>';
+            return;
+          }
+          container.innerHTML = renderTabelaAnuncios(pendentes, true);
+          bindAcoesAnuncios();
+        } catch (e) {
+          container.innerHTML = '<div class="vazio">Erro ao carregar anúncios.</div>';
+        }
+      }
+
+      async function carregarAnunciosTodos() {
+        const container = document.getElementById('listaAnunciosTodos');
+        try {
+          const data = await apiGet('/admin/anuncios/todos');
+          const anuncios = data.anuncios || data || [];
+          if (anuncios.length === 0) {
+            container.innerHTML = '<div class="vazio">Nenhum anúncio cadastrado.</div>';
+            return;
+          }
+          container.innerHTML = renderTabelaAnuncios(anuncios, false);
+          bindAcoesAnuncios();
+        } catch (e) {
+          container.innerHTML = '<div class="vazio">Erro ao carregar anúncios.</div>';
+        }
+      }
+
+      function renderTabelaAnuncios(anuncios, mostrarAcoesRapidas) {
+        const linhas = anuncios.map(a => {
+          const statusClass = 'badge--' + (a.status || 'pendente');
+          const acoes = mostrarAcoesRapidas
+            ? `<div class="acoes">
+                 <button class="btn btn--sucesso btn-aprovar" data-id="${a.id}">Aprovar</button>
+                 <button class="btn btn--perigo btn-rejeitar" data-id="${a.id}">Rejeitar</button>
+               </div>`
+            : `<div class="acoes">
+                 <button class="btn btn--secundario btn-editar" data-id="${a.id}">Editar</button>
+                 <button class="btn btn--perigo btn-excluir" data-id="${a.id}">Excluir</button>
+               </div>`;
+          return `<tr>
+            <td>${a.id}</td>
+            <td><strong>${escapeHtml(a.titulo || '—')}</strong></td>
+            <td>${escapeHtml(a.comerciante_nome || a.comerciante_email || '—')}</td>
+            <td><span class="badge ${statusClass}">${a.status || 'pendente'}</span></td>
+            <td>${acoes}</td>
+          </tr>`;
+        }).join('');
+        return `<table>
+          <thead><tr><th>ID</th><th>Título</th><th>Comerciante</th><th>Status</th><th>Ações</th></tr></thead>
+          <tbody>${linhas}</tbody>
+        </table>`;
+      }
+
+      function bindAcoesAnuncios() {
+        document.querySelectorAll('.btn-aprovar').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const id = btn.dataset.id;
+            try { await apiPut('/admin/anuncios/' + id + '/aprovar', {}); carregarAnunciosPendentes(); carregarAnunciosTodos(); }
+            catch (e) { alert('Erro ao aprovar.'); }
+          });
+        });
+        document.querySelectorAll('.btn-rejeitar').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const id = btn.dataset.id;
+            try { await apiPut('/admin/anuncios/' + id + '/rejeitar', {}); carregarAnunciosPendentes(); carregarAnunciosTodos(); }
+            catch (e) { alert('Erro ao rejeitar.'); }
+          });
+        });
+        document.querySelectorAll('.btn-editar').forEach(btn => {
+          btn.addEventListener('click', () => abrirEdicaoAnuncio(btn.dataset.id));
+        });
+        document.querySelectorAll('.btn-excluir').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const id = btn.dataset.id;
+            if (!confirm('Tem certeza que deseja excluir este anúncio?')) return;
+            try { await apiDelete('/admin/anuncios/' + id); carregarAnunciosTodos(); }
+            catch (e) { alert('Erro ao excluir.'); }
+          });
+        });
+      }
+
+      async function abrirEdicaoAnuncio(id) {
+        mostrarErro(document.getElementById('erroEditarAnuncio'), '');
+        try {
+          const data = await apiGet('/admin/anuncios/todos');
+          const anuncios = data.anuncios || data || [];
+          const anuncio = anuncios.find(a => String(a.id) === String(id));
+          if (!anuncio) { alert('Anúncio não encontrado.'); return; }
+
+          document.getElementById('editarAnuncioId').value = anuncio.id;
+          document.getElementById('editarAnuncioTitulo').value = anuncio.titulo || '';
+          document.getElementById('editarAnuncioDescricao').value = anuncio.descricao || '';
+          document.getElementById('editarAnuncioTelefone').value = anuncio.telefone || '';
+          document.getElementById('editarAnuncioEndereco').value = anuncio.endereco || '';
+          document.getElementById('editarAnuncioLatitude').value = anuncio.latitude || '';
+          document.getElementById('editarAnuncioLongitude').value = anuncio.longitude || '';
+          document.getElementById('editarAnuncioStatus').value = anuncio.status || 'pendente';
+
+          Object.values(abas).forEach(a => esconder(a));
+          mostrar(tabEditarAnuncio);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (e) {
+          alert('Erro ao carregar anúncio para edição.');
+        }
+      }
+
+      document.getElementById('btnSalvarEdicaoAnuncio').addEventListener('click', async () => {
+        const id = document.getElementById('editarAnuncioId').value;
+        const body = {
+          titulo:    document.getElementById('editarAnuncioTitulo').value,
+          descricao: document.getElementById('editarAnuncioDescricao').value,
+          telefone:  document.getElementById('editarAnuncioTelefone').value,
+          endereco:  document.getElementById('editarAnuncioEndereco').value,
+          latitude:  document.getElementById('editarAnuncioLatitude').value,
+          longitude: document.getElementById('editarAnuncioLongitude').value,
+          status:    document.getElementById('editarAnuncioStatus').value,
+        };
+        try {
+          await apiPut('/admin/anuncios/' + id, body);
+          esconder(tabEditarAnuncio);
+          mostrar(abas.anuncios);
+          carregarAnunciosTodos();
+          carregarAnunciosPendentes();
+        } catch (e) {
+          mostrarErro(document.getElementById('erroEditarAnuncio'), 'Erro ao salvar alterações.');
+        }
+      });
+
+      document.getElementById('btnCancelarEdicaoAnuncio').addEventListener('click', () => {
+        esconder(tabEditarAnuncio);
+        mostrar(abas.anuncios);
+      });
+
+      async function carregarCategorias() {
+        const container = document.getElementById('listaCategorias');
+        try {
+          const data = await apiGet('/categorias');
+          const cats = data.categorias || data || [];
+          if (cats.length === 0) {
+            container.innerHTML = '<div class="vazio">Nenhuma categoria cadastrada.</div>';
+            return;
+          }
+          const linhas = cats.map(c => `<tr>
+            <td>${c.id}</td>
+            <td><strong>${escapeHtml(c.nome)}</strong></td>
+            <td>${c.icone ? '<img src="'+escapeHtml(c.icone)+'" style="width:24px;height:24px;">' : '—'}</td>
+            <td>
+              <div class="acoes">
+                <button class="btn btn--secundario btn-editar-cat" data-id="${c.id}" data-nome="${escapeHtml(c.nome)}" data-icone="${escapeHtml(c.icone||'')}">Editar</button>
+                <button class="btn btn--perigo btn-excluir-cat" data-id="${c.id}">Excluir</button>
+              </div>
+            </td>
+          </tr>`).join('');
+          container.innerHTML = `<table><thead><tr><th>ID</th><th>Nome</th><th>Ícone</th><th>Ações</th></tr></thead><tbody>${linhas}</tbody></table>`;
+
+          document.querySelectorAll('.btn-editar-cat').forEach(btn => {
+            btn.addEventListener('click', () => {
+              document.getElementById('editarCategoriaId').value = btn.dataset.id;
+              document.getElementById('editarCategoriaNome').value = btn.dataset.nome;
+              document.getElementById('editarCategoriaIcone').value = btn.dataset.icone;
+              mostrarErro(document.getElementById('erroEditarCategoria'), '');
+              Object.values(abas).forEach(a => esconder(a));
+              mostrar(tabEditarCategoria);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+          });
+          document.querySelectorAll('.btn-excluir-cat').forEach(btn => {
+            btn.addEventListener('click', async () => {
+              if (!confirm('Tem certeza que deseja excluir esta categoria?')) return;
+              try { await apiDelete('/admin/categorias/' + btn.dataset.id); carregarCategorias(); }
+              catch (e) { alert('Erro ao excluir categoria.'); }
+            });
+          });
+        } catch (e) {
+          container.innerHTML = '<div class="vazio">Erro ao carregar categorias.</div>';
+        }
+      }
+
+      document.getElementById('btnCriarCategoria').addEventListener('click', async () => {
+        const nome = document.getElementById('novaCategoriaNome').value.trim();
+        const icone = document.getElementById('novaCategoriaIcone').value.trim();
+        const erroEl = document.getElementById('erroNovaCategoria');
+        if (!nome) { mostrarErro(erroEl, 'Digite o nome da categoria.'); return; }
+        try {
+          await apiPost('/admin/categorias', { nome, icone });
+          document.getElementById('novaCategoriaNome').value = '';
+          document.getElementById('novaCategoriaIcone').value = '';
+          mostrarErro(erroEl, '');
+          carregarCategorias();
+        } catch (e) {
+          mostrarErro(erroEl, 'Erro ao criar categoria.');
+        }
+      });
+
+      document.getElementById('btnSalvarEdicaoCategoria').addEventListener('click', async () => {
+        const id = document.getElementById('editarCategoriaId').value;
+        const body = {
+          nome: document.getElementById('editarCategoriaNome').value,
+          icone: document.getElementById('editarCategoriaIcone').value,
+        };
+        try {
+          await apiPut('/admin/categorias/' + id, body);
+          esconder(tabEditarCategoria);
+          mostrar(abas.categorias);
+          carregarCategorias();
+        } catch (e) {
+          mostrarErro(document.getElementById('erroEditarCategoria'), 'Erro ao salvar categoria.');
+        }
+      });
+
+      document.getElementById('btnCancelarEdicaoCategoria').addEventListener('click', () => {
+        esconder(tabEditarCategoria);
+        mostrar(abas.categorias);
+      });
+
+      async function carregarComerciantes() {
+        const container = document.getElementById('listaComerciantes');
+        try {
+          const data = await apiGet('/comerciantes');
+          const coms = data.comerciantes || data || [];
+          if (coms.length === 0) {
+            container.innerHTML = '<div class="vazio">Nenhum comerciante cadastrado.</div>';
+            return;
+          }
+          const linhas = coms.map(c => {
+            const statusClass = 'badge--' + (c.status || 'ativo');
+            return `<tr>
+              <td>${c.id}</td>
+              <td><strong>${escapeHtml(c.nome || '—')}</strong></td>
+              <td>${escapeHtml(c.email || '—')}</td>
+              <td>${escapeHtml(c.telefone || '—')}</td>
+              <td><span class="badge ${statusClass}">${c.status || 'ativo'}</span></td>
+            </tr>`;
+          }).join('');
+          container.innerHTML = `<table><thead><tr><th>ID</th><th>Nome</th><th>E-mail</th><th>Telefone</th><th>Status</th></tr></thead><tbody>${linhas}</tbody></table>`;
+        } catch (e) {
+          container.innerHTML = '<div class="vazio">Erro ao carregar comerciantes.</div>';
+        }
+      }
+
+      function escapeHtml(text) {
+        if (text == null) return '';
+        return String(text)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      btnEntrar.addEventListener('click', fazerLogin);
+      loginSenha.addEventListener('keydown', e => { if (e.key === 'Enter') fazerLogin(); });
+      btnSair.addEventListener('click', fazerLogout);
+
+      if (token) {
+        mostrarDashboard();
+      } else {
+        mostrar(telaLogin);
+        esconder(telaDashboard);
+      }
+
+    })();
+  </script>
+</body>
+</html>
