@@ -68,6 +68,25 @@
     .blog-capa-preview { max-width: 220px; max-height: 130px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd; display: block; margin-top: 8px; }
     .artigo-conteudo-preview { max-width: 350px; max-height: 100px; overflow: hidden; color: #666; font-size: 0.85rem; }
 
+    /* ===== EDITOR RICO CUSTOMIZADO ===== */
+    .rich-editor-wrap { border: 1.5px solid #dde1e7; border-radius: 10px; overflow: hidden; background: #fff; }
+    .rich-toolbar { display: flex; flex-wrap: wrap; gap: 2px; padding: 8px; background: #f8fafc; border-bottom: 1px solid #dde1e7; }
+    .rich-toolbar button { background: #fff; border: 1px solid #dde1e7; border-radius: 6px; padding: 6px 10px; font-size: 0.85rem; color: #444; transition: all 0.15s; }
+    .rich-toolbar button:hover { background: #e94560; color: #fff; border-color: #e94560; }
+    .rich-toolbar button.active { background: #0f3460; color: #fff; border-color: #0f3460; }
+    .rich-toolbar .sep { width: 1px; background: #dde1e7; margin: 0 4px; }
+    .rich-toolbar select { border: 1px solid #dde1e7; border-radius: 6px; padding: 5px 8px; font-size: 0.85rem; background: #fff; color: #444; }
+    .rich-content { min-height: 300px; padding: 14px; font-size: 1rem; line-height: 1.7; outline: none; }
+    .rich-content:empty:before { content: attr(data-placeholder); color: #999; }
+    .rich-content h1 { font-size: 1.8rem; margin: 0.6em 0; color: #0f3460; }
+    .rich-content h2 { font-size: 1.5rem; margin: 0.5em 0; color: #0f3460; }
+    .rich-content h3 { font-size: 1.25rem; margin: 0.4em 0; color: #0f3460; }
+    .rich-content p { margin: 0.5em 0; }
+    .rich-content blockquote { border-left: 4px solid #e94560; padding-left: 14px; margin: 0.5em 0; color: #555; font-style: italic; }
+    .rich-content ul, .rich-content ol { margin: 0.5em 0; padding-left: 24px; }
+    .rich-content a { color: #e94560; text-decoration: underline; }
+    .rich-content img { max-width: 100%; border-radius: 8px; }
+
     .escondido { display: none !important; }
     .vazio { text-align: center; padding: 40px 20px; color: #888; }
 
@@ -76,15 +95,8 @@
       .admin-conteudo { padding: 16px; }
       .card { padding: 16px; }
       th, td { padding: 10px; font-size: 0.85rem; }
+      .rich-toolbar button { padding: 5px 7px; font-size: 0.75rem; }
     }
-  </style>
-  <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.min.js"></script>
-  <style>
-    .ql-editor { min-height: 300px; font-size: 1rem; }
-    .ql-toolbar { border-radius: 10px 10px 0 0; border-color: #dde1e7 !important; }
-    .ql-container { border-radius: 0 0 10px 10px; border-color: #dde1e7 !important; }
-    .ql-toolbar button:hover { color: #e94560 !important; }
   </style>
 <base target="_blank">
 </head>
@@ -200,8 +212,32 @@
               <input type="text" id="novoArtigoCapa" placeholder="https://...">
             </div>
             <div class="campo">
-              <label for="novoArtigoConteudo">Conteúdo do artigo</label>
-              <div id="novoArtigoConteudoEditor" style="min-height:300px;"><p>Digite o conteúdo do artigo aqui...</p></div>
+              <label>Conteúdo do artigo</label>
+              <div class="rich-editor-wrap">
+                <div class="rich-toolbar">
+                  <select onchange="richFormat('formatBlock', this.value); this.value='';">
+                    <option value="">Parágrafo</option>
+                    <option value="H1">Título H1</option>
+                    <option value="H2">Título H2</option>
+                    <option value="H3">Título H3</option>
+                    <option value="BLOCKQUOTE">Citação</option>
+                  </select>
+                  <span class="sep"></span>
+                  <button type="button" onclick="richFormat('bold')" title="Negrito"><b>B</b></button>
+                  <button type="button" onclick="richFormat('italic')" title="Itálico"><i>I</i></button>
+                  <button type="button" onclick="richFormat('underline')" title="Sublinhado"><u>U</u></button>
+                  <button type="button" onclick="richFormat('strikeThrough')" title="Tachado"><s>S</s></button>
+                  <span class="sep"></span>
+                  <button type="button" onclick="richFormat('insertUnorderedList')" title="Lista">• Lista</button>
+                  <button type="button" onclick="richFormat('insertOrderedList')" title="Lista numerada">1. Lista</button>
+                  <span class="sep"></span>
+                  <button type="button" onclick="richInsertLink()" title="Link">🔗 Link</button>
+                  <button type="button" onclick="richInsertImage()" title="Imagem">🖼️ Imagem</button>
+                  <span class="sep"></span>
+                  <button type="button" onclick="richFormat('removeFormat')" title="Limpar">🧹 Limpar</button>
+                </div>
+                <div id="novoArtigoConteudoEditor" class="rich-content" contenteditable="true" data-placeholder="Digite o conteúdo do artigo aqui..."></div>
+              </div>
             </div>
             <div class="campo">
               <label for="novoArtigoPublicado">Publicação</label>
@@ -276,7 +312,34 @@
             <div class="campo"><label for="editarBlogTitulo">Título</label><input type="text" id="editarBlogTitulo" placeholder="Digite o título"></div>
             <div class="campo"><label for="editarBlogResumo">Resumo</label><textarea id="editarBlogResumo" rows="4" placeholder="Digite o resumo"></textarea></div>
             <div class="campo"><label for="editarBlogCapa">URL da capa</label><input type="text" id="editarBlogCapa" placeholder="https://..."></div>
-            <div class="campo"><label for="editarBlogConteudo">Conteúdo</label><div id="editarBlogConteudoEditor" style="min-height:300px;"><p>Digite o conteúdo do artigo aqui...</p></div></div>
+            <div class="campo">
+              <label>Conteúdo</label>
+              <div class="rich-editor-wrap">
+                <div class="rich-toolbar">
+                  <select onchange="richFormatEdit('formatBlock', this.value); this.value='';">
+                    <option value="">Parágrafo</option>
+                    <option value="H1">Título H1</option>
+                    <option value="H2">Título H2</option>
+                    <option value="H3">Título H3</option>
+                    <option value="BLOCKQUOTE">Citação</option>
+                  </select>
+                  <span class="sep"></span>
+                  <button type="button" onclick="richFormatEdit('bold')" title="Negrito"><b>B</b></button>
+                  <button type="button" onclick="richFormatEdit('italic')" title="Itálico"><i>I</i></button>
+                  <button type="button" onclick="richFormatEdit('underline')" title="Sublinhado"><u>U</u></button>
+                  <button type="button" onclick="richFormatEdit('strikeThrough')" title="Tachado"><s>S</s></button>
+                  <span class="sep"></span>
+                  <button type="button" onclick="richFormatEdit('insertUnorderedList')" title="Lista">• Lista</button>
+                  <button type="button" onclick="richFormatEdit('insertOrderedList')" title="Lista numerada">1. Lista</button>
+                  <span class="sep"></span>
+                  <button type="button" onclick="richInsertLinkEdit()" title="Link">🔗 Link</button>
+                  <button type="button" onclick="richInsertImageEdit()" title="Imagem">🖼️ Imagem</button>
+                  <span class="sep"></span>
+                  <button type="button" onclick="richFormatEdit('removeFormat')" title="Limpar">🧹 Limpar</button>
+                </div>
+                <div id="editarBlogConteudoEditor" class="rich-content" contenteditable="true" data-placeholder="Digite o conteúdo do artigo aqui..."></div>
+              </div>
+            </div>
             <div class="campo">
               <label for="editarBlogPublicado">Publicação</label>
               <select id="editarBlogPublicado">
@@ -320,32 +383,41 @@
     const tabEditarCategoria = document.getElementById('tabEditarCategoria');
     const tabEditarBlog = document.getElementById('tabEditarBlog');
 
-    let quillNovo = null;
-    let quillEditar = null;
-
-    function criarQuillEditor(selector, placeholder) {
-      return new Quill(selector, {
-        theme: 'snow',
-        placeholder: placeholder || 'Digite o conteúdo do artigo...',
-        modules: {
-          toolbar: [
-            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-            ['bold', 'italic', 'underline', 'strike'],
-            [{ 'color': [] }, { 'background': [] }],
-            [{ 'align': [] }],
-            ['link', 'image'],
-            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-            [{ 'indent': '-1'}, { 'indent': '+1' }],
-            ['blockquote', 'code-block'],
-            ['clean']
-          ]
-        }
-      });
-    }
-
     function mostrarErro(el, msg) { el.textContent = msg || ''; }
     function esconder(el) { el.classList.add('escondido'); }
     function mostrar(el) { el.classList.remove('escondido'); }
+
+    /* ===== EDITOR RICO — FUNÇÕES GLOBAIS ===== */
+    window.richFormat = function(command, value) {
+      document.execCommand(command, false, value);
+      document.getElementById('novoArtigoConteudoEditor').focus();
+    };
+    window.richInsertLink = function() {
+      const url = prompt('Digite a URL do link:');
+      if (url) { document.execCommand('createLink', false, url); }
+      document.getElementById('novoArtigoConteudoEditor').focus();
+    };
+    window.richInsertImage = function() {
+      const url = prompt('Digite a URL da imagem:');
+      if (url) { document.execCommand('insertImage', false, url); }
+      document.getElementById('novoArtigoConteudoEditor').focus();
+    };
+
+    window.richFormatEdit = function(command, value) {
+      document.execCommand(command, false, value);
+      document.getElementById('editarBlogConteudoEditor').focus();
+    };
+    window.richInsertLinkEdit = function() {
+      const url = prompt('Digite a URL do link:');
+      if (url) { document.execCommand('createLink', false, url); }
+      document.getElementById('editarBlogConteudoEditor').focus();
+    };
+    window.richInsertImageEdit = function() {
+      const url = prompt('Digite a URL da imagem:');
+      if (url) { document.execCommand('insertImage', false, url); }
+      document.getElementById('editarBlogConteudoEditor').focus();
+    };
+    /* ===== FIM EDITOR RICO ===== */
 
     async function apiGet(path) {
       const r = await fetch(API_BASE + path, { headers: token ? { 'Authorization': 'Bearer ' + token } : {} });
@@ -395,7 +467,6 @@
       carregarCategorias();
       carregarComerciantes();
       carregarBlog();
-      initTinyMCE();
     }
 
     function fazerLogout() {
@@ -634,18 +705,18 @@
       const titulo = document.getElementById('novoArtigoTitulo').value.trim();
       const resumo = document.getElementById('novoArtigoResumo').value.trim();
       const capa_url = document.getElementById('novoArtigoCapa').value.trim();
-      const conteudo = quillNovo ? quillNovo.root.innerHTML : '';
+      const conteudo = document.getElementById('novoArtigoConteudoEditor').innerHTML;
       const publicado = document.getElementById('novoArtigoPublicado').value;
       const erroEl = document.getElementById('erroNovoArtigo');
       mostrarErro(erroEl, '');
       if (!titulo) { mostrarErro(erroEl, 'Digite o título do artigo.'); return; }
-      if (!conteudo.trim()) { mostrarErro(erroEl, 'Digite o conteúdo do artigo.'); return; }
+      if (!conteudo.trim() || conteudo === '<p><br></p>' || conteudo === '<br>') { mostrarErro(erroEl, 'Digite o conteúdo do artigo.'); return; }
       try {
         await apiPost('/blog', { titulo, resumo, capa_url, conteudo, publicado: Number(publicado) });
         document.getElementById('novoArtigoTitulo').value = '';
         document.getElementById('novoArtigoResumo').value = '';
         document.getElementById('novoArtigoCapa').value = '';
-        if (quillNovo) quillNovo.setContents([]);
+        document.getElementById('novoArtigoConteudoEditor').innerHTML = '';
         document.getElementById('novoArtigoPublicado').value = '1';
         mostrarErro(erroEl, '');
         alert('Artigo criado com sucesso.');
@@ -655,10 +726,6 @@
 
     async function abrirEdicaoBlog(id) {
       mostrarErro(document.getElementById('erroEditarBlog'), '');
-      // Destrói Quill anterior se existir
-      if (quillEditar) {
-        quillEditar = null;
-      }
       try {
         const artigo = await apiGet('/blog/admin/' + id);
         document.getElementById('editarBlogId').value = artigo.id;
@@ -672,16 +739,10 @@
         esconder(tabEditarCategoria);
         mostrar(tabEditarBlog);
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        // Cria o Quill de edição com o conteúdo carregado
         setTimeout(() => {
-          if (document.getElementById('editarBlogConteudoEditor')) {
-            quillEditar = criarQuillEditor('#editarBlogConteudoEditor', 'Digite o conteúdo do artigo...');
-            const conteudoAtual = document.getElementById('editarBlogConteudo').value || '';
-            if (conteudoAtual) {
-              quillEditar.root.innerHTML = conteudoAtual;
-            }
-          }
-        }, 100);
+          const editor = document.getElementById('editarBlogConteudoEditor');
+          if (editor) { editor.innerHTML = artigo.conteudo || ''; }
+        }, 50);
       } catch (e) { alert(e.message || 'Erro ao carregar artigo para edição.'); }
     }
 
@@ -690,12 +751,12 @@
       const titulo = document.getElementById('editarBlogTitulo').value.trim();
       const resumo = document.getElementById('editarBlogResumo').value.trim();
       const capa_url = document.getElementById('editarBlogCapa').value.trim();
-      const conteudo = quillEditar ? quillEditar.root.innerHTML : document.getElementById('editarBlogConteudo').value;
+      const conteudo = document.getElementById('editarBlogConteudoEditor').innerHTML;
       const publicado = document.getElementById('editarBlogPublicado').value;
       const erroEl = document.getElementById('erroEditarBlog');
       mostrarErro(erroEl, '');
       if (!titulo) { mostrarErro(erroEl, 'Digite o título do artigo.'); return; }
-      if (!conteudo.trim()) { mostrarErro(erroEl, 'Digite o conteúdo do artigo.'); return; }
+      if (!conteudo.trim() || conteudo === '<p><br></p>' || conteudo === '<br>') { mostrarErro(erroEl, 'Digite o conteúdo do artigo.'); return; }
       try {
         await apiPut('/blog/' + id, { titulo, resumo, capa_url, conteudo, publicado: Number(publicado) });
         esconder(tabEditarBlog);
@@ -706,9 +767,6 @@
     });
 
     document.getElementById('btnCancelarEdicaoBlog').addEventListener('click', () => {
-      if (quillEditar) {
-        quillEditar = null;
-      }
       esconder(tabEditarBlog);
       mostrar(abas.blog);
     });
@@ -723,30 +781,7 @@
     loginSenha.addEventListener('keydown', e => { if (e.key === 'Enter') fazerLogin(); });
     btnSair.addEventListener('click', fazerLogout);
 
-        // Inicializar TinyMCE para os editores de conteúdo do blog
-    function initTinyMCE() {
-      if (typeof tinymce !== 'undefined') {
-        tinymce.init({
-          selector: '#novoArtigoConteudo, #editarBlogConteudo',
-          plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
-          toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
-          blocks: 'h1,h2,h3,h4,h5,h6,p',
-          height: 400,
-          menubar: false,
-          branding: false,
-          promotion: false,
-          language: 'pt_BR',
-          setup: function(editor) {
-            editor.on('change', function() {
-              editor.save();
-            });
-          }
-        });
-      }
-    }
-
     if (token) { mostrarDashboard(); } else { mostrar(telaLogin); esconder(telaDashboard); }
-
   })();
   </script>
 </body>
