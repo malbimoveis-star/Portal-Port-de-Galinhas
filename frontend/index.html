@@ -78,6 +78,7 @@
       th, td { padding: 10px; font-size: 0.85rem; }
     }
   </style>
+  <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
 <base target="_blank">
 </head>
 <body>
@@ -363,6 +364,7 @@
       carregarCategorias();
       carregarComerciantes();
       carregarBlog();
+      initTinyMCE();
     }
 
     function fazerLogout() {
@@ -601,6 +603,10 @@
       const titulo = document.getElementById('novoArtigoTitulo').value.trim();
       const resumo = document.getElementById('novoArtigoResumo').value.trim();
       const capa_url = document.getElementById('novoArtigoCapa').value.trim();
+      // Salva o conteúdo do TinyMCE no textarea antes de enviar
+      if (tinymce.get('novoArtigoConteudo')) {
+        tinymce.get('novoArtigoConteudo').save();
+      }
       const conteudo = document.getElementById('novoArtigoConteudo').value;
       const publicado = document.getElementById('novoArtigoPublicado').value;
       const erroEl = document.getElementById('erroNovoArtigo');
@@ -616,12 +622,19 @@
         document.getElementById('novoArtigoPublicado').value = '1';
         mostrarErro(erroEl, '');
         alert('Artigo criado com sucesso.');
+        if (tinymce.get('novoArtigoConteudo')) {
+          tinymce.get('novoArtigoConteudo').setContent('');
+        }
         carregarBlog();
       } catch (e) { mostrarErro(erroEl, e.message || 'Erro ao criar artigo.'); }
     });
 
     async function abrirEdicaoBlog(id) {
       mostrarErro(document.getElementById('erroEditarBlog'), '');
+      // Remove TinyMCE anterior do editor de blog se existir
+      if (tinymce.get('editarBlogConteudo')) {
+        tinymce.get('editarBlogConteudo').remove();
+      }
       try {
         const artigo = await apiGet('/blog/admin/' + id);
         document.getElementById('editarBlogId').value = artigo.id;
@@ -635,6 +648,25 @@
         esconder(tabEditarCategoria);
         mostrar(tabEditarBlog);
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Reinicializa TinyMCE no campo de edição
+        setTimeout(function() {
+          tinymce.init({
+            selector: '#editarBlogConteudo',
+            plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
+            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+            blocks: 'h1,h2,h3,h4,h5,h6,p',
+            height: 400,
+            menubar: false,
+            branding: false,
+            promotion: false,
+            language: 'pt_BR',
+            setup: function(editor) {
+              editor.on('change', function() {
+                editor.save();
+              });
+            }
+          });
+        }, 100);
       } catch (e) { alert(e.message || 'Erro ao carregar artigo para edição.'); }
     }
 
@@ -643,6 +675,10 @@
       const titulo = document.getElementById('editarBlogTitulo').value.trim();
       const resumo = document.getElementById('editarBlogResumo').value.trim();
       const capa_url = document.getElementById('editarBlogCapa').value.trim();
+      // Salva o conteúdo do TinyMCE no textarea antes de enviar
+      if (tinymce.get('editarBlogConteudo')) {
+        tinymce.get('editarBlogConteudo').save();
+      }
       const conteudo = document.getElementById('editarBlogConteudo').value;
       const publicado = document.getElementById('editarBlogPublicado').value;
       const erroEl = document.getElementById('erroEditarBlog');
@@ -655,10 +691,16 @@
         mostrar(abas.blog);
         carregarBlog();
         alert('Artigo atualizado com sucesso.');
+        if (tinymce.get('editarBlogConteudo')) {
+          tinymce.get('editarBlogConteudo').remove();
+        }
       } catch (e) { mostrarErro(erroEl, e.message || 'Erro ao atualizar artigo.'); }
     });
 
     document.getElementById('btnCancelarEdicaoBlog').addEventListener('click', () => {
+      if (tinymce.get('editarBlogConteudo')) {
+        tinymce.get('editarBlogConteudo').remove();
+      }
       esconder(tabEditarBlog);
       mostrar(abas.blog);
     });
@@ -673,7 +715,30 @@
     loginSenha.addEventListener('keydown', e => { if (e.key === 'Enter') fazerLogin(); });
     btnSair.addEventListener('click', fazerLogout);
 
+        // Inicializar TinyMCE para os editores de conteúdo do blog
+    function initTinyMCE() {
+      if (typeof tinymce !== 'undefined') {
+        tinymce.init({
+          selector: '#novoArtigoConteudo, #editarBlogConteudo',
+          plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
+          toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+          blocks: 'h1,h2,h3,h4,h5,h6,p',
+          height: 400,
+          menubar: false,
+          branding: false,
+          promotion: false,
+          language: 'pt_BR',
+          setup: function(editor) {
+            editor.on('change', function() {
+              editor.save();
+            });
+          }
+        });
+      }
+    }
+
     if (token) { mostrarDashboard(); } else { mostrar(telaLogin); esconder(telaDashboard); }
+
   })();
   </script>
 </body>
