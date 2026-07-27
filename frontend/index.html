@@ -1,217 +1,66 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portal Porto de Galinhas — Descubra o Paraíso</title>
-  <link rel="icon" href="/assets/icons/logo-tucano.svg">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #f5f7fa; color: #1a1a2e; line-height: 1.6; }
-    a { text-decoration: none; color: inherit; }
-    button { cursor: pointer; font-family: inherit; }
-
-    /* Header */
-    .site-header { background: linear-gradient(135deg, #0f3460, #16213e); color: #fff; padding: 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 20px rgba(0,0,0,0.15); }
-    .header-top { max-width: 1200px; margin: 0 auto; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
-    .logo { display: flex; align-items: center; gap: 12px; }
-    .logo-icon { width: 40px; height: 40px; background: #e94560; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
-    .logo-text h1 { font-size: 1.3rem; font-weight: 700; }
-    .logo-text span { font-size: 0.8rem; opacity: 0.8; }
-    .header-actions { display: flex; gap: 12px; align-items: center; }
-    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; transition: all 0.2s; }
-    .btn:hover { transform: translateY(-2px); }
-    .btn--admin { background: #e94560; color: #fff; }
-    .btn--admin:hover { background: #c73e54; }
-    .btn--outline { background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,0.3); }
-    .btn--outline:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
-
-    /* Hero */
-    .hero { background: linear-gradient(135deg, #0f3460 0%, #1a4a7a 50%, #2d6a9f 100%); color: #fff; padding: 80px 24px; text-align: center; position: relative; overflow: hidden; }
-    .hero::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(233,69,96,0.1) 0%, transparent 70%); }
-    .hero-content { position: relative; max-width: 800px; margin: 0 auto; }
-    .hero h2 { font-size: 2.8rem; font-weight: 800; margin-bottom: 16px; line-height: 1.2; }
-    .hero p { font-size: 1.2rem; opacity: 0.9; margin-bottom: 32px; max-width: 600px; margin-left: auto; margin-right: auto; }
-    .hero-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
-    .btn--large { padding: 14px 32px; font-size: 1rem; border-radius: 10px; }
-    .btn--principal { background: #e94560; color: #fff; }
-    .btn--principal:hover { background: #c73e54; }
-    .btn--secundario { background: rgba(255,255,255,0.15); color: #fff; backdrop-filter: blur(10px); }
-    .btn--secundario:hover { background: rgba(255,255,255,0.25); }
-
-    /* Stats */
-    .stats { background: #fff; padding: 40px 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
-    .stats-grid { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; text-align: center; }
-    .stat-item h3 { font-size: 2rem; color: #e94560; font-weight: 700; }
-    .stat-item p { color: #666; font-size: 0.9rem; }
-
-    /* Sections */
-    .section { max-width: 1200px; margin: 0 auto; padding: 60px 24px; }
-    .section-title { text-align: center; margin-bottom: 40px; }
-    .section-title h2 { font-size: 2rem; color: #0f3460; margin-bottom: 8px; }
-    .section-title p { color: #666; font-size: 1.05rem; }
-
-    /* Cards */
-    .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
-    .card { background: #fff; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; }
-    .card:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(0,0,0,0.12); }
-    .card-img { height: 180px; background: linear-gradient(135deg, #e94560, #ff6b6b); display: flex; align-items: center; justify-content: center; font-size: 3rem; }
-    .card-body { padding: 24px; }
-    .card-body h3 { font-size: 1.15rem; color: #0f3460; margin-bottom: 8px; }
-    .card-body p { color: #666; font-size: 0.95rem; }
-    .card-body .btn { margin-top: 16px; width: 100%; justify-content: center; }
-
-    /* Features */
-    .feature-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; }
-    .feature { display: flex; gap: 16px; align-items: flex-start; }
-    .feature-icon { width: 48px; height: 48px; background: rgba(233,69,96,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
-    .feature h4 { font-size: 1.05rem; color: #0f3460; margin-bottom: 4px; }
-    .feature p { color: #666; font-size: 0.9rem; }
-
-    /* Footer */
-    .site-footer { background: #0f3460; color: #fff; padding: 40px 24px; text-align: center; }
-    .site-footer p { opacity: 0.8; font-size: 0.9rem; }
-    .site-footer a { color: #e94560; }
-
-    @media (max-width: 640px) {
-      .hero h2 { font-size: 2rem; }
-      .hero p { font-size: 1rem; }
-      .header-top { flex-wrap: wrap; gap: 12px; }
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal Porto de Galinhas - Turismo, Comercios e Passeios</title>
+  <meta name="description" content="Descubra os melhores passeios, hoteis, restaurantes e comercios de Porto de Galinhas. Cadastre seu negocio ou aproveite como turista." />
+  <link rel="icon" href="../assets/icons/logo-tucano.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/styles.css" />
 <base target="_blank">
 </head>
 <body>
-
-  <header class="site-header">
-    <div class="header-top">
-      <div class="logo">
-        <div class="logo-icon">🦜</div>
-        <div class="logo-text">
-          <h1>Portal Porto de Galinhas</h1>
-          <span>Descubra o paraíso pernambucano</span>
-        </div>
-      </div>
-      <div class="header-actions">
-        <a href="/admin/index.html" class="btn btn--admin">🔐 Painel Admin</a>
-      </div>
-    </div>
-  </header>
+  <div id="layout-header"></div>
 
   <section class="hero">
-    <div class="hero-content">
-      <h2>Descubra Porto de Galinhas</h2>
-      <p>As melhores praias, passeios, restaurantes e hospedagens do litoral sul de Pernambuco, em um só lugar.</p>
-      <div class="hero-buttons">
-        <a href="#explorar" class="btn btn--principal btn--large">🗺️ Explorar o Portal</a>
-        <a href="/admin/index.html" class="btn btn--secundario btn--large">⚙️ Área do Comerciante</a>
+    <div class="container">
+      <h1 data-i18n="home.hero_titulo">Descubra as Melhores Experiencias de Porto de Galinhas!</h1>
+    </div>
+  </section>
+
+  <section class="destaques container">
+    <h2 data-i18n="home.destaques_titulo">Destaques Premium para Voce</h2>
+    <div class="swiper" id="destaquesSwiper">
+      <div class="swiper-wrapper" id="destaquesGrid">
+        <!-- preenchido via JS -->
+      </div>
+      <div class="swiper-pagination"></div>
+      <div class="swiper-button-prev"></div>
+      <div class="swiper-button-next"></div>
+    </div>
+  </section>
+
+  <section class="categorias">
+    <div class="container">
+      <h2 data-i18n="categorias.titulo">Servicos & Turismo</h2>
+      <div class="carousel">
+        <button class="carousel__seta" id="setaEsquerda" aria-label="Anterior">&#10094;</button>
+        <div class="carousel__track" id="categoriasTrack">
+          <!-- preenchido via JS -->
+        </div>
+        <button class="carousel__seta" id="setaDireita" aria-label="Proximo">&#10095;</button>
       </div>
     </div>
   </section>
 
-  <section class="stats">
-    <div class="stats-grid">
-      <div class="stat-item">
-        <h3>50+</h3>
-        <p>Comerciantes cadastrados</p>
-      </div>
-      <div class="stat-item">
-        <h3>10+</h3>
-        <p>Categorias de serviços</p>
-      </div>
-      <div class="stat-item">
-        <h3>1000+</h3>
-        <p>Visitantes mensais</p>
-      </div>
-      <div class="stat-item">
-        <h3>⭐ 5.0</h3>
-        <p>Avaliação dos turistas</p>
+  <section class="cta">
+    <div class="container">
+      <h2 data-i18n="home.cta_titulo">Fique por dentro das Melhores Opcoes em Porto!</h2>
+      <p data-i18n="home.cta_subtitulo">Desbloqueie uma jornada tropical e agil moderna a Porto de Galinhas!</p>
+      <div class="cta__botoes">
+        <a class="btn btn--primario sou-turista-btn" href="pages/planos-turista.html" data-i18n="home.btn_sou_turista">Sou Turista</a>
+        <a class="btn btn--vermelho" href="pages/cadastro-comerciante.html" data-i18n="home.btn_cadastrar_negocio">Cadastre seu negocio</a>
       </div>
     </div>
   </section>
 
-  <section class="section" id="explorar">
-    <div class="section-title">
-      <h2>O que você encontra por aqui</h2>
-      <p>Tudo o que você precisa para aproveitar Porto de Galinhas ao máximo</p>
-    </div>
-    <div class="cards-grid">
-      <div class="card">
-        <div class="card-img">🏖️</div>
-        <div class="card-body">
-          <h3>Praias e Passeios</h3>
-          <p>Descubra as piscinas naturais, passeios de jangada, buggy e muito mais.</p>
-          <a href="#" class="btn btn--principal">Ver passeios</a>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-img">🍽️</div>
-        <div class="card-body">
-          <h3>Restaurantes</h3>
-          <p>Os melhores sabores da culinária local e internacional.</p>
-          <a href="#" class="btn btn--principal">Ver restaurantes</a>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-img">🏨</div>
-        <div class="card-body">
-          <h3>Hospedagens</h3>
-          <p>Pousadas, hotéis e flats para todos os estilos e orçamentos.</p>
-          <a href="#" class="btn btn--principal">Ver hospedagens</a>
-        </div>
-      </div>
-    </div>
-  </section>
+  <div id="layout-rodape"></div>
 
-  <section class="section" style="background: #fff; border-radius: 24px; margin: 0 16px 40px;">
-    <div class="section-title">
-      <h2>Por que usar o Portal?</h2>
-      <p>A maneira mais fácil de planejar sua viagem</p>
-    </div>
-    <div class="feature-list">
-      <div class="feature">
-        <div class="feature-icon">📍</div>
-        <div>
-          <h4>Geolocalização</h4>
-          <p>Encontre comércios próximos a você com mapa interativo.</p>
-        </div>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">⭐</div>
-        <div>
-          <h4>Avaliações reais</h4>
-          <p>Leia opiniões de outros turistas antes de escolher.</p>
-        </div>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">📱</div>
-        <div>
-          <h4>100% Responsivo</h4>
-          <p>Acesse de qualquer dispositivo, a qualquer hora.</p>
-        </div>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">🤝</div>
-        <div>
-          <h4>Comércio local</h4>
-          <p>Apoie os comerciantes de Porto de Galinhas.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" style="text-align: center;">
-    <div class="section-title">
-      <h2>Quer anunciar seu negócio?</h2>
-      <p>Cadastre-se gratuitamente e alcance milhares de turistas</p>
-    </div>
-    <a href="/admin/index.html" class="btn btn--principal btn--large" style="font-size: 1.1rem;">🚀 Cadastrar meu negócio</a>
-  </section>
-
-  <footer class="site-footer">
-    <p>© 2025 Portal Porto de Galinhas — Todos os direitos reservados</p>
-    <p style="margin-top: 8px;"><a href="/admin/index.html">Acessar Painel Administrativo</a></p>
-  </footer>
-
+  <link rel="stylesheet" href="https://unpkg.com/swiper@11/swiper-bundle.min.css" />
+  <script src="https://unpkg.com/swiper@11/swiper-bundle.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/home.js"></script>
 </body>
 </html>
