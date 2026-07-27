@@ -1,293 +1,50 @@
+<!-- frontend/pages/fanpage.html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Fanpage - Portal Porto de Galinhas</title>
-
-<link rel="stylesheet" href="../css/fanpage.css">
-
+  <meta charset="UTF-8">
+  <title>Fanpage</title>
+  <link rel="stylesheet" href="../css/fanpage.css">
 </head>
-
 <body>
-
-<!-- ========================================= -->
-<!-- CAPA -->
-<!-- ========================================= -->
-
-<header class="banner">
-
-    <img
-        id="bannerImagem"
-        src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e"
-        alt="Banner">
-
-    <div class="perfil">
-
-        <img
-            id="logoImagem"
-            src="https://via.placeholder.com/220"
-            alt="Logo">
-
-    </div>
-
-</header>
-
-<!-- ========================================= -->
-<!-- CABEÇALHO -->
-<!-- ========================================= -->
-
-<section class="cabecalho">
-
-    <h1 id="nomeEmpresa">
-        Carregando...
-    </h1>
-
-    <p id="categoriaCidade">
-        Categoria • Porto de Galinhas
-    </p>
-
-<!-- COLE AQUI -->
-
-<div class="estatisticas">
-
-    <div class="estatistica">
-        <span id="mediaAvaliacoes">5.0</span>
-        <small>⭐ Avaliação</small>
-    </div>
-
-    <div class="estatistica">
-        <span id="totalSeguidores">0</span>
-        <small>👥 Seguidores</small>
-    </div>
-
-    <div class="estatistica">
-        <span id="totalCurtidas">0</span>
-        <small>👍 Curtidas</small>
-    </div>
-
-</div>
-
-<nav class="menu">
-    <nav class="menu">
-
-        <a class="ativo" href="#">Visão Geral</a>
-
-        <a href="#feed">
-            Publicações
-        </a>
-
-        <a href="#galeria">
-            Fotos
-        </a>
-
-        <a href="#avaliacoes">
-            Avaliações
-        </a>
-
-        <a href="#contato">
-            Contato
-        </a>
-
-    </nav>
-
-</section>
-
-<!-- ========================================= -->
-<!-- CONTEÚDO -->
-<!-- ========================================= -->
-
-<main class="container">
-
-<!-- ========================================= -->
-<!-- COLUNA ESQUERDA -->
-<!-- ========================================= -->
-
-<aside class="sidebar">
-
-<div class="card">
-
-<h3>Sobre</h3>
-
-<p id="cidade">
-📍 Porto de Galinhas
-</p>
-
-<p id="telefone">
-📞 Telefone
-</p>
-
-<p id="site">
-🌐 Site
-</p>
-
-<div id="whatsapp"></div>
-
-</div>
-
-<div class="card">
-
-<h3>Localização</h3>
-
-<div id="mapaComerciante"></div>
-
-</div>
-
-<div class="card">
-
-<h3>Horário</h3>
-
-<p>Segunda a Domingo</p>
-
-<p>08:00 às 22:00</p>
-
-</div>
-
-</aside>
-
-<!-- ========================================= -->
-<!-- FEED -->
-<!-- ========================================= -->
-
-<section class="feed" id="feed">
-
-<div class="post">
-
-<div class="post-header">
-
-<img
-id="logoPost"
-src="https://via.placeholder.com/60"
-alt="logo">
-
-<div>
-
-<h4 id="nomeEmpresaPost">
-
-Empresa
-
-</h4>
-
-<span>
-
-Agora mesmo
-
-</span>
-
-</div>
-
-</div>
-
-<div class="post-texto">
-
-Bem-vindo à nossa Fanpage.
-
-Aqui aparecerão todas as publicações do comerciante.
-
-</div>
-
-<img
-src="https://images.unsplash.com/photo-1540541338287-41700207dee6"
-alt="Publicação">
-
-<div class="post-footer">
-
-<button>
-
-👍 Curtir
-
-</button>
-
-<button>
-
-💬 Comentar
-
-</button>
-
-<button>
-
-↗ Compartilhar
-
-</button>
-
-</div>
-
-</div>
-
-<div id="listaAnunciosComerciante"></div>
-
-</section>
-
-</main>
-
-<!-- ========================================= -->
-<!-- GALERIA -->
-<!-- ========================================= -->
-
-<section
-id="galeria"
-class="container">
-
-<div class="card" style="grid-column:1/-1;">
-
-<h2>Galeria de Fotos</h2>
-
-<div id="galeriaAnuncios"></div>
-
-</div>
-
-</section>
-
-<!-- ========================================= -->
-<!-- AVALIAÇÕES -->
-<!-- ========================================= -->
-
-<section
-id="avaliacoes"
-class="container">
-
-<div class="card" style="grid-column:1/-1;">
-
-<h2>Avaliações</h2>
-
-<div id="listaAvaliacoes">
-
-Ainda não existem avaliações.
-
-</div>
-
-</div>
-
-</section>
-
-<!-- ========================================= -->
-<!-- CONTATO -->
-<!-- ========================================= -->
-
-<section
-id="contato"
-class="container">
-
-<div class="card" style="grid-column:1/-1;">
-
-<h2>Contato</h2>
-
-<p id="contatoEmpresa">
-
-As informações serão carregadas automaticamente.
-
-</p>
-
-</div>
-
-</section>
-
-<script src="../js/config.js"></script>
-
-<script src="../js/fanpage.js"></script>
-
+  <!-- Capa e logo -->
+  <div class="fanpage-header">
+    <img id="fanpage-cover" class="fanpage-cover" alt="Capa">
+    <img id="fanpage-logo" class="fanpage-logo" alt="Logo">
+  </div>
+
+  <!-- Nome e categoria -->
+  <h1 id="fanpage-nome"></h1>
+  <h2 id="fanpage-categoria"></h2>
+
+  <!-- Informações principais -->
+  <div class="fanpage-info">
+    <p><strong>Endereço:</strong> <span id="fanpage-endereco"></span></p>
+    <p><strong>Telefone:</strong> <span id="fanpage-telefone"></span></p>
+    <p><strong>WhatsApp:</strong> <span id="fanpage-whatsapp"></span></p>
+    <p><strong>Email:</strong> <span id="fanpage-email"></span></p>
+    <p><strong>Horário:</strong> <span id="fanpage-horario"></span></p>
+  </div>
+
+  <!-- Botões de ação -->
+  <div class="fanpage-actions">
+    <a id="btn-reservar" class="btn">Reservar</a>
+    <a id="btn-ligar" class="btn">Ligar</a>
+    <a id="btn-whatsapp" class="btn">Enviar Mensagem</a>
+  </div>
+
+  <!-- Galeria -->
+  <div id="fanpage-galeria" class="fanpage-galeria"></div>
+
+  <!-- Feed de posts -->
+  <div id="fanpage-feed" class="fanpage-feed"></div>
+
+  <!-- Avaliações -->
+  <div id="fanpage-avaliacoes" class="fanpage-avaliacoes"></div>
+
+  <!-- Mapa -->
+  <iframe id="fanpage-mapa" class="fanpage-mapa" width="100%" height="300" frameborder="0"></iframe>
+
+  <script src="../js/fanpage.js"></script>
 </body>
 </html>
