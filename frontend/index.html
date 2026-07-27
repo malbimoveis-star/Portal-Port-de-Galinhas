@@ -7,22 +7,31 @@
   <meta name="description" content="Descubra os melhores passeios, hoteis, restaurantes e comercios de Porto de Galinhas. Cadastre seu negocio ou aproveite como turista." />
   <link rel="icon" href="../assets/icons/logo-tucano.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="css/styles.css" />
-<base target="_blank">
+  <base target="_blank">
 </head>
 <body>
   <div id="layout-header"></div>
 
+  <!-- Hero -->
   <section class="hero">
     <div class="container">
       <h1 data-i18n="home.hero_titulo">Descubra as Melhores Experiencias de Porto de Galinhas!</h1>
     </div>
   </section>
 
+  <!-- Destaques -->
   <section class="destaques container">
     <h2 data-i18n="home.destaques_titulo">Destaques Premium para Voce</h2>
     <div class="swiper" id="destaquesSwiper">
       <div class="swiper-wrapper" id="destaquesGrid">
-        <!-- preenchido via JS -->
+        <!-- Exemplo de comerciante destacado -->
+        <div class="swiper-slide">
+          <a href="pages/comerciante.html?id=4">
+            <img src="assets/uploads/logos/hotelparaiso.png" alt="Hotel Paraíso">
+            <h3>Hotel Paraíso</h3>
+          </a>
+        </div>
+        <!-- Outros comerciantes podem ser adicionados aqui -->
       </div>
       <div class="swiper-pagination"></div>
       <div class="swiper-button-prev"></div>
@@ -30,6 +39,7 @@
     </div>
   </section>
 
+  <!-- Categorias -->
   <section class="categorias">
     <div class="container">
       <h2 data-i18n="categorias.titulo">Servicos & Turismo</h2>
@@ -43,6 +53,7 @@
     </div>
   </section>
 
+  <!-- CTA -->
   <section class="cta">
     <div class="container">
       <h2 data-i18n="home.cta_titulo">Fique por dentro das Melhores Opcoes em Porto!</h2>
@@ -56,6 +67,7 @@
 
   <div id="layout-rodape"></div>
 
+  <!-- Scripts -->
   <link rel="stylesheet" href="https://unpkg.com/swiper@11/swiper-bundle.min.css" />
   <script src="https://unpkg.com/swiper@11/swiper-bundle.min.js"></script>
   <script src="js/config.js"></script>
