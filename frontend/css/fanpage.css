@@ -1,122 +1,103 @@
 /* frontend/css/fanpage.css */
 
-body {
-  font-family: Arial, sans-serif;
+/* Reset básico */
+body, h1, h2, h3, p {
   margin: 0;
-  background: #f9f9f9;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: #f5f5f5;
   color: #333;
+  line-height: 1.6;
 }
 
-.fanpage-header {
-  position: relative;
+header, footer {
+  background: #00695c;
+  color: #fff;
   text-align: center;
+  padding: 1rem;
 }
 
-.fanpage-cover {
-  width: 100%;
-  height: 250px;
-  object-fit: cover;
+main {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 1rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
-.fanpage-logo {
+/* Perfil do comerciante */
+.perfil {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.logo-comerciante {
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  border: 4px solid #fff;
-  position: absolute;
-  bottom: -60px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #fff;
+  object-fit: cover;
+  margin-bottom: 1rem;
 }
 
-h1, h2 {
-  text-align: center;
-  margin-top: 70px;
-}
-
-.fanpage-info {
-  padding: 20px;
-  background: #fff;
-  margin: 20px;
-  border-radius: 8px;
-}
-
-.fanpage-actions {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin: 20px;
-}
-
-.fanpage-actions .btn {
-  padding: 10px 20px;
-  background: #0077cc;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 5px;
-}
-
-.fanpage-galeria {
-  display: flex;
-  overflow-x: auto;
-  gap: 10px;
-  padding: 20px;
-}
-
-.fanpage-galeria img {
-  height: 150px;
-  border-radius: 8px;
-}
-
-.fanpage-feed {
-  padding: 20px;
-}
-
-.post {
-  background: #fff;
-  border-radius: 8px;
-  padding: 15px;
-  margin-bottom: 20px;
-}
-
-.post-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.post-logo {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-}
-
-.post-imagem {
-  width: 100%;
-  margin-top: 10px;
-  border-radius: 8px;
-}
-
-.post-actions {
-  display: flex;
-  justify-content: space-around;
-  margin-top: 10px;
-}
-
-.fanpage-avaliacoes {
-  padding: 20px;
+/* Avaliações */
+.avaliacoes {
+  margin-top: 2rem;
 }
 
 .avaliacao {
-  background: #fff;
-  border-radius: 8px;
-  padding: 10px;
-  margin-bottom: 10px;
+  background: #e0f2f1;
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+  border-radius: 6px;
 }
 
-.fanpage-mapa {
-  margin: 20px 0;
-  border: none;
+/* Anúncios */
+.anuncio {
+  margin-top: 2rem;
+}
+
+.capa-anuncio {
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
   border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.fotos {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.fotos img {
+  width: 150px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+/* Posts */
+.posts {
+  margin-top: 1.5rem;
+}
+
+.post {
+  background: #fafafa;
+  border: 1px solid #ddd;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 6px;
+}
+
+.post img {
+  width: 100%;
+  max-height: 250px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-top: 0.5rem;
 }
