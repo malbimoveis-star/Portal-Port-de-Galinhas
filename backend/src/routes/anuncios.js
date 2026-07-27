@@ -33,6 +33,11 @@ const anuncios = [
   }
 ];
 
+// Rota para listar todos os anúncios
+router.get('/', (req, res) => {
+  res.json(anuncios);
+});
+
 // Rota para buscar anúncio por ID
 router.get('/:id', (req, res) => {
   const anuncio = anuncios.find(a => a.id == req.params.id);
