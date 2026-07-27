@@ -1,3 +1,4 @@
+// backend/src/server.js
 const express = require('express');
 const path = require('path');
 const app = express();
@@ -19,7 +20,7 @@ app.use(express.static(path.join(__dirname, '../../frontend')));
 // Servir uploads
 app.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
 
-// Rota padrão
+// Rota padrão para não encontradas
 app.use((req, res) => {
   res.status(404).send('Rota não encontrada.');
 });
