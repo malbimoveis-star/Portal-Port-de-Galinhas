@@ -1,52 +1,29 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Comerciante - Portal Porto de Galinhas</title>
-  <link rel="icon" href="../assets/icons/logo-tucano.svg" />
-  <link rel="stylesheet" href="../css/styles.css" />
+  <meta charset="UTF-8">
+  <title>Comerciante</title>
+  <link rel="stylesheet" href="../css/fanpage.css">
 </head>
 <body>
-  <div id="layout-header"></div>
+  <header>
+    <h1>Portal Porto de Galinhas</h1>
+  </header>
 
-  <div class="pagina" id="paginaComerciante">
-    <div class="card">
-      <div class="comerciante-header">
-        <div>
-          <h1 id="nomeComerciante">Carregando...</h1>
-          <span id="statusBadge" class="status-badge"></span>
-        </div>
-      </div>
-      <p id="statusMensagem" style="margin-top: 10px;"></p>
-    </div>
+  <main>
+    <section id="comerciante">
+      <!-- Dados do comerciante serão carregados aqui -->
+    </section>
 
-    <div class="card">
-      <h2 data-i18n="comerciante_pagina.sobre">Sobre</h2>
-      <p id="comercianteInfo"></p>
-      <div id="contatoWrapper"></div>
-    </div>
+    <section id="anuncios">
+      <!-- Dados do anúncio serão carregados aqui -->
+    </section>
+  </main>
 
-    <div class="card">
-      <h2 data-i18n="comerciante_pagina.galeria">Galeria de Fotos</h2>
-      <div class="galeria" id="galeriaAnuncios"></div>
-    </div>
+  <footer>
+    <p>&copy; 2026 Portal Porto de Galinhas</p>
+  </footer>
 
-    <div class="card" id="mapaCard" style="display:none;">
-      <h2 data-i18n="comerciante_pagina.localizacao">Localizacao</h2>
-      <div id="mapaComerciante" style="width:100%; height:320px; border-radius:8px;"></div>
-    </div>
-
-    <div id="listaAnunciosComerciante"></div>
-  </div>
-
-  <div id="layout-rodape"></div>
-
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="../js/config.js"></script>
-  <script src="../js/i18n.js"></script>
-  <script src="../js/layout.js"></script>
-  <script src="../js/comerciante.js"></script>
+  <script src="../js/fanpage.js"></script>
 </body>
 </html>
