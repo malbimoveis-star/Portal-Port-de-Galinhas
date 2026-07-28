@@ -1,49 +1,52 @@
-// backend/routes/anuncios.js
 const express = require('express');
 const router = express.Router();
 
-// Exemplo de dados mockados (substitua pelo banco de dados real)
 const anuncios = [
   {
+    id: 1,
+    categoria: "Pousadas",
+    capa: "/assets/comerciantes/pousada-mar-azul-piscina.jpg"
+  },
+  {
+    id: 2,
+    categoria: "Restaurantes",
+    capa: "/assets/comerciantes/restaurante-mar-azul.jpg"
+  },
+  {
+    id: 3,
+    categoria: "Passeios",
+    capa: "/assets/comerciantes/passeio-lancha.jpg"
+  },
+  {
     id: 4,
-    categoria: "Hotel",
-    capa: "/uploads/capas/hotel123.jpg",
-    fotos: [
-      "/uploads/fotos/hotel1.jpg",
-      "/uploads/fotos/hotel2.jpg"
-    ],
-    posts: [
-      {
-        data: "2026-07-20T14:00:00Z",
-        texto: "Promoção especial de inverno!",
-        imagem: "/uploads/posts/post1.jpg",
-        likes: 120,
-        comentarios: 15,
-        compartilhamentos: 8
-      },
-      {
-        data: "2026-07-25T10:30:00Z",
-        texto: "Novos quartos disponíveis com vista para o mar.",
-        imagem: "/uploads/posts/post2.jpg",
-        likes: 85,
-        comentarios: 12,
-        compartilhamentos: 5
-      }
-    ]
+    categoria: "Mergulho",
+    capa: "/assets/comerciantes/mergulho-corais.jpg"
+  },
+  {
+    id: 5,
+    categoria: "Buggy",
+    capa: "/assets/comerciantes/buggy-dunas.jpg"
+  },
+  {
+    id: 6,
+    categoria: "Comércio",
+    capa: "/assets/comerciantes/rua-comercio-artesanato.jpg"
   }
 ];
 
-// Rota para listar todos os anúncios
 router.get('/', (req, res) => {
   res.json(anuncios);
 });
 
-// Rota para buscar anúncio por ID
 router.get('/:id', (req, res) => {
   const anuncio = anuncios.find(a => a.id == req.params.id);
+
   if (!anuncio) {
-    return res.status(404).json({ error: 'Anúncio não encontrado' });
+    return res.status(404).json({
+      error: "Anúncio não encontrado"
+    });
   }
+
   res.json(anuncio);
 });
 
