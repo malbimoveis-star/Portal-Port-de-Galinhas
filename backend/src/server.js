@@ -1,30 +1,61 @@
 // backend/src/server.js
-const express = require('express');
-const path = require('path');
+
+const express = require("express");
+const path = require("path");
+
 const app = express();
 
-// Importar rotas
-const comerciantesRoutes = require('./routes/comerciantes');
-const anunciosRoutes = require('./routes/anuncios');
+// ==============================
+// Middleware
+// ==============================
 
-// Middleware para JSON
 app.use(express.json());
 
-// Registrar rotas com prefixo /api
-app.use('/api/comerciantes', comerciantesRoutes);
-app.use('/api/anuncios', anunciosRoutes);
+// ==============================
+// Servir arquivos estáticos
+// ==============================
 
-// Servir arquivos estáticos do frontend
-app.use(express.static(path.join(__dirname, '../../frontend')));
+// Frontend
+app.use(express.static(path.join(__dirname, "../../frontend")));
 
-// Servir uploads
-app.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
+// Pasta assets (imagens)
+app.use("/assets", express.static(path.join(__dirname, "../../assets")));
 
-// Rota padrão para não encontradas
-app.use((req, res) => {
-  res.status(404).send('Rota não encontrada.');
+// Caso exista uma pasta uploads na raiz
+app.use("/uploads", express.static(path.join(__dirname, "../../uploads")));
+
+// ==============================
+// Rotas da API
+// ==============================
+
+const comerciantesRoutes = require("./routes/comerciantes");
+const anunciosRoutes = require("./routes/anuncios");
+
+app.use("/api/comerciantes", comerciantesRoutes);
+app.use("/api/anuncios", anunciosRoutes);
+
+// ==============================
+// Página inicial
+// ==============================
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../../frontend/index.html"));
 });
 
+// ==============================
+// Página 404
+// ==============================
+
+app.use((req, res) => {
+  res.status(404).send("Rota não encontrada.");
+});
+
+// ==============================
 // Iniciar servidor
+// ==============================
+
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
+
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+});
