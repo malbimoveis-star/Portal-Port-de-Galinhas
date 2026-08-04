@@ -1,50 +1,132 @@
-const express = require("express");
+'use strict';
+
+const express = require('express');
+const db = require('../db/connection');
+const { autenticar } = require('../middleware/auth');
+const upload = require('../middleware/upload');
+const { comercianteVisivelPublicamente } = require('../utils/status');
+
 const router = express.Router();
 
-const anuncios = [
-  {
-    id: 4,
-    categoria: "Hotel",
-    capa: "/assets/comerciantes/pousada-mar-azul-piscina.jpg",
-    fotos: [
-      "/assets/comerciantes/pousada-mar-azul-piscina.jpg",
-      "/assets/comerciantes/restaurante-mar-azul.jpg"
-    ],
-    posts: [
-      {
-        data: "2026-07-20T14:00:00Z",
-        texto: "Promoção especial de inverno!",
-        imagem: "/assets/comerciantes/pousada-mar-azul-piscina.jpg",
-        likes: 120,
-        comentarios: 15,
-        compartilhamentos: 8
-      },
-      {
-        data: "2026-07-25T10:30:00Z",
-        texto: "Novos quartos disponíveis com vista para o mar.",
-        imagem: "/assets/comerciantes/restaurante-mar-azul.jpg",
-        likes: 85,
-        comentarios: 12,
-        compartilhamentos: 5
-      }
-    ]
-  }
-];
+function parseAnuncio(anuncio) {
+  return {
+    ...anuncio,
+    fotos: JSON.parse(anuncio.fotos || '[]'),
+    tags: JSON.parse(anuncio.tags || '[]'),
+  };
+}
 
-router.get("/", (req, res) => {
-  res.json(anuncios);
+// GET /api/anuncios - lista publica (somente comerciantes visiveis e anuncios ativos)
+// filtros opcionais: ?categoria_id=
+router.get('/', (req, res) => {
+  const { categoria_id } = req.query;
+
+  let anuncios;
+  if (categoria_id) {
+    anuncios = db.prepare("SELECT * FROM anuncios WHERE categoria_id = ? AND status = 'ativo' ORDER BY criado_em DESC").all(categoria_id);
+  } else {
+    anuncios = db.prepare("SELECT * FROM anuncios WHERE status = 'ativo' ORDER BY criado_em DESC").all();
+  }
+
+  const visiveis = anuncios.filter((anuncio) => {
+    const comerciante = db.prepare('SELECT * FROM comerciantes WHERE id = ?').get(anuncio.id_comerciante);
+    return comerciante && comercianteVisivelPublicamente(comerciante);
+  });
+
+  res.json(visiveis.map(parseAnuncio));
 });
 
-router.get("/:id", (req, res) => {
-  const anuncio = anuncios.find(a => a.id == req.params.id);
-
-  if (!anuncio) {
-    return res.status(404).json({
-      error: "Anúncio não encontrado"
-    });
+// GET /api/anuncios/:id - detalhe publico
+router.get('/:id', (req, res) => {
+  const anuncio = db.prepare('SELECT * FROM anuncios WHERE id = ?').get(req.params.id);
+  if (!anuncio || anuncio.status !== 'ativo') {
+    return res.status(404).json({ erro: 'Anuncio nao encontrado.' });
   }
 
-  res.json(anuncio);
+  const comerciante = db.prepare('SELECT * FROM comerciantes WHERE id = ?').get(anuncio.id_comerciante);
+  if (!comerciante || !comercianteVisivelPublicamente(comerciante)) {
+    return res.status(404).json({ erro: 'Anuncio indisponivel.' });
+  }
+
+  res.json(parseAnuncio(anuncio));
+});
+
+// GET /api/anuncios/comerciante/:id_comerciante - anuncios de um comerciante (pagina da fanpage)
+router.get('/comerciante/:id_comerciante', (req, res) => {
+  const comerciante = db.prepare('SELECT * FROM comerciantes WHERE id = ?').get(req.params.id_comerciante);
+  if (!comerciante) return res.status(404).json({ erro: 'Comerciante nao encontrado.' });
+
+  const anuncios = db.prepare("SELECT * FROM anuncios WHERE id_comerciante = ? AND status = 'ativo' ORDER BY criado_em DESC").all(req.params.id_comerciante);
+  const visivel = comercianteVisivelPublicamente(comerciante);
+
+  res.json({ visivel_publicamente: visivel, anuncios: visivel ? anuncios.map(parseAnuncio) : [] });
+});
+
+// GET /api/anuncios/meus/lista - anuncios do comerciante autenticado (painel)
+router.get('/meus/lista', autenticar, (req, res) => {
+  const anuncios = db.prepare('SELECT * FROM anuncios WHERE id_comerciante = ? ORDER BY criado_em DESC').all(req.comerciante.id);
+  res.json(anuncios.map(parseAnuncio));
+});
+
+// POST /api/anuncios - cria anuncio (autenticado), com upload de ate 6 fotos
+router.post('/', autenticar, upload.array('fotos', 6), (req, res) => {
+  const { titulo, descricao, categoria_id, tags, endereco, latitude, longitude } = req.body;
+  if (!titulo) return res.status(400).json({ erro: 'Campo "titulo" e obrigatorio.' });
+
+  const fotos = (req.files || []).map((f) => `/assets/uploads/${f.filename}`);
+  const tagsArray = tags ? (Array.isArray(tags) ? tags : String(tags).split(',').map((t) => t.trim())) : [];
+
+  const info = db.prepare(
+    `INSERT INTO anuncios (titulo, descricao, categoria_id, fotos, tags, id_comerciante, endereco, latitude, longitude, status)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pendente')`
+  ).run(
+    titulo, descricao || '', categoria_id || null, JSON.stringify(fotos), JSON.stringify(tagsArray),
+    req.comerciante.id, endereco || null, latitude || null, longitude || null
+  );
+
+  const anuncio = db.prepare('SELECT * FROM anuncios WHERE id = ?').get(info.lastInsertRowid);
+  res.status(201).json(parseAnuncio(anuncio));
+});
+
+// PUT /api/anuncios/:id - atualiza anuncio (somente o dono)
+router.put('/:id', autenticar, upload.array('fotos', 6), (req, res) => {
+  const anuncio = db.prepare('SELECT * FROM anuncios WHERE id = ?').get(req.params.id);
+  if (!anuncio) return res.status(404).json({ erro: 'Anuncio nao encontrado.' });
+  if (anuncio.id_comerciante !== req.comerciante.id) {
+    return res.status(403).json({ erro: 'Voce nao tem permissao para editar este anuncio.' });
+  }
+
+  const { titulo, descricao, categoria_id, tags, endereco, latitude, longitude } = req.body;
+  const novasFotos = (req.files || []).map((f) => `/assets/uploads/${f.filename}`);
+  const fotosFinal = novasFotos.length > 0 ? novasFotos : JSON.parse(anuncio.fotos || '[]');
+  const tagsArray = tags ? (Array.isArray(tags) ? tags : String(tags).split(',').map((t) => t.trim())) : JSON.parse(anuncio.tags || '[]');
+
+  db.prepare(
+    `UPDATE anuncios SET titulo = ?, descricao = ?, categoria_id = ?, fotos = ?, tags = ?, endereco = ?, latitude = ?, longitude = ? WHERE id = ?`
+  ).run(
+    titulo || anuncio.titulo,
+    descricao !== undefined ? descricao : anuncio.descricao,
+    categoria_id !== undefined ? categoria_id : anuncio.categoria_id,
+    JSON.stringify(fotosFinal), JSON.stringify(tagsArray),
+    endereco !== undefined ? endereco : anuncio.endereco,
+    latitude !== undefined ? latitude : anuncio.latitude,
+    longitude !== undefined ? longitude : anuncio.longitude,
+    req.params.id
+  );
+
+  res.json(parseAnuncio(db.prepare('SELECT * FROM anuncios WHERE id = ?').get(req.params.id)));
+});
+
+// DELETE /api/anuncios/:id - remove anuncio (somente o dono)
+router.delete('/:id', autenticar, (req, res) => {
+  const anuncio = db.prepare('SELECT * FROM anuncios WHERE id = ?').get(req.params.id);
+  if (!anuncio) return res.status(404).json({ erro: 'Anuncio nao encontrado.' });
+  if (anuncio.id_comerciante !== req.comerciante.id) {
+    return res.status(403).json({ erro: 'Voce nao tem permissao para remover este anuncio.' });
+  }
+
+  db.prepare('DELETE FROM anuncios WHERE id = ?').run(req.params.id);
+  res.json({ sucesso: true });
 });
 
 module.exports = router;
