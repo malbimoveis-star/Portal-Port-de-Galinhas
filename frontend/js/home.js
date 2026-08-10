@@ -32,9 +32,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       const blocoImagem = temImagem
         ? `<img src="${temImagem}" alt="${comerciante.nome}" onerror="this.replaceWith(Object.assign(document.createElement('div'), { className: 'destaque-placeholder', innerHTML: '<span class=\\'destaque-placeholder__icone\\'>🌴</span><span>${iniciais}</span>' }))">`
         : `<div class="destaque-placeholder"><span class="destaque-placeholder__icone">🌴</span><span>${iniciais}</span></div>`;
+
       destaquesGrid.innerHTML += `
         <div class="swiper-slide">
-          <a href="pages/comerciante.html?id=${comerciante.id}" class="card-destaque">
+          <a href="pages/fanpage.html?id=${comerciante.id}" class="card-destaque">
 
             ${blocoImagem}
 
