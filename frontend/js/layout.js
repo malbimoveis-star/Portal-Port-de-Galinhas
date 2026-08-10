@@ -11,7 +11,7 @@
   }
 
   function linkComerciante(id) {
-    return `${caminhoBase()}pages/comerciante.html?id=${id}`;
+    return `${caminhoBase()}pages/fanpage.html?id=${id}`;
   }
 
   function montarHeader() {
