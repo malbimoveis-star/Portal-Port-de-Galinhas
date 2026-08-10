@@ -16,8 +16,6 @@ function parseAnuncio(anuncio) {
   };
 }
 
-// GET /api/anuncios - lista publica (somente comerciantes visiveis e anuncios ativos)
-// filtros opcionais: ?categoria_id=
 router.get('/', (req, res) => {
   const { categoria_id } = req.query;
 
@@ -36,7 +34,6 @@ router.get('/', (req, res) => {
   res.json(visiveis.map(parseAnuncio));
 });
 
-// GET /api/anuncios/:id - detalhe publico
 router.get('/:id', (req, res) => {
   const anuncio = db.prepare('SELECT * FROM anuncios WHERE id = ?').get(req.params.id);
   if (!anuncio || anuncio.status !== 'ativo') {
@@ -51,7 +48,6 @@ router.get('/:id', (req, res) => {
   res.json(parseAnuncio(anuncio));
 });
 
-// GET /api/anuncios/comerciante/:id_comerciante - anuncios de um comerciante (pagina da fanpage)
 router.get('/comerciante/:id_comerciante', (req, res) => {
   const comerciante = db.prepare('SELECT * FROM comerciantes WHERE id = ?').get(req.params.id_comerciante);
   if (!comerciante) return res.status(404).json({ erro: 'Comerciante nao encontrado.' });
@@ -62,13 +58,11 @@ router.get('/comerciante/:id_comerciante', (req, res) => {
   res.json({ visivel_publicamente: visivel, anuncios: visivel ? anuncios.map(parseAnuncio) : [] });
 });
 
-// GET /api/anuncios/meus/lista - anuncios do comerciante autenticado (painel)
 router.get('/meus/lista', autenticar, (req, res) => {
   const anuncios = db.prepare('SELECT * FROM anuncios WHERE id_comerciante = ? ORDER BY criado_em DESC').all(req.comerciante.id);
   res.json(anuncios.map(parseAnuncio));
 });
 
-// POST /api/anuncios - cria anuncio (autenticado), com upload de ate 6 fotos
 router.post('/', autenticar, upload.array('fotos', 6), (req, res) => {
   const { titulo, descricao, categoria_id, tags, endereco, latitude, longitude } = req.body;
   if (!titulo) return res.status(400).json({ erro: 'Campo "titulo" e obrigatorio.' });
@@ -88,7 +82,6 @@ router.post('/', autenticar, upload.array('fotos', 6), (req, res) => {
   res.status(201).json(parseAnuncio(anuncio));
 });
 
-// PUT /api/anuncios/:id - atualiza anuncio (somente o dono)
 router.put('/:id', autenticar, upload.array('fotos', 6), (req, res) => {
   const anuncio = db.prepare('SELECT * FROM anuncios WHERE id = ?').get(req.params.id);
   if (!anuncio) return res.status(404).json({ erro: 'Anuncio nao encontrado.' });
@@ -117,7 +110,6 @@ router.put('/:id', autenticar, upload.array('fotos', 6), (req, res) => {
   res.json(parseAnuncio(db.prepare('SELECT * FROM anuncios WHERE id = ?').get(req.params.id)));
 });
 
-// DELETE /api/anuncios/:id - remove anuncio (somente o dono)
 router.delete('/:id', autenticar, (req, res) => {
   const anuncio = db.prepare('SELECT * FROM anuncios WHERE id = ?').get(req.params.id);
   if (!anuncio) return res.status(404).json({ erro: 'Anuncio nao encontrado.' });
