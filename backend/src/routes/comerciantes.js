@@ -15,7 +15,6 @@ function comercianteSemSenha(c) {
   return resto;
 }
 
-// POST /api/comerciantes/cadastro - cria novo comerciante (inicia degustacao)
 router.post('/cadastro', async (req, res) => {
   const { nome, email, telefone, senha } = req.body;
   if (!nome || !email || !senha) {
@@ -41,7 +40,6 @@ router.post('/cadastro', async (req, res) => {
   res.status(201).json({ comerciante: comercianteSemSenha(comerciante), token });
 });
 
-// POST /api/comerciantes/login
 router.post('/login', async (req, res) => {
   const { email, senha } = req.body;
   if (!email || !senha) {
@@ -63,7 +61,6 @@ router.post('/login', async (req, res) => {
   res.json({ comerciante: comercianteSemSenha(comerciante), token });
 });
 
-// GET /api/comerciantes/me - dados do comerciante autenticado (painel)
 router.get('/me', autenticar, (req, res) => {
   const comerciante = db.prepare('SELECT * FROM comerciantes WHERE id = ?').get(req.comerciante.id);
   if (!comerciante) return res.status(404).json({ erro: 'Comerciante nao encontrado.' });
@@ -78,8 +75,6 @@ router.get('/me', autenticar, (req, res) => {
   });
 });
 
-// PUT /api/comerciantes/me - atualiza o perfil do comerciante autenticado
-// (nome, telefone, categoria, cidade, endereco, descricao, logo, banner, site, localizacao)
 router.put('/me', autenticar, (req, res) => {
   const comerciante = db.prepare('SELECT * FROM comerciantes WHERE id = ?').get(req.comerciante.id);
   if (!comerciante) return res.status(404).json({ erro: 'Comerciante nao encontrado.' });
@@ -113,8 +108,6 @@ router.put('/me', autenticar, (req, res) => {
   res.json({ comerciante: comercianteSemSenha(atualizado) });
 });
 
-// GET /api/comerciantes - lista publica (usada no carrossel/destaques da Home)
-// Mostra apenas quem esta visivel publicamente (degustacao valida ou plano ativo).
 router.get('/', (req, res) => {
   const todos = db.prepare('SELECT * FROM comerciantes ORDER BY id DESC').all();
   const visiveis = todos
@@ -123,7 +116,6 @@ router.get('/', (req, res) => {
   res.json(visiveis);
 });
 
-// GET /api/comerciantes/:id - dados publicos de um comerciante (fanpage)
 router.get('/:id', (req, res) => {
   const comerciante = db.prepare('SELECT * FROM comerciantes WHERE id = ?').get(req.params.id);
   if (!comerciante) return res.status(404).json({ erro: 'Comerciante nao encontrado.' });
