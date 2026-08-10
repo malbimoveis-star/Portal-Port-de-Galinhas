@@ -2,7 +2,7 @@
 
 document.addEventListener("DOMContentLoaded", async () => {
 
-  const baseURL = "https://portal-port-de-galinhas-production.up.railway.app";
+  const baseURL = window.APP_CONFIG ? window.APP_CONFIG.API_BASE_URL : "";
 
   const destaquesGrid = document.getElementById("destaquesGrid");
   const categoriasTrack = document.getElementById("categoriasTrack");
@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
 
     // ==========================
-    // CARREGA COMERCIANTES
+    // CARREGA COMERCIANTES (Destaques Premium)
     // ==========================
 
     const comerciantesRes = await fetch(`${baseURL}/api/comerciantes`);
@@ -20,18 +20,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     comerciantes.forEach(comerciante => {
 
+      const imagem = comerciante.logo || comerciante.banner || `https://placehold.co/500x300?text=${encodeURIComponent(comerciante.nome)}`;
+
       destaquesGrid.innerHTML += `
         <div class="swiper-slide">
           <a href="pages/comerciante.html?id=${comerciante.id}">
 
             <img
-              src="https://placehold.co/500x300?text=${encodeURIComponent(comerciante.nome)}"
+              src="${imagem}"
               alt="${comerciante.nome}"
+              onerror="this.onerror=null;this.src='https://placehold.co/500x300?text=${encodeURIComponent(comerciante.nome)}'"
             >
 
             <h3>${comerciante.nome}</h3>
 
-            <p>${comerciante.categoria}</p>
+            <p>${comerciante.categoria || ''}</p>
 
           </a>
         </div>
@@ -57,28 +60,28 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
     // ==========================
-    // CARREGA CATEGORIAS
+    // CARREGA CATEGORIAS (lista real, gerenciada pelo admin)
     // ==========================
 
-    const anunciosRes = await fetch(`${baseURL}/api/anuncios`);
-    const anuncios = await anunciosRes.json();
+    const categoriasRes = await fetch(`${baseURL}/api/categorias`);
+    const categorias = await categoriasRes.json();
 
     categoriasTrack.innerHTML = "";
 
-    anuncios.forEach(anuncio => {
+    categorias.forEach(categoria => {
+
+      const icone = categoria.icone_url
+        ? `<img src="${categoria.icone_url}" alt="${categoria.nome}" onerror="this.onerror=null;this.src='https://placehold.co/100x100?text=${encodeURIComponent(categoria.nome)}'">`
+        : `<img src="https://placehold.co/100x100?text=${encodeURIComponent(categoria.nome)}" alt="${categoria.nome}">`;
 
       categoriasTrack.innerHTML += `
         <div class="carousel__item">
 
-          <a href="pages/comerciante.html?id=${anuncio.id}">
+          <a href="pages/categoria.html?id=${categoria.id}&slug=${encodeURIComponent(categoria.slug || '')}">
 
-            <img
-              src="${baseURL}${anuncio.capa}"
-              alt="${anuncio.categoria}"
-              onerror="this.src='https://placehold.co/250x180?text=${encodeURIComponent(anuncio.categoria)}'"
-            >
+            ${icone}
 
-            <p>${anuncio.categoria}</p>
+            <p>${categoria.nome}</p>
 
           </a>
 
