@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "description": "Portal web para divulgação de turismo, hotéis e comércios de Porto de Galinhas.",
   "main": "backend/src/server.js",
+  "engines": {
+    "node": ">=22.5.0"
+  },
   "scripts": {
+    "postinstall": "npm install --prefix backend",
     "start": "node backend/src/server.js"
   },
   "dependencies": {
