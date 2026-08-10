@@ -6,10 +6,6 @@ function migrate() {
 
   console.log('[DB] Iniciando migrations...');
 
-  // =====================================================
-  // TABELA COMERCIANTES
-  // =====================================================
-
   db.exec(`
     CREATE TABLE IF NOT EXISTS comerciantes (
 
@@ -88,9 +84,6 @@ function migrate() {
   criarColuna("curtidas","INTEGER DEFAULT 0");
   criarColuna("seguidores","INTEGER DEFAULT 0");
   criarColuna("media_avaliacoes","REAL DEFAULT 5");
-    // =====================================================
-  // TABELA CATEGORIAS
-  // =====================================================
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS categorias (
@@ -105,11 +98,6 @@ function migrate() {
 
     );
   `);
-
-
-  // =====================================================
-  // TABELA ANUNCIOS
-  // =====================================================
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS anuncios (
@@ -148,7 +136,6 @@ function migrate() {
     );
   `);
 
-
   const colunasAnuncio = db
     .prepare("PRAGMA table_info(anuncios)")
     .all()
@@ -170,11 +157,6 @@ function migrate() {
   criarColunaAnuncio("latitude","REAL");
   criarColunaAnuncio("longitude","REAL");
   criarColunaAnuncio("status","TEXT DEFAULT 'pendente'");
-
-
-  // =====================================================
-  // TABELA PAGAMENTOS
-  // =====================================================
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS pagamentos (
@@ -200,9 +182,6 @@ function migrate() {
 
     );
   `);
-    // =====================================================
-  // TABELA ARTIGOS
-  // =====================================================
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS artigos (
@@ -225,11 +204,6 @@ function migrate() {
 
     );
   `);
-
-
-  // =====================================================
-  // TABELA ARTIGO_TRADUCOES
-  // =====================================================
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS artigo_traducoes (
@@ -265,7 +239,6 @@ function migrate() {
     );
   `);
 
-
   db.exec(`
     CREATE INDEX IF NOT EXISTS idx_artigos_publicado
     ON artigos(publicado);
@@ -281,6 +254,22 @@ function migrate() {
     ON artigo_traducoes(idioma);
   `);
 
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS foto_curtidas (
+      foto_key TEXT PRIMARY KEY,
+      contagem INTEGER NOT NULL DEFAULT 0
+    );
+  `);
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS foto_comentarios (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      foto_key TEXT NOT NULL,
+      nome TEXT,
+      texto TEXT NOT NULL,
+      criado_em TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+  `);
 
   console.log("[DB] Todas as migrations executadas com sucesso.");
 
