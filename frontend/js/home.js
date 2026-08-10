@@ -20,21 +20,29 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     comerciantes.forEach(comerciante => {
 
-      const imagem = comerciante.logo || comerciante.banner || `https://placehold.co/500x300?text=${encodeURIComponent(comerciante.nome)}`;
+      const iniciais = comerciante.nome
+        .split(' ')
+        .map(p => p[0])
+        .slice(0, 2)
+        .join('')
+        .toUpperCase();
+
+      const temImagem = comerciante.logo || comerciante.banner;
+
+      const blocoImagem = temImagem
+        ? `<img src="${temImagem}" alt="${comerciante.nome}" onerror="this.replaceWith(Object.assign(document.createElement('div'), { className: 'destaque-placeholder', textContent: '${iniciais}' }))">`
+        : `<div class="destaque-placeholder">${iniciais}</div>`;
 
       destaquesGrid.innerHTML += `
         <div class="swiper-slide">
-          <a href="pages/comerciante.html?id=${comerciante.id}">
+          <a href="pages/comerciante.html?id=${comerciante.id}" class="card-destaque">
 
-            <img
-              src="${imagem}"
-              alt="${comerciante.nome}"
-              onerror="this.onerror=null;this.src='https://placehold.co/500x300?text=${encodeURIComponent(comerciante.nome)}'"
-            >
+            ${blocoImagem}
 
-            <h3>${comerciante.nome}</h3>
-
-            <p>${comerciante.categoria || ''}</p>
+            <div class="card-destaque__body">
+              <h3>${comerciante.nome}</h3>
+              <p>${comerciante.categoria || ''}</p>
+            </div>
 
           </a>
         </div>
