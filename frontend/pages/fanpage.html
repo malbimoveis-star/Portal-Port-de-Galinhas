@@ -1,50 +1,257 @@
-<!-- frontend/pages/fanpage.html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Fanpage</title>
-  <link rel="stylesheet" href="../css/fanpage.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fanpage — Portal Porto de Galinhas</title>
+<style>
+  * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
+  body { margin: 0; background: #eef2f5; color: #1c2b36; }
+  header.topo { background: #0a5c8a; padding: 14px 24px; }
+  header.topo a { color: #fff; text-decoration: none; font-weight: bold; }
+  .capa { height: 260px; background-size: cover; background-position: center; background-color: #cfd9e0; }
+  .perfil-bar { max-width: 1040px; margin: 0 auto; padding: 0 20px; position: relative; }
+  .avatar {
+    width: 96px; height: 96px; border-radius: 50%; border: 4px solid #fff; background: #0a5c8a; color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 2em; font-weight: bold;
+    position: absolute; top: -48px; left: 20px; box-shadow: 0 2px 8px rgba(0,0,0,.15);
+  }
+  .avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+  .info-negocio { background: #fff; padding: 60px 20px 16px; border-radius: 0 0 10px 10px; max-width: 1040px; margin: 0 auto; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+  .info-negocio h1 { margin: 0 0 4px; color: #0a5c8a; }
+  .badge-plano { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: .78em; color: #fff; }
+  .badge--ativo { background: #2e9e5b; }
+  .badge--degustacao { background: #e0a020; }
+  .badge--expirado { background: #999; }
+
+  .layout { max-width: 1040px; margin: 20px auto 60px; padding: 0 20px; display: grid; grid-template-columns: 300px 1fr; gap: 20px; align-items: start; }
+  @media (max-width: 760px) { .layout { grid-template-columns: 1fr; } }
+
+  .card { background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.06); padding: 18px; margin-bottom: 20px; position: sticky; top: 16px; }
+  .card h3 { margin-top: 0; color: #0a5c8a; font-size: 1em; }
+  .linha-info { font-size: .9em; margin-bottom: 8px; color: #33454f; }
+  .linha-info strong { color: #1c2b36; }
+  .mapa-embed { width: 100%; height: 160px; border: 0; border-radius: 8px; margin-top: 10px; }
+  .btn-acao { display: block; text-align: center; text-decoration: none; padding: 11px; border-radius: 8px; color: #fff; font-weight: bold; font-size: .92em; margin-top: 10px; border: none; cursor: pointer; width: 100%; }
+  .btn-whats { background: #25d366; }
+  .btn-ligar { background: #ff6600; }
+  .aviso-contato { color: #888; font-size: .85em; margin-top: 10px; }
+
+  .post { background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.06); margin-bottom: 20px; overflow: hidden; }
+  .post-cabecalho { display: flex; align-items: center; gap: 10px; padding: 14px 16px; }
+  .post-cabecalho .mini-avatar { width: 36px; height: 36px; border-radius: 50%; background: #0a5c8a; color: #fff; display: flex; align-items: center; justify-content: center; font-size: .85em; font-weight: bold; flex-shrink: 0; }
+  .post-cabecalho strong { color: #1c2b36; display: block; }
+  .post-cabecalho span { display: block; font-size: .78em; color: #889; }
+  .post-legenda { padding: 0 16px 12px; color: #33454f; font-size: .95em; }
+  .post img { width: 100%; max-height: 480px; object-fit: cover; display: block; }
+  .post-acoes { display: flex; gap: 6px; padding: 8px 16px; border-top: 1px solid #eef2f5; }
+  .btn-curtir, .btn-comentar { background: none; border: none; cursor: pointer; color: #55707f; font-size: .9em; padding: 8px 12px; border-radius: 6px; font-weight: 600; }
+  .btn-curtir:hover, .btn-comentar:hover { background: #f2f5f8; }
+  .btn-curtir.curtido { color: #d64545; }
+  .contador-curtidas { padding: 8px 16px 0; font-size: .82em; color: #55707f; }
+  .comentarios { padding: 6px 16px 14px; border-top: 1px solid #eef2f5; margin-top: 6px; }
+  .comentario { font-size: .88em; margin-bottom: 8px; }
+  .comentario strong { color: #1c2b36; }
+  .comentario .texto { color: #33454f; }
+  .form-comentario { display: none; gap: 6px; margin-top: 10px; }
+  .form-comentario.aberto { display: flex; flex-wrap: wrap; }
+  .form-comentario input, .form-comentario textarea { padding: 7px 10px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; font-size: .85em; }
+  .form-comentario input { flex: 1; min-width: 120px; }
+  .form-comentario textarea { width: 100%; resize: vertical; min-height: 40px; }
+  .form-comentario button { background: #0a5c8a; color: #fff; border: none; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: .85em; }
+  .vazio { text-align: center; color: #888; padding: 40px; }
+</style>
 </head>
 <body>
-  <!-- Capa e logo -->
-  <div class="fanpage-header">
-    <img id="fanpage-cover" class="fanpage-cover" alt="Capa">
-    <img id="fanpage-logo" class="fanpage-logo" alt="Logo">
-  </div>
+<header class="topo"><a href="/">← Portal Porto de Galinhas</a></header>
+<div id="capa" class="capa"></div>
+<div class="perfil-bar"><div id="avatar" class="avatar">?</div></div>
+<div class="info-negocio">
+  <h1 id="nome">Carregando...</h1>
+  <span id="statusBadge"></span>
+</div>
 
-  <!-- Nome e categoria -->
-  <h1 id="fanpage-nome"></h1>
-  <h2 id="fanpage-categoria"></h2>
+<div class="layout">
+  <aside>
+    <div class="card">
+      <h3>Informações</h3>
+      <div class="linha-info" id="linhaCategoria"></div>
+      <div class="linha-info" id="linhaCidade" style="display:none"><strong>Cidade:</strong> <span id="txtCidade"></span></div>
+      <div class="linha-info" id="linhaEndereco" style="display:none"><strong>Endereço:</strong> <span id="txtEndereco"></span></div>
+      <div class="linha-info" id="linhaWhats" style="display:none"><strong>WhatsApp:</strong> <span id="txtWhats"></span></div>
+      <div class="linha-info" id="linhaSite" style="display:none"><strong>Site:</strong> <span id="txtSite"></span></div>
+      <p class="aviso-contato" id="avisoContato" style="display:none">
+        Este comerciante ainda não tem um plano pago ativo — contato direto indisponível.
+      </p>
+      <a id="btnWhats" class="btn-acao btn-whats" style="display:none" target="_blank" rel="noopener">💬 Enviar mensagem</a>
+      <a id="btnLigar" class="btn-acao btn-ligar" style="display:none">📞 Ligar agora</a>
+      <div id="cardMapaInterno" style="display:none">
+        <h3 style="margin-top:18px">Localização</h3>
+        <iframe class="mapa-embed" id="mapaEmbed" loading="lazy"></iframe>
+        <a id="linkMapaGrande" href="#" target="_blank" rel="noopener" style="display:block;margin-top:8px;color:#0a5c8a;font-size:.85em;font-weight:bold">Ver no Google Maps</a>
+      </div>
+    </div>
+  </aside>
 
-  <!-- Informações principais -->
-  <div class="fanpage-info">
-    <p><strong>Endereço:</strong> <span id="fanpage-endereco"></span></p>
-    <p><strong>Telefone:</strong> <span id="fanpage-telefone"></span></p>
-    <p><strong>WhatsApp:</strong> <span id="fanpage-whatsapp"></span></p>
-    <p><strong>Email:</strong> <span id="fanpage-email"></span></p>
-    <p><strong>Horário:</strong> <span id="fanpage-horario"></span></p>
-  </div>
+  <main id="feed">
+    <p class="vazio">Carregando publicações...</p>
+  </main>
+</div>
 
-  <!-- Botões de ação -->
-  <div class="fanpage-actions">
-    <a id="btn-reservar" class="btn">Reservar</a>
-    <a id="btn-ligar" class="btn">Ligar</a>
-    <a id="btn-whatsapp" class="btn">Enviar Mensagem</a>
-  </div>
+<script>
+  const params = new URLSearchParams(location.search);
+  const id = params.get('id');
+  const API = window.location.origin;
+  const LIMITE_FOTOS = 25;
+  const LABEL_STATUS = { degustacao: 'Em degustação', ativo: 'Ativo', expirado: 'Expirado' };
 
-  <!-- Galeria -->
-  <div id="fanpage-galeria" class="fanpage-galeria"></div>
+  function iniciais(nome) { return (nome || '?').split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase(); }
+  function jaCurtiu(fotoKey) { return localStorage.getItem(`curtiu_${fotoKey}`) === '1'; }
+  function marcarCurtido(fotoKey, curtiu) {
+    if (curtiu) localStorage.setItem(`curtiu_${fotoKey}`, '1'); else localStorage.removeItem(`curtiu_${fotoKey}`);
+  }
 
-  <!-- Feed de posts -->
-  <div id="fanpage-feed" class="fanpage-feed"></div>
+  async function carregar() {
+    if (!id) { document.getElementById('nome').textContent = 'Comerciante não informado.'; return; }
 
-  <!-- Avaliações -->
-  <div id="fanpage-avaliacoes" class="fanpage-avaliacoes"></div>
+    const [perfilResp, anunciosResp] = await Promise.all([
+      fetch(`${API}/api/comerciantes/${id}`),
+      fetch(`${API}/api/anuncios/comerciante/${id}`)
+    ]);
+    if (!perfilResp.ok) { document.getElementById('nome').textContent = 'Comerciante não encontrado.'; return; }
 
-  <!-- Mapa -->
-  <iframe id="fanpage-mapa" class="fanpage-mapa" width="100%" height="300" frameborder="0"></iframe>
+    const { comerciante } = await perfilResp.json();
+    const { visivel_publicamente, anuncios } = await anunciosResp.json();
 
-  <script src="../js/fanpage.js"></script>
+    document.title = comerciante.nome + ' — Portal Porto de Galinhas';
+    document.getElementById('nome').textContent = comerciante.nome;
+
+    const avatarEl = document.getElementById('avatar');
+    if (comerciante.logo) { avatarEl.innerHTML = `<img src="${comerciante.logo}" alt="${comerciante.nome}">`; }
+    else { avatarEl.textContent = iniciais(comerciante.nome); }
+
+    const badgeClasse = comerciante.status === 'ativo' ? 'badge--ativo' : comerciante.status === 'degustacao' ? 'badge--degustacao' : 'badge--expirado';
+    document.getElementById('statusBadge').innerHTML = `<span class="badge-plano ${badgeClasse}">${LABEL_STATUS[comerciante.status] || comerciante.status}</span>`;
+
+    if (comerciante.categoria) document.getElementById('linhaCategoria').innerHTML = `<strong>Categoria:</strong> ${comerciante.categoria}`;
+    if (comerciante.cidade) { document.getElementById('linhaCidade').style.display = 'block'; document.getElementById('txtCidade').textContent = comerciante.cidade; }
+    if (comerciante.endereco) { document.getElementById('linhaEndereco').style.display = 'block'; document.getElementById('txtEndereco').textContent = comerciante.endereco; }
+    if (comerciante.site) { document.getElementById('linhaSite').style.display = 'block'; document.getElementById('txtSite').textContent = comerciante.site; }
+
+    if (comerciante.banner) document.getElementById('capa').style.backgroundImage = `url('${comerciante.banner}')`;
+    else {
+      const primeiraFoto = anuncios.flatMap(a => a.fotos || [])[0];
+      if (primeiraFoto) document.getElementById('capa').style.backgroundImage = `url('${primeiraFoto}')`;
+    }
+
+    if (comerciante.status === 'ativo' && comerciante.telefone) {
+      const tel = comerciante.telefone.replace(/\D/g, '');
+      document.getElementById('linhaWhats').style.display = 'block';
+      document.getElementById('txtWhats').textContent = comerciante.telefone;
+      const btnW = document.getElementById('btnWhats'); btnW.href = `https://wa.me/55${tel}`; btnW.style.display = 'block';
+      const btnL = document.getElementById('btnLigar'); btnL.href = `tel:+55${tel}`; btnL.style.display = 'block';
+    } else {
+      document.getElementById('avisoContato').style.display = 'block';
+    }
+
+    if (comerciante.latitude && comerciante.longitude) {
+      document.getElementById('cardMapaInterno').style.display = 'block';
+      document.getElementById('mapaEmbed').src = `https://www.google.com/maps?q=${comerciante.latitude},${comerciante.longitude}&output=embed`;
+      document.getElementById('linkMapaGrande').href = `https://www.google.com/maps?q=${comerciante.latitude},${comerciante.longitude}`;
+    } else {
+      const primeiroComGeo = anuncios.find(a => a.latitude && a.longitude);
+      if (primeiroComGeo) {
+        document.getElementById('cardMapaInterno').style.display = 'block';
+        document.getElementById('mapaEmbed').src = `https://www.google.com/maps?q=${primeiroComGeo.latitude},${primeiroComGeo.longitude}&output=embed`;
+        document.getElementById('linkMapaGrande').href = `https://www.google.com/maps?q=${primeiroComGeo.latitude},${primeiroComGeo.longitude}`;
+      }
+    }
+
+    const feed = document.getElementById('feed');
+    if (!visivel_publicamente || !anuncios.length) {
+      feed.innerHTML = '<p class="vazio">Nenhuma publicação disponível no momento.</p>';
+      return;
+    }
+
+    const posts = [];
+    anuncios.forEach(a => {
+      const fotos = a.fotos && a.fotos.length ? a.fotos : [null];
+      fotos.forEach((foto, idx) => posts.push({ anuncio: a, foto, fotoKey: `${a.id}-${idx}` }));
+    });
+    const postsLimitados = posts.slice(0, LIMITE_FOTOS);
+
+    feed.innerHTML = postsLimitados.map(({ anuncio, foto, fotoKey }) => `
+      <div class="post" data-foto-key="${fotoKey}">
+        <div class="post-cabecalho">
+          <div class="mini-avatar">${iniciais(comerciante.nome)}</div>
+          <div><strong>${comerciante.nome}</strong><span>${anuncio.titulo}</span></div>
+        </div>
+        <div class="post-legenda">${anuncio.descricao || ''}</div>
+        ${foto ? `<img src="${foto}" alt="${anuncio.titulo}">` : ''}
+        <div class="contador-curtidas"><span class="txt-curtidas">0 curtidas</span></div>
+        <div class="post-acoes">
+          <button class="btn-curtir">👍 Curtir</button>
+          <button class="btn-comentar">💬 Comentar</button>
+        </div>
+        <div class="comentarios">
+          <div class="lista-comentarios"></div>
+          <div class="form-comentario">
+            <input type="text" class="input-nome" placeholder="Seu nome (opcional)">
+            <textarea class="input-texto" placeholder="Escreva um comentário..."></textarea>
+            <button class="btn-enviar-comentario">Publicar</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    feed.querySelectorAll('.post').forEach(postEl => carregarInteracoes(postEl));
+  }
+
+  async function carregarInteracoes(postEl) {
+    const fotoKey = postEl.dataset.fotoKey;
+    const data = await fetch(`${API}/api/interacoes/${fotoKey}`).then(r => r.json());
+    atualizarCurtidas(postEl, data.curtidas);
+    renderComentarios(postEl, data.comentarios);
+
+    const btnCurtir = postEl.querySelector('.btn-curtir');
+    if (jaCurtiu(fotoKey)) btnCurtir.classList.add('curtido');
+    btnCurtir.addEventListener('click', async () => {
+      const curtiuAgora = !jaCurtiu(fotoKey);
+      const rota = curtiuAgora ? 'curtir' : 'descurtir';
+      const resp = await fetch(`${API}/api/interacoes/${fotoKey}/${rota}`, { method: 'POST' }).then(r => r.json());
+      marcarCurtido(fotoKey, curtiuAgora);
+      btnCurtir.classList.toggle('curtido', curtiuAgora);
+      atualizarCurtidas(postEl, resp.curtidas);
+    });
+
+    const btnComentar = postEl.querySelector('.btn-comentar');
+    const formComentario = postEl.querySelector('.form-comentario');
+    btnComentar.addEventListener('click', () => formComentario.classList.toggle('aberto'));
+
+    postEl.querySelector('.btn-enviar-comentario').addEventListener('click', async () => {
+      const nome = postEl.querySelector('.input-nome').value.trim();
+      const texto = postEl.querySelector('.input-texto').value.trim();
+      if (!texto) return;
+      await fetch(`${API}/api/interacoes/${fotoKey}/comentarios`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nome, texto })
+      }).then(r => r.json());
+      postEl.querySelector('.input-texto').value = '';
+      const atual = await fetch(`${API}/api/interacoes/${fotoKey}`).then(r => r.json());
+      renderComentarios(postEl, atual.comentarios);
+    });
+  }
+
+  function atualizarCurtidas(postEl, total) {
+    postEl.querySelector('.txt-curtidas').textContent = `${total} curtida${total === 1 ? '' : 's'}`;
+  }
+
+  function renderComentarios(postEl, comentarios) {
+    postEl.querySelector('.lista-comentarios').innerHTML = comentarios.map(c => `
+      <div class="comentario"><strong>${c.nome || 'Visitante'}:</strong> <span class="texto">${c.texto}</span></div>
+    `).join('') || '';
+  }
+
+  carregar();
+</script>
 </body>
 </html>
