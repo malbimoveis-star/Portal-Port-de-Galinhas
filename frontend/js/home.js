@@ -123,4 +123,24 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   }
 
+  // ==========================
+  // SETAS DE NAVEGACAO DO CARROSSEL DE CATEGORIAS
+  // ==========================
+
+  const setaEsquerda = document.getElementById("setaEsquerda");
+  const setaDireita = document.getElementById("setaDireita");
+  const PASSO_SCROLL = 300;
+
+  if (setaEsquerda && categoriasTrack) {
+    setaEsquerda.addEventListener("click", () => {
+      categoriasTrack.scrollBy({ left: -PASSO_SCROLL, behavior: "smooth" });
+    });
+  }
+
+  if (setaDireita && categoriasTrack) {
+    setaDireita.addEventListener("click", () => {
+      categoriasTrack.scrollBy({ left: PASSO_SCROLL, behavior: "smooth" });
+    });
+  }
+
 });
