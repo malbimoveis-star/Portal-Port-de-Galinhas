@@ -17,25 +17,41 @@
     position: absolute; top: -48px; left: 20px; box-shadow: 0 2px 8px rgba(0,0,0,.15);
   }
   .avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-  .info-negocio { background: #fff; padding: 60px 20px 16px; border-radius: 0 0 10px 10px; max-width: 1040px; margin: 0 auto; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+  .selo-premium {
+    position: absolute; top: -48px; left: 108px; background: #f5a623; color: #fff; font-size: .72em; font-weight: bold;
+    padding: 4px 10px; border-radius: 999px; box-shadow: 0 2px 6px rgba(0,0,0,.15); display: none;
+  }
+  .info-negocio { background: #fff; padding: 60px 20px 0; border-radius: 0 0 10px 10px; max-width: 1040px; margin: 0 auto; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
   .info-negocio h1 { margin: 0 0 4px; color: #0a5c8a; }
   .badge-plano { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: .78em; color: #fff; }
   .badge--ativo { background: #2e9e5b; }
   .badge--degustacao { background: #e0a020; }
   .badge--expirado { background: #999; }
 
+  .abas { display: flex; gap: 4px; margin-top: 20px; border-bottom: 1px solid #e2e8ee; overflow-x: auto; }
+  .abas button {
+    background: none; border: none; padding: 12px 18px; font-size: .92em; font-weight: 600; color: #55707f;
+    cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap;
+  }
+  .abas button.ativa { color: #0a5c8a; border-bottom-color: #0a5c8a; }
+  .aba-conteudo { display: none; }
+  .aba-conteudo.ativa { display: block; }
+
   .layout { max-width: 1040px; margin: 20px auto 60px; padding: 0 20px; display: grid; grid-template-columns: 300px 1fr; gap: 20px; align-items: start; }
   @media (max-width: 760px) { .layout { grid-template-columns: 1fr; } }
 
-  .card { background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.06); padding: 18px; margin-bottom: 20px; position: sticky; top: 16px; }
+  .card { background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.06); padding: 18px; margin-bottom: 20px; }
+  .card.sticky { position: sticky; top: 16px; }
   .card h3 { margin-top: 0; color: #0a5c8a; font-size: 1em; }
   .linha-info { font-size: .9em; margin-bottom: 8px; color: #33454f; }
   .linha-info strong { color: #1c2b36; }
-  .mapa-embed { width: 100%; height: 160px; border: 0; border-radius: 8px; margin-top: 10px; }
+  .mapa-embed { width: 100%; height: 200px; border: 0; border-radius: 8px; margin-top: 10px; }
   .btn-acao { display: block; text-align: center; text-decoration: none; padding: 11px; border-radius: 8px; color: #fff; font-weight: bold; font-size: .92em; margin-top: 10px; border: none; cursor: pointer; width: 100%; }
   .btn-whats { background: #25d366; }
   .btn-ligar { background: #ff6600; }
+  .btn-site { background: #0a5c8a; }
   .aviso-contato { color: #888; font-size: .85em; margin-top: 10px; }
+  .descricao-negocio { font-size: .95em; line-height: 1.6; color: #33454f; }
 
   .post { background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.06); margin-bottom: 20px; overflow: hidden; }
   .post-cabecalho { display: flex; align-items: center; gap: 10px; padding: 14px 16px; }
@@ -65,36 +81,65 @@
 <body>
 <header class="topo"><a href="/">← Portal Porto de Galinhas</a></header>
 <div id="capa" class="capa"></div>
-<div class="perfil-bar"><div id="avatar" class="avatar">?</div></div>
+<div class="perfil-bar">
+  <div id="avatar" class="avatar">?</div>
+  <div id="seloPremium" class="selo-premium">⭐ Premium</div>
+</div>
 <div class="info-negocio">
   <h1 id="nome">Carregando...</h1>
   <span id="statusBadge"></span>
+
+  <div class="abas">
+    <button class="ativa" data-aba="visao-geral">Visão Geral</button>
+    <button data-aba="publicacoes">Publicações</button>
+    <button data-aba="contato">Contato</button>
+  </div>
 </div>
 
 <div class="layout">
   <aside>
-    <div class="card">
+    <div class="card sticky">
       <h3>Informações</h3>
       <div class="linha-info" id="linhaCategoria"></div>
       <div class="linha-info" id="linhaCidade" style="display:none"><strong>Cidade:</strong> <span id="txtCidade"></span></div>
       <div class="linha-info" id="linhaEndereco" style="display:none"><strong>Endereço:</strong> <span id="txtEndereco"></span></div>
-      <div class="linha-info" id="linhaWhats" style="display:none"><strong>WhatsApp:</strong> <span id="txtWhats"></span></div>
-      <div class="linha-info" id="linhaSite" style="display:none"><strong>Site:</strong> <span id="txtSite"></span></div>
       <p class="aviso-contato" id="avisoContato" style="display:none">
         Este comerciante ainda não tem um plano pago ativo — contato direto indisponível.
       </p>
       <a id="btnWhats" class="btn-acao btn-whats" style="display:none" target="_blank" rel="noopener">💬 Enviar mensagem</a>
       <a id="btnLigar" class="btn-acao btn-ligar" style="display:none">📞 Ligar agora</a>
-      <div id="cardMapaInterno" style="display:none">
-        <h3 style="margin-top:18px">Localização</h3>
-        <iframe class="mapa-embed" id="mapaEmbed" loading="lazy"></iframe>
-        <a id="linkMapaGrande" href="#" target="_blank" rel="noopener" style="display:block;margin-top:8px;color:#0a5c8a;font-size:.85em;font-weight:bold">Ver no Google Maps</a>
-      </div>
+      <a id="btnSite" class="btn-acao btn-site" style="display:none" target="_blank" rel="noopener">🌐 Visitar site</a>
     </div>
   </aside>
 
-  <main id="feed">
-    <p class="vazio">Carregando publicações...</p>
+  <main>
+    <section class="aba-conteudo ativa" id="aba-visao-geral">
+      <div class="card">
+        <h3>Sobre</h3>
+        <p class="descricao-negocio" id="descricaoNegocio">Este comerciante ainda não escreveu uma descrição.</p>
+      </div>
+      <div class="card" id="cardMapaInterno" style="display:none">
+        <h3>Localização</h3>
+        <iframe class="mapa-embed" id="mapaEmbed" loading="lazy"></iframe>
+        <a id="linkMapaGrande" href="#" target="_blank" rel="noopener" style="display:block;margin-top:8px;color:#0a5c8a;font-size:.85em;font-weight:bold">Ver no Google Maps</a>
+      </div>
+    </section>
+
+    <section class="aba-conteudo" id="aba-publicacoes">
+      <div id="feed"><p class="vazio">Carregando publicações...</p></div>
+    </section>
+
+    <section class="aba-conteudo" id="aba-contato">
+      <div class="card">
+        <h3>Fale com este comerciante</h3>
+        <div class="linha-info" id="linhaWhatsContato" style="display:none"><strong>WhatsApp:</strong> <span id="txtWhatsContato"></span></div>
+        <div class="linha-info" id="linhaSiteContato" style="display:none"><strong>Site:</strong> <span id="txtSiteContato"></span></div>
+        <div class="linha-info" id="linhaEnderecoContato" style="display:none"><strong>Endereço:</strong> <span id="txtEnderecoContato"></span></div>
+        <p class="aviso-contato" id="avisoContato2" style="display:none">
+          Este comerciante ainda não tem um plano pago ativo — contato direto indisponível.
+        </p>
+      </div>
+    </section>
   </main>
 </div>
 
@@ -110,6 +155,15 @@
   function marcarCurtido(fotoKey, curtiu) {
     if (curtiu) localStorage.setItem(`curtiu_${fotoKey}`, '1'); else localStorage.removeItem(`curtiu_${fotoKey}`);
   }
+
+  document.querySelectorAll('.abas button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.abas button').forEach(b => b.classList.remove('ativa'));
+      document.querySelectorAll('.aba-conteudo').forEach(s => s.classList.remove('ativa'));
+      btn.classList.add('ativa');
+      document.getElementById(`aba-${btn.dataset.aba}`).classList.add('ativa');
+    });
+  });
 
   async function carregar() {
     if (!id) { document.getElementById('nome').textContent = 'Comerciante não informado.'; return; }
@@ -130,13 +184,20 @@
     if (comerciante.logo) { avatarEl.innerHTML = `<img src="${comerciante.logo}" alt="${comerciante.nome}">`; }
     else { avatarEl.textContent = iniciais(comerciante.nome); }
 
+    if (comerciante.plano === 'premium' && comerciante.status === 'ativo') {
+      document.getElementById('seloPremium').style.display = 'inline-block';
+    }
+
     const badgeClasse = comerciante.status === 'ativo' ? 'badge--ativo' : comerciante.status === 'degustacao' ? 'badge--degustacao' : 'badge--expirado';
     document.getElementById('statusBadge').innerHTML = `<span class="badge-plano ${badgeClasse}">${LABEL_STATUS[comerciante.status] || comerciante.status}</span>`;
 
     if (comerciante.categoria) document.getElementById('linhaCategoria').innerHTML = `<strong>Categoria:</strong> ${comerciante.categoria}`;
     if (comerciante.cidade) { document.getElementById('linhaCidade').style.display = 'block'; document.getElementById('txtCidade').textContent = comerciante.cidade; }
-    if (comerciante.endereco) { document.getElementById('linhaEndereco').style.display = 'block'; document.getElementById('txtEndereco').textContent = comerciante.endereco; }
-    if (comerciante.site) { document.getElementById('linhaSite').style.display = 'block'; document.getElementById('txtSite').textContent = comerciante.site; }
+    if (comerciante.endereco) {
+      document.getElementById('linhaEndereco').style.display = 'block'; document.getElementById('txtEndereco').textContent = comerciante.endereco;
+      document.getElementById('linhaEnderecoContato').style.display = 'block'; document.getElementById('txtEnderecoContato').textContent = comerciante.endereco;
+    }
+    if (comerciante.descricao) document.getElementById('descricaoNegocio').textContent = comerciante.descricao;
 
     if (comerciante.banner) document.getElementById('capa').style.backgroundImage = `url('${comerciante.banner}')`;
     else {
@@ -146,12 +207,21 @@
 
     if (comerciante.status === 'ativo' && comerciante.telefone) {
       const tel = comerciante.telefone.replace(/\D/g, '');
-      document.getElementById('linhaWhats').style.display = 'block';
-      document.getElementById('txtWhats').textContent = comerciante.telefone;
+      document.getElementById('linhaWhatsContato').style.display = 'block';
+      document.getElementById('txtWhatsContato').textContent = comerciante.telefone;
       const btnW = document.getElementById('btnWhats'); btnW.href = `https://wa.me/55${tel}`; btnW.style.display = 'block';
       const btnL = document.getElementById('btnLigar'); btnL.href = `tel:+55${tel}`; btnL.style.display = 'block';
     } else {
       document.getElementById('avisoContato').style.display = 'block';
+      document.getElementById('avisoContato2').style.display = 'block';
+    }
+
+    if (comerciante.site) {
+      document.getElementById('linhaSiteContato').style.display = 'block';
+      document.getElementById('txtSiteContato').textContent = comerciante.site;
+      const btnS = document.getElementById('btnSite');
+      btnS.href = comerciante.site.startsWith('http') ? comerciante.site : `https://${comerciante.site}`;
+      btnS.style.display = 'block';
     }
 
     if (comerciante.latitude && comerciante.longitude) {
