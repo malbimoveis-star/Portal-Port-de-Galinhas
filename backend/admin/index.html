@@ -33,8 +33,242 @@
 
     .admin-header { background: #0f3460; color: #fff; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.1); }
     .admin-header h1 { font-size: 1.25rem; }
-    .admin-header .usuario {
-      <div class="blog-form">
+    .admin-header .usuario { font-size: 0.85rem; opacity: 0.85; }
+
+    .admin-nav { background: #16213e; display: flex; gap: 4px; padding: 8px 16px; overflow-x: auto; }
+    .admin-nav button { background: transparent; color: #a0aec0; border: none; padding: 10px 18px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; white-space: nowrap; transition: all 0.2s; }
+    .admin-nav button:hover, .admin-nav button.ativo { background: rgba(233,69,96,0.15); color: #e94560; }
+
+    .admin-conteudo { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+    .card { background: #fff; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); padding: 24px; margin-bottom: 24px; }
+    .card h2 { font-size: 1.15rem; color: #0f3460; margin-bottom: 8px; }
+    .card > p { color: #666; margin-bottom: 20px; font-size: 0.95rem; }
+
+    .tabela-container { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid #eef2f7; }
+    th { background: #f8fafc; font-weight: 600; color: #4a5568; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; }
+    tr:hover td { background: #f8fafc; }
+
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+    .badge--pendente { background: #fff3cd; color: #856404; }
+    .badge--ativo { background: #d4edda; color: #155724; }
+    .badge--rejeitado { background: #f8d7da; color: #721c24; }
+    .badge--expirado { background: #e2e3e5; color: #383d41; }
+    .badge--publicado { background: #d4edda; color: #155724; }
+    .badge--rascunho { background: #fff3cd; color: #856404; }
+
+    .acoes { display: flex; gap: 6px; flex-wrap: wrap; }
+    .acoes .btn { padding: 6px 12px; font-size: 0.8rem; border-radius: 6px; }
+
+    .blog-form { max-width: 700px; }
+    .blog-form textarea { min-height: 180px; }
+
+    .blog-capa-preview { max-width: 220px; max-height: 130px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd; display: block; margin-top: 8px; }
+    .artigo-conteudo-preview { max-width: 350px; max-height: 100px; overflow: hidden; color: #666; font-size: 0.85rem; }
+
+    /* ===== EDITOR WYSIWYG ESTILO WORDPRESS ===== */
+    .wp-editor-wrap { border: 1.5px solid #c5c5c5; border-radius: 4px; background: #fff; }
+    .wp-toolbar { display: flex; flex-wrap: wrap; gap: 1px; padding: 6px; background: #f6f7f7; border-bottom: 1px solid #dcdcde; }
+    .wp-toolbar button, .wp-toolbar select { background: #fff; border: 1px solid #c5c5c5; border-radius: 3px; padding: 4px 8px; font-size: 0.8rem; color: #1d2327; cursor: pointer; min-height: 30px; }
+    .wp-toolbar button:hover { background: #e94560; color: #fff; border-color: #e94560; }
+    .wp-toolbar button:active { background: #c73e54; }
+    .wp-toolbar select { padding: 4px 6px; min-width: 100px; }
+    .wp-toolbar .sep { width: 1px; background: #c5c5c5; margin: 0 3px; }
+    .wp-editor { min-height: 350px; padding: 16px; font-size: 1rem; line-height: 1.8; outline: none; background: #fff; }
+    .wp-editor:empty:before { content: attr(data-placeholder); color: #999; }
+    .wp-editor h1 { font-size: 2em; margin: 0.5em 0; color: #1a1a2e; font-weight: 700; }
+    .wp-editor h2 { font-size: 1.75em; margin: 0.5em 0; color: #1a1a2e; font-weight: 700; }
+    .wp-editor h3 { font-size: 1.5em; margin: 0.5em 0; color: #1a1a2e; font-weight: 600; }
+    .wp-editor h4 { font-size: 1.25em; margin: 0.5em 0; color: #1a1a2e; font-weight: 600; }
+    .wp-editor p { margin: 0.6em 0; }
+    .wp-editor blockquote { border-left: 4px solid #e94560; padding-left: 16px; margin: 0.8em 0; color: #555; font-style: italic; background: #f9f9f9; padding: 12px 12px 12px 20px; }
+    .wp-editor ul, .wp-editor ol { margin: 0.6em 0; padding-left: 28px; }
+    .wp-editor a { color: #e94560; text-decoration: underline; }
+    .wp-editor img { max-width: 100%; height: auto; border-radius: 6px; margin: 8px 0; }
+    .wp-editor strong { font-weight: 700; }
+    .wp-editor em { font-style: italic; }
+    .wp-editor u { text-decoration: underline; }
+    .wp-editor s { text-decoration: line-through; }
+    .wp-editor code { background: #f4f4f5; padding: 2px 6px; border-radius: 3px; font-family: monospace; font-size: 0.9em; }
+    .wp-editor pre { background: #f4f4f5; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: monospace; }
+
+    .escondido { display: none !important; }
+    .vazio { text-align: center; padding: 40px 20px; color: #888; }
+
+    @media (max-width: 640px) {
+      .login-card { padding: 24px; }
+      .admin-conteudo { padding: 16px; }
+      .card { padding: 16px; }
+      th, td { padding: 10px; font-size: 0.85rem; }
+      .wp-toolbar button { padding: 3px 5px; font-size: 0.7rem; }
+    }
+  </style>
+<base target="_blank">
+</head>
+<body>
+
+  <!-- LOGIN -->
+  <div id="telaLogin">
+    <div class="login-card">
+      <h1>Painel Administrativo</h1>
+      <p>Portal Porto de Galinhas</p>
+      <div id="erroLogin" class="erro"></div>
+      <div class="campo">
+        <label for="loginUsuario">Usuário</label>
+        <input type="text" id="loginUsuario" placeholder="admin">
+      </div>
+      <div class="campo">
+        <label for="loginSenha">Senha</label>
+        <input type="password" id="loginSenha" placeholder="••••••">
+      </div>
+      <button type="button" id="btnEntrar" class="btn btn--principal" style="width:100%;">Entrar</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="telaDashboard" class="escondido">
+
+    <header class="admin-header">
+      <div>
+        <h1>Portal Porto de Galinhas</h1>
+        <span class="usuario">Painel Administrativo</span>
+      </div>
+      <button type="button" id="btnSair" class="btn btn--secundario" style="font-size:0.85rem;">Sair</button>
+    </header>
+
+    <nav class="admin-nav">
+      <button type="button" data-aba="anuncios" class="ativo">Anúncios</button>
+      <button type="button" data-aba="categorias">Categorias</button>
+      <button type="button" data-aba="comerciantes">Comerciantes</button>
+      <button type="button" data-aba="blog">Blog</button>
+    </nav>
+
+    <main class="admin-conteudo">
+
+      <!-- ABA ANÚNCIOS -->
+      <section id="abaAnuncios">
+        <div class="card">
+          <h2>Anúncios Pendentes de Revisão</h2>
+          <p>Anúncios aguardando aprovação para aparecer no portal.</p>
+          <div id="listaAnunciosPendentes" class="tabela-container"><div class="vazio">Carregando...</div></div>
+        </div>
+        <div class="card">
+          <h2>Todos os Anúncios</h2>
+          <p>Gerencie todos os anúncios cadastrados na plataforma.</p>
+          <div id="listaAnunciosTodos" class="tabela-container"><div class="vazio">Carregando...</div></div>
+        </div>
+      </section>
+
+      <!-- ABA CATEGORIAS -->
+      <section id="abaCategorias" class="escondido">
+        <div class="card">
+          <h2>Categorias</h2>
+          <p>Gerencie as categorias do portal.</p>
+          <div id="listaCategorias" class="tabela-container"><div class="vazio">Carregando...</div></div>
+        </div>
+        <div class="card">
+          <h2>Nova Categoria</h2>
+          <p>Adicione uma nova categoria ao portal.</p>
+          <div class="blog-form">
+            <div class="campo">
+              <label for="novaCategoriaNome">Nome da categoria</label>
+              <input type="text" id="novaCategoriaNome" placeholder="Ex.: Restaurantes">
+            </div>
+            <div class="campo">
+              <label for="novaCategoriaIcone">URL do ícone (opcional)</label>
+              <input type="text" id="novaCategoriaIcone" placeholder="https://...">
+            </div>
+            <p id="erroNovaCategoria" class="erro"></p>
+            <button type="button" id="btnCriarCategoria" class="btn btn--principal">Criar categoria</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ABA COMERCIANTES -->
+      <section id="abaComerciantes" class="escondido">
+        <div class="card">
+          <h2>Comerciantes Cadastrados</h2>
+          <p>Lista de todos os comerciantes da plataforma.</p>
+          <div id="listaComerciantes" class="tabela-container"><div class="vazio">Carregando...</div></div>
+        </div>
+      </section>
+
+      <!-- ABA BLOG -->
+      <section id="abaBlog" class="escondido">
+        <div class="card">
+          <h2>Gerenciar Blog</h2>
+          <p>Crie, edite, publique ou exclua artigos do blog.</p>
+          <div id="listaBlog" class="tabela-container"><div class="vazio">Carregando artigos...</div></div>
+        </div>
+        <div class="card">
+          <h2>Novo artigo</h2>
+          <p>Crie um novo artigo para o blog.</p>
+          <div class="blog-form">
+            <div class="campo">
+              <label for="novoArtigoTitulo">Título</label>
+              <input type="text" id="novoArtigoTitulo" placeholder="Digite o título do artigo">
+            </div>
+            <div class="campo">
+              <label for="novoArtigoResumo">Resumo</label>
+              <textarea id="novoArtigoResumo" rows="4" placeholder="Digite um resumo do artigo"></textarea>
+            </div>
+            <div class="campo">
+              <label for="novoArtigoCapa">URL da capa</label>
+              <input type="text" id="novoArtigoCapa" placeholder="https://...">
+            </div>
+            <div class="campo">
+              <label>Conteúdo do artigo</label>
+              <div class="wp-editor-wrap">
+                <div class="wp-toolbar">
+                  <select id="novoFmtBlock" onchange="if(this.value){wpFormat('novoArtigoConteudoEditor','formatBlock',this.value);}this.value='';">
+                    <option value="">Parágrafo</option>
+                    <option value="H1">Título H1</option>
+                    <option value="H2">Título H2</option>
+                    <option value="H3">Título H3</option>
+                    <option value="H4">Título H4</option>
+                    <option value="BLOCKQUOTE">Citação</option>
+                    <option value="PRE">Código</option>
+                  </select>
+                  <span class="sep"></span>
+                  <button type="button" onclick="wpFormat('novoArtigoConteudoEditor','bold')" title="Negrito (Ctrl+B)"><b>B</b></button>
+                  <button type="button" onclick="wpFormat('novoArtigoConteudoEditor','italic')" title="Itálico (Ctrl+I)"><i>I</i></button>
+                  <button type="button" onclick="wpFormat('novoArtigoConteudoEditor','underline')" title="Sublinhado (Ctrl+U)"><u>U</u></button>
+                  <button type="button" onclick="wpFormat('novoArtigoConteudoEditor','strikeThrough')" title="Tachado"><s>S</s></button>
+                  <span class="sep"></span>
+                  <button type="button" onclick="wpFormat('novoArtigoConteudoEditor','insertUnorderedList')" title="Lista com marcadores">• Lista</button>
+                  <button type="button" onclick="wpFormat('novoArtigoConteudoEditor','insertOrderedList')" title="Lista numerada">1. Lista</button>
+                  <span class="sep"></span>
+                  <button type="button" onclick="wpInsertLink('novoArtigoConteudoEditor')" title="Inserir link">🔗 Link</button>
+                  <button type="button" onclick="wpInsertImage('novoArtigoConteudoEditor')" title="Inserir imagem">🖼️ Imagem</button>
+                  <span class="sep"></span>
+                  <button type="button" onclick="wpFormat('novoArtigoConteudoEditor','removeFormat')" title="Limpar formatação">🧹 Limpar</button>
+                </div>
+                <div id="novoArtigoConteudoEditor" class="wp-editor" contenteditable="true" data-placeholder="Comece a escrever seu artigo aqui..."></div>
+              </div>
+            </div>
+            <div class="campo">
+              <label for="novoArtigoPublicado">Publicação</label>
+              <select id="novoArtigoPublicado">
+                <option value="1">Publicado</option>
+                <option value="0">Rascunho</option>
+              </select>
+            </div>
+            <p id="erroNovoArtigo" class="erro"></p>
+            <button type="button" id="btnCriarArtigo" class="btn btn--principal">Criar artigo</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- EDITAR ANÚNCIO -->
+      <section id="tabEditarAnuncio" class="escondido">
+        <div class="card">
+          <h2>Editar anúncio</h2>
+          <p>Edite os dados do anúncio selecionado.</p>
+          <input type="hidden" id="editarAnuncioId" value="">
+          <p id="erroEditarAnuncio" class="erro"></p>
+          <div class="blog-form">
             <div class="campo"><label for="editarAnuncioTitulo">Título do anúncio</label><input type="text" id="editarAnuncioTitulo" placeholder="Digite o título do anúncio"></div>
             <div class="campo"><label for="editarAnuncioDescricao">Descrição</label><textarea id="editarAnuncioDescricao" rows="6" placeholder="Digite a descrição do anúncio"></textarea></div>
             <div class="campo"><label for="editarAnuncioTelefone">Telefone</label><input type="text" id="editarAnuncioTelefone" placeholder="Digite o telefone"></div>
@@ -401,11 +635,8 @@
     document.getElementById('btnCriarCategoria').addEventListener('click', async () => {
       const nome = document.getElementById('novaCategoriaNome').value.trim();
       const icone = document.getElementById('novaCategoriaIcone').value.trim();
-      const erroEl = document.getElementById('erroNovaCategoria');
-      if (!nome) { mostrarErro(erroEl, 'Digite o nome da categoria.'); return; }
-      try {
-        await apiPost('/admin/categorias', { nome, icone_url: icone });
-        document.getElementById('novaCategoriaNome').value = '';
+      const erroEl
+      document.getElementById('novaCategoriaNome').value = '';
         document.getElementById('novaCategoriaIcone').value = '';
         mostrarErro(erroEl, '');
         carregarCategorias();
