@@ -61,18 +61,20 @@ router.get('/anuncios', (req, res) => {
     const anuncios = status
       ? db
           .prepare(`
-            SELECT *
-            FROM anuncios
-            WHERE status = ?
-            ORDER BY criado_em DESC
+            SELECT a.*, c.nome AS comerciante_nome, c.email AS comerciante_email
+            FROM anuncios a
+            LEFT JOIN comerciantes c ON c.id = a.id_comerciante
+            WHERE a.status = ?
+            ORDER BY a.criado_em DESC
           `)
           .all(status)
       : db
           .prepare(`
-            SELECT *
-            FROM anuncios
-            WHERE status = 'pendente'
-            ORDER BY criado_em DESC
+            SELECT a.*, c.nome AS comerciante_nome, c.email AS comerciante_email
+            FROM anuncios a
+            LEFT JOIN comerciantes c ON c.id = a.id_comerciante
+            WHERE a.status = 'pendente'
+            ORDER BY a.criado_em DESC
           `)
           .all();
 
@@ -99,9 +101,10 @@ router.get('/anuncios/todos', (req, res) => {
   try {
     const anuncios = db
       .prepare(`
-        SELECT *
-        FROM anuncios
-        ORDER BY criado_em DESC
+        SELECT a.*, c.nome AS comerciante_nome, c.email AS comerciante_email
+        FROM anuncios a
+        LEFT JOIN comerciantes c ON c.id = a.id_comerciante
+        ORDER BY a.criado_em DESC
       `)
       .all();
 
@@ -355,8 +358,6 @@ router.put(
         }
 
       }
-
-
       // =====================================================
       // ATUALIZAR ANÚNCIO
       // =====================================================
