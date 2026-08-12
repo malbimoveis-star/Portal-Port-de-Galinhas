@@ -58,13 +58,16 @@
     "excluir": "Excluir",
     "salvar": "Salvar",
     "cancelar": "Cancelar",
+    "alerta_expirado": "Seu plano expirou. Renove agora para voltar a aparecer nas listagens públicas.",
     "login": "Entrar",
     "cadastro": "Cadastrar",
     "email": "E-mail",
     "senha": "Senha",
     "nome": "Nome",
     "telefone": "Telefone",
-    "sair": "Sair"
+    "sair": "Sair",
+    "ja_tenho_conta": "Já tenho conta, quero entrar",
+    "nao_tenho_conta": "Não tenho conta, quero me cadastrar"
   },
 
   "planos": {
@@ -114,6 +117,7 @@
     "voltar": "Voltar ao Blog",
     "artigo_nao_encontrado": "Artigo não encontrado.",
     "sem_conteudo": "Este artigo ainda não possui conteúdo.",
-    "sem_capa": "Artigo"
+    "sem_capa": "Artigo",
+    "ler_mais": "Ler mais"
   }
 }
