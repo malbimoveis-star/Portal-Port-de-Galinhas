@@ -35,8 +35,14 @@
   "blog": {
     "titulo": "Blog",
     "subtitulo": "Découvrez les nouveautés, conseils et expériences à Porto de Galinhas.",
+    "carregando": "Chargement des articles...",
     "vazio": "Nous n'avons pas encore d'articles publiés.",
     "erro": "Impossible de charger les articles maintenant.",
+    "sem_titulo": "Sans titre",
+    "voltar": "Retour au Blog",
+    "artigo_nao_encontrado": "Article introuvable.",
+    "sem_conteudo": "Cet article n'a pas encore de contenu.",
+    "sem_capa": "Article",
     "ler_mais": "Lire plus"
   },
 
@@ -56,6 +62,7 @@
     "titulo": "Tableau du commerçant",
     "plano_atual": "Plan actuel",
     "status": "Statut",
+    "degustacao_restante": "Temps restant d'essai",
     "dias": "jours",
     "horas": "heures",
     "renovar_plano": "Renouveler le plan",
@@ -65,13 +72,16 @@
     "excluir": "Supprimer",
     "salvar": "Enregistrer",
     "cancelar": "Annuler",
+    "alerta_expirado": "Votre plan a expiré. Renouvelez maintenant pour réapparaître dans les listes publiques.",
     "login": "Connexion",
     "cadastro": "Créer un compte",
     "email": "E-mail",
     "senha": "Mot de passe",
     "nome": "Nom",
     "telefone": "Téléphone",
-    "sair": "Quitter"
+    "sair": "Quitter",
+    "ja_tenho_conta": "J'ai déjà un compte, je veux me connecter",
+    "nao_tenho_conta": "Je n'ai pas de compte, je veux m'inscrire"
   },
 
   "planos": {
