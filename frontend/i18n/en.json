@@ -58,13 +58,16 @@
     "excluir": "Delete",
     "salvar": "Save",
     "cancelar": "Cancel",
+    "alerta_expirado": "Your plan has expired. Renew now to reappear in public listings.",
     "login": "Login",
     "cadastro": "Register",
     "email": "Email",
     "senha": "Password",
     "nome": "Name",
     "telefone": "Phone",
-    "sair": "Logout"
+    "sair": "Logout",
+    "ja_tenho_conta": "I already have an account, I want to log in",
+    "nao_tenho_conta": "I don't have an account, I want to register"
   },
 
   "planos": {
@@ -114,6 +117,7 @@
     "voltar": "Back to Blog",
     "artigo_nao_encontrado": "Article not found.",
     "sem_conteudo": "This article has no content yet.",
-    "sem_capa": "Article"
+    "sem_capa": "Article",
+    "ler_mais": "Read more"
   }
 }
