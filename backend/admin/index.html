@@ -607,7 +607,7 @@
         const data = await apiGet('/categorias');
         const cats = data.categorias || data || [];
         if (cats.length === 0) { container.innerHTML = '<div class="vazio">Nenhuma categoria cadastrada.</div>'; return; }
-        const linhas = cats.map(c => '<tr><td>' + c.id + '</td><td><strong>' + escapeHtml(c.nome) + '</strong></td><td>' + (c.icone ? '<img src="' + escapeHtml(c.icone) + '" style="width:24px;height:24px;">' : '—') + '</td><td><div class="acoes"><button class="btn btn--secundario btn-editar-cat" data-id="' + c.id + '" data-nome="' + escapeHtml(c.nome) + '" data-icone="' + escapeHtml(c.icone || '') + '">Editar</button><button class="btn btn--perigo btn-excluir-cat" data-id="' + c.id + '">Excluir</button></div></td></tr>').join('');
+        const linhas = cats.map(c => '<tr><td>' + c.id + '</td><td><strong>' + escapeHtml(c.nome) + '</strong></td><td>' + (c.icone_url ? '<img src="' + escapeHtml(c.icone_url) + '" style="width:24px;height:24px;">' : '—') + '</td><td><div class="acoes"><button class="btn btn--secundario btn-editar-cat" data-id="' + c.id + '" data-nome="' + escapeHtml(c.nome) + '" data-icone="' + escapeHtml(c.icone_url || '') + '">Editar</button><button class="btn btn--perigo btn-excluir-cat" data-id="' + c.id + '">Excluir</button></div></td></tr>').join('');
         container.innerHTML = '<table><thead><tr><th>ID</th><th>Nome</th><th>Ícone</th><th>Ações</th></tr></thead><tbody>' + linhas + '</tbody></table>';
         document.querySelectorAll('.btn-editar-cat').forEach(btn => {
           btn.addEventListener('click', () => {
