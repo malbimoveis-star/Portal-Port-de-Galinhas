@@ -635,8 +635,11 @@
     document.getElementById('btnCriarCategoria').addEventListener('click', async () => {
       const nome = document.getElementById('novaCategoriaNome').value.trim();
       const icone = document.getElementById('novaCategoriaIcone').value.trim();
-      const erroEl
-      document.getElementById('novaCategoriaNome').value = '';
+      const erroEl = document.getElementById('erroNovaCategoria');
+      if (!nome) { mostrarErro(erroEl, 'Digite o nome da categoria.'); return; }
+      try {
+        await apiPost('/admin/categorias', { nome, icone_url: icone });
+        document.getElementById('novaCategoriaNome').value = '';
         document.getElementById('novaCategoriaIcone').value = '';
         mostrarErro(erroEl, '');
         carregarCategorias();
