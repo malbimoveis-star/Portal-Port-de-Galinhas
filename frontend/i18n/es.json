@@ -109,6 +109,7 @@
 
   "blog": {
     "titulo": "Blog",
+    "subtitulo": "Descubre novedades, consejos y experiencias en Porto de Galinhas.",
     "carregando": "Cargando artículos...",
     "vazio": "Todavía no tenemos artículos publicados.",
     "erro": "No fue posible cargar los artículos en este momento.",
@@ -116,6 +117,7 @@
     "voltar": "Volver al Blog",
     "artigo_nao_encontrado": "Artículo no encontrado.",
     "sem_conteudo": "Este artículo todavía no tiene contenido.",
-    "sem_capa": "Artículo"
+    "sem_capa": "Artículo",
+    "ler_mais": "Leer más"
   }
 }
