@@ -159,6 +159,7 @@
           <p>Gerencie todos os anúncios cadastrados na plataforma.</p>
           <div id="listaAnunciosTodos" class="tabela-container"><div class="vazio">Carregando...</div></div>
         </div>
+        </div>
       </section>
 
       <!-- ABA CATEGORIAS -->
@@ -670,9 +671,20 @@
         if (coms.length === 0) { container.innerHTML = '<div class="vazio">Nenhum comerciante cadastrado.</div>'; return; }
         const linhas = coms.map(c => {
           const statusClass = 'badge--' + (c.status || 'ativo');
-          return '<tr><td>' + c.id + '</td><td><strong>' + escapeHtml(c.nome || '—') + '</strong></td><td>' + escapeHtml(c.email || '—') + '</td><td>' + escapeHtml(c.telefone || '—') + '</td><td><span class="badge ' + statusClass + '">' + (c.status || 'ativo') + '</span></td></tr>';
+          return '<tr><td>' + c.id + '</td><td><strong>' + escapeHtml(c.nome || '—') + '</strong></td><td>' + escapeHtml(c.email || '—') + '</td><td>' + escapeHtml(c.telefone || '—') + '</td><td><span class="badge ' + statusClass + '">' + (c.status || 'ativo') + '</span></td><td><button class="btn btn--secundario btn-editar-foto-com" data-id="' + c.id + '" data-logo="' + escapeHtml(c.logo || '') + '">Editar Foto</button></td></tr>';
         }).join('');
-        container.innerHTML = '<table><thead><tr><th>ID</th><th>Nome</th><th>E-mail</th><th>Telefone</th><th>Status</th></tr></thead><tbody>' + linhas + '</tbody></table>';
+        container.innerHTML = '<table><thead><tr><th>ID</th><th>Nome</th><th>E-mail</th><th>Telefone</th><th>Status</th><th>Ações</th></tr></thead><tbody>' + linhas + '</tbody></table>';
+        document.querySelectorAll('.btn-editar-foto-com').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const logo = prompt('URL da foto do comerciante (ex.: /assets/comerciantes/passeio-lancha.jpg):', btn.dataset.logo || '');
+            if (logo === null) return;
+            try {
+              await apiPut('/admin/comerciantes/' + btn.dataset.id, { logo });
+              alert('Foto atualizada com sucesso!');
+              carregarComerciantes();
+            } catch (e) { alert(e.message || 'Erro ao atualizar foto.'); }
+          });
+        });
       } catch (e) { container.innerHTML = '<div class="vazio">Erro ao carregar comerciantes.</div>'; }
     }
 
