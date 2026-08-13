@@ -924,4 +924,16 @@ router.delete('/categorias/:id', (req, res) => {
 
     return res.status(500).json({
       erro:
-        'Erro ao excluir
+        'Erro ao excluir categoria.'
+      });
+
+  }
+
+});
+
+
+// =========================================================
+// EXPORTAR ROUTER
+// =========================================================
+
+module.exports = router;
