@@ -191,7 +191,7 @@ router.put('/anuncios/:id/aprovar', (req, res) => {
         SELECT *
         FROM anuncios
         WHERE id = ?
-        `)
+      `)
       .get(req.params.id);
 
     return res.json(
@@ -249,8 +249,165 @@ router.put('/anuncios/:id/rejeitar', (req, res) => {
       parseAnuncio(atualizado)
     );
 
+  } catch (err) {
+    console.error(
+      '[ADMIN] Erro ao rejeitar anuncio:',
+      err
+    );
+
+    return res.status(500).json({
+      erro: 'Erro ao rejeitar anuncio.'
+    });
   }
-  ? latitude || null
+});
+
+
+// PUT /api/admin/anuncios/:id
+// Editar anúncio
+router.put(
+  '/anuncios/:id',
+  upload.array('fotos', 6),
+  (req, res) => {
+
+    try {
+
+      const anuncio = db
+        .prepare(`
+          SELECT *
+          FROM anuncios
+          WHERE id = ?
+        `)
+        .get(req.params.id);
+
+      if (!anuncio) {
+        return res.status(404).json({
+          erro: 'Anuncio nao encontrado.'
+        });
+      }
+
+      const {
+        titulo,
+        descricao,
+        categoria_id,
+        tags,
+        endereco,
+        latitude,
+        longitude,
+        status
+      } = req.body;
+
+
+      // =====================================================
+      // FOTOS
+      // =====================================================
+
+      const novasFotos = (req.files || [])
+        .map(
+          (f) =>
+            `/assets/uploads/${f.filename}`
+        );
+
+
+      let fotosAntigas = [];
+
+      try {
+        fotosAntigas = JSON.parse(
+          anuncio.fotos || '[]'
+        );
+      } catch (err) {
+        fotosAntigas = [];
+      }
+
+
+      const fotosFinal =
+        novasFotos.length > 0
+          ? novasFotos
+          : fotosAntigas;
+
+
+      // =====================================================
+      // TAGS
+      // =====================================================
+
+      let tagsArray = [];
+
+      if (tags !== undefined) {
+
+        tagsArray = Array.isArray(tags)
+          ? tags
+          : String(tags)
+              .split(',')
+              .map(
+                (tag) =>
+                  tag.trim()
+              )
+              .filter(Boolean);
+
+      } else {
+
+        try {
+
+          tagsArray = JSON.parse(
+            anuncio.tags || '[]'
+          );
+
+        } catch (err) {
+
+          tagsArray = [];
+
+        }
+
+      }
+
+
+      // =====================================================
+      // ATUALIZAR ANÚNCIO
+      // =====================================================
+
+      db
+        .prepare(`
+          UPDATE anuncios
+          SET
+            titulo = ?,
+            descricao = ?,
+            categoria_id = ?,
+            fotos = ?,
+            tags = ?,
+            endereco = ?,
+            latitude = ?,
+            longitude = ?,
+            status = ?
+          WHERE id = ?
+        `)
+        .run(
+
+          titulo !== undefined &&
+          String(titulo).trim()
+            ? String(titulo).trim()
+            : anuncio.titulo,
+
+          descricao !== undefined
+            ? descricao
+            : anuncio.descricao,
+
+          categoria_id !== undefined
+            ? categoria_id || null
+            : anuncio.categoria_id,
+
+          JSON.stringify(
+            fotosFinal
+          ),
+
+          JSON.stringify(
+            tagsArray
+          ),
+
+          endereco !== undefined
+            ? endereco
+            : anuncio.endereco,
+
+          latitude !== undefined
+            ? latitude || null
             : anuncio.latitude,
 
           longitude !== undefined
@@ -767,16 +924,4 @@ router.delete('/categorias/:id', (req, res) => {
 
     return res.status(500).json({
       erro:
-        'Erro ao excluir categoria.'
-    });
-
-  }
-
-});
-
-
-// =========================================================
-// EXPORTAR ROUTER
-// =========================================================
-
-module.exports = router;
+        'Erro ao excluir
