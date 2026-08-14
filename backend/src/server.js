@@ -4,8 +4,6 @@ const express = require('express');
 const path = require('path');
 const { seedSeNecessario } = require('./db/seed');
 
-seedSeNecessario();
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -69,8 +67,20 @@ process.on('unhandledRejection', (err) => {
   console.error('[unhandledRejection] O servidor continua no ar. Erro:', err);
 });
 
-app.listen(PORT, () => {
-  console.log(`[server] Portal Porto de Galinhas rodando em http://localhost:${PORT}`);
+// A inicializacao do banco (migrate + seed condicional) agora e assincrona
+// (consultas ao Postgres via `pg`), entao precisa terminar antes do
+// app.listen. Antes, com node:sqlite (API sincrona), seedSeNecessario()
+// rodava direto no topo do arquivo sem precisar de await.
+async function start() {
+  await seedSeNecessario();
+  app.listen(PORT, () => {
+    console.log(`[server] Portal Porto de Galinhas rodando em http://localhost:${PORT}`);
+  });
+}
+
+start().catch((err) => {
+  console.error(err);
+  process.exit(1);
 });
 
 module.exports = app;
