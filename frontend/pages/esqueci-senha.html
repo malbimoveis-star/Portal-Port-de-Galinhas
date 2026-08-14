@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Esqueci minha senha - Portal Porto de Galinhas</title>
+  <link rel="icon" href="../assets/icons/logo-tucano.svg" />
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+  <div id="layout-header"></div>
+
+  <div class="pagina" style="max-width: 480px;">
+    <div class="card">
+      <h1>Esqueci minha senha</h1>
+      <p style="color:#666; font-size:.9em;">Digite o e-mail usado no cadastro. Se ele estiver na nossa base, enviaremos um link para redefinir sua senha.</p>
+
+      <div id="mensagemErro" class="alerta alerta--erro" style="display:none;"></div>
+      <div id="mensagemSucesso" class="alerta alerta--sucesso" style="display:none;"></div>
+
+      <form id="formEsqueciSenha">
+        <div class="form-grupo">
+          <label>E-mail</label>
+          <input type="email" id="campoEmail" required />
+        </div>
+        <button type="submit" class="btn btn--laranja" style="width:100%;">Enviar link de redefinicao</button>
+      </form>
+
+      <p style="text-align:center; margin-top:16px;">
+        <a href="login-comerciante.html">Voltar para o login</a>
+      </p>
+    </div>
+  </div>
+
+  <div id="layout-rodape"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/i18n.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/esqueci-senha.js"></script>
+</body>
+</html>
