@@ -684,3 +684,32 @@ button {
     display: none;
   }
 }
+
+
+/* ===== SENHA VISIVEL (mostrar/ocultar) ===== */
+.campo-senha-wrapper {
+    position: relative;
+}
+
+.campo-senha-wrapper input {
+    padding-right: 42px;
+}
+
+.btn-toggle-senha {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    padding: 4px 8px;
+    line-height: 1;
+    color: #55707f;
+}
+
+.alerta--sucesso {
+    background: #dff5e3;
+    color: var(--verde-escuro);
+    border: 1px solid #b6e6c2;
+}
