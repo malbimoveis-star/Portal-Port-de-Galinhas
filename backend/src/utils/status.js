@@ -164,9 +164,13 @@ function obterDataExpiracao(comerciante) {
 // A ativação será feita através do pagamento aprovado
 // ou através do painel administrativo.
 //
+// NOTA (migração Postgres): esta função faz um UPDATE no banco quando o
+// status muda, entao virou assíncrona (`async function` + `await db.run`).
+// Todo lugar que a chamava precisou ganhar `await`.
+//
 // =========================================================
 
-function verificarEAtualizarStatus(comerciante) {
+async function verificarEAtualizarStatus(comerciante) {
 
   if (!comerciante) {
     return comerciante;
@@ -255,16 +259,16 @@ function verificarEAtualizarStatus(comerciante) {
     comerciante.status
   ) {
 
-    db.prepare(`
+    await db.run(`
       UPDATE comerciantes
       SET status = ?
       WHERE id = ?
-    `).run(
+    `, [
 
       novoStatus,
 
       comerciante.id
-    );
+    ]);
 
     comerciante.status =
       novoStatus;
@@ -294,6 +298,9 @@ function verificarEAtualizarStatus(comerciante) {
 // 1. data_expiracao personalizada do admin;
 // 2. caso não exista,
 //    calcula o prazo padrão da degustação.
+//
+// NOTA: esta função não acessa o banco (só le campos do objeto
+// `comerciante` já carregado), entao continua síncrona.
 //
 // =========================================================
 
@@ -448,9 +455,13 @@ function calcularTempoRestanteDegustacao(
 // - não aparece publicamente;
 // - seus anúncios também não aparecem publicamente.
 //
+// NOTA (migração Postgres): chama verificarEAtualizarStatus, que agora e
+// assíncrona, entao esta função também virou async/await. Todo lugar que
+// a chamava (inclusive dentro de .filter()) precisou ser ajustado.
+//
 // =========================================================
 
-function comercianteVisivelPublicamente(
+async function comercianteVisivelPublicamente(
   comerciante
 ) {
 
@@ -466,7 +477,7 @@ function comercianteVisivelPublicamente(
   // ATUALIZA STATUS ANTES DE VERIFICAR
   // -------------------------------------------------------
 
-  verificarEAtualizarStatus(
+  await verificarEAtualizarStatus(
     comerciante
   );
 
@@ -536,7 +547,7 @@ function comercianteVisivelPublicamente(
 //
 // =========================================================
 
-function concederPrazo(
+async function concederPrazo(
   comercianteId,
   dataExpiracao
 ) {
@@ -568,13 +579,13 @@ function concederPrazo(
 
 
   const comerciante =
-    db.prepare(`
+    await db.get(`
       SELECT *
       FROM comerciantes
       WHERE id = ?
-    `).get(
+    `, [
       comercianteId
-    );
+    ]);
 
 
   if (
@@ -587,25 +598,25 @@ function concederPrazo(
   }
 
 
-  db.prepare(`
+  await db.run(`
     UPDATE comerciantes
     SET data_expiracao = ?
     WHERE id = ?
-  `).run(
+  `, [
 
     expiracao.toISOString(),
 
     comercianteId
-  );
+  ]);
 
 
-  return db.prepare(`
+  return db.get(`
     SELECT *
     FROM comerciantes
     WHERE id = ?
-  `).get(
+  `, [
     comercianteId
-  );
+  ]);
 }
 
 
@@ -626,7 +637,7 @@ function concederPrazo(
 //
 // =========================================================
 
-function removerPrazoPersonalizado(
+async function removerPrazoPersonalizado(
   comercianteId
 ) {
 
@@ -641,13 +652,13 @@ function removerPrazoPersonalizado(
 
 
   const comerciante =
-    db.prepare(`
+    await db.get(`
       SELECT *
       FROM comerciantes
       WHERE id = ?
-    `).get(
+    `, [
       comercianteId
-    );
+    ]);
 
 
   if (
@@ -660,22 +671,22 @@ function removerPrazoPersonalizado(
   }
 
 
-  db.prepare(`
+  await db.run(`
     UPDATE comerciantes
     SET data_expiracao = NULL
     WHERE id = ?
-  `).run(
+  `, [
     comercianteId
-  );
+  ]);
 
 
-  return db.prepare(`
+  return db.get(`
     SELECT *
     FROM comerciantes
     WHERE id = ?
-  `).get(
+  `, [
     comercianteId
-  );
+  ]);
 }
 
 
