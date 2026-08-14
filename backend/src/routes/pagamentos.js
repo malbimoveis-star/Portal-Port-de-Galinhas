@@ -4,6 +4,7 @@ const express = require('express');
 const { MercadoPagoConfig, Preference, Payment } = require('mercadopago');
 const db = require('../db/connection');
 const { autenticar } = require('../middleware/auth');
+const { autenticarAdmin } = require('../middleware/authAdmin');
 const { PLANOS, DIAS_DEGUSTACAO } = require('../utils/planos');
 
 const router = express.Router();
@@ -145,7 +146,9 @@ router.post('/webhook', express.json(), async (req, res) => {
 
 // POST /api/pagamentos/simular-aprovacao - endpoint auxiliar para TESTES locais sem depender do MP real
 // body: { pagamento_id }
-router.post('/simular-aprovacao', (req, res) => {
+// Protegida com login de admin: antes estava aberta e qualquer pessoa conseguia
+// aprovar pagamentos de graca e ativar plano premium sem pagar nada.
+router.post('/simular-aprovacao', autenticarAdmin, (req, res) => {
   const { pagamento_id } = req.body;
   const pagamento = db.prepare('SELECT * FROM pagamentos WHERE id = ?').get(pagamento_id);
   if (!pagamento) return res.status(404).json({ erro: 'Pagamento nao encontrado.' });
