@@ -23,13 +23,19 @@
         </div>
         <div class="form-grupo">
           <label data-i18n="painel.senha">Senha</label>
-          <input type="password" id="campoSenha" required />
+          <div class="campo-senha-wrapper">
+            <input type="password" id="campoSenha" required />
+            <button type="button" class="btn-toggle-senha" data-alvo="campoSenha" aria-label="Mostrar senha">👁️</button>
+          </div>
         </div>
         <button type="submit" class="btn btn--laranja" style="width:100%;" data-i18n="painel.login">Entrar</button>
       </form>
 
       <p style="text-align:center; margin-top:16px;">
         <a href="cadastro-comerciante.html" data-i18n="painel.nao_tenho_conta">Nao tenho conta, quero me cadastrar</a>
+      </p>
+      <p style="text-align:center; margin-top:8px;">
+        <a href="esqueci-senha.html">Esqueci minha senha?</a>
       </p>
     </div>
   </div>
