@@ -32,9 +32,24 @@
     localStorage.removeItem(CHAVE_COMERCIANTE);
   }
 
+  // Alterna a visibilidade da senha nos campos marcados com .btn-toggle-senha
+  // (o botao tem data-alvo apontando pro id do input de senha correspondente).
+  function initToggleSenha() {
+    document.querySelectorAll('.btn-toggle-senha').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const alvo = document.getElementById(btn.dataset.alvo);
+        if (!alvo) return;
+        const oculto = alvo.type === 'password';
+        alvo.type = oculto ? 'text' : 'password';
+        btn.setAttribute('aria-label', oculto ? 'Ocultar senha' : 'Mostrar senha');
+      });
+    });
+  }
+
   function initCadastro() {
     const form = document.getElementById('formCadastro');
     if (!form) return;
+    initToggleSenha();
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const nome = document.getElementById('campoNome').value.trim();
@@ -65,6 +80,7 @@
   function initLogin() {
     const form = document.getElementById('formLogin');
     if (!form) return;
+    initToggleSenha();
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('campoEmail').value.trim();
@@ -90,5 +106,5 @@
     });
   }
 
-  window.authComerciante = { initCadastro, initLogin, getToken, getComercianteLocal, logout, salvarSessao };
+  window.authComerciante = { initCadastro, initLogin, getToken, getComercianteLocal, logout, salvarSessao, initToggleSenha };
 })();
