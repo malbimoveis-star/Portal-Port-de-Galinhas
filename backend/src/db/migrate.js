@@ -2,14 +2,32 @@
 
 const db = require('./connection');
 
-function migrate() {
+// =========================================================
+// AUXILIAR - LISTAR COLUNAS DE UMA TABELA
+// =========================================================
+//
+// Antes (SQLite): PRAGMA table_info(tabela)
+// Agora (Postgres): consulta em information_schema.columns
+//
+// =========================================================
+
+async function colunasDaTabela(tabela) {
+  const linhas = await db.all(
+    'SELECT column_name FROM information_schema.columns WHERE table_name = ?',
+    [tabela]
+  );
+
+  return linhas.map((linha) => linha.column_name);
+}
+
+async function migrate() {
 
   console.log('[DB] Iniciando migrations...');
 
-  db.exec(`
+  await db.exec(`
     CREATE TABLE IF NOT EXISTS comerciantes (
 
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
 
       nome TEXT NOT NULL,
       email TEXT NOT NULL UNIQUE,
@@ -35,8 +53,8 @@ function migrate() {
       plano TEXT DEFAULT 'gratuito',
       status TEXT DEFAULT 'degustacao',
 
-      data_criacao TEXT DEFAULT CURRENT_TIMESTAMP,
-      data_inicio_degustacao TEXT DEFAULT CURRENT_TIMESTAMP,
+      data_criacao TEXT DEFAULT NOW()::text,
+      data_inicio_degustacao TEXT DEFAULT NOW()::text,
       data_expiracao TEXT,
 
       email_confirmado INTEGER DEFAULT 0,
@@ -52,43 +70,40 @@ function migrate() {
     );
   `);
 
-  const colunasComerciante = db
-    .prepare("PRAGMA table_info(comerciantes)")
-    .all()
-    .map(c => c.name);
+  const colunasComerciante = await colunasDaTabela('comerciantes');
 
-  function criarColuna(nome, tipo){
+  async function criarColuna(nome, tipo) {
 
-    if(!colunasComerciante.includes(nome)){
+    if (!colunasComerciante.includes(nome)) {
 
-      db.exec(`ALTER TABLE comerciantes ADD COLUMN ${nome} ${tipo};`);
+      await db.exec(`ALTER TABLE comerciantes ADD COLUMN ${nome} ${tipo};`);
 
-      console.log("[DB] Coluna criada:", nome);
+      console.log('[DB] Coluna criada:', nome);
 
     }
 
   }
 
-  criarColuna("categoria","TEXT DEFAULT ''");
-  criarColuna("cidade","TEXT DEFAULT ''");
-  criarColuna("endereco","TEXT DEFAULT ''");
-  criarColuna("descricao","TEXT DEFAULT ''");
+  await criarColuna('categoria', "TEXT DEFAULT ''");
+  await criarColuna('cidade', "TEXT DEFAULT ''");
+  await criarColuna('endereco', "TEXT DEFAULT ''");
+  await criarColuna('descricao', "TEXT DEFAULT ''");
 
-  criarColuna("logo","TEXT DEFAULT ''");
-  criarColuna("banner","TEXT DEFAULT ''");
-  criarColuna("site","TEXT DEFAULT ''");
+  await criarColuna('logo', "TEXT DEFAULT ''");
+  await criarColuna('banner', "TEXT DEFAULT ''");
+  await criarColuna('site', "TEXT DEFAULT ''");
 
-  criarColuna("latitude","REAL");
-  criarColuna("longitude","REAL");
+  await criarColuna('latitude', 'REAL');
+  await criarColuna('longitude', 'REAL');
 
-  criarColuna("curtidas","INTEGER DEFAULT 0");
-  criarColuna("seguidores","INTEGER DEFAULT 0");
-  criarColuna("media_avaliacoes","REAL DEFAULT 5");
+  await criarColuna('curtidas', 'INTEGER DEFAULT 0');
+  await criarColuna('seguidores', 'INTEGER DEFAULT 0');
+  await criarColuna('media_avaliacoes', 'REAL DEFAULT 5');
 
-  db.exec(`
+  await db.exec(`
     CREATE TABLE IF NOT EXISTS categorias (
 
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
 
       nome TEXT NOT NULL,
 
@@ -99,10 +114,10 @@ function migrate() {
     );
   `);
 
-  db.exec(`
+  await db.exec(`
     CREATE TABLE IF NOT EXISTS anuncios (
 
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
 
       titulo TEXT NOT NULL,
 
@@ -122,7 +137,7 @@ function migrate() {
 
       longitude REAL,
 
-      criado_em TEXT DEFAULT CURRENT_TIMESTAMP,
+      criado_em TEXT DEFAULT NOW()::text,
 
       status TEXT DEFAULT 'pendente',
 
@@ -136,32 +151,29 @@ function migrate() {
     );
   `);
 
-  const colunasAnuncio = db
-    .prepare("PRAGMA table_info(anuncios)")
-    .all()
-    .map(c => c.name);
+  const colunasAnuncio = await colunasDaTabela('anuncios');
 
-  function criarColunaAnuncio(nome,tipo){
+  async function criarColunaAnuncio(nome, tipo) {
 
-    if(!colunasAnuncio.includes(nome)){
+    if (!colunasAnuncio.includes(nome)) {
 
-      db.exec(`ALTER TABLE anuncios ADD COLUMN ${nome} ${tipo};`);
+      await db.exec(`ALTER TABLE anuncios ADD COLUMN ${nome} ${tipo};`);
 
-      console.log("[DB] Coluna criada:",nome);
+      console.log('[DB] Coluna criada:', nome);
 
     }
 
   }
 
-  criarColunaAnuncio("endereco","TEXT");
-  criarColunaAnuncio("latitude","REAL");
-  criarColunaAnuncio("longitude","REAL");
-  criarColunaAnuncio("status","TEXT DEFAULT 'pendente'");
+  await criarColunaAnuncio('endereco', 'TEXT');
+  await criarColunaAnuncio('latitude', 'REAL');
+  await criarColunaAnuncio('longitude', 'REAL');
+  await criarColunaAnuncio('status', "TEXT DEFAULT 'pendente'");
 
-  db.exec(`
+  await db.exec(`
     CREATE TABLE IF NOT EXISTS pagamentos (
 
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
 
       id_comerciante INTEGER,
 
@@ -169,7 +181,7 @@ function migrate() {
 
       valor REAL,
 
-      data_pagamento TEXT DEFAULT CURRENT_TIMESTAMP,
+      data_pagamento TEXT DEFAULT NOW()::text,
 
       status TEXT DEFAULT 'pendente',
 
@@ -183,10 +195,10 @@ function migrate() {
     );
   `);
 
-  db.exec(`
+  await db.exec(`
     CREATE TABLE IF NOT EXISTS artigos (
 
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
 
       titulo TEXT NOT NULL,
 
@@ -198,17 +210,17 @@ function migrate() {
 
       publicado INTEGER DEFAULT 0,
 
-      criado_em TEXT DEFAULT CURRENT_TIMESTAMP,
+      criado_em TEXT DEFAULT NOW()::text,
 
-      atualizado_em TEXT DEFAULT CURRENT_TIMESTAMP
+      atualizado_em TEXT DEFAULT NOW()::text
 
     );
   `);
 
-  db.exec(`
+  await db.exec(`
     CREATE TABLE IF NOT EXISTS artigo_traducoes (
 
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
 
       artigo_id INTEGER NOT NULL,
 
@@ -226,9 +238,9 @@ function migrate() {
 
       seo_keywords TEXT DEFAULT '',
 
-      criado_em TEXT DEFAULT CURRENT_TIMESTAMP,
+      criado_em TEXT DEFAULT NOW()::text,
 
-      atualizado_em TEXT DEFAULT CURRENT_TIMESTAMP,
+      atualizado_em TEXT DEFAULT NOW()::text,
 
       FOREIGN KEY (artigo_id)
       REFERENCES artigos(id)
@@ -239,39 +251,39 @@ function migrate() {
     );
   `);
 
-  db.exec(`
+  await db.exec(`
     CREATE INDEX IF NOT EXISTS idx_artigos_publicado
     ON artigos(publicado);
   `);
 
-  db.exec(`
+  await db.exec(`
     CREATE INDEX IF NOT EXISTS idx_traducao_artigo
     ON artigo_traducoes(artigo_id);
   `);
 
-  db.exec(`
+  await db.exec(`
     CREATE INDEX IF NOT EXISTS idx_traducao_idioma
     ON artigo_traducoes(idioma);
   `);
 
-  db.exec(`
+  await db.exec(`
     CREATE TABLE IF NOT EXISTS foto_curtidas (
       foto_key TEXT PRIMARY KEY,
       contagem INTEGER NOT NULL DEFAULT 0
     );
   `);
 
-  db.exec(`
+  await db.exec(`
     CREATE TABLE IF NOT EXISTS foto_comentarios (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       foto_key TEXT NOT NULL,
       nome TEXT,
       texto TEXT NOT NULL,
-      criado_em TEXT NOT NULL DEFAULT (datetime('now'))
+      criado_em TEXT NOT NULL DEFAULT NOW()::text
     );
   `);
 
-  console.log("[DB] Todas as migrations executadas com sucesso.");
+  console.log('[DB] Todas as migrations executadas com sucesso.');
 
 }
 
@@ -279,6 +291,9 @@ module.exports = migrate;
 
 if (require.main === module) {
 
-  migrate();
+  migrate().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
 
 }
