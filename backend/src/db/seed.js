@@ -5,18 +5,18 @@ const bcrypt = require('bcryptjs');
 const migrate = require('./migrate');
 const db = require('./connection');
 
-function limparTabelas() {
-  db.exec('DELETE FROM artigos;');
-  db.exec('DELETE FROM artigo_traducoes;');
-  db.exec('DELETE FROM anuncios;');
-  db.exec('DELETE FROM pagamentos;');
-  db.exec('DELETE FROM comerciantes;');
-  db.exec('DELETE FROM categorias;');
+async function limparTabelas() {
+  await db.exec('DELETE FROM artigos;');
+  await db.exec('DELETE FROM artigo_traducoes;');
+  await db.exec('DELETE FROM anuncios;');
+  await db.exec('DELETE FROM pagamentos;');
+  await db.exec('DELETE FROM comerciantes;');
+  await db.exec('DELETE FROM categorias;');
 }
 
-function seed() {
+async function seed() {
 
-  limparTabelas();
+  await limparTabelas();
 
   const categorias = [
     {
@@ -66,48 +66,29 @@ function seed() {
     }
   ];
 
-
-  const insertCategoria = db.prepare(`
-    INSERT INTO categorias
-    (
-      nome,
-      icone_url,
-      slug
-    )
-    VALUES (?, ?, ?)
-  `);
-
-
   const categoriaIds = {};
-
 
   for (const categoria of categorias) {
 
-    const resultado =
-      insertCategoria.run(
-        categoria.nome,
-        categoria.icone_url,
-        categoria.slug
-      );
-
-    categoriaIds[categoria.slug] =
-      resultado.lastInsertRowid;
-  }
-
-
-  const senhaHashPadrao =
-    bcrypt.hashSync(
-      'senha123',
-      10
+    const resultado = await db.run(
+      `INSERT INTO categorias
+        (
+          nome,
+          icone_url,
+          slug
+        )
+        VALUES (?, ?, ?)`,
+      [categoria.nome, categoria.icone_url, categoria.slug]
     );
 
+    categoriaIds[categoria.slug] = resultado.lastInsertRowid;
+  }
 
-  const agora =
-    new Date();
+  const senhaHashPadrao = bcrypt.hashSync('senha123', 10);
 
+  const agora = new Date();
 
-  const insertComerciante =
-    db.prepare(`
+  const insertComercianteSql = `
       INSERT INTO comerciantes
       (
         nome,
@@ -121,8 +102,7 @@ function seed() {
         data_expiracao
       )
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `);
-
+    `;
 
   const expiracao =
     new Date(
@@ -130,63 +110,55 @@ function seed() {
       30 * 24 * 60 * 60 * 1000
     ).toISOString();
 
+  const com1 = await db.run(insertComercianteSql, [
+    'Passeios Recife Mar',
+    'contato@recifemar.com.br',
+    '5581999990001',
+    senhaHashPadrao,
+    'premium',
+    'ativo',
+    agora.toISOString(),
+    agora.toISOString(),
+    expiracao
+  ]);
 
-  const com1 =
-    insertComerciante.run(
-      'Passeios Recife Mar',
-      'contato@recifemar.com.br',
-      '5581999990001',
-      senhaHashPadrao,
-      'premium',
-      'ativo',
-      agora.toISOString(),
-      agora.toISOString(),
-      expiracao
-    );
+  const com2 = await db.run(insertComercianteSql, [
+    'Buggy Tour Porto',
+    'contato@buggytourporto.com.br',
+    '5581999990002',
+    senhaHashPadrao,
+    'gratuito',
+    'degustacao',
+    agora.toISOString(),
+    agora.toISOString(),
+    null
+  ]);
 
+  const com3 = await db.run(insertComercianteSql, [
+    'Restaurante Sabor do Mar',
+    'contato@sabordomar.com.br',
+    '5581999990003',
+    senhaHashPadrao,
+    'gratuito',
+    'expirado',
+    agora.toISOString(),
+    agora.toISOString(),
+    null
+  ]);
 
-  const com2 =
-    insertComerciante.run(
-      'Buggy Tour Porto',
-      'contato@buggytourporto.com.br',
-      '5581999990002',
-      senhaHashPadrao,
-      'gratuito',
-      'degustacao',
-      agora.toISOString(),
-      agora.toISOString(),
-      null
-    );
-    const com3 =
-    insertComerciante.run(
-      'Restaurante Sabor do Mar',
-      'contato@sabordomar.com.br',
-      '5581999990003',
-      senhaHashPadrao,
-      'gratuito',
-      'expirado',
-      agora.toISOString(),
-      agora.toISOString(),
-      null
-    );
+  const com4 = await db.run(insertComercianteSql, [
+    'Pousada Mar Azul',
+    'contato@pousadamarazul.com.br',
+    '5581999990004',
+    senhaHashPadrao,
+    'premium',
+    'ativo',
+    agora.toISOString(),
+    agora.toISOString(),
+    expiracao
+  ]);
 
-
-  const com4 =
-    insertComerciante.run(
-      'Pousada Mar Azul',
-      'contato@pousadamarazul.com.br',
-      '5581999990004',
-      senhaHashPadrao,
-      'premium',
-      'ativo',
-      agora.toISOString(),
-      agora.toISOString(),
-      expiracao
-    );
-
-
-  const insertAnuncio =
-    db.prepare(`
+  const insertAnuncioSql = `
       INSERT INTO anuncios
       (
         titulo,
@@ -200,100 +172,68 @@ function seed() {
         status
       )
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'ativo')
-    `);
+    `;
 
-
-  insertAnuncio.run(
+  await db.run(insertAnuncioSql, [
     'Passeio de Lancha pelas Piscinas Naturais',
     'Passeio completo pelas piscinas naturais de Porto de Galinhas.',
     categoriaIds['passeios-de-barco'],
-    JSON.stringify([
-      '/assets/comerciantes/passeio-lancha.jpg'
-    ]),
-    JSON.stringify([
-      'lancha',
-      'piscinas naturais'
-    ]),
+    JSON.stringify(['/assets/comerciantes/passeio-lancha.jpg']),
+    JSON.stringify(['lancha', 'piscinas naturais']),
     com1.lastInsertRowid,
     -8.5057,
     -34.9976
-  );
+  ]);
 
-
-  insertAnuncio.run(
+  await db.run(insertAnuncioSql, [
     'Mergulho Guiado nos Corais',
     'Mergulho com instrutor e equipamento incluso.',
     categoriaIds['mergulho'],
-    JSON.stringify([
-      '/assets/comerciantes/mergulho-corais.jpg'
-    ]),
-    JSON.stringify([
-      'mergulho',
-      'corais'
-    ]),
+    JSON.stringify(['/assets/comerciantes/mergulho-corais.jpg']),
+    JSON.stringify(['mergulho', 'corais']),
     com1.lastInsertRowid,
     -8.503,
     -34.9955
-  );
+  ]);
 
-
-  insertAnuncio.run(
+  await db.run(insertAnuncioSql, [
     'Buggy pelas Dunas',
     'Passeio de buggy pelas praias e dunas próximas.',
     categoriaIds['buggys-traslados'],
-    JSON.stringify([
-      '/assets/comerciantes/buggy-dunas.jpg'
-    ]),
-    JSON.stringify([
-      'buggy',
-      'aventura'
-    ]),
+    JSON.stringify(['/assets/comerciantes/buggy-dunas.jpg']),
+    JSON.stringify(['buggy', 'aventura']),
     com2.lastInsertRowid,
     -8.4931,
     -35.0206
-  );
+  ]);
 
-
-  insertAnuncio.run(
+  await db.run(insertAnuncioSql, [
     'Restaurante Sabor do Mar',
     'Frutos do mar frescos com vista para o oceano.',
     categoriaIds['restaurantes-bares'],
-    JSON.stringify([
-      '/assets/comerciantes/restaurante-mar-azul.jpg'
-    ]),
-    JSON.stringify([
-      'restaurante',
-      'frutos do mar'
-    ]),
+    JSON.stringify(['/assets/comerciantes/restaurante-mar-azul.jpg']),
+    JSON.stringify(['restaurante', 'frutos do mar']),
     com3.lastInsertRowid,
     -8.5115,
     -35.0031
-  );
+  ]);
 
-
-  insertAnuncio.run(
+  await db.run(insertAnuncioSql, [
     'Pousada Mar Azul',
     'Hospedagem confortável perto da praia.',
     categoriaIds['hoteis-pousadas'],
-    JSON.stringify([
-      '/assets/comerciantes/pousada-mar-azul-piscina.jpg'
-    ]),
-    JSON.stringify([
-      'pousada',
-      'hospedagem'
-    ]),
+    JSON.stringify(['/assets/comerciantes/pousada-mar-azul-piscina.jpg']),
+    JSON.stringify(['pousada', 'hospedagem']),
     com4.lastInsertRowid,
     -8.5121,
     -35.0042
-  );
-
+  ]);
 
   // =========================================================
   // BLOG - ARTIGOS
   // =========================================================
 
-  const insertArtigo =
-    db.prepare(`
+  const insertArtigoSql = `
       INSERT INTO artigos
       (
         titulo,
@@ -303,10 +243,9 @@ function seed() {
         publicado
       )
       VALUES (?, ?, ?, ?, ?)
-    `);
+    `;
 
-
-  insertArtigo.run(
+  await db.run(insertArtigoSql, [
     'As melhores piscinas naturais de Porto de Galinhas',
     'Conheça as águas cristalinas e os passeios mais procurados.',
     `
@@ -324,10 +263,9 @@ function seed() {
     `,
     '/assets/comerciantes/passeio-lancha.jpg',
     1
-  );
+  ]);
 
-
-  insertArtigo.run(
+  await db.run(insertArtigoSql, [
     'Guia completo de Porto de Galinhas',
     'Dicas para aproveitar sua viagem ao litoral pernambucano.',
     `
@@ -340,47 +278,49 @@ function seed() {
     `,
     '/assets/comerciantes/pousada-mar-azul-piscina.jpg',
     1
-  );
-    console.log('[seed] Dados inseridos com sucesso:');
+  ]);
+
+  console.log('[seed] Dados inseridos com sucesso:');
   console.log(` - ${categorias.length} categorias`);
   console.log(' - comerciantes criados');
   console.log(' - anúncios criados');
   console.log(' - artigos do blog criados');
 }
 
-
 // =========================================================
 // EXECUTAR SE NECESSÁRIO
 // =========================================================
 
-function seedSeNecessario() {
+async function seedSeNecessario() {
 
-  migrate();
+  await migrate();
 
-  const resultado =
-    db.prepare(
-      'SELECT COUNT(*) AS total FROM categorias'
-    ).get();
+  const resultado = await db.get(
+    'SELECT COUNT(*) AS total FROM categorias'
+  );
 
+  // O driver `pg` retorna COUNT(*) como string (tipo bigint do Postgres
+  // nao cabe com seguranca num Number do JS), entao convertemos antes
+  // de comparar - ao contrario do node:sqlite, que ja devolvia number.
+  const totalCategorias = Number(resultado.total);
 
-  if (resultado.total === 0) {
+  if (totalCategorias === 0) {
 
     console.log(
       '[seed] Banco vazio. Criando dados iniciais...'
     );
 
-    seed();
+    await seed();
 
   } else {
 
     console.log(
-      `[seed] Banco já possui dados (${resultado.total} categorias).`
+      `[seed] Banco já possui dados (${totalCategorias} categorias).`
     );
 
   }
 
 }
-
 
 // =========================================================
 // EXPORTAR
@@ -391,15 +331,18 @@ module.exports = {
   seedSeNecessario
 };
 
-
 // =========================================================
 // EXECUTAR MANUALMENTE
 // =========================================================
 
 if (require.main === module) {
 
-  migrate();
-
-  seed();
+  (async () => {
+    await migrate();
+    await seed();
+  })().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
 
 }
