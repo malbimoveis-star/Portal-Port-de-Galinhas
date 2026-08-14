@@ -1,68 +1,84 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fanpage — Portal Porto de Galinhas</title>
+<link rel="stylesheet" href="../css/styles.css" />
 <style>
-  * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
-  body { margin: 0; background: #eef2f5; color: #1c2b36; }
-  header.topo { background: #0a5c8a; padding: 14px 24px; }
-  header.topo a { color: #fff; text-decoration: none; font-weight: bold; }
-  .capa { height: 260px; background-size: cover; background-position: center; background-color: #cfd9e0; }
+  body { background: var(--cinza-claro); }
+
+  .capa { height: 280px; background-size: cover; background-position: center; background-color: #cfd9e0; }
   .perfil-bar { max-width: 1040px; margin: 0 auto; padding: 0 20px; position: relative; }
   .avatar {
-    width: 96px; height: 96px; border-radius: 50%; border: 4px solid #fff; background: #0a5c8a; color: #fff;
+    width: 104px; height: 104px; border-radius: 50%; border: 4px solid #fff; background: var(--azul-primario); color: #fff;
     display: flex; align-items: center; justify-content: center; font-size: 2em; font-weight: bold;
-    position: absolute; top: -48px; left: 20px; box-shadow: 0 2px 8px rgba(0,0,0,.15);
+    position: absolute; top: -52px; left: 20px; box-shadow: 0 2px 8px rgba(0,0,0,.15); overflow: hidden;
   }
   .avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
   .selo-premium {
-    position: absolute; top: -48px; left: 108px; background: #f5a623; color: #fff; font-size: .72em; font-weight: bold;
+    position: absolute; top: -46px; left: 132px; background: var(--laranja); color: #fff; font-size: .74em; font-weight: bold;
     padding: 4px 10px; border-radius: 999px; box-shadow: 0 2px 6px rgba(0,0,0,.15); display: none;
   }
-  .info-negocio { background: #fff; padding: 60px 20px 0; border-radius: 0 0 10px 10px; max-width: 1040px; margin: 0 auto; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
-  .info-negocio h1 { margin: 0 0 4px; color: #0a5c8a; }
-  .badge-plano { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: .78em; color: #fff; }
-  .badge--ativo { background: #2e9e5b; }
-  .badge--degustacao { background: #e0a020; }
+  .info-negocio { background: #fff; padding: 62px 20px 0; border-radius: 0 0 var(--raio) var(--raio); max-width: 1040px; margin: 0 auto; box-shadow: var(--sombra); }
+  .info-negocio h1 { margin: 0 0 2px; color: var(--azul-escuro); }
+  .subtitulo-negocio { color: #6b7c87; font-size: .92em; }
+  .badge-plano { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: .78em; color: #fff; margin-top: 6px; }
+  .badge--ativo { background: var(--verde); }
+  .badge--degustacao { background: var(--laranja); }
   .badge--expirado { background: #999; }
 
-  .abas { display: flex; gap: 4px; margin-top: 20px; border-bottom: 1px solid #e2e8ee; overflow-x: auto; }
+  .abas { display: flex; gap: 4px; margin-top: 18px; border-bottom: 1px solid #e2e8ee; overflow-x: auto; }
   .abas button {
     background: none; border: none; padding: 12px 18px; font-size: .92em; font-weight: 600; color: #55707f;
     cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap;
   }
-  .abas button.ativa { color: #0a5c8a; border-bottom-color: #0a5c8a; }
+  .abas button.ativa { color: var(--azul-primario); border-bottom-color: var(--azul-primario); }
   .aba-conteudo { display: none; }
   .aba-conteudo.ativa { display: block; }
 
   .layout { max-width: 1040px; margin: 20px auto 60px; padding: 0 20px; display: grid; grid-template-columns: 300px 1fr; gap: 20px; align-items: start; }
   @media (max-width: 760px) { .layout { grid-template-columns: 1fr; } }
 
-  .card { background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.06); padding: 18px; margin-bottom: 20px; }
+  .card { background: #fff; border-radius: var(--raio); box-shadow: var(--sombra); padding: 18px; margin-bottom: 20px; }
   .card.sticky { position: sticky; top: 16px; }
-  .card h3 { margin-top: 0; color: #0a5c8a; font-size: 1em; }
-  .linha-info { font-size: .9em; margin-bottom: 8px; color: #33454f; }
-  .linha-info strong { color: #1c2b36; }
-  .mapa-embed { width: 100%; height: 200px; border: 0; border-radius: 8px; margin-top: 10px; }
-  .btn-acao { display: block; text-align: center; text-decoration: none; padding: 11px; border-radius: 8px; color: #fff; font-weight: bold; font-size: .92em; margin-top: 10px; border: none; cursor: pointer; width: 100%; }
-  .btn-whats { background: #25d366; }
-  .btn-ligar { background: #ff6600; }
-  .btn-site { background: #0a5c8a; }
+  .card h3 { margin-top: 0; color: var(--azul-escuro); font-size: 1em; }
+
+  .linha-info { display: flex; gap: 10px; font-size: .9em; margin-bottom: 12px; color: #33454f; align-items: flex-start; }
+  .linha-info .icone { flex-shrink: 0; }
+  .linha-info strong { display: block; color: #1c2b36; }
+
+  .tags-negocio { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 14px; }
+  .tags-negocio .tag { background: var(--cinza-claro); color: var(--azul-escuro); font-size: .74em; padding: 3px 10px; border-radius: 999px; }
+
+  .mapa-mini { width: 100%; height: 130px; border: 0; border-radius: 8px; margin-bottom: 8px; }
+  .link-mapa { display: block; text-align: center; color: var(--azul-primario); font-size: .85em; font-weight: bold; margin-bottom: 14px; }
+
+  .btn-acao { display: block; text-align: center; text-decoration: none; padding: 10px; border-radius: 8px; color: #fff; font-weight: bold; font-size: .92em; margin-top: 10px; border: none; cursor: pointer; width: 100%; line-height: 1.3; }
+  .btn-acao small { display: block; font-weight: 500; font-size: .82em; opacity: .9; }
+  .btn-whats { background: var(--verde); }
+  .btn-ligar { background: var(--laranja-escuro); }
+  .link-site { display: block; text-align: center; margin-top: 10px; font-size: .85em; color: var(--azul-primario); font-weight: 600; }
   .aviso-contato { color: #888; font-size: .85em; margin-top: 10px; }
   .descricao-negocio { font-size: .95em; line-height: 1.6; color: #33454f; }
 
-  .post { background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.06); margin-bottom: 20px; overflow: hidden; }
+  .avaliacao-resumo { text-align: center; padding: 10px 0; }
+  .avaliacao-resumo .nota { font-size: 2.2em; font-weight: bold; color: var(--azul-escuro); }
+  .avaliacao-resumo .estrelas { color: var(--laranja); font-size: 1.3em; margin: 6px 0; }
+
+  .post { background: #fff; border-radius: var(--raio); box-shadow: var(--sombra); margin-bottom: 20px; overflow: hidden; }
   .post-cabecalho { display: flex; align-items: center; gap: 10px; padding: 14px 16px; }
-  .post-cabecalho .mini-avatar { width: 36px; height: 36px; border-radius: 50%; background: #0a5c8a; color: #fff; display: flex; align-items: center; justify-content: center; font-size: .85em; font-weight: bold; flex-shrink: 0; }
+  .post-cabecalho .mini-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--azul-primario); color: #fff; display: flex; align-items: center; justify-content: center; font-size: .85em; font-weight: bold; flex-shrink: 0; overflow: hidden; }
+  .post-cabecalho .mini-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .post-cabecalho .quem { flex: 1; min-width: 0; }
   .post-cabecalho strong { color: #1c2b36; display: block; }
   .post-cabecalho span { display: block; font-size: .78em; color: #889; }
-  .post-legenda { padding: 0 16px 12px; color: #33454f; font-size: .95em; }
-  .post img { width: 100%; max-height: 480px; object-fit: cover; display: block; }
-  .post-acoes { display: flex; gap: 6px; padding: 8px 16px; border-top: 1px solid #eef2f5; }
-  .btn-curtir, .btn-comentar { background: none; border: none; cursor: pointer; color: #55707f; font-size: .9em; padding: 8px 12px; border-radius: 6px; font-weight: 600; }
-  .btn-curtir:hover, .btn-comentar:hover { background: #f2f5f8; }
+  .post-menu { color: #aab5bd; font-size: 1.2em; }
+  .post-legenda { padding: 0 16px 12px; color: #33454f; font-size: .95em; font-weight: 600; white-space: pre-line; }
+  .post img.post-foto { width: 100%; max-height: 480px; object-fit: cover; display: block; }
+  .post-acoes { display: flex; gap: 4px; padding: 8px 16px; border-top: 1px solid #eef2f5; }
+  .btn-curtir, .btn-comentar, .btn-compartilhar { background: none; border: none; cursor: pointer; color: #55707f; font-size: .88em; padding: 8px 10px; border-radius: 6px; font-weight: 600; flex: 1; }
+  .btn-curtir:hover, .btn-comentar:hover, .btn-compartilhar:hover { background: #f2f5f8; }
   .btn-curtir.curtido { color: #d64545; }
   .contador-curtidas { padding: 8px 16px 0; font-size: .82em; color: #55707f; }
   .comentarios { padding: 6px 16px 14px; border-top: 1px solid #eef2f5; margin-top: 6px; }
@@ -74,12 +90,13 @@
   .form-comentario input, .form-comentario textarea { padding: 7px 10px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; font-size: .85em; }
   .form-comentario input { flex: 1; min-width: 120px; }
   .form-comentario textarea { width: 100%; resize: vertical; min-height: 40px; }
-  .form-comentario button { background: #0a5c8a; color: #fff; border: none; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: .85em; }
+  .form-comentario button { background: var(--azul-primario); color: #fff; border: none; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: .85em; }
   .vazio { text-align: center; color: #888; padding: 40px; }
 </style>
 </head>
 <body>
-<header class="topo"><a href="/">← Portal Porto de Galinhas</a></header>
+<div id="layout-header"></div>
+
 <div id="capa" class="capa"></div>
 <div class="perfil-bar">
   <div id="avatar" class="avatar">?</div>
@@ -87,11 +104,13 @@
 </div>
 <div class="info-negocio">
   <h1 id="nome">Carregando...</h1>
-  <span id="statusBadge"></span>
+  <div class="subtitulo-negocio" id="subtitulo"></div>
+  <div id="statusBadge"></div>
 
   <div class="abas">
     <button class="ativa" data-aba="visao-geral">Visão Geral</button>
-    <button data-aba="publicacoes">Publicações</button>
+    <button data-aba="publicacoes">Fotos</button>
+    <button data-aba="avaliacoes">Avaliações</button>
     <button data-aba="contato">Contato</button>
   </div>
 </div>
@@ -100,15 +119,24 @@
   <aside>
     <div class="card sticky">
       <h3>Informações</h3>
-      <div class="linha-info" id="linhaCategoria"></div>
-      <div class="linha-info" id="linhaCidade" style="display:none"><strong>Cidade:</strong> <span id="txtCidade"></span></div>
-      <div class="linha-info" id="linhaEndereco" style="display:none"><strong>Endereço:</strong> <span id="txtEndereco"></span></div>
+      <div class="linha-info" id="linhaCategoria" style="display:none"><span class="icone">🏷️</span><div><strong>Categoria</strong><span id="txtCategoria"></span></div></div>
+      <div class="linha-info" id="linhaCidade" style="display:none"><span class="icone">📍</span><div><strong>Localização</strong><span id="txtCidade"></span></div></div>
+      <div class="linha-info" id="linhaEndereco" style="display:none"><span class="icone">🏠</span><div><strong>Endereço</strong><span id="txtEndereco"></span></div></div>
+      <div class="linha-info" id="linhaTelefone" style="display:none"><span class="icone">📞</span><div><strong>Telefone</strong><span id="txtTelefone"></span></div></div>
+
+      <div class="tags-negocio" id="tagsNegocio"></div>
+
+      <div id="blocoMapaMini" style="display:none">
+        <iframe class="mapa-mini" id="mapaMini" loading="lazy"></iframe>
+        <a id="linkMapaGrande" class="link-mapa" href="#" target="_blank" rel="noopener">Ver no Mapa</a>
+      </div>
+
       <p class="aviso-contato" id="avisoContato" style="display:none">
         Este comerciante ainda não tem um plano pago ativo — contato direto indisponível.
       </p>
-      <a id="btnWhats" class="btn-acao btn-whats" style="display:none" target="_blank" rel="noopener">💬 Enviar mensagem</a>
-      <a id="btnLigar" class="btn-acao btn-ligar" style="display:none">📞 Ligar agora</a>
-      <a id="btnSite" class="btn-acao btn-site" style="display:none" target="_blank" rel="noopener">🌐 Visitar site</a>
+      <a id="btnWhats" class="btn-acao btn-whats" style="display:none" target="_blank" rel="noopener">💬 Enviar mensagem<small id="numWhats"></small></a>
+      <a id="btnLigar" class="btn-acao btn-ligar" style="display:none">📞 Ligar agora<small id="numLigar"></small></a>
+      <a id="btnSite" class="link-site" style="display:none" target="_blank" rel="noopener">🌐 Visitar site</a>
     </div>
   </aside>
 
@@ -118,23 +146,29 @@
         <h3>Sobre</h3>
         <p class="descricao-negocio" id="descricaoNegocio">Este comerciante ainda não escreveu uma descrição.</p>
       </div>
-      <div class="card" id="cardMapaInterno" style="display:none">
-        <h3>Localização</h3>
-        <iframe class="mapa-embed" id="mapaEmbed" loading="lazy"></iframe>
-        <a id="linkMapaGrande" href="#" target="_blank" rel="noopener" style="display:block;margin-top:8px;color:#0a5c8a;font-size:.85em;font-weight:bold">Ver no Google Maps</a>
-      </div>
     </section>
 
     <section class="aba-conteudo" id="aba-publicacoes">
       <div id="feed"><p class="vazio">Carregando publicações...</p></div>
     </section>
 
+    <section class="aba-conteudo" id="aba-avaliacoes">
+      <div class="card">
+        <h3>Avaliação dos visitantes</h3>
+        <div class="avaliacao-resumo">
+          <div class="nota" id="notaMedia">–</div>
+          <div class="estrelas" id="estrelasMedia"></div>
+          <p style="color:#888;font-size:.85em">Sistema de avaliações com comentários em breve.</p>
+        </div>
+      </div>
+    </section>
+
     <section class="aba-conteudo" id="aba-contato">
       <div class="card">
         <h3>Fale com este comerciante</h3>
-        <div class="linha-info" id="linhaWhatsContato" style="display:none"><strong>WhatsApp:</strong> <span id="txtWhatsContato"></span></div>
-        <div class="linha-info" id="linhaSiteContato" style="display:none"><strong>Site:</strong> <span id="txtSiteContato"></span></div>
-        <div class="linha-info" id="linhaEnderecoContato" style="display:none"><strong>Endereço:</strong> <span id="txtEnderecoContato"></span></div>
+        <div class="linha-info" id="linhaTelefoneContato" style="display:none"><span class="icone">📞</span><div><strong>Telefone / WhatsApp</strong><span id="txtTelefoneContato"></span></div></div>
+        <div class="linha-info" id="linhaSiteContato" style="display:none"><span class="icone">🌐</span><div><strong>Site</strong><span id="txtSiteContato"></span></div></div>
+        <div class="linha-info" id="linhaEnderecoContato" style="display:none"><span class="icone">🏠</span><div><strong>Endereço</strong><span id="txtEnderecoContato"></span></div></div>
         <p class="aviso-contato" id="avisoContato2" style="display:none">
           Este comerciante ainda não tem um plano pago ativo — contato direto indisponível.
         </p>
@@ -143,6 +177,11 @@
   </main>
 </div>
 
+<div id="layout-rodape"></div>
+
+<script src="../js/config.js"></script>
+<script src="../js/i18n.js"></script>
+<script src="../js/layout.js"></script>
 <script>
   const params = new URLSearchParams(location.search);
   const id = params.get('id');
@@ -150,10 +189,33 @@
   const LIMITE_FOTOS = 25;
   const LABEL_STATUS = { degustacao: 'Em degustação', ativo: 'Ativo', expirado: 'Expirado' };
 
+  // Escapa HTML para evitar XSS ao inserir texto de terceiros (comentarios, descricoes) via innerHTML.
+  function escapeHtml(texto) {
+    return String(texto == null ? '' : texto)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
   function iniciais(nome) { return (nome || '?').split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase(); }
   function jaCurtiu(fotoKey) { return localStorage.getItem(`curtiu_${fotoKey}`) === '1'; }
   function marcarCurtido(fotoKey, curtiu) {
     if (curtiu) localStorage.setItem(`curtiu_${fotoKey}`, '1'); else localStorage.removeItem(`curtiu_${fotoKey}`);
+  }
+
+  function tempoRelativo(dataIso) {
+    if (!dataIso) return '';
+    const diffMs = Date.now() - new Date(dataIso).getTime();
+    const min = Math.floor(diffMs / 60000);
+    if (min < 1) return 'agora mesmo';
+    if (min < 60) return `há ${min} min`;
+    const h = Math.floor(min / 60);
+    if (h < 24) return `há ${h}h`;
+    const d = Math.floor(h / 24);
+    if (d < 30) return `há ${d}d`;
+    return new Date(dataIso).toLocaleDateString('pt-BR');
   }
 
   document.querySelectorAll('.abas button').forEach(btn => {
@@ -179,9 +241,10 @@
 
     document.title = comerciante.nome + ' — Portal Porto de Galinhas';
     document.getElementById('nome').textContent = comerciante.nome;
+    document.getElementById('subtitulo').textContent = [comerciante.categoria, comerciante.cidade].filter(Boolean).join(' · ');
 
     const avatarEl = document.getElementById('avatar');
-    if (comerciante.logo) { avatarEl.innerHTML = `<img src="${comerciante.logo}" alt="${comerciante.nome}">`; }
+    if (comerciante.logo) { avatarEl.innerHTML = `<img src="${escapeHtml(comerciante.logo)}" alt="${escapeHtml(comerciante.nome)}">`; }
     else { avatarEl.textContent = iniciais(comerciante.nome); }
 
     if (comerciante.plano === 'premium' && comerciante.status === 'ativo') {
@@ -189,15 +252,24 @@
     }
 
     const badgeClasse = comerciante.status === 'ativo' ? 'badge--ativo' : comerciante.status === 'degustacao' ? 'badge--degustacao' : 'badge--expirado';
-    document.getElementById('statusBadge').innerHTML = `<span class="badge-plano ${badgeClasse}">${LABEL_STATUS[comerciante.status] || comerciante.status}</span>`;
+    document.getElementById('statusBadge').innerHTML = `<span class="badge-plano ${badgeClasse}">${escapeHtml(LABEL_STATUS[comerciante.status] || comerciante.status)}</span>`;
 
-    if (comerciante.categoria) document.getElementById('linhaCategoria').innerHTML = `<strong>Categoria:</strong> ${comerciante.categoria}`;
-    if (comerciante.cidade) { document.getElementById('linhaCidade').style.display = 'block'; document.getElementById('txtCidade').textContent = comerciante.cidade; }
+    if (comerciante.categoria) { document.getElementById('linhaCategoria').style.display = 'flex'; document.getElementById('txtCategoria').textContent = comerciante.categoria; }
+    if (comerciante.cidade) { document.getElementById('linhaCidade').style.display = 'flex'; document.getElementById('txtCidade').textContent = comerciante.cidade; }
     if (comerciante.endereco) {
-      document.getElementById('linhaEndereco').style.display = 'block'; document.getElementById('txtEndereco').textContent = comerciante.endereco;
-      document.getElementById('linhaEnderecoContato').style.display = 'block'; document.getElementById('txtEnderecoContato').textContent = comerciante.endereco;
+      document.getElementById('linhaEndereco').style.display = 'flex'; document.getElementById('txtEndereco').textContent = comerciante.endereco;
+      document.getElementById('linhaEnderecoContato').style.display = 'flex'; document.getElementById('txtEnderecoContato').textContent = comerciante.endereco;
     }
     if (comerciante.descricao) document.getElementById('descricaoNegocio').textContent = comerciante.descricao;
+
+    // Nota media (a tabela ja guarda media_avaliacoes; ainda nao existe uma lista de avaliacoes individuais).
+    const nota = Number(comerciante.media_avaliacoes || 5);
+    document.getElementById('notaMedia').textContent = nota.toFixed(1);
+    document.getElementById('estrelasMedia').textContent = '★★★★★☆☆☆☆☆'.slice(5 - Math.round(nota), 10 - Math.round(nota));
+
+    // Tags: agregadas a partir dos anuncios ativos do comerciante (nao existe campo proprio de "amenidades" no comerciante ainda).
+    const todasTags = Array.from(new Set(anuncios.flatMap(a => a.tags || [])));
+    document.getElementById('tagsNegocio').innerHTML = todasTags.slice(0, 8).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('');
 
     if (comerciante.banner) document.getElementById('capa').style.backgroundImage = `url('${comerciante.banner}')`;
     else {
@@ -207,34 +279,36 @@
 
     if (comerciante.status === 'ativo' && comerciante.telefone) {
       const tel = comerciante.telefone.replace(/\D/g, '');
-      document.getElementById('linhaWhatsContato').style.display = 'block';
-      document.getElementById('txtWhatsContato').textContent = comerciante.telefone;
+      document.getElementById('linhaTelefone').style.display = 'flex';
+      document.getElementById('txtTelefone').textContent = comerciante.telefone;
+      document.getElementById('linhaTelefoneContato').style.display = 'flex';
+      document.getElementById('txtTelefoneContato').textContent = comerciante.telefone;
+
       const btnW = document.getElementById('btnWhats'); btnW.href = `https://wa.me/55${tel}`; btnW.style.display = 'block';
+      document.getElementById('numWhats').textContent = comerciante.telefone;
+
       const btnL = document.getElementById('btnLigar'); btnL.href = `tel:+55${tel}`; btnL.style.display = 'block';
+      document.getElementById('numLigar').textContent = comerciante.telefone;
     } else {
       document.getElementById('avisoContato').style.display = 'block';
       document.getElementById('avisoContato2').style.display = 'block';
     }
 
     if (comerciante.site) {
-      document.getElementById('linhaSiteContato').style.display = 'block';
+      document.getElementById('linhaSiteContato').style.display = 'flex';
       document.getElementById('txtSiteContato').textContent = comerciante.site;
       const btnS = document.getElementById('btnSite');
       btnS.href = comerciante.site.startsWith('http') ? comerciante.site : `https://${comerciante.site}`;
       btnS.style.display = 'block';
     }
 
-    if (comerciante.latitude && comerciante.longitude) {
-      document.getElementById('cardMapaInterno').style.display = 'block';
-      document.getElementById('mapaEmbed').src = `https://www.google.com/maps?q=${comerciante.latitude},${comerciante.longitude}&output=embed`;
-      document.getElementById('linkMapaGrande').href = `https://www.google.com/maps?q=${comerciante.latitude},${comerciante.longitude}`;
-    } else {
-      const primeiroComGeo = anuncios.find(a => a.latitude && a.longitude);
-      if (primeiroComGeo) {
-        document.getElementById('cardMapaInterno').style.display = 'block';
-        document.getElementById('mapaEmbed').src = `https://www.google.com/maps?q=${primeiroComGeo.latitude},${primeiroComGeo.longitude}&output=embed`;
-        document.getElementById('linkMapaGrande').href = `https://www.google.com/maps?q=${primeiroComGeo.latitude},${primeiroComGeo.longitude}`;
-      }
+    let geo = null;
+    if (comerciante.latitude && comerciante.longitude) geo = { lat: comerciante.latitude, lng: comerciante.longitude };
+    else { const p = anuncios.find(a => a.latitude && a.longitude); if (p) geo = { lat: p.latitude, lng: p.longitude }; }
+    if (geo) {
+      document.getElementById('blocoMapaMini').style.display = 'block';
+      document.getElementById('mapaMini').src = `https://www.google.com/maps?q=${geo.lat},${geo.lng}&output=embed`;
+      document.getElementById('linkMapaGrande').href = `https://www.google.com/maps?q=${geo.lat},${geo.lng}`;
     }
 
     const feed = document.getElementById('feed');
@@ -250,29 +324,36 @@
     });
     const postsLimitados = posts.slice(0, LIMITE_FOTOS);
 
-    feed.innerHTML = postsLimitados.map(({ anuncio, foto, fotoKey }) => `
-      <div class="post" data-foto-key="${fotoKey}">
+    feed.innerHTML = postsLimitados.map(({ anuncio, foto, fotoKey }) => {
+      const avatarHtml = comerciante.logo
+        ? `<img src="${escapeHtml(comerciante.logo)}" alt="">`
+        : iniciais(comerciante.nome);
+      return `
+      <div class="post" data-foto-key="${fotoKey}" data-titulo="${escapeHtml(anuncio.titulo)}">
         <div class="post-cabecalho">
-          <div class="mini-avatar">${iniciais(comerciante.nome)}</div>
-          <div><strong>${comerciante.nome}</strong><span>${anuncio.titulo}</span></div>
+          <div class="mini-avatar">${avatarHtml}</div>
+          <div class="quem"><strong>${escapeHtml(comerciante.nome)}</strong><span>${tempoRelativo(anuncio.criado_em)}</span></div>
+          <div class="post-menu">⋯</div>
         </div>
-        <div class="post-legenda">${anuncio.descricao || ''}</div>
-        ${foto ? `<img src="${foto}" alt="${anuncio.titulo}">` : ''}
+        <div class="post-legenda">${escapeHtml(anuncio.titulo)}${anuncio.descricao ? '\n' + escapeHtml(anuncio.descricao) : ''}</div>
+        ${foto ? `<img class="post-foto" src="${escapeHtml(foto)}" alt="${escapeHtml(anuncio.titulo)}">` : ''}
         <div class="contador-curtidas"><span class="txt-curtidas">0 curtidas</span></div>
         <div class="post-acoes">
-          <button class="btn-curtir">👍 Curtir</button>
+          <button class="btn-curtir">❤️ Curtir</button>
           <button class="btn-comentar">💬 Comentar</button>
+          <button class="btn-compartilhar">↗️ Compartilhar</button>
         </div>
         <div class="comentarios">
           <div class="lista-comentarios"></div>
           <div class="form-comentario">
-            <input type="text" class="input-nome" placeholder="Seu nome (opcional)">
-            <textarea class="input-texto" placeholder="Escreva um comentário..."></textarea>
+            <input type="text" class="input-nome" placeholder="Seu nome (opcional)" maxlength="60">
+            <textarea class="input-texto" placeholder="Escreva um comentário..." maxlength="500"></textarea>
             <button class="btn-enviar-comentario">Publicar</button>
           </div>
         </div>
       </div>
-    `).join('');
+    `;
+    }).join('');
 
     feed.querySelectorAll('.post').forEach(postEl => carregarInteracoes(postEl));
   }
@@ -298,6 +379,19 @@
     const formComentario = postEl.querySelector('.form-comentario');
     btnComentar.addEventListener('click', () => formComentario.classList.toggle('aberto'));
 
+    const btnCompartilhar = postEl.querySelector('.btn-compartilhar');
+    btnCompartilhar.addEventListener('click', async () => {
+      const url = `${location.origin}${location.pathname}?id=${id}`;
+      const titulo = postEl.dataset.titulo || document.title;
+      if (navigator.share) {
+        try { await navigator.share({ title: titulo, url }); } catch (e) { /* usuario cancelou */ }
+      } else {
+        await navigator.clipboard.writeText(url);
+        btnCompartilhar.textContent = '✓ Link copiado';
+        setTimeout(() => { btnCompartilhar.textContent = '↗️ Compartilhar'; }, 2000);
+      }
+    });
+
     postEl.querySelector('.btn-enviar-comentario').addEventListener('click', async () => {
       const nome = postEl.querySelector('.input-nome').value.trim();
       const texto = postEl.querySelector('.input-texto').value.trim();
@@ -316,8 +410,9 @@
   }
 
   function renderComentarios(postEl, comentarios) {
+    // Escapa nome/texto: sao enviados por qualquer visitante, entao nunca devem ir direto pro innerHTML.
     postEl.querySelector('.lista-comentarios').innerHTML = comentarios.map(c => `
-      <div class="comentario"><strong>${c.nome || 'Visitante'}:</strong> <span class="texto">${c.texto}</span></div>
+      <div class="comentario"><strong>${escapeHtml(c.nome || 'Visitante')}:</strong> <span class="texto">${escapeHtml(c.texto)}</span></div>
     `).join('') || '';
   }
 
