@@ -19,11 +19,13 @@ const storage = multer.diskStorage({
   },
 });
 
+// SVG foi removido de propósito: um SVG pode conter <script> embutido e é servido
+// diretamente pelo Express em /assets/uploads, o que abriria um XSS armazenado.
 const fileFilter = (req, file, cb) => {
-  const tiposPermitidos = /jpeg|jpg|png|webp|gif|svg/;
+  const tiposPermitidos = /jpeg|jpg|png|webp|gif/;
   const ok = tiposPermitidos.test(path.extname(file.originalname).toLowerCase());
   if (ok) return cb(null, true);
-  cb(new Error('Tipo de arquivo nao suportado. Use jpg, png, webp, gif ou svg.'));
+  cb(new Error('Tipo de arquivo nao suportado. Use jpg, png, webp ou gif.'));
 };
 
 const upload = multer({
