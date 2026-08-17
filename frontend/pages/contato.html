@@ -1,41 +1,98 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Contato - Portal Porto de Galinhas</title>
-    <meta name="description" content="Entre em contato com o Portal Porto de Galinhas: duvidas, suporte, parcerias e informacoes sobre turismo, hospedagem e comercio em Porto de Galinhas." />
-  <meta name="keywords" content="contato Portal Porto de Galinhas, suporte turismo Porto de Galinhas, fale conosco Porto de Galinhas, parcerias turismo Pernambuco, atendimento comerciantes, duvidas cadastro comerciante, Porto de Galinhas, turismo Porto de Galinhas, guia turistico Porto de Galinhas" />
-  <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://portal-porto-galinhas.onrender.com/pages/contato.html" />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://portal-porto-galinhas.onrender.com/pages/contato.html" />
-  <meta property="og:title" content="Contato - Portal Porto de Galinhas" />
-  <meta property="og:description" content="Entre em contato com o Portal Porto de Galinhas para duvidas, suporte e parcerias." />
-  <meta property="og:image" content="https://portal-porto-galinhas.onrender.com/assets/icons/logo-tucano.svg" />
-  <meta property="og:locale" content="pt_BR" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Contato - Portal Porto de Galinhas" />
-  <meta name="twitter:description" content="Entre em contato com o Portal Porto de Galinhas." />
-  <link rel="icon" href="../assets/icons/logo-tucano.svg" />
-  <link rel="stylesheet" href="../css/styles.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Contato - Portal Porto de Galinhas</title>
+<meta name="description" content="Entre em contato com o Portal Porto de Galinhas: duvidas, suporte, parcerias e informacoes sobre turismo, hospedagem e comercio em Porto de Galinhas." />
+<meta name="keywords" content="contato Portal Porto de Galinhas, suporte turismo Porto de Galinhas, fale conosco Porto de Galinhas, parcerias turismo Pernambuco, atendimento comerciantes, duvidas cadastro comerciante, Porto de Galinhas, turismo Porto de Galinhas, guia turistico Porto de Galinhas" />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="https://portal-porto-galinhas.onrender.com/pages/contato.html" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://portal-porto-galinhas.onrender.com/pages/contato.html" />
+<meta property="og:title" content="Contato - Portal Porto de Galinhas" />
+<meta property="og:description" content="Entre em contato com o Portal Porto de Galinhas para duvidas, suporte e parcerias." />
+<meta property="og:image" content="https://portal-porto-galinhas.onrender.com/assets/icons/logo-tucano.svg" />
+<meta property="og:locale" content="pt_BR" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Contato - Portal Porto de Galinhas" />
+<meta name="twitter:description" content="Entre em contato com o Portal Porto de Galinhas." />
+<link rel="icon" href="../assets/icons/logo-tucano.svg" />
+<link rel="stylesheet" href="../css/styles.css" />
 </head>
 <body>
-  <div id="layout-header"></div>
+<div id="layout-header"></div>
 
-  <div class="pagina">
-    <h1 data-i18n="menu.contato">Contato</h1>
-    <div class="card">
-      <p>E-mail: contato@portalportodegalinhas.com.br</p>
-      <p>WhatsApp: +55 (81) 99999-0000</p>
-      <p>Endereco: Porto de Galinhas, Ipojuca - PE, Brasil</p>
-    </div>
-  </div>
+<div class="pagina">
+<h1 data-i18n="menu.contato">Contato</h1>
+<div class="card">
+<p>E-mail: contato@portalportodegalinhas.com.br</p>
+<p>WhatsApp: +55 (81) 99999-0000</p>
+<p>Endereco: Porto de Galinhas, Ipojuca - PE, Brasil</p>
+</div>
 
-  <div id="layout-rodape"></div>
+<div class="card">
+<h2>Envie uma mensagem</h2>
+<p>Preencha o formulario abaixo. Sua mensagem vai direto para a nossa equipe.</p>
+<div id="mensagemStatusContato" class="alerta" style="display:none;"></div>
+<form id="formContato">
+<div class="form-grupo">
+<label>Nome</label>
+<input type="text" id="campoNomeContato" required />
+</div>
+<div class="form-grupo">
+<label>E-mail</label>
+<input type="email" id="campoEmailContato" required />
+</div>
+<div class="form-grupo">
+<label>Mensagem</label>
+<textarea id="campoMensagemContato" rows="5" required></textarea>
+</div>
+<button type="submit" class="btn btn--laranja" style="width:100%;">Enviar mensagem</button>
+</form>
+</div>
+</div>
 
-  <script src="../js/config.js"></script>
-  <script src="../js/i18n.js"></script>
-  <script src="../js/layout.js"></script>
+<div id="layout-rodape"></div>
+
+<script src="../js/config.js"></script>
+<script src="../js/i18n.js"></script>
+<script src="../js/layout.js"></script>
+<script>
+(function () {
+  var form = document.getElementById('formContato');
+  if (!form) return;
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var nome = document.getElementById('campoNomeContato').value.trim();
+    var email = document.getElementById('campoEmailContato').value.trim();
+    var mensagem = document.getElementById('campoMensagemContato').value.trim();
+    var status = document.getElementById('mensagemStatusContato');
+    var btn = form.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    status.style.display = 'none';
+    try {
+      var API = (window.APP_CONFIG && window.APP_CONFIG.API_BASE_URL) || window.location.origin;
+      var resp = await fetch(API + '/api/contato', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome: nome, email: email, mensagem: mensagem }),
+      });
+      var data = await resp.json();
+      if (!resp.ok) throw new Error(data.erro || 'Erro ao enviar.');
+      status.className = 'alerta alerta--sucesso';
+      status.textContent = 'Mensagem enviada! Vamos responder no seu e-mail em breve.';
+      status.style.display = 'block';
+      form.reset();
+    } catch (err) {
+      status.className = 'alerta alerta--erro';
+      status.textContent = 'Nao foi possivel enviar sua mensagem. Tente novamente em instantes.';
+      status.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+    }
+  });
+})();
+</script>
 </body>
 </html>
