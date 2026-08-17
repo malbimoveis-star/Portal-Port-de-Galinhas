@@ -160,6 +160,58 @@
           <div id="listaAnunciosTodos" class="tabela-container"><div class="vazio">Carregando...</div></div>
         </div>
         </div>
+        <div class="card">
+          <h2>Novo Anúncio</h2>
+          <p>Crie um novo anúncio e associe a um comerciante existente.</p>
+          <div class="blog-form">
+            <div class="campo">
+              <label for="novoAnuncioComerciante">Comerciante</label>
+              <select id="novoAnuncioComerciante"><option value="">Carregando...</option></select>
+            </div>
+            <div class="campo">
+              <label for="novoAnuncioTitulo">Título</label>
+              <input type="text" id="novoAnuncioTitulo" placeholder="Digite o título do anúncio">
+            </div>
+            <div class="campo">
+              <label for="novoAnuncioDescricao">Descrição</label>
+              <textarea id="novoAnuncioDescricao" rows="4" placeholder="Digite a descrição do anúncio"></textarea>
+            </div>
+            <div class="campo">
+              <label for="novoAnuncioCategoria">Categoria</label>
+              <select id="novoAnuncioCategoria"><option value="">Carregando...</option></select>
+            </div>
+            <div class="campo">
+              <label for="novoAnuncioTags">Tags (separadas por vírgula)</label>
+              <input type="text" id="novoAnuncioTags" placeholder="Ex.: passeio, aventura, familia">
+            </div>
+            <div class="campo">
+              <label for="novoAnuncioEndereco">Endereço</label>
+              <input type="text" id="novoAnuncioEndereco" placeholder="Digite o endereço">
+            </div>
+            <div class="campo">
+              <label for="novoAnuncioLatitude">Latitude</label>
+              <input type="text" id="novoAnuncioLatitude" placeholder="Ex.: -8.5069">
+            </div>
+            <div class="campo">
+              <label for="novoAnuncioLongitude">Longitude</label>
+              <input type="text" id="novoAnuncioLongitude" placeholder="Ex.: -35.0068">
+            </div>
+            <div class="campo">
+              <label for="novoAnuncioFotos">Fotos (opcional, até 6)</label>
+              <input type="file" id="novoAnuncioFotos" multiple accept="image/*">
+            </div>
+            <div class="campo">
+              <label for="novoAnuncioStatus">Status</label>
+              <select id="novoAnuncioStatus">
+                <option value="ativo">Ativo</option>
+                <option value="pendente">Pendente</option>
+              </select>
+            </div>
+            <p id="erroNovoAnuncio" class="erro"></p>
+            <button type="button" id="btnCriarAnuncio" class="btn btn--principal">Criar anúncio</button>
+          </div>
+        </div>
+
       </section>
 
       <!-- ABA CATEGORIAS -->
