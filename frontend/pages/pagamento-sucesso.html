@@ -14,7 +14,7 @@
     <div class="card">
       <h1 style="color: var(--verde-escuro);" data-i18n="pagamento.sucesso_titulo">Pagamento aprovado!</h1>
       <p data-i18n="pagamento.sucesso_texto">Seu pagamento foi confirmado. Seu plano ja esta ativo.</p>
-      <div style="display:flex; gap:12px; justify-content:center; margin-top:20px; flex-wrap:wrap;">
+      <div id="acoesPagamento" style="display:flex; gap:12px; justify-content:center; margin-top:20px; flex-wrap:wrap;">
         <a class="btn btn--primario" style="background: var(--azul-primario); color:#fff;" href="../index.html" data-i18n="pagamento.voltar_home">Voltar para a Home</a>
         <a class="btn btn--laranja" href="painel-comerciante.html" data-i18n="pagamento.ir_painel">Ir para o Painel</a>
       </div>
@@ -26,5 +26,19 @@
   <script src="../js/config.js"></script>
   <script src="../js/i18n.js"></script>
   <script src="../js/layout.js"></script>
+  <script>
+    (function () {
+      var retorno = localStorage.getItem('portal_pg_retorno_fanpage');
+      if (retorno) {
+        localStorage.removeItem('portal_pg_retorno_fanpage');
+        var container = document.getElementById('acoesPagamento');
+        var a = document.createElement('a');
+        a.className = 'btn btn--verde';
+        a.href = retorno;
+        a.textContent = 'Voltar para a pagina que voce queria acessar';
+        container.insertBefore(a, container.firstChild);
+      }
+    })();
+  </script>
 </body>
 </html>
