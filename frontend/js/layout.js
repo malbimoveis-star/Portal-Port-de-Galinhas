@@ -91,7 +91,7 @@
 
       <div class="rodape-mobile">
         <a class="btn btn--verde" href="${base}pages/cadastro-comerciante.html?plano=comerciante_basico" data-i18n="rodape_mobile.cadastre_negocio">Cadastre seu negocio</a>
-        <a class="btn btn--primario" href="${base}pages/planos-turista.html" data-i18n="rodape_mobile.assine_ja" style="color: var(--azul-primario);">Assine ja</a>
+                <a class="btn btn--verde" href="${base}pages/planos-turista.html" data-i18n="rodape_mobile.assine_ja">Turista</a>
       </div>
     `;
   }
