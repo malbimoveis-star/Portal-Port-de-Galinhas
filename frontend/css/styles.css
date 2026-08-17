@@ -602,6 +602,12 @@ button {
   border: 1px solid #f0b3b3;
 }
 
+.alerta--sucesso {
+    background: #dff5e3;
+    color: var(--verde-escuro);
+    border: 1px solid #a9e0ba;
+}
+
 .tabs {
   display: flex;
   gap: 10px;
