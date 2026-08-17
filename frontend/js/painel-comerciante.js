@@ -39,6 +39,43 @@
     }
   }
 
+  function preencherLocalizacao(comerciante) {
+    document.getElementById('campoCidade').value = comerciante.cidade || '';
+    document.getElementById('campoEndereco').value = comerciante.endereco || '';
+    document.getElementById('campoLatitude').value = comerciante.latitude != null ? comerciante.latitude : '';
+    document.getElementById('campoLongitude').value = comerciante.longitude != null ? comerciante.longitude : '';
+  }
+
+  function initFormLocalizacao() {
+    const form = document.getElementById('formLocalizacao');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById('mensagemLocalizacao');
+      const cidade = document.getElementById('campoCidade').value.trim();
+      const endereco = document.getElementById('campoEndereco').value.trim();
+      const latStr = document.getElementById('campoLatitude').value.trim();
+      const lonStr = document.getElementById('campoLongitude').value.trim();
+      const latitude = latStr ? parseFloat(latStr.replace(',', '.')) : null;
+      const longitude = lonStr ? parseFloat(lonStr.replace(',', '.')) : null;
+
+      const resp = await fetch(`${API}/api/comerciantes/me`, {
+        method: 'PUT',
+        headers: Object.assign({ 'Content-Type': 'application/json' }, headersAuth()),
+        body: JSON.stringify({ cidade, endereco, latitude, longitude }),
+      });
+
+      msg.style.display = 'block';
+      if (resp.ok) {
+        msg.textContent = 'Localizacao salva com sucesso!';
+        msg.style.color = 'var(--verde-escuro)';
+      } else {
+        msg.textContent = 'Erro ao salvar. Tente novamente.';
+        msg.style.color = '#a12a2a';
+      }
+      setTimeout(() => { msg.style.display = 'none'; }, 4000);
+    });
+  }
+
   async function carregarCategorias() {
     const select = document.getElementById('campoCategoria');
     const resp = await fetch(`${API}/api/categorias`);
@@ -131,6 +168,7 @@
         btn.classList.add('ativo');
         const tab = btn.dataset.tab;
         document.getElementById('tabAnuncios').style.display = tab === 'anuncios' ? 'block' : 'none';
+        document.getElementById('tabLocalizacao').style.display = tab === 'localizacao' ? 'block' : 'none';
         document.getElementById('tabPlanos').style.display = tab === 'planos' ? 'block' : 'none';
       });
     });
@@ -168,7 +206,6 @@
     const data = await resp.json();
 
     if (data.simulado) {
-      // Ambiente sem credenciais reais de Mercado Pago: simula aprovacao automatica para fins de teste local
       alert('MP_ACCESS_TOKEN nao configurado. Simulando checkout de teste.');
       window.location.href = data.init_point;
       return;
@@ -192,6 +229,8 @@
     if (!data) return;
 
     renderStats(data);
+    preencherLocalizacao(data.comerciante);
+    initFormLocalizacao();
     await carregarCategorias();
     await carregarMeusAnuncios();
     initFormAnuncio();
