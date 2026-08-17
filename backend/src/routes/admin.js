@@ -480,6 +480,100 @@ router.delete('/anuncios/:id', async (req, res) => {
 
 
 // =========================================================
+// ANUNCIOS - CRIAR NOVO (ADMIN)
+// =========================================================
+
+// POST /api/admin/anuncios
+router.post('/anuncios', upload.array('fotos', 6), async (req, res) => {
+
+  try {
+
+    const {
+      titulo,
+      descricao,
+      categoria_id,
+      tags,
+      id_comerciante,
+      endereco,
+      latitude,
+      longitude,
+      status
+    } = req.body;
+
+    if (!titulo || !String(titulo).trim()) {
+      return res.status(400).json({
+        erro: 'Campo titulo e obrigatorio.'
+      });
+    }
+
+    if (!id_comerciante) {
+      return res.status(400).json({
+        erro: 'Campo id_comerciante e obrigatorio.'
+      });
+    }
+
+    const comerciante = await db.get(`
+      SELECT id
+      FROM comerciantes
+      WHERE id = ?
+    `, [id_comerciante]);
+
+    if (!comerciante) {
+      return res.status(404).json({
+        erro: 'Comerciante nao encontrado.'
+      });
+    }
+
+    const fotos = (req.files || []).map((f) => `/assets/uploads/${f.filename}`);
+
+    const tagsArray = tags
+      ? (Array.isArray(tags) ? tags : String(tags).split(',').map((t) => t.trim()).filter(Boolean))
+      : [];
+
+    const statusFinal = status && String(status).trim() ? status : 'ativo';
+
+    const info = await db.run(`
+      INSERT INTO anuncios (titulo, descricao, categoria_id, fotos, tags, id_comerciante, endereco, latitude, longitude, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `, [
+      String(titulo).trim(),
+      descricao || '',
+      categoria_id || null,
+      JSON.stringify(fotos),
+      JSON.stringify(tagsArray),
+      id_comerciante,
+      endereco || null,
+      latitude || null,
+      longitude || null,
+      statusFinal
+    ]);
+
+    const anuncio = await db.get(`
+      SELECT *
+      FROM anuncios
+      WHERE id = ?
+    `, [info.lastInsertRowid]);
+
+    return res
+      .status(201)
+      .json(parseAnuncio(anuncio));
+
+  } catch (err) {
+
+    console.error(
+      '[ADMIN] Erro ao criar anuncio:',
+      err
+    );
+
+    return res.status(500).json({
+      erro: 'Erro ao criar anuncio.'
+    });
+
+  }
+
+});
+
+// =========================================================
 // CATEGORIAS
 // =========================================================
 
