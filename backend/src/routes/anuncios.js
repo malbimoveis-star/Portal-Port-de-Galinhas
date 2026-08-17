@@ -5,6 +5,8 @@ const db = require('../db/connection');
 const { autenticar } = require('../middleware/auth');
 const upload = require('../middleware/upload');
 const { comercianteVisivelPublicamente } = require('../utils/status');
+const { identificarOpcional } = require('../middleware/authTurista');
+const { turistaAtivo } = require('../utils/turistaStatus');
 
 const router = express.Router();
 
@@ -62,8 +64,22 @@ router.get('/comerciante/:id_comerciante', async (req, res) => {
   const anuncios = await db.all("SELECT * FROM anuncios WHERE id_comerciante = ? AND status = 'ativo' ORDER BY criado_em DESC", [req.params.id_comerciante]);
   const visivel = await comercianteVisivelPublicamente(comerciante);
 
-  res.json({ visivel_publicamente: visivel, anuncios: visivel ? anuncios.map(parseAnuncio) : [] });
-});
+    const identidade = identificarOpcional(req);
+    let acessoLiberado = false;
+    if (identidade) {
+            if (identidade.tipo === 'turista') {
+                      acessoLiberado = await turistaAtivo(identidade.id);
+            } else if (Number(identidade.id) === Number(req.params.id_comerciante)) {
+                      acessoLiberado = true;
+            }
+    }
+
+      res.json({
+              visivel_publicamente: visivel,
+              acesso_liberado: acessoLiberado,
+              anuncios: (visivel && acessoLiberado) ? anuncios.map(parseAnuncio) : [],
+      });
+    });
 
 router.get('/meus/lista', autenticar, async (req, res) => {
   const anuncios = await db.all('SELECT * FROM anuncios WHERE id_comerciante = ? ORDER BY criado_em DESC', [req.comerciante.id]);
