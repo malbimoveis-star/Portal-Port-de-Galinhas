@@ -4,10 +4,16 @@
 // fixos de paginas estaticas (termos, privacidade, etc.) e conteudo vindo do banco
 // (artigos do blog, descricoes de comerciantes e anuncios).
 //
+// IMPORTANTE: o cabecalho (#layout-header) e o rodape (#layout-rodape) sao
+// SEMPRE ignorados por este script - a traducao deles e responsabilidade
+// exclusiva do i18n.js via atributos data-i18n. Isso evita que o menu/rodape
+// seja retraduzido incorretamente quando o header e reconstruido (ex.: ao abrir
+// o seletor de idiomas).
+//
 // Funcionamento:
 // 1. Ouve o evento 'i18n:aplicado' (disparado por i18n.js sempre que o idioma muda).
-// 2. Se o idioma escolhido nao for 'pt', percorre os nos de texto da pagina que NAO
-//    estao dentro de elementos com data-i18n (esses ja sao traduzidos pelo i18n.js).
+// 2. Se o idioma escolhido nao for 'pt', percorre os nos de texto da pagina (fora
+//    do header/rodape e fora de elementos com data-i18n) e traduz cada um.
 // 3. Traduz cada trecho via MyMemory, com cache em localStorage pra nao repetir
 //    chamadas de rede em visitas futuras.
 // 4. Guarda o texto original em cada no, pra poder restaurar quando o idioma volta
@@ -20,13 +26,13 @@
 
   var CACHE_PREFIX = 'pg_mt_';
   var trackedNodes = [];
+  var EXCLUIR_SELECTOR = 'script, style, noscript, input, textarea, select, option, ' +
+    '[data-i18n], [data-no-translate], #layout-header, #layout-rodape';
 
   function isEligibleParent(el) {
     if (!el) return false;
     if (el.nodeType !== 1) return false;
-    if (el.closest && el.closest('script, style, noscript, input, textarea, select, option, [data-i18n], [data-no-translate]')) {
-      return false;
-    }
+    if (el.closest && el.closest(EXCLUIR_SELECTOR)) return false;
     return true;
   }
 
@@ -127,13 +133,14 @@
       var grupo = nodes.slice(i, i + BATCH);
       i += BATCH;
       return Promise.all(grupo.map(function (node) {
+        if (!isEligibleParent(node.parentElement)) return Promise.resolve();
         var original = node.__pgOriginal !== undefined ? node.__pgOriginal : node.nodeValue;
         node.__pgOriginal = original;
         if (trackedNodes.indexOf(node) === -1) trackedNodes.push(node);
         var trimmed = original.trim();
         return translateText(trimmed, lang).then(function (translated) {
           node.__pgDone = lang;
-          if (translated && document.contains(node)) {
+          if (translated && document.contains(node) && isEligibleParent(node.parentElement)) {
             node.nodeValue = original.replace(trimmed, translated);
           }
         });
