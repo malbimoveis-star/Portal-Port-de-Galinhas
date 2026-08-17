@@ -1,4 +1,15 @@
 // Injeta o header (menu superior) e os rodapes (geral + mobile) em todas as paginas
+// Impede que o Google Translate do navegador sobrescreva as traducoes do
+// proprio site (i18n.js + auto-translate.js) quando o idioma do navegador
+// do visitante for diferente do idioma escolhido no Portal.
+(function () {
+    document.documentElement.setAttribute('translate', 'no');
+    var meta = document.createElement('meta');
+    meta.name = 'google';
+    meta.content = 'notranslate';
+    document.head.appendChild(meta);
+})();
+
 (function () {
   function caminhoBase() {
     const emPagina = window.location.pathname.includes('/pages/');
