@@ -29,7 +29,7 @@ router.post('/cadastro', async (req, res) => {
           return res.status(400).json({ erro: 'Campos "nome", "email" e "senha" sao obrigatorios.' });
     }
 
-              const existente = db.prepare('SELECT id FROM comerciantes WHERE email = ?').get(email);
+              const existente = await db.get('SELECT id FROM comerciantes WHERE email = ?', [email]);
     if (existente) {
           return res.status(409).json({ erro: 'Ja existe um comerciante cadastrado com este e-mail.' });
     }
@@ -40,12 +40,13 @@ router.post('/cadastro', async (req, res) => {
               const tokenConfirmacao = gerarTokenAleatorio();
     const expiraConfirmacao = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
-              const info = db.prepare(
+              const info = await db.run(
                     `INSERT INTO comerciantes (nome, email, telefone, senha_hash, plano, status, data_criacao, data_inicio_degustacao, token_confirmacao_email, token_confirmacao_expira_em)
-                         VALUES (?, ?, ?, ?, 'gratuito', 'degustacao', ?, ?, ?, ?)`
-                  ).run(nome, email, telefone || null, senha_hash, agora, agora, tokenConfirmacao, expiraConfirmacao);
+                         VALUES (?, ?, ?, ?, 'gratuito', 'degustacao', ?, ?, ?, ?)`,
+                    [nome, email, telefone || null, senha_hash, agora, agora, tokenConfirmacao, expiraConfirmacao]
+                  );
 
-              const comerciante = db.prepare('SELECT * FROM comerciantes WHERE id = ?').get(info.lastInsertRowid);
+              const comerciante = await db.get('SELECT * FROM comerciantes WHERE id = ?', [info.lastInsertRowid]);
     const token = gerarToken(comerciante);
 
               const linkConfirmacao = `${FRONTEND_URL}/pages/confirmar-email.html?token=${tokenConfirmacao}`;
@@ -58,9 +59,9 @@ router.post('/cadastro', async (req, res) => {
               res.status(201).json({ comerciante: comercianteSemSenha(comerciante), token });
 });
 
-router.get('/confirmar-email/:token', (req, res) => {
+router.get('/confirmar-email/:token', async (req, res) => {
     const { token } = req.params;
-    const comerciante = db.prepare('SELECT * FROM comerciantes WHERE token_confirmacao_email = ?').get(token);
+    const comerciante = await db.get('SELECT * FROM comerciantes WHERE token_confirmacao_email = ?', [token]);
 
              if (!comerciante) {
                    return res.status(400).json({ erro: 'Link de confirmacao invalido.' });
@@ -69,18 +70,19 @@ router.get('/confirmar-email/:token', (req, res) => {
           return res.status(400).json({ erro: 'Link de confirmacao expirado. Solicite um novo no seu painel.' });
     }
 
-             db.prepare(
-                   'UPDATE comerciantes SET email_confirmado = 1, token_confirmacao_email = NULL, token_confirmacao_expira_em = NULL WHERE id = ?'
-                 ).run(comerciante.id);
+             await db.run(
+                   'UPDATE comerciantes SET email_confirmado = 1, token_confirmacao_email = NULL, token_confirmacao_expira_em = NULL WHERE id = ?',
+                   [comerciante.id]
+                 );
 
              res.json({ sucesso: true, mensagem: 'E-mail confirmado com sucesso.' });
 });
 
-router.post('/esqueci-senha', (req, res) => {
+router.post('/esqueci-senha', async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ erro: 'Campo "email" e obrigatorio.' });
 
-              const comerciante = db.prepare('SELECT * FROM comerciantes WHERE email = ?').get(email);
+              const comerciante = await db.get('SELECT * FROM comerciantes WHERE email = ?', [email]);
 
               const respostaGenerica = { sucesso: true, mensagem: 'Se este e-mail estiver cadastrado, voce recebera um link de redefinicao de senha em instantes.' };
     if (!comerciante) return res.json(respostaGenerica);
@@ -88,9 +90,10 @@ router.post('/esqueci-senha', (req, res) => {
               const tokenRecuperacao = gerarTokenAleatorio();
     const expiraRecuperacao = new Date(Date.now() + 60 * 60 * 1000).toISOString();
 
-              db.prepare(
-                    'UPDATE comerciantes SET token_recuperacao_senha = ?, token_recuperacao_expira_em = ? WHERE id = ?'
-                  ).run(tokenRecuperacao, expiraRecuperacao, comerciante.id);
+              await db.run(
+                    'UPDATE comerciantes SET token_recuperacao_senha = ?, token_recuperacao_expira_em = ? WHERE id = ?',
+                    [tokenRecuperacao, expiraRecuperacao, comerciante.id]
+                  );
 
               const linkRedefinir = `${FRONTEND_URL}/pages/redefinir-senha.html?token=${tokenRecuperacao}`;
     enviarEmail({
@@ -111,7 +114,7 @@ router.post('/redefinir-senha', async (req, res) => {
           return res.status(400).json({ erro: 'A nova senha deve ter pelo menos 6 caracteres.' });
     }
 
-              const comerciante = db.prepare('SELECT * FROM comerciantes WHERE token_recuperacao_senha = ?').get(token);
+              const comerciante = await db.get('SELECT * FROM comerciantes WHERE token_recuperacao_senha = ?', [token]);
     if (!comerciante) {
           return res.status(400).json({ erro: 'Link de redefinicao invalido.' });
     }
@@ -120,9 +123,10 @@ router.post('/redefinir-senha', async (req, res) => {
     }
 
               const senha_hash = await bcrypt.hash(novaSenha, 10);
-    db.prepare(
-          'UPDATE comerciantes SET senha_hash = ?, token_recuperacao_senha = NULL, token_recuperacao_expira_em = NULL WHERE id = ?'
-        ).run(senha_hash, comerciante.id);
+    await db.run(
+          'UPDATE comerciantes SET senha_hash = ?, token_recuperacao_senha = NULL, token_recuperacao_expira_em = NULL WHERE id = ?',
+          [senha_hash, comerciante.id]
+        );
 
               res.json({ sucesso: true, mensagem: 'Senha redefinida com sucesso. Voce ja pode fazer login.' });
 });
@@ -133,7 +137,7 @@ router.post('/login', async (req, res) => {
           return res.status(400).json({ erro: 'Campos "email" e "senha" sao obrigatorios.' });
     }
 
-              const comerciante = db.prepare('SELECT * FROM comerciantes WHERE email = ?').get(email);
+              const comerciante = await db.get('SELECT * FROM comerciantes WHERE email = ?', [email]);
     if (!comerciante) {
           return res.status(401).json({ erro: 'Credenciais invalidas.' });
     }
@@ -143,16 +147,16 @@ router.post('/login', async (req, res) => {
           return res.status(401).json({ erro: 'Credenciais invalidas.' });
     }
 
-              verificarEAtualizarStatus(comerciante);
+              await verificarEAtualizarStatus(comerciante);
     const token = gerarToken(comerciante);
     res.json({ comerciante: comercianteSemSenha(comerciante), token });
 });
 
-router.get('/me', autenticar, (req, res) => {
-    const comerciante = db.prepare('SELECT * FROM comerciantes WHERE id = ?').get(req.comerciante.id);
+router.get('/me', autenticar, async (req, res) => {
+    const comerciante = await db.get('SELECT * FROM comerciantes WHERE id = ?', [req.comerciante.id]);
     if (!comerciante) return res.status(404).json({ erro: 'Comerciante nao encontrado.' });
 
-             verificarEAtualizarStatus(comerciante);
+             await verificarEAtualizarStatus(comerciante);
     const degustacao = calcularTempoRestanteDegustacao(comerciante);
 
              res.json({
@@ -162,8 +166,8 @@ router.get('/me', autenticar, (req, res) => {
              });
 });
 
-router.put('/me', autenticar, (req, res) => {
-    const comerciante = db.prepare('SELECT * FROM comerciantes WHERE id = ?').get(req.comerciante.id);
+router.put('/me', autenticar, async (req, res) => {
+    const comerciante = await db.get('SELECT * FROM comerciantes WHERE id = ?', [req.comerciante.id]);
     if (!comerciante) return res.status(404).json({ erro: 'Comerciante nao encontrado.' });
 
              const {
@@ -171,12 +175,12 @@ router.put('/me', autenticar, (req, res) => {
                    logo, banner, site, latitude, longitude
              } = req.body;
 
-             db.prepare(`
+             await db.run(`
                  UPDATE comerciantes SET
                        nome = ?, telefone = ?, categoria = ?, cidade = ?, endereco = ?, descricao = ?,
                              logo = ?, banner = ?, site = ?, latitude = ?, longitude = ?
                                  WHERE id = ?
-                                   `).run(
+                                   `, [
                    nome || comerciante.nome,
                    telefone !== undefined ? telefone : comerciante.telefone,
                    categoria !== undefined ? categoria : comerciante.categoria,
@@ -189,25 +193,32 @@ router.put('/me', autenticar, (req, res) => {
                    latitude !== undefined ? latitude : comerciante.latitude,
                    longitude !== undefined ? longitude : comerciante.longitude,
                    comerciante.id
-                 );
+                 ]);
 
-             const atualizado = db.prepare('SELECT * FROM comerciantes WHERE id = ?').get(comerciante.id);
+             const atualizado = await db.get('SELECT * FROM comerciantes WHERE id = ?', [comerciante.id]);
     res.json({ comerciante: comercianteSemSenha(atualizado) });
 });
 
-router.get('/', (req, res) => {
-    const todos = db.prepare('SELECT * FROM comerciantes ORDER BY id DESC').all();
+router.get('/', async (req, res) => {
+    const todos = await db.all('SELECT * FROM comerciantes ORDER BY id DESC');
+    // NOTA (migração Postgres): comercianteVisivelPublicamente agora é async
+    // (ela chama verificarEAtualizarStatus, que grava no banco quando o status
+    // muda). Array.prototype.filter não suporta predicado assíncrono, entao
+    // calculamos a visibilidade de cada comerciante primeiro com Promise.all
+    // e só depois filtramos pelo resultado - preserva ordem e resultado do
+    // filter() síncrono original.
+    const visibilidade = await Promise.all(todos.map((c) => comercianteVisivelPublicamente(c)));
     const visiveis = todos
-      .filter((c) => comercianteVisivelPublicamente(c))
+      .filter((c, idx) => visibilidade[idx])
       .map((c) => comercianteSemSenha(c));
     res.json(visiveis);
 });
 
-router.get('/:id', (req, res) => {
-    const comerciante = db.prepare('SELECT * FROM comerciantes WHERE id = ?').get(req.params.id);
+router.get('/:id', async (req, res) => {
+    const comerciante = await db.get('SELECT * FROM comerciantes WHERE id = ?', [req.params.id]);
     if (!comerciante) return res.status(404).json({ erro: 'Comerciante nao encontrado.' });
 
-             verificarEAtualizarStatus(comerciante);
+             await verificarEAtualizarStatus(comerciante);
     res.json({ comerciante: comercianteSemSenha(comerciante) });
 });
 
