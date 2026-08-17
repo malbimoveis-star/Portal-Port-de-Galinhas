@@ -6,10 +6,6 @@ const { autenticarAdmin } = require('../middleware/authAdmin');
 
 const router = express.Router();
 
-// =========================================================
-// AUXILIARES
-// =========================================================
-
 function normalizarPublicado(valor, padrao = 1) {
   if (valor === undefined || valor === null) {
     return padrao;
@@ -28,10 +24,6 @@ function normalizarPublicado(valor, padrao = 1) {
   return 1;
 }
 
-// =========================================================
-// OBTER CAPA
-// =========================================================
-
 function obterCapa(body = {}) {
   const capaInformada =
     body.capa_url ??
@@ -39,20 +31,12 @@ function obterCapa(body = {}) {
     body.imagem_capa ??
     null;
 
-  // -------------------------------------------------------
-  // CAPA INFORMADA MANUALMENTE
-  // -------------------------------------------------------
-
   if (
     typeof capaInformada === 'string' &&
     capaInformada.trim()
   ) {
     return capaInformada.trim();
   }
-
-  // -------------------------------------------------------
-  // PROCURAR PRIMEIRA IMAGEM NO CONTEÚDO
-  // -------------------------------------------------------
 
   const conteudo =
     typeof body.conteudo === 'string'
@@ -78,19 +62,14 @@ function obterCapa(body = {}) {
   return null;
 }
 
-// =========================================================
-// BLOG PÚBLICO
-// GET /api/blog
-// =========================================================
-
 router.get(
   '/',
-  (req, res) => {
+  async (req, res) => {
 
     try {
 
       const artigos =
-        db.prepare(`
+        await db.all(`
           SELECT
             id,
             titulo,
@@ -102,7 +81,7 @@ router.get(
           FROM artigos
           WHERE publicado = 1
           ORDER BY criado_em DESC
-        `).all();
+        `);
 
       return res.json(
         artigos
@@ -123,24 +102,19 @@ router.get(
   }
 );
 
-// =========================================================
-// ADMIN
-// GET /api/blog/admin
-// =========================================================
-
 router.get(
   '/admin',
   autenticarAdmin,
-  (req, res) => {
+  async (req, res) => {
 
     try {
 
       const artigos =
-        db.prepare(`
+        await db.all(`
           SELECT *
           FROM artigos
           ORDER BY criado_em DESC
-        `).all();
+        `);
 
       return res.json(
         artigos
@@ -161,24 +135,19 @@ router.get(
   }
 );
 
-// =========================================================
-// ADMIN
-// GET /api/blog/admin/todos
-// =========================================================
-
 router.get(
   '/admin/todos',
   autenticarAdmin,
-  (req, res) => {
+  async (req, res) => {
 
     try {
 
       const artigos =
-        db.prepare(`
+        await db.all(`
           SELECT *
           FROM artigos
           ORDER BY criado_em DESC
-        `).all();
+        `);
 
       return res.json(
         artigos
@@ -199,35 +168,21 @@ router.get(
   }
 );
 
-// =========================================================
-// ADMIN - OBTER ARTIGO PARA EDIÇÃO
-// GET /api/blog/admin/:id
-// =========================================================
-//
-// Esta rota é usada pelo botão "Editar" do painel administrativo.
-//
-// IMPORTANTE:
-// Ela precisa ficar ANTES de:
-// GET /api/blog/:id
-//
-// Assim o Express não interpreta "admin" como sendo um ID.
-//
-
 router.get(
   '/admin/:id',
   autenticarAdmin,
-  (req, res) => {
+  async (req, res) => {
 
     try {
 
       const artigo =
-        db.prepare(`
+        await db.get(`
           SELECT *
           FROM artigos
           WHERE id = ?
-        `).get(
+        `, [
           req.params.id
-        );
+        ]);
 
       if (!artigo) {
 
@@ -262,15 +217,10 @@ router.get(
   }
 );
 
-// =========================================================
-// ADMIN - CRIAR ARTIGO
-// POST /api/blog
-// =========================================================
-
 router.post(
   '/',
   autenticarAdmin,
-  (req, res) => {
+  async (req, res) => {
 
     try {
 
@@ -281,18 +231,10 @@ router.post(
         publicado
       } = req.body;
 
-      // -----------------------------------------------------
-      // OBTER CAPA
-      // -----------------------------------------------------
-
       const capa_url =
         obterCapa(
           req.body
         );
-
-      // -----------------------------------------------------
-      // VALIDAR TÍTULO
-      // -----------------------------------------------------
 
       if (
         !titulo ||
@@ -306,10 +248,6 @@ router.post(
         });
       }
 
-      // -----------------------------------------------------
-      // VALIDAR CONTEÚDO
-      // -----------------------------------------------------
-
       if (
         !conteudo ||
         typeof conteudo !== 'string' ||
@@ -322,12 +260,8 @@ router.post(
         });
       }
 
-      // -----------------------------------------------------
-      // SALVAR ARTIGO
-      // -----------------------------------------------------
-
       const resultado =
-        db.prepare(`
+        await db.run(`
           INSERT INTO artigos (
             titulo,
             resumo,
@@ -336,7 +270,7 @@ router.post(
             publicado
           )
           VALUES (?, ?, ?, ?, ?)
-        `).run(
+        `, [
 
           titulo.trim(),
 
@@ -352,20 +286,16 @@ router.post(
             publicado,
             1
           )
-        );
-
-      // -----------------------------------------------------
-      // BUSCAR ARTIGO CRIADO
-      // -----------------------------------------------------
+        ]);
 
       const artigo =
-        db.prepare(`
+        await db.get(`
           SELECT *
           FROM artigos
           WHERE id = ?
-        `).get(
+        `, [
           resultado.lastInsertRowid
-        );
+        ]);
 
       console.log(
         '[BLOG] Artigo salvo com sucesso:',
@@ -394,26 +324,21 @@ router.post(
   }
 );
 
-// =========================================================
-// ADMIN - EDITAR ARTIGO
-// PUT /api/blog/:id
-// =========================================================
-
 router.put(
   '/:id',
   autenticarAdmin,
-  (req, res) => {
+  async (req, res) => {
 
     try {
 
       const artigo =
-        db.prepare(`
+        await db.get(`
           SELECT *
           FROM artigos
           WHERE id = ?
-        `).get(
+        `, [
           req.params.id
-        );
+        ]);
 
       if (!artigo) {
 
@@ -429,10 +354,6 @@ router.put(
         conteudo,
         publicado
       } = req.body;
-
-      // -----------------------------------------------------
-      // DADOS ATUAIS
-      // -----------------------------------------------------
 
       const novoTitulo =
         titulo !== undefined
@@ -451,10 +372,6 @@ router.put(
         conteudo !== undefined
           ? String(conteudo)
           : artigo.conteudo;
-
-      // -----------------------------------------------------
-      // OBTER NOVA CAPA
-      // -----------------------------------------------------
 
       let novaCapa;
 
@@ -494,20 +411,12 @@ router.put(
           null;
       }
 
-      // -----------------------------------------------------
-      // PUBLICADO
-      // -----------------------------------------------------
-
       const novoPublicado =
         publicado !== undefined
           ? normalizarPublicado(
               publicado
             )
           : artigo.publicado;
-
-      // -----------------------------------------------------
-      // VALIDAR TÍTULO
-      // -----------------------------------------------------
 
       if (!novoTitulo) {
 
@@ -516,10 +425,6 @@ router.put(
             'O título do artigo é obrigatório.'
         });
       }
-
-      // -----------------------------------------------------
-      // VALIDAR CONTEÚDO
-      // -----------------------------------------------------
 
       if (
         !novoConteudo ||
@@ -532,11 +437,7 @@ router.put(
         });
       }
 
-      // -----------------------------------------------------
-      // ATUALIZAR
-      // -----------------------------------------------------
-
-      db.prepare(`
+      await db.run(`
         UPDATE artigos
         SET
           titulo = ?,
@@ -545,7 +446,7 @@ router.put(
           capa_url = ?,
           publicado = ?
         WHERE id = ?
-      `).run(
+      `, [
 
         novoTitulo,
 
@@ -558,20 +459,16 @@ router.put(
         novoPublicado,
 
         req.params.id
-      );
-
-      // -----------------------------------------------------
-      // RETORNAR ATUALIZADO
-      // -----------------------------------------------------
+      ]);
 
       const atualizado =
-        db.prepare(`
+        await db.get(`
           SELECT *
           FROM artigos
           WHERE id = ?
-        `).get(
+        `, [
           req.params.id
-        );
+        ]);
 
       console.log(
         '[BLOG ADMIN] Artigo atualizado:',
@@ -598,26 +495,21 @@ router.put(
   }
 );
 
-// =========================================================
-// ADMIN - EXCLUIR ARTIGO
-// DELETE /api/blog/:id
-// =========================================================
-
 router.delete(
   '/:id',
   autenticarAdmin,
-  (req, res) => {
+  async (req, res) => {
 
     try {
 
       const artigo =
-        db.prepare(`
+        await db.get(`
           SELECT id
           FROM artigos
           WHERE id = ?
-        `).get(
+        `, [
           req.params.id
-        );
+        ]);
 
       if (!artigo) {
 
@@ -627,12 +519,12 @@ router.delete(
         });
       }
 
-      db.prepare(`
+      await db.run(`
         DELETE FROM artigos
         WHERE id = ?
-      `).run(
+      `, [
         req.params.id
-      );
+      ]);
 
       return res.json({
         sucesso:
@@ -658,26 +550,21 @@ router.delete(
   }
 );
 
-// =========================================================
-// BLOG PÚBLICO - DETALHE
-// GET /api/blog/:id
-// =========================================================
-
 router.get(
   '/:id',
-  (req, res) => {
+  async (req, res) => {
 
     try {
 
       const artigo =
-        db.prepare(`
+        await db.get(`
           SELECT *
           FROM artigos
           WHERE id = ?
             AND publicado = 1
-        `).get(
+        `, [
           req.params.id
-        );
+        ]);
 
       if (!artigo) {
 
@@ -705,9 +592,5 @@ router.get(
     }
   }
 );
-
-// =========================================================
-// EXPORTAR
-// =========================================================
 
 module.exports = router;
