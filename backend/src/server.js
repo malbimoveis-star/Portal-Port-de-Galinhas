@@ -27,6 +27,7 @@ app.use('/api/login', require('./routes/login'));
 app.use('/api/blog', require('./routes/blogRoutes'));
 app.use('/api/interacoes', require('./routes/interacoes'));
 app.use('/api/contato', require('./routes/contato'));
+app.use('/api/turistas', require('./routes/turistas'));
 
 app.get('/', (req, res) => res.sendFile(path.join(FRONTEND_DIR, 'index.html')));
 app.get('/contato', (req, res) => res.sendFile(path.join(PAGES_DIR, 'contato.html')));
@@ -39,6 +40,8 @@ app.get('/como-funciona', (req, res) => res.sendFile(path.join(PAGES_DIR, 'como-
 app.get('/cadastro-comerciante', (req, res) => res.sendFile(path.join(PAGES_DIR, 'cadastro-comerciante.html')));
 app.get('/login-comerciante', (req, res) => res.sendFile(path.join(PAGES_DIR, 'login-comerciante.html')));
 app.get('/painel-comerciante', (req, res) => res.sendFile(path.join(PAGES_DIR, 'painel-comerciante.html')));
+app.get('/cadastro-turista', (req, res) => res.sendFile(path.join(PAGES_DIR, 'cadastro-turista.html')));
+app.get('/login-turista', (req, res) => res.sendFile(path.join(PAGES_DIR, 'login-turista.html')));
 app.get('/planos-turista', (req, res) => res.sendFile(path.join(PAGES_DIR, 'planos-turista.html')));
 app.get('/pagamento-sucesso', (req, res) => res.sendFile(path.join(PAGES_DIR, 'pagamento-sucesso.html')));
 app.get('/pagamento-pendente', (req, res) => res.sendFile(path.join(PAGES_DIR, 'pagamento-pendente.html')));
