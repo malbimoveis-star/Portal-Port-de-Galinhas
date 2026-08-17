@@ -171,6 +171,23 @@ async function migrate() {
   await criarColunaAnuncio('status', "TEXT DEFAULT 'pendente'");
 
   await db.exec(`
+    CREATE TABLE IF NOT EXISTS turistas (
+
+      id SERIAL PRIMARY KEY,
+
+      nome TEXT NOT NULL,
+      email TEXT NOT NULL UNIQUE,
+      senha_hash TEXT NOT NULL,
+
+      status TEXT DEFAULT 'inativo',
+      data_expiracao TEXT,
+
+      criado_em TEXT DEFAULT NOW()::text
+
+    );
+  `);
+
+  await db.exec(`
     CREATE TABLE IF NOT EXISTS pagamentos (
 
       id SERIAL PRIMARY KEY,
@@ -194,6 +211,22 @@ async function migrate() {
 
     );
   `);
+
+  const colunasPagamento = await colunasDaTabela('pagamentos');
+
+  async function criarColunaPagamento(nome, tipo) {
+
+    if (!colunasPagamento.includes(nome)) {
+
+      await db.exec(`ALTER TABLE pagamentos ADD COLUMN ${nome} ${tipo};`);
+
+      console.log('[DB] Coluna criada:', nome);
+
+    }
+
+  }
+
+  await criarColunaPagamento('id_turista', 'INTEGER');
 
   await db.exec(`
     CREATE TABLE IF NOT EXISTS artigos (
