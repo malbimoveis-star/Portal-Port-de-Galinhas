@@ -200,6 +200,12 @@
   }
 
   function iniciais(nome) { return (nome || '?').split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase(); }
+    function getAuthHeader() {
+          const tokenTurista = localStorage.getItem('portal_pg_turista_token');
+          const tokenComerciante = localStorage.getItem('portal_pg_token');
+          const token = tokenTurista || tokenComerciante;
+          return token ? { 'Authorization': `Bearer ${token}` } : {};
+    }
   function jaCurtiu(fotoKey) { return localStorage.getItem(`curtiu_${fotoKey}`) === '1'; }
   function marcarCurtido(fotoKey, curtiu) {
     if (curtiu) localStorage.setItem(`curtiu_${fotoKey}`, '1'); else localStorage.removeItem(`curtiu_${fotoKey}`);
@@ -232,12 +238,17 @@
 
     const [perfilResp, anunciosResp] = await Promise.all([
       fetch(`${API}/api/comerciantes/${id}`),
-      fetch(`${API}/api/anuncios/comerciante/${id}`)
+      fetch(`${API}/api/anuncios/comerciante/${id}`, { headers: getAuthHeader() })
     ]);
     if (!perfilResp.ok) { document.getElementById('nome').textContent = 'Comerciante não encontrado.'; return; }
 
     const { comerciante } = await perfilResp.json();
-    const { visivel_publicamente, anuncios } = await anunciosResp.json();
+    const { visivel_publicamente, acesso_liberado, anuncios } = await anunciosResp.json();
+
+        if (!acesso_liberado) {
+                window.location.href = `planos-turista.html?retorno=${encodeURIComponent(location.href)}`;
+                return;
+        }
 
     document.title = comerciante.nome + ' — Portal Porto de Galinhas';
     document.getElementById('nome').textContent = comerciante.nome;
