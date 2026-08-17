@@ -719,3 +719,26 @@ button {
     color: var(--verde-escuro);
     border: 1px solid #b6e6c2;
 }
+
+
+  /* ===== LOCALIZACAO DO COMERCIANTE (responsivo) ===== */
+.grid-2-colunas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+@media (max-width: 480px) {
+    .grid-2-colunas {
+          grid-template-columns: 1fr;
+    }
+    .card {
+          padding: 18px;
+    }
+    .tabs button {
+          flex: 1 1 auto;
+          text-align: center;
+          font-size: 0.85rem;
+          padding: 8px 10px;
+    }
+}
