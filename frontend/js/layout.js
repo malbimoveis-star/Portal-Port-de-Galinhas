@@ -14,6 +14,17 @@
     return `${caminhoBase()}pages/fanpage.html?id=${id}`;
   }
 
+  function carregarAutoTraducao() {
+    // Carrega o script de traducao automatica de conteudo (nao coberto por
+    // data-i18n) em todas as paginas, sem precisar editar cada HTML.
+    if (document.querySelector('script[data-pg-auto-translate]')) return;
+    const script = document.createElement('script');
+    script.src = caminhoBase() + 'js/auto-translate.js';
+    script.setAttribute('data-pg-auto-translate', '1');
+    document.body.appendChild(script);
+  }
+  carregarAutoTraducao();
+
   function montarHeader() {
     const base = caminhoBase();
     return `
