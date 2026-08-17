@@ -25,7 +25,7 @@ router.get('/planos', (req, res) => {
 // POST /api/pagamentos/checkout - cria preferencia de pagamento (Checkout Pro)
 // body: { tipo_plano: 'turista' | 'comerciante_basico' | 'comerciante_premium', id_comerciante? }
 router.post('/checkout', async (req, res) => {
-  const { tipo_plano, id_comerciante, email_pagador } = req.body;
+  const { tipo_plano, id_comerciante, id_turista, email_pagador } = req.body;
   const plano = PLANOS[tipo_plano];
 
   if (!plano) {
@@ -34,9 +34,9 @@ router.post('/checkout', async (req, res) => {
 
   if (!ACCESS_TOKEN || ACCESS_TOKEN.startsWith('TEST-0000000000000000')) {
     const pagamentoSimulado = await db.run(
-      `INSERT INTO pagamentos (id_comerciante, tipo_plano, valor, status, mp_preference_id)
-       VALUES (?, ?, ?, 'pendente', ?)`,
-      [id_comerciante || null, tipo_plano, plano.valor, 'SIMULADO-' + Date.now()]
+      `INSERT INTO pagamentos (id_comerciante, id_turista, tipo_plano, valor, status, mp_preference_id)
+       VALUES (?, ?, ?, ?, 'pendente', ?)`,
+      [id_comerciante || null, id_turista || null, tipo_plano, plano.valor, 'SIMULADO-' + Date.now()]
     );
 
     return res.status(200).json({
@@ -50,9 +50,9 @@ router.post('/checkout', async (req, res) => {
 
   try {
     const pagamentoInfo = await db.run(
-      `INSERT INTO pagamentos (id_comerciante, tipo_plano, valor, status)
-       VALUES (?, ?, ?, 'pendente')`,
-      [id_comerciante || null, tipo_plano, plano.valor]
+      `INSERT INTO pagamentos (id_comerciante, id_turista, tipo_plano, valor, status)
+       VALUES (?, ?, ?, ?, 'pendente')`,
+      [id_comerciante || null, id_turista || null, tipo_plano, plano.valor]
     );
 
     const externalReference = String(pagamentoInfo.lastInsertRowid);
@@ -130,6 +130,10 @@ router.post('/webhook', express.json(), async (req, res) => {
         if (statusInterno === 'aprovado' && pagamentoLocal.id_comerciante) {
           await ativarComerciante(pagamentoLocal.id_comerciante, pagamentoLocal.tipo_plano);
         }
+
+                                          if (statusInterno === 'aprovado' && pagamentoLocal.id_turista) {
+                                                      await ativarTurista(pagamentoLocal.id_turista);
+                                          }
       }
     }
 
@@ -159,6 +163,10 @@ router.post('/simular-aprovacao', autenticarAdmin, async (req, res) => {
     await ativarComerciante(pagamento.id_comerciante, pagamento.tipo_plano);
   }
 
+    if (pagamento.id_turista) {
+          await ativarTurista(pagamento.id_turista);
+    }
+
   res.json({ sucesso: true, mensagem: 'Pagamento simulado como aprovado.' });
 });
 
@@ -173,6 +181,19 @@ async function ativarComerciante(idComerciante, tipoPlano) {
     expiracao.toISOString(),
     idComerciante
   ]);
+}
+
+// Assinatura de turista: R$9,90/mes, libera acesso as fanpages dos
+// comerciantes por 30 dias a partir da aprovacao do pagamento.
+async function ativarTurista(idTurista) {
+    const agora = new Date();
+    const expiracao = new Date(agora.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+    await db.run('UPDATE turistas SET status = ?, data_expiracao = ? WHERE id = ?', [
+          'ativo',
+          expiracao.toISOString(),
+          idTurista
+        ]);
 }
 
 // GET /api/pagamentos/comerciante/:id - historico de pagamentos de um comerciante (painel)
