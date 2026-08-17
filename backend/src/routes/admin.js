@@ -54,29 +54,25 @@ router.use(autenticarAdmin);
 
 // GET /api/admin/anuncios
 // Lista anúncios pendentes ou por status
-router.get('/anuncios', (req, res) => {
+router.get('/anuncios', async (req, res) => {
   try {
     const { status } = req.query;
 
     const anuncios = status
-      ? db
-          .prepare(`
+      ? await db.all(`
             SELECT a.*, c.nome AS comerciante_nome, c.email AS comerciante_email
             FROM anuncios a
             LEFT JOIN comerciantes c ON c.id = a.id_comerciante
             WHERE a.status = ?
             ORDER BY a.criado_em DESC
-          `)
-          .all(status)
-      : db
-          .prepare(`
+          `, [status])
+      : await db.all(`
             SELECT a.*, c.nome AS comerciante_nome, c.email AS comerciante_email
             FROM anuncios a
             LEFT JOIN comerciantes c ON c.id = a.id_comerciante
             WHERE a.status = 'pendente'
             ORDER BY a.criado_em DESC
-          `)
-          .all();
+          `);
 
     return res.json(
       anuncios.map(parseAnuncio)
@@ -97,16 +93,14 @@ router.get('/anuncios', (req, res) => {
 
 // GET /api/admin/anuncios/todos
 // Lista todos os anúncios
-router.get('/anuncios/todos', (req, res) => {
+router.get('/anuncios/todos', async (req, res) => {
   try {
-    const anuncios = db
-      .prepare(`
+    const anuncios = await db.all(`
         SELECT a.*, c.nome AS comerciante_nome, c.email AS comerciante_email
         FROM anuncios a
         LEFT JOIN comerciantes c ON c.id = a.id_comerciante
         ORDER BY a.criado_em DESC
-      `)
-      .all();
+      `);
 
     return res.json(
       anuncios.map(parseAnuncio)
@@ -127,15 +121,13 @@ router.get('/anuncios/todos', (req, res) => {
 
 // GET /api/admin/anuncios/:id
 // Buscar anúncio específico
-router.get('/anuncios/:id', (req, res) => {
+router.get('/anuncios/:id', async (req, res) => {
   try {
-    const anuncio = db
-      .prepare(`
+    const anuncio = await db.get(`
         SELECT *
         FROM anuncios
         WHERE id = ?
-      `)
-      .get(req.params.id);
+      `, [req.params.id]);
 
     if (!anuncio) {
       return res.status(404).json({
@@ -162,15 +154,13 @@ router.get('/anuncios/:id', (req, res) => {
 
 // PUT /api/admin/anuncios/:id/aprovar
 // Aprovar anúncio
-router.put('/anuncios/:id/aprovar', (req, res) => {
+router.put('/anuncios/:id/aprovar', async (req, res) => {
   try {
-    const anuncio = db
-      .prepare(`
+    const anuncio = await db.get(`
         SELECT *
         FROM anuncios
         WHERE id = ?
-      `)
-      .get(req.params.id);
+      `, [req.params.id]);
 
     if (!anuncio) {
       return res.status(404).json({
@@ -178,21 +168,17 @@ router.put('/anuncios/:id/aprovar', (req, res) => {
       });
     }
 
-    db
-      .prepare(`
+    await db.run(`
         UPDATE anuncios
         SET status = 'ativo'
         WHERE id = ?
-      `)
-      .run(req.params.id);
+      `, [req.params.id]);
 
-    const atualizado = db
-      .prepare(`
+    const atualizado = await db.get(`
         SELECT *
         FROM anuncios
         WHERE id = ?
-      `)
-      .get(req.params.id);
+      `, [req.params.id]);
 
     return res.json(
       parseAnuncio(atualizado)
@@ -213,15 +199,13 @@ router.put('/anuncios/:id/aprovar', (req, res) => {
 
 // PUT /api/admin/anuncios/:id/rejeitar
 // Rejeitar anúncio
-router.put('/anuncios/:id/rejeitar', (req, res) => {
+router.put('/anuncios/:id/rejeitar', async (req, res) => {
   try {
-    const anuncio = db
-      .prepare(`
+    const anuncio = await db.get(`
         SELECT *
         FROM anuncios
         WHERE id = ?
-      `)
-      .get(req.params.id);
+      `, [req.params.id]);
 
     if (!anuncio) {
       return res.status(404).json({
@@ -229,21 +213,17 @@ router.put('/anuncios/:id/rejeitar', (req, res) => {
       });
     }
 
-    db
-      .prepare(`
+    await db.run(`
         UPDATE anuncios
         SET status = 'rejeitado'
         WHERE id = ?
-      `)
-      .run(req.params.id);
+      `, [req.params.id]);
 
-    const atualizado = db
-      .prepare(`
+    const atualizado = await db.get(`
         SELECT *
         FROM anuncios
         WHERE id = ?
-      `)
-      .get(req.params.id);
+      `, [req.params.id]);
 
     return res.json(
       parseAnuncio(atualizado)
@@ -267,17 +247,15 @@ router.put('/anuncios/:id/rejeitar', (req, res) => {
 router.put(
   '/anuncios/:id',
   upload.array('fotos', 6),
-  (req, res) => {
+  async (req, res) => {
 
     try {
 
-      const anuncio = db
-        .prepare(`
+      const anuncio = await db.get(`
           SELECT *
           FROM anuncios
           WHERE id = ?
-        `)
-        .get(req.params.id);
+        `, [req.params.id]);
 
       if (!anuncio) {
         return res.status(404).json({
@@ -364,8 +342,7 @@ router.put(
       // ATUALIZAR ANÚNCIO
       // =====================================================
 
-      db
-        .prepare(`
+      await db.run(`
           UPDATE anuncios
           SET
             titulo = ?,
@@ -378,8 +355,7 @@ router.put(
             longitude = ?,
             status = ?
           WHERE id = ?
-        `)
-        .run(
+        `, [
 
           titulo !== undefined &&
           String(titulo).trim()
@@ -420,16 +396,14 @@ router.put(
             : anuncio.status,
 
           req.params.id
-        );
+        ]);
 
 
-      const atualizado = db
-        .prepare(`
+      const atualizado = await db.get(`
           SELECT *
           FROM anuncios
           WHERE id = ?
-        `)
-        .get(req.params.id);
+        `, [req.params.id]);
 
 
       return res.json(
@@ -458,17 +432,15 @@ router.put(
 
 // DELETE /api/admin/anuncios/:id
 // Excluir anúncio
-router.delete('/anuncios/:id', (req, res) => {
+router.delete('/anuncios/:id', async (req, res) => {
 
   try {
 
-    const anuncio = db
-      .prepare(`
+    const anuncio = await db.get(`
         SELECT id
         FROM anuncios
         WHERE id = ?
-      `)
-      .get(req.params.id);
+      `, [req.params.id]);
 
 
     if (!anuncio) {
@@ -480,12 +452,10 @@ router.delete('/anuncios/:id', (req, res) => {
     }
 
 
-    db
-      .prepare(`
+    await db.run(`
         DELETE FROM anuncios
         WHERE id = ?
-      `)
-      .run(req.params.id);
+      `, [req.params.id]);
 
 
     return res.json({
@@ -518,7 +488,7 @@ function slugify(texto) {
   return String(texto)
     .normalize('NFD')
     .replace(
-      /[\u0300-\u036f]/g,
+      new RegExp('[\\u0300-\\u036f]', 'g'),
       ''
     )
     .toLowerCase()
@@ -536,17 +506,15 @@ function slugify(texto) {
 
 
 // GET /api/admin/categorias
-router.get('/categorias', (req, res) => {
+router.get('/categorias', async (req, res) => {
 
   try {
 
-    const categorias = db
-      .prepare(`
+    const categorias = await db.all(`
         SELECT *
         FROM categorias
         ORDER BY id ASC
-      `)
-      .all();
+      `);
 
     return res.json(
       categorias
@@ -569,17 +537,15 @@ router.get('/categorias', (req, res) => {
 
 
 // GET /api/admin/categorias/:id
-router.get('/categorias/:id', (req, res) => {
+router.get('/categorias/:id', async (req, res) => {
 
   try {
 
-    const categoria = db
-      .prepare(`
+    const categoria = await db.get(`
         SELECT *
         FROM categorias
         WHERE id = ?
-      `)
-      .get(req.params.id);
+      `, [req.params.id]);
 
 
     if (!categoria) {
@@ -612,7 +578,7 @@ router.get('/categorias/:id', (req, res) => {
 
 
 // POST /api/admin/categorias
-router.post('/categorias', (req, res) => {
+router.post('/categorias', async (req, res) => {
 
   try {
 
@@ -643,13 +609,11 @@ router.post('/categorias', (req, res) => {
       slugify(nomeFinal);
 
 
-    const existente = db
-      .prepare(`
+    const existente = await db.get(`
         SELECT id
         FROM categorias
         WHERE slug = ?
-      `)
-      .get(slug);
+      `, [slug]);
 
 
     if (existente) {
@@ -662,31 +626,27 @@ router.post('/categorias', (req, res) => {
     }
 
 
-    const info = db
-      .prepare(`
+    const info = await db.run(`
         INSERT INTO categorias (
           nome,
           icone_url,
           slug
         )
         VALUES (?, ?, ?)
-      `)
-      .run(
+      `, [
         nomeFinal,
         icone_url || null,
         slug
-      );
+      ]);
 
 
-    const categoria = db
-      .prepare(`
+    const categoria = await db.get(`
         SELECT *
         FROM categorias
         WHERE id = ?
-      `)
-      .get(
+      `, [
         info.lastInsertRowid
-      );
+      ]);
 
 
     return res
@@ -716,15 +676,13 @@ router.post('/categorias', (req, res) => {
 
 
 // PUT /api/admin/comerciantes/:id
-router.put('/comerciantes/:id', (req, res) => {
+router.put('/comerciantes/:id', async (req, res) => {
 
   try {
 
     const { logo, banner } = req.body;
 
-    const comerciante = db
-      .prepare('SELECT * FROM comerciantes WHERE id = ?')
-      .get(req.params.id);
+    const comerciante = await db.get('SELECT * FROM comerciantes WHERE id = ?', [req.params.id]);
 
     if (!comerciante) {
       return res.status(404).json({
@@ -732,17 +690,13 @@ router.put('/comerciantes/:id', (req, res) => {
       });
     }
 
-    db
-      .prepare('UPDATE comerciantes SET logo = ?, banner = ? WHERE id = ?')
-      .run(
-        logo !== undefined ? logo : comerciante.logo,
-        banner !== undefined ? banner : comerciante.banner,
-        req.params.id
-      );
+    await db.run('UPDATE comerciantes SET logo = ?, banner = ? WHERE id = ?', [
+      logo !== undefined ? logo : comerciante.logo,
+      banner !== undefined ? banner : comerciante.banner,
+      req.params.id
+    ]);
 
-    const atualizado = db
-      .prepare('SELECT * FROM comerciantes WHERE id = ?')
-      .get(req.params.id);
+    const atualizado = await db.get('SELECT * FROM comerciantes WHERE id = ?', [req.params.id]);
 
     return res.json(atualizado);
 
@@ -756,7 +710,7 @@ router.put('/comerciantes/:id', (req, res) => {
 });
 
 
-router.put('/categorias/:id', (req, res) => {
+router.put('/categorias/:id', async (req, res) => {
 
   try {
 
@@ -766,13 +720,11 @@ router.put('/categorias/:id', (req, res) => {
     } = req.body;
 
 
-    const categoria = db
-      .prepare(`
+    const categoria = await db.get(`
         SELECT *
         FROM categorias
         WHERE id = ?
-      `)
-      .get(req.params.id);
+      `, [req.params.id]);
 
 
     if (!categoria) {
@@ -805,17 +757,15 @@ router.put('/categorias/:id', (req, res) => {
         : categoria.slug;
 
 
-    const outraCategoria = db
-      .prepare(`
+    const outraCategoria = await db.get(`
         SELECT id
         FROM categorias
         WHERE slug = ?
         AND id != ?
-      `)
-      .get(
+      `, [
         novoSlug,
         req.params.id
-      );
+      ]);
 
 
     if (outraCategoria) {
@@ -828,30 +778,26 @@ router.put('/categorias/:id', (req, res) => {
     }
 
 
-    db
-      .prepare(`
+    await db.run(`
         UPDATE categorias
         SET
           nome = ?,
           icone_url = ?,
           slug = ?
         WHERE id = ?
-      `)
-      .run(
+      `, [
         novoNome,
         novoIcone,
         novoSlug,
         req.params.id
-      );
+      ]);
 
 
-    const atualizada = db
-      .prepare(`
+    const atualizada = await db.get(`
         SELECT *
         FROM categorias
         WHERE id = ?
-      `)
-      .get(req.params.id);
+      `, [req.params.id]);
 
 
     return res.json(
@@ -879,17 +825,15 @@ router.put('/categorias/:id', (req, res) => {
 
 
 // DELETE /api/admin/categorias/:id
-router.delete('/categorias/:id', (req, res) => {
+router.delete('/categorias/:id', async (req, res) => {
 
   try {
 
-    const categoria = db
-      .prepare(`
+    const categoria = await db.get(`
         SELECT *
         FROM categorias
         WHERE id = ?
-      `)
-      .get(req.params.id);
+      `, [req.params.id]);
 
 
     if (!categoria) {
@@ -902,12 +846,10 @@ router.delete('/categorias/:id', (req, res) => {
     }
 
 
-    db
-      .prepare(`
+    await db.run(`
         DELETE FROM categorias
         WHERE id = ?
-      `)
-      .run(req.params.id);
+      `, [req.params.id]);
 
 
     return res.json({
