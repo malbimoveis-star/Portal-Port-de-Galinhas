@@ -99,9 +99,10 @@ async function seed() {
         status,
         data_criacao,
         data_inicio_degustacao,
-        data_expiracao
+        data_expiracao,
+        logo
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
   const expiracao =
@@ -119,7 +120,8 @@ async function seed() {
     'ativo',
     agora.toISOString(),
     agora.toISOString(),
-    expiracao
+          expiracao,
+      '/assets/comerciantes/passeio-lancha.jpg'
   ]);
 
   const com2 = await db.run(insertComercianteSql, [
@@ -131,7 +133,8 @@ async function seed() {
     'degustacao',
     agora.toISOString(),
     agora.toISOString(),
-    null
+          null,
+      '/assets/comerciantes/buggy-dunas.jpg'
   ]);
 
   const com3 = await db.run(insertComercianteSql, [
@@ -143,7 +146,8 @@ async function seed() {
     'expirado',
     agora.toISOString(),
     agora.toISOString(),
-    null
+          null,
+      '/assets/comerciantes/restaurante-mar-azul.jpg'
   ]);
 
   const com4 = await db.run(insertComercianteSql, [
@@ -155,7 +159,8 @@ async function seed() {
     'ativo',
     agora.toISOString(),
     agora.toISOString(),
-    expiracao
+          expiracao,
+      '/assets/comerciantes/pousada-mar-azul-piscina.jpg'
   ]);
 
   const insertAnuncioSql = `
