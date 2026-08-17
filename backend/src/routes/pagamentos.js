@@ -33,12 +33,11 @@ router.post('/checkout', async (req, res) => {
   }
 
   if (!ACCESS_TOKEN || ACCESS_TOKEN.startsWith('TEST-0000000000000000')) {
-    const pagamentoSimulado = db
-      .prepare(
-        `INSERT INTO pagamentos (id_comerciante, tipo_plano, valor, status, mp_preference_id)
-         VALUES (?, ?, ?, 'pendente', ?)`
-      )
-      .run(id_comerciante || null, tipo_plano, plano.valor, 'SIMULADO-' + Date.now());
+    const pagamentoSimulado = await db.run(
+      `INSERT INTO pagamentos (id_comerciante, tipo_plano, valor, status, mp_preference_id)
+       VALUES (?, ?, ?, 'pendente', ?)`,
+      [id_comerciante || null, tipo_plano, plano.valor, 'SIMULADO-' + Date.now()]
+    );
 
     return res.status(200).json({
       aviso: 'MP_ACCESS_TOKEN nao configurado com um token real de sandbox. Retornando checkout simulado.',
@@ -50,12 +49,11 @@ router.post('/checkout', async (req, res) => {
   }
 
   try {
-    const pagamentoInfo = db
-      .prepare(
-        `INSERT INTO pagamentos (id_comerciante, tipo_plano, valor, status)
-         VALUES (?, ?, ?, 'pendente')`
-      )
-      .run(id_comerciante || null, tipo_plano, plano.valor);
+    const pagamentoInfo = await db.run(
+      `INSERT INTO pagamentos (id_comerciante, tipo_plano, valor, status)
+       VALUES (?, ?, ?, 'pendente')`,
+      [id_comerciante || null, tipo_plano, plano.valor]
+    );
 
     const externalReference = String(pagamentoInfo.lastInsertRowid);
 
@@ -85,10 +83,10 @@ router.post('/checkout', async (req, res) => {
       },
     });
 
-    db.prepare('UPDATE pagamentos SET mp_preference_id = ? WHERE id = ?').run(
+    await db.run('UPDATE pagamentos SET mp_preference_id = ? WHERE id = ?', [
       resultado.id,
       pagamentoInfo.lastInsertRowid
-    );
+    ]);
 
     res.json({
       simulado: false,
@@ -120,19 +118,17 @@ router.post('/webhook', express.json(), async (req, res) => {
 
       const statusInterno = statusMP === 'approved' ? 'aprovado' : statusMP === 'rejected' ? 'rejeitado' : 'pendente';
 
-      const pagamentoLocal = db
-        .prepare('SELECT * FROM pagamentos WHERE id = ?')
-        .get(externalReference);
+      const pagamentoLocal = await db.get('SELECT * FROM pagamentos WHERE id = ?', [externalReference]);
 
       if (pagamentoLocal) {
-        db.prepare('UPDATE pagamentos SET status = ?, mp_payment_id = ? WHERE id = ?').run(
+        await db.run('UPDATE pagamentos SET status = ?, mp_payment_id = ? WHERE id = ?', [
           statusInterno,
           String(paymentId),
           pagamentoLocal.id
-        );
+        ]);
 
         if (statusInterno === 'aprovado' && pagamentoLocal.id_comerciante) {
-          ativarComerciante(pagamentoLocal.id_comerciante, pagamentoLocal.tipo_plano);
+          await ativarComerciante(pagamentoLocal.id_comerciante, pagamentoLocal.tipo_plano);
         }
       }
     }
@@ -148,45 +144,43 @@ router.post('/webhook', express.json(), async (req, res) => {
 // body: { pagamento_id }
 // Protegida com login de admin: antes estava aberta e qualquer pessoa conseguia
 // aprovar pagamentos de graca e ativar plano premium sem pagar nada.
-router.post('/simular-aprovacao', autenticarAdmin, (req, res) => {
+router.post('/simular-aprovacao', autenticarAdmin, async (req, res) => {
   const { pagamento_id } = req.body;
-  const pagamento = db.prepare('SELECT * FROM pagamentos WHERE id = ?').get(pagamento_id);
+  const pagamento = await db.get('SELECT * FROM pagamentos WHERE id = ?', [pagamento_id]);
   if (!pagamento) return res.status(404).json({ erro: 'Pagamento nao encontrado.' });
 
-  db.prepare('UPDATE pagamentos SET status = ?, mp_payment_id = ? WHERE id = ?').run(
+  await db.run('UPDATE pagamentos SET status = ?, mp_payment_id = ? WHERE id = ?', [
     'aprovado',
     'SIMULADO-' + Date.now(),
     pagamento.id
-  );
+  ]);
 
   if (pagamento.id_comerciante) {
-    ativarComerciante(pagamento.id_comerciante, pagamento.tipo_plano);
+    await ativarComerciante(pagamento.id_comerciante, pagamento.tipo_plano);
   }
 
   res.json({ sucesso: true, mensagem: 'Pagamento simulado como aprovado.' });
 });
 
-function ativarComerciante(idComerciante, tipoPlano) {
+async function ativarComerciante(idComerciante, tipoPlano) {
   const planoDb = tipoPlano === 'turista' ? 'turista' : tipoPlano.replace('comerciante_', '');
   const agora = new Date();
   const expiracao = new Date(agora.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 dias de assinatura
 
-  db.prepare('UPDATE comerciantes SET status = ?, plano = ?, data_expiracao = ? WHERE id = ?').run(
+  await db.run('UPDATE comerciantes SET status = ?, plano = ?, data_expiracao = ? WHERE id = ?', [
     'ativo',
     planoDb,
     expiracao.toISOString(),
     idComerciante
-  );
+  ]);
 }
 
 // GET /api/pagamentos/comerciante/:id - historico de pagamentos de um comerciante (painel)
-router.get('/comerciante/:id', autenticar, (req, res) => {
+router.get('/comerciante/:id', autenticar, async (req, res) => {
   if (Number(req.params.id) !== Number(req.comerciante.id)) {
     return res.status(403).json({ erro: 'Acesso negado.' });
   }
-  const pagamentos = db
-    .prepare('SELECT * FROM pagamentos WHERE id_comerciante = ? ORDER BY data_pagamento DESC')
-    .all(req.params.id);
+  const pagamentos = await db.all('SELECT * FROM pagamentos WHERE id_comerciante = ? ORDER BY data_pagamento DESC', [req.params.id]);
   res.json(pagamentos);
 });
 
