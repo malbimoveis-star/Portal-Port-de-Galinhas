@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cadastro do Turista - Portal Porto de Galinhas</title>
+<meta name="description" content="Cadastre-se como turista no Portal Porto de Galinhas e assine por R$9,90/mes para liberar o acesso completo as fanpages de pousadas, passeios e comercios locais." />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="https://portal-porto-galinhas.onrender.com/pages/cadastro-turista.html" />
+<link rel="icon" href="../assets/icons/logo-tucano.svg" />
+<link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+<div id="layout-header"></div>
+
+<div class="pagina" style="max-width: 480px;">
+<div class="card">
+<h1 id="formTitulo">Cadastro do Turista</h1>
+<p style="margin-bottom:16px; color: var(--cinza-texto, #666);">Assine por R$9,90/mes e libere o acesso completo as fanpages de pousadas, passeios e comercios de Porto de Galinhas.</p>
+
+<div id="mensagemErro" class="alerta alerta--erro" style="display:none;"></div>
+
+<form id="formCadastro">
+<div class="form-grupo">
+<label>Nome</label>
+<input type="text" id="campoNome" required />
+</div>
+<div class="form-grupo">
+<label>E-mail</label>
+<input type="email" id="campoEmail" required />
+</div>
+<div class="form-grupo">
+<label>Senha</label>
+<div class="campo-senha-wrapper">
+<input type="password" id="campoSenha" required minlength="6" />
+<button type="button" class="btn-toggle-senha" data-alvo="campoSenha" aria-label="Mostrar senha">👁️</button>
+</div>
+</div>
+<button type="submit" class="btn btn--verde" style="width:100%;">Cadastrar e assinar</button>
+</form>
+
+<p style="text-align:center; margin-top:16px;">
+<a href="login-turista.html">Ja tenho conta, quero entrar</a>
+</p>
+</div>
+</div>
+
+<div id="layout-rodape"></div>
+
+<script src="../js/config.js"></script>
+<script src="../js/i18n.js"></script>
+<script src="../js/layout.js"></script>
+<script src="../js/auth-turista.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => window.authTurista.initCadastro());
+</script>
+</body>
+</html>
