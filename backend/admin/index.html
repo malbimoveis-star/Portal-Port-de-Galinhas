@@ -44,6 +44,12 @@
     .card { background: #fff; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); padding: 24px; margin-bottom: 24px; }
     .card h2 { font-size: 1.15rem; color: #0f3460; margin-bottom: 8px; }
     .card > p { color: #666; margin-bottom: 20px; font-size: 0.95rem; }
+    .resumo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; }
+    .resumo-item { background: #f7f9fc; border-radius: 10px; padding: 16px; text-align: center; }
+    .resumo-item strong { display: block; font-size: 1.6rem; color: #0f3460; }
+    .resumo-item span { font-size: 0.8rem; color: #666; }
+    .notificacao-item { padding: 10px 14px; border-left: 3px solid #e94560; background: #fff6f7; border-radius: 6px; margin-bottom: 8px; font-size: 0.9rem; color: #333; }
+    .notificacao-item small { display: block; color: #999; margin-top: 2px; }
 
     .tabela-container { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
@@ -140,7 +146,8 @@
     </header>
 
     <nav class="admin-nav">
-      <button type="button" data-aba="anuncios" class="ativo">Anúncios</button>
+      <button type="button" data-aba="resumo" class="ativo">Resumo Geral</button>
+      <button type="button" data-aba="anuncios">Anúncios</button>
       <button type="button" data-aba="visualizacoes">Visualizações</button>
       <button type="button" data-aba="categorias">Categorias</button>
       <button type="button" data-aba="comerciantes">Comerciantes</button>
@@ -149,8 +156,32 @@
 
     <main class="admin-conteudo">
 
+      <!-- ABA RESUMO GERAL (Fase 2 do dashboard) -->
+      <section id="abaResumo">
+        <div class="card">
+          <h2>Notificações Recentes</h2>
+          <p>Anúncios aguardando aprovação, novos comerciantes cadastrados e pagamentos aprovados nas últimas 24 horas.</p>
+          <div id="listaNotificacoesAdmin" class="tabela-container"><div class="vazio">Carregando...</div></div>
+        </div>
+        <div class="card">
+          <h2>Cadastros</h2>
+          <p>Total de contas e anúncios no portal.</p>
+          <div id="gridResumoCadastros" class="resumo-grid"><div class="vazio">Carregando...</div></div>
+        </div>
+        <div class="card">
+          <h2>Financeiro</h2>
+          <p>Receita e assinaturas ativas.</p>
+          <div id="gridResumoFinanceiro" class="resumo-grid"><div class="vazio">Carregando...</div></div>
+        </div>
+        <div class="card">
+          <h2>Engajamento</h2>
+          <p>Curtidas, comentários e visualizações de anúncios.</p>
+          <div id="gridResumoEngajamento" class="resumo-grid"><div class="vazio">Carregando...</div></div>
+        </div>
+      </section>
+
       <!-- ABA ANÚNCIOS -->
-      <section id="abaAnuncios">
+      <section id="abaAnuncios" class="escondido">
         <div class="card">
           <h2>Anúncios Pendentes de Revisão</h2>
           <p>Anúncios aguardando aprovação para aparecer no portal.</p>
@@ -464,6 +495,7 @@
     const btnSair = document.getElementById('btnSair');
 
     const abas = {
+      resumo: document.getElementById('abaResumo'),
       anuncios: document.getElementById('abaAnuncios'),
       visualizacoes: document.getElementById('abaVisualizacoes'),
       categorias: document.getElementById('abaCategorias'),
@@ -546,6 +578,7 @@
     function mostrarDashboard() {
       esconder(telaLogin);
       mostrar(telaDashboard);
+      carregarResumoGeral();
       carregarAnunciosPendentes();
       carregarAnunciosTodos();
       carregarVisualizacoes();
@@ -553,6 +586,73 @@
       carregarComerciantes();
       carregarBlog();
     }
+
+    /* ===== ABA RESUMO GERAL (Fase 2 do dashboard) ===== */
+    function formatarMoeda(valor) {
+      return 'R$ ' + Number(valor || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function renderResumoGrid(containerId, itens) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      container.innerHTML = itens.map(function (item) {
+        return '<div class="resumo-item"><strong>' + item.valor + '</strong><span>' + item.rotulo + '</span></div>';
+      }).join('');
+    }
+
+    function renderNotificacoesAdmin(notificacoes) {
+      const container = document.getElementById('listaNotificacoesAdmin');
+      if (!container) return;
+      if (!notificacoes.length) {
+        container.innerHTML = '<div class="vazio">Nenhuma notificação no momento.</div>';
+        return;
+      }
+      container.innerHTML = notificacoes.map(function (n) {
+        const dataTexto = n.data ? new Date(n.data).toLocaleString('pt-BR') : '';
+        return '<div class="notificacao-item">' + escapeHtml(n.texto) + (dataTexto ? '<small>' + dataTexto + '</small>' : '') + '</div>';
+      }).join('');
+    }
+
+    async function carregarResumoGeral() {
+      try {
+        const data = await apiGet('/admin/resumo');
+        const c = data.cadastros || {};
+        const f = data.financeiro || {};
+        const e = data.engajamento || {};
+
+        renderResumoGrid('gridResumoCadastros', [
+          { rotulo: 'Comerciantes (total)', valor: c.comerciantes_total || 0 },
+          { rotulo: 'Comerciantes ativos', valor: c.comerciantes_ativos || 0 },
+          { rotulo: 'Em degustação', valor: c.comerciantes_degustacao || 0 },
+          { rotulo: 'Expirados', valor: c.comerciantes_expirados || 0 },
+          { rotulo: 'Turistas (total)', valor: c.turistas_total || 0 },
+          { rotulo: 'Turistas ativos', valor: c.turistas_ativos || 0 },
+          { rotulo: 'Anúncios (total)', valor: c.anuncios_total || 0 },
+          { rotulo: 'Anúncios ativos', valor: c.anuncios_ativos || 0 },
+          { rotulo: 'Anúncios pendentes', valor: c.anuncios_pendentes || 0 },
+          { rotulo: 'Categorias', valor: c.categorias_total || 0 },
+        ]);
+
+        renderResumoGrid('gridResumoFinanceiro', [
+          { rotulo: 'Receita total', valor: formatarMoeda(f.receita_total) },
+          { rotulo: 'Receita no mês', valor: formatarMoeda(f.receita_mes_atual) },
+          { rotulo: 'Pagamentos aprovados', valor: f.pagamentos_aprovados_total || 0 },
+          { rotulo: 'Assinaturas ativas', valor: f.assinaturas_ativas || 0 },
+        ]);
+
+        renderResumoGrid('gridResumoEngajamento', [
+          { rotulo: 'Curtidas', valor: e.curtidas_total || 0 },
+          { rotulo: 'Comentários', valor: e.comentarios_total || 0 },
+          { rotulo: 'Visualizações de anúncios', valor: e.visualizacoes_total || 0 },
+        ]);
+
+        renderNotificacoesAdmin(data.notificacoes || []);
+      } catch (err) {
+        const elNotif = document.getElementById('listaNotificacoesAdmin');
+        if (elNotif) elNotif.innerHTML = '<div class="vazio">Erro ao carregar resumo geral.</div>';
+      }
+    }
+    /* ===== FIM ABA RESUMO GERAL ===== */
 
     /* ===== ABA VISUALIZAÇÕES ===== */
     let graficoVisualizacoesChart = null;
@@ -654,6 +754,7 @@
         // depois que a aba e exibida. Recarregar (recriar) o grafico aqui,
         // com a aba ja visivel e com dimensoes reais, resolve isso.
         if (aba === 'visualizacoes') carregarVisualizacoes();
+        if (aba === 'resumo') carregarResumoGeral();
       });
     });
 
