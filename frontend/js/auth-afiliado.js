@@ -87,12 +87,17 @@
       const rg = document.getElementById('campoRg').value.trim();
       const cpf = document.getElementById('campoCpf').value.trim();
       const telefone = document.getElementById('campoTelefone').value.trim();
+      const chave_pix = document.getElementById('campoChavePix').value.trim();
       const campoDocumento = document.getElementById('campoDocumento');
       const arquivo = campoDocumento && campoDocumento.files ? campoDocumento.files[0] : null;
       const aceiteTermos = document.getElementById('campoAceiteTermos');
 
       if (!cpfValidoNoNavegador(cpf)) {
         mostrarErro('CPF invalido. Confira o numero digitado.');
+        return;
+      }
+      if (!chave_pix) {
+        mostrarErro('Informe sua chave Pix para receber as comissões.');
         return;
       }
       if (!arquivo) {
@@ -114,7 +119,7 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            nome, email, senha, rg, cpf, telefone,
+            nome, email, senha, rg, cpf, telefone, chave_pix,
             documento_base64,
             documento_nome: arquivo.name,
             documento_tipo: arquivo.type,

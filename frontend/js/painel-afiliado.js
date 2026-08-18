@@ -52,7 +52,8 @@
     if (infoTermos && data.afiliado && data.afiliado.termos_aceitos_em) {
       const data_ = new Date(data.afiliado.termos_aceitos_em);
       const dataFormatada = isNaN(data_.getTime()) ? data.afiliado.termos_aceitos_em : data_.toLocaleDateString('pt-BR');
-      infoTermos.textContent = `Termo de Afiliado (v${data.afiliado.termos_versao || '1.0'}) aceito em ${dataFormatada}. Comissão de 50%, fechamento no último dia do mês e pagamento até o 5º dia útil do mês seguinte.`;
+      const chavePix = data.afiliado.chave_pix ? ` Chave Pix cadastrada para pagamento: ${data.afiliado.chave_pix}.` : '';
+      infoTermos.textContent = `Termo de Afiliado (v${data.afiliado.termos_versao || '1.0'}) aceito em ${dataFormatada}. Comissão de 50%, fechamento no último dia do mês e pagamento até o 5º dia útil do mês seguinte.${chavePix}`;
     }
   }
 
