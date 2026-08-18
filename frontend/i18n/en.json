@@ -78,6 +78,8 @@
     "assine_ja": "Tourist"
   },
   "rodape": {
+    "titulo_navegacao": "Navigation",
+    "titulo_outros": "Other",
     "termos": "Terms of Use",
     "privacidade": "Privacy Policy",
     "suporte": "24h Support",
