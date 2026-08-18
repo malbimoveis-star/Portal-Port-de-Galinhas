@@ -52,6 +52,7 @@
             <a href="${base}pages/contato.html" data-i18n="menu.contato">Contato</a>
             <a href="${base}pages/cadastro-comerciante.html" data-i18n="menu.sou_comerciante">Sou Comerciante</a>
             <a href="${base}pages/planos-turista.html" data-i18n="menu.sou_turista">Sou Turista</a>
+            <a href="${base}pages/cadastro-afiliado.html" data-i18n="menu.seja_afiliado">Seja um Afiliado</a>
           </nav>
           <div class="header__actions">
             <div class="lang-selector">
@@ -103,6 +104,35 @@
     btn.addEventListener('click', () => menu.classList.toggle('aberto'));
   }
 
+  // Fase 3 (sistema de afiliados): quando alguem chega no site com
+  // ?ref=CODIGO (link de indicacao de um afiliado), guarda o codigo no
+  // localStorage (usado depois no cadastro de comerciante) e avisa o
+  // backend pra contar o clique. So registra o clique uma vez por sessao de
+  // navegador, mesmo que o visitante navegue por varias paginas com o link.
+  const CHAVE_REF_AFILIADO = 'portal_pg_ref_afiliado';
+  const CHAVE_REF_CLIQUE_REGISTRADO = 'portal_pg_ref_clique_registrado';
+
+  function capturarReferenciaAfiliado() {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref');
+    if (!ref) return;
+
+    try { localStorage.setItem(CHAVE_REF_AFILIADO, ref); } catch (e) {}
+
+    let jaRegistrado = null;
+    try { jaRegistrado = sessionStorage.getItem(CHAVE_REF_CLIQUE_REGISTRADO); } catch (e) {}
+    if (jaRegistrado === ref) return;
+
+    const apiBase = (window.APP_CONFIG && window.APP_CONFIG.API_BASE_URL) || '';
+    fetch(`${apiBase}/api/afiliados/registrar-clique`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ codigo: ref }),
+    }).then(() => {
+      try { sessionStorage.setItem(CHAVE_REF_CLIQUE_REGISTRADO, ref); } catch (e) {}
+    }).catch(() => {});
+  }
+
   window.layoutPortal = {
     montarHeader,
     montarRodape,
@@ -115,6 +145,7 @@
       if (headerEl) headerEl.innerHTML = montarHeader();
       if (rodapeEl) rodapeEl.innerHTML = montarRodape();
       ativarHamburguer();
+      capturarReferenciaAfiliado();
       if (window.i18nPortal) window.i18nPortal.init();
     },
   };

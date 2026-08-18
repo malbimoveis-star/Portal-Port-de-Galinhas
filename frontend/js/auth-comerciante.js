@@ -56,12 +56,18 @@
       const email = document.getElementById('campoEmail').value.trim();
       const telefone = document.getElementById('campoTelefone').value.trim();
       const senha = document.getElementById('campoSenha').value;
+      // Fase 3 (sistema de afiliados): se o visitante chegou por um link de
+      // indicacao (?ref=CODIGO), o codigo foi guardado no localStorage pelo
+      // layout.js - manda junto no cadastro pra ligar esse comerciante ao
+      // afiliado que indicou.
+      let codigo_afiliado = null;
+      try { codigo_afiliado = localStorage.getItem('portal_pg_ref_afiliado') || null; } catch (e) {}
 
       try {
         const resp = await fetch(`${API}/api/comerciantes/cadastro`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nome, email, telefone, senha }),
+          body: JSON.stringify({ nome, email, telefone, senha, codigo_afiliado }),
         });
         const data = await resp.json();
         if (!resp.ok) {
