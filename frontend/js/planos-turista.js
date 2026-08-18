@@ -33,6 +33,31 @@
       return;
     }
 
+    // Se a assinatura ja esta ativa (ex: conta de teste do dono do site, ou
+    // turista que ja pagou antes), nao faz sentido mandar de novo pro
+    // checkout do Mercado Pago. Antes disso acontecia sempre, mesmo com
+    // assinatura ja ativa - o botao "Assinar" ia direto pro checkout de
+    // novo. Agora mostramos a validade e um link pra navegar no site.
+    var assinaturaAtiva = !!(
+      turista.status === 'ativo' &&
+      turista.data_expiracao &&
+      new Date(turista.data_expiracao).getTime() > Date.now()
+    );
+
+    if (assinaturaAtiva) {
+      var dataFormatada = new Date(turista.data_expiracao).toLocaleDateString('pt-BR');
+      var linkNavegar = retorno ? retorno : '../index.html';
+      grid.innerHTML =
+        '<div class="plano-card">' +
+        '<h3 data-i18n="planos.turista">' + plano.nome + '</h3>' +
+        '<p style="color:#888;font-size:.85em;">Logado como ' + (turista.nome || turista.email) + '</p>' +
+        '<p style="color:#2e7d32;font-weight:600;">Assinatura ativa ate ' + dataFormatada + '</p>' +
+        '<a class="btn btn--verde" style="width:100%;display:block;text-align:center;" href="' + linkNavegar + '">Navegar no site</a>' +
+        '</div>';
+      if (window.i18nPortal) window.i18nPortal.init();
+      return;
+    }
+
     grid.innerHTML =
       '<div class="plano-card">' +
       '<h3 data-i18n="planos.turista">' + plano.nome + '</h3>' +
