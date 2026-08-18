@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel do Afiliado - Portal Porto de Galinhas</title>
+  <link rel="icon" href="../assets/icons/logo-tucano.svg" />
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+  <div id="layout-header"></div>
+
+  <div class="pagina" style="max-width: 900px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+      <h1>Painel do Afiliado</h1>
+      <button class="btn btn--vermelho" id="btnSair">Sair</button>
+    </div>
+
+    <div id="mensagemErro" class="alerta alerta--erro" style="display:none;"></div>
+
+    <div class="card">
+      <h2>Seu link de indicação</h2>
+      <p style="color: var(--cinza-texto, #666); margin-bottom: 12px;">Compartilhe esse link com comerciantes de Porto de Galinhas. Quando alguem se cadastrar por ele e assinar um plano, voce ganha 50% de comissao sobre o valor pago.</p>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <input type="text" id="campoLinkIndicacao" readonly style="flex:1; min-width:220px; padding:10px; border-radius:8px; border:1px solid #ccc;" />
+        <button type="button" class="btn btn--verde" id="btnCopiarLink">Copiar link</button>
+      </div>
+      <p id="infoTermos" style="margin-top:10px; font-size:.85em; color: var(--cinza-texto, #666);"></p>
+    </div>
+
+    <div class="painel-grid">
+      <div class="painel-stat">
+        <div class="valor" id="statCliques">-</div>
+        <div>Cliques no seu link</div>
+      </div>
+      <div class="painel-stat">
+        <div class="valor" id="statIndicacoes">-</div>
+        <div>Comerciantes indicados</div>
+      </div>
+      <div class="painel-stat">
+        <div class="valor" id="statComissaoPendente">-</div>
+        <div>Comissao pendente</div>
+      </div>
+      <div class="painel-stat">
+        <div class="valor" id="statComissaoPaga">-</div>
+        <div>Comissao ja paga</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Extrato de Comissões</h2>
+      <p style="color: var(--cinza-texto, #666); margin-bottom: 12px;">O pagamento das comissoes pendentes e feito manualmente pelo Portal Porto de Galinhas no fechamento de cada mes.</p>
+      <div id="listaComissoes" class="tabela-container"><div class="vazio">Carregando...</div></div>
+    </div>
+  </div>
+
+  <div id="layout-rodape"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/i18n.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/auth-afiliado.js"></script>
+  <script src="../js/painel-afiliado.js"></script>
+</body>
+</html>

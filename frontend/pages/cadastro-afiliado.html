@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Seja um Afiliado - Portal Porto de Galinhas</title>
+<meta name="description" content="Cadastre-se como afiliado do Portal Porto de Galinhas e ganhe 50% de comissao sobre cada plano de comerciante que voce indicar." />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="https://portal-porto-galinhas.onrender.com/pages/cadastro-afiliado.html" />
+<link rel="icon" href="../assets/icons/logo-tucano.svg" />
+<link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+<div id="layout-header"></div>
+
+<div class="pagina" style="max-width: 480px;">
+<div class="card">
+<h1 id="formTitulo">Seja um Afiliado</h1>
+<p style="margin-bottom:16px; color: var(--cinza-texto, #666);">Cadastre-se de graca, receba seu link de indicacao proprio e ganhe <strong>50% de comissao</strong> sobre o valor de cada plano de comerciante que voce indicar para o Portal Porto de Galinhas.</p>
+
+<div id="mensagemErro" class="alerta alerta--erro" style="display:none;"></div>
+
+<form id="formCadastro">
+<div class="form-grupo">
+<label>Nome completo</label>
+<input type="text" id="campoNome" required />
+</div>
+<div class="form-grupo">
+<label>E-mail</label>
+<input type="email" id="campoEmail" required />
+</div>
+<div class="form-grupo">
+<label>Senha</label>
+<div class="campo-senha-wrapper">
+<input type="password" id="campoSenha" required minlength="6" />
+<button type="button" class="btn-toggle-senha" data-alvo="campoSenha" aria-label="Mostrar senha">👁️</button>
+</div>
+</div>
+<div class="form-grupo">
+<label>RG</label>
+<input type="text" id="campoRg" required />
+</div>
+<div class="form-grupo">
+<label>CPF</label>
+<input type="text" id="campoCpf" required placeholder="000.000.000-00" />
+</div>
+<div class="form-grupo">
+<label>Telefone / WhatsApp</label>
+<input type="tel" id="campoTelefone" required placeholder="(81) 90000-0000" />
+</div>
+<div class="form-grupo">
+<label>Documento (RG ou CPF - foto ou PDF)</label>
+<input type="file" id="campoDocumento" accept="image/*,application/pdf" required />
+<small style="color: var(--cinza-texto, #666);">Usado apenas para conferir sua identidade antes do pagamento das comissões. Tamanho máximo: 5 MB.</small>
+</div>
+
+<div class="form-grupo">
+<label>Termo de Aceite do Programa de Afiliados</label>
+<div id="caixaTermos" style="max-height:180px; overflow-y:auto; border:1px solid #ccc; border-radius:8px; padding:12px; font-size:.85em; color: var(--cinza-texto, #555); background:#fafafa;">
+<p><strong>1. Objeto.</strong> Este termo regula a participação do AFILIADO no Programa de Afiliados do Portal Porto de Galinhas, por meio do qual o afiliado divulga um link de indicação próprio e recebe comissão pela indicação de comerciantes que venham a contratar um plano pago de anúncios no portal.</p>
+<p><strong>2. Comissão.</strong> O afiliado recebe <strong>50% (cinquenta por cento)</strong> do valor efetivamente pago pelo comerciante indicado, referente ao pacote/plano de anúncios contratado, sempre que o comerciante tiver se cadastrado através do link de indicação do afiliado.</p>
+<p><strong>3. Fechamento mensal.</strong> As comissões são apuradas e fechadas no último dia de cada mês (dia 30 ou 31, conforme o mês).</p>
+<p><strong>4. Pagamento.</strong> O pagamento das comissões referentes ao fechamento do mês é realizado pelo Portal Porto de Galinhas até o <strong>5º (quinto) dia útil</strong> do mês seguinte, por fora da plataforma (Pix ou transferência bancária), conforme dados informados pelo afiliado.</p>
+<p><strong>5. Natureza da relação.</strong> A participação no Programa de Afiliados não gera vínculo empregatício, societário ou de representação comercial entre o afiliado e o Portal Porto de Galinhas, tratando-se de parceria de divulgação remunerada por comissão.</p>
+<p><strong>6. Identificação e dados pessoais.</strong> O afiliado declara serem verdadeiros os dados informados (nome, RG, CPF, telefone) e o documento anexado, autorizando seu uso exclusivamente para fins de identificação, conferência antes do pagamento e cumprimento de obrigações legais, em conformidade com a Lei Geral de Proteção de Dados (LGPD).</p>
+<p><strong>7. Uso indevido e cancelamento.</strong> O Portal Porto de Galinhas pode suspender ou bloquear o afiliado, cancelando comissões pendentes, em caso de fraude, indicações fictícias, uso indevido do link ou descumprimento deste termo.</p>
+<p><strong>8. Aceite.</strong> Ao marcar a caixa abaixo e concluir o cadastro, o afiliado declara ter lido, compreendido e concordado integralmente com este Termo de Aceite (versão 1.0).</p>
+</div>
+<label style="display:flex; align-items:flex-start; gap:8px; margin-top:10px; font-weight:normal;">
+<input type="checkbox" id="campoAceiteTermos" required style="margin-top:4px;" />
+<span>Li e aceito o Termo de Aceite do Programa de Afiliados acima, incluindo as regras de comissão (50%), fechamento mensal e pagamento até o 5º dia útil do mês seguinte.</span>
+</label>
+</div>
+
+<button type="submit" class="btn btn--verde" style="width:100%;">Cadastrar como afiliado</button>
+</form>
+
+<p style="text-align:center; margin-top:16px;">
+<a href="login-afiliado.html">Ja sou afiliado, quero entrar</a>
+</p>
+</div>
+</div>
+
+<div id="layout-rodape"></div>
+
+<script src="../js/config.js"></script>
+<script src="../js/i18n.js"></script>
+<script src="../js/layout.js"></script>
+<script src="../js/auth-afiliado.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => window.authAfiliado.initCadastro());
+</script>
+</body>
+</html>
