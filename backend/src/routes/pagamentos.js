@@ -80,6 +80,23 @@ router.post('/checkout', async (req, res) => {
         auto_return: 'approved',
         external_reference: externalReference,
         notification_url: `${BACKEND_URL}/api/pagamentos/webhook`,
+        // Checkout restrito a cartao de credito e Pix (vale para os 3 planos:
+        // turista, comerciante_basico e comerciante_premium, pois todos
+        // passam por esta mesma criacao de preferencia). Exclui boleto, cartao
+        // de debito, pre-pago, saldo em conta MP, moeda digital e voucher.
+        payment_methods: {
+          excluded_payment_types: [
+            { id: 'ticket' },
+            { id: 'atm' },
+            { id: 'debit_card' },
+            { id: 'prepaid_card' },
+            { id: 'digital_currency' },
+            { id: 'voucher_card' },
+          ],
+          excluded_payment_methods: [
+            { id: 'account_money' },
+          ],
+        },
       },
     });
 
