@@ -1216,7 +1216,7 @@ router.get('/afiliados', autenticarAdmin, async (req, res) => {
   try {
     const afiliados = await db.all(
       `SELECT a.id, a.nome, a.email, a.codigo, a.status, a.cliques, a.criado_em,
-              a.rg, a.cpf, a.telefone, a.termos_aceitos_em, a.termos_versao,
+              a.rg, a.cpf, a.telefone, a.chave_pix, a.termos_aceitos_em, a.termos_versao,
               (a.documento_base64 IS NOT NULL) AS tem_documento,
               (SELECT COUNT(*)::int FROM comerciantes c WHERE c.id_afiliado_referenciador = a.id) AS indicacoes_total,
               COALESCE((SELECT SUM(valor_comissao) FROM comissoes_afiliado co WHERE co.id_afiliado = a.id AND co.status = 'pendente'), 0)::float AS comissao_pendente,
@@ -1310,6 +1310,25 @@ router.put('/afiliados/:id/status', autenticarAdmin, async (req, res) => {
   } catch (err) {
     console.error('[ADMIN] Erro ao atualizar status do afiliado:', err);
     res.status(500).json({ erro: 'Erro ao atualizar status do afiliado.' });
+  }
+});
+
+// DELETE /api/admin/afiliados/:id - exclui um afiliado (ex: cadastros de
+// teste). As comissoes desse afiliado sao removidas junto (ON DELETE
+// CASCADE em comissoes_afiliado). O vinculo id_afiliado_referenciador nos
+// comerciantes ja indicados nao e apagado, so fica "orfao" (sem FK), entao
+// o historico de quem indicou quem se mantem mesmo apos a exclusao.
+router.delete('/afiliados/:id', autenticarAdmin, async (req, res) => {
+  try {
+    const afiliado = await db.get('SELECT id FROM afiliados WHERE id = ?', [req.params.id]);
+    if (!afiliado) {
+      return res.status(404).json({ erro: 'Afiliado nao encontrado.' });
+    }
+    await db.run('DELETE FROM afiliados WHERE id = ?', [req.params.id]);
+    res.json({ sucesso: true });
+  } catch (err) {
+    console.error('[ADMIN] Erro ao excluir afiliado:', err);
+    res.status(500).json({ erro: 'Erro ao excluir afiliado.' });
   }
 });
 

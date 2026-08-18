@@ -74,13 +74,13 @@ const VERSAO_TERMOS_AFILIADO = '1.0';
 
 router.post('/cadastro', async (req, res) => {
   const {
-    nome, email, senha, rg, cpf, telefone,
+    nome, email, senha, rg, cpf, telefone, chave_pix,
     documento_base64, documento_nome, documento_tipo,
     aceite_termos,
   } = req.body;
 
-  if (!nome || !email || !senha || !rg || !cpf || !telefone) {
-    return res.status(400).json({ erro: 'Campos "nome", "email", "senha", "rg", "cpf" e "telefone" sao obrigatorios.' });
+  if (!nome || !email || !senha || !rg || !cpf || !telefone || !chave_pix) {
+    return res.status(400).json({ erro: 'Campos "nome", "email", "senha", "rg", "cpf", "telefone" e "chave_pix" sao obrigatorios.' });
   }
 
   if (!cpfValido(cpf)) {
@@ -116,11 +116,11 @@ router.post('/cadastro', async (req, res) => {
 
   const info = await db.run(
     `INSERT INTO afiliados
-       (nome, email, senha_hash, codigo, status, rg, cpf, telefone, documento_nome, documento_tipo, documento_base64, termos_aceitos_em, termos_versao)
-     VALUES (?, ?, ?, ?, 'ativo', ?, ?, ?, ?, ?, ?, ?, ?)`,
+       (nome, email, senha_hash, codigo, status, rg, cpf, telefone, chave_pix, documento_nome, documento_tipo, documento_base64, termos_aceitos_em, termos_versao)
+     VALUES (?, ?, ?, ?, 'ativo', ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       nome, email, senha_hash, codigo,
-      String(rg).trim(), String(cpf).replace(/\D/g, ''), String(telefone).trim(),
+      String(rg).trim(), String(cpf).replace(/\D/g, ''), String(telefone).trim(), String(chave_pix).trim(),
       documento_nome, documento_tipo || null, documento_base64,
       agora, VERSAO_TERMOS_AFILIADO,
     ]
