@@ -1010,9 +1010,15 @@
           const termosInfo = a.termos_aceitos_em
             ? 'Termo v' + escapeHtml(a.termos_versao || '1.0') + ' aceito em ' + new Date(a.termos_aceitos_em).toLocaleDateString('pt-BR')
             : 'Termo nao aceito';
+          const etapaCadastro = a.perfil_completo
+            ? '<span class="badge badge--ativo">Completo</span>'
+            : (a.email_confirmado
+                ? '<span class="badge badge--pendente">Aguardando dados/documento</span>'
+                : '<span class="badge badge--bloqueado">Aguardando confirmar e-mail</span>');
           return '<tr>' +
             '<td><strong>' + escapeHtml(a.nome) + '</strong><div style="font-size:.8em;color:#888;">' + escapeHtml(a.email) + '</div><div style="font-size:.75em;color:#aaa;">' + termosInfo + '</div></td>' +
             '<td><code>' + escapeHtml(a.codigo) + '</code></td>' +
+            '<td>' + etapaCadastro + '</td>' +
             '<td>' + escapeHtml(a.cpf || '-') + '</td>' +
             '<td>' + escapeHtml(a.telefone || '-') + '</td>' +
             '<td>' + escapeHtml(a.chave_pix || '-') + '</td>' +
@@ -1024,7 +1030,7 @@
             '<td>' + acoes + '</td>' +
             '</tr>';
         }).join('');
-        container.innerHTML = '<table><thead><tr><th>Afiliado</th><th>Código</th><th>CPF</th><th>Telefone</th><th>Chave Pix</th><th>Cliques</th><th>Indicações</th><th>Comissão Pendente</th><th>Comissão Paga</th><th>Status</th><th>Ações</th></tr></thead><tbody>' + linhas + '</tbody></table>';
+        container.innerHTML = '<table><thead><tr><th>Afiliado</th><th>Código</th><th>Etapa do cadastro</th><th>CPF</th><th>Telefone</th><th>Chave Pix</th><th>Cliques</th><th>Indicações</th><th>Comissão Pendente</th><th>Comissão Paga</th><th>Status</th><th>Ações</th></tr></thead><tbody>' + linhas + '</tbody></table>';
 
         document.querySelectorAll('.btn-ver-documento-afiliado').forEach(btn => {
           btn.addEventListener('click', async () => {
