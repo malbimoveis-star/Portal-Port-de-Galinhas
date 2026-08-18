@@ -7,6 +7,12 @@ const upload = require('../middleware/upload');
 
 const router = express.Router();
 
+// Ate 25 fotos e 25 videos por anuncio.
+const uploadMidia = upload.fields([
+  { name: 'fotos', maxCount: 25 },
+  { name: 'videos', maxCount: 25 },
+]);
+
 
 // =========================================================
 // AUXILIAR - PARSEAR ANÚNCIO COM SEGURANÇA
@@ -18,12 +24,19 @@ function parseAnuncio(anuncio) {
   }
 
   let fotos = [];
+  let videos = [];
   let tags = [];
 
   try {
     fotos = JSON.parse(anuncio.fotos || '[]');
   } catch (err) {
     fotos = [];
+  }
+
+  try {
+    videos = JSON.parse(anuncio.videos || '[]');
+  } catch (err) {
+    videos = [];
   }
 
   try {
@@ -35,6 +48,7 @@ function parseAnuncio(anuncio) {
   return {
     ...anuncio,
     fotos,
+    videos,
     tags
   };
 }
@@ -246,7 +260,7 @@ router.put('/anuncios/:id/rejeitar', async (req, res) => {
 // Editar anúncio
 router.put(
   '/anuncios/:id',
-  upload.array('fotos', 6),
+  uploadMidia,
   async (req, res) => {
 
     try {
@@ -276,10 +290,18 @@ router.put(
 
 
       // =====================================================
-      // FOTOS
+      // FOTOS E VIDEOS
       // =====================================================
 
-      const novasFotos = (req.files || [])
+      const arquivos = req.files || {};
+
+      const novasFotos = (arquivos.fotos || [])
+        .map(
+          (f) =>
+            `/assets/uploads/${f.filename}`
+        );
+
+      const novosVideos = (arquivos.videos || [])
         .map(
           (f) =>
             `/assets/uploads/${f.filename}`
@@ -296,11 +318,26 @@ router.put(
         fotosAntigas = [];
       }
 
+      let videosAntigos = [];
+
+      try {
+        videosAntigos = JSON.parse(
+          anuncio.videos || '[]'
+        );
+      } catch (err) {
+        videosAntigos = [];
+      }
+
 
       const fotosFinal =
         novasFotos.length > 0
           ? novasFotos
           : fotosAntigas;
+
+      const videosFinal =
+        novosVideos.length > 0
+          ? novosVideos
+          : videosAntigos;
 
 
       // =====================================================
@@ -349,6 +386,7 @@ router.put(
             descricao = ?,
             categoria_id = ?,
             fotos = ?,
+            videos = ?,
             tags = ?,
             endereco = ?,
             latitude = ?,
@@ -372,6 +410,10 @@ router.put(
 
           JSON.stringify(
             fotosFinal
+          ),
+
+          JSON.stringify(
+            videosFinal
           ),
 
           JSON.stringify(
@@ -484,7 +526,7 @@ router.delete('/anuncios/:id', async (req, res) => {
 // =========================================================
 
 // POST /api/admin/anuncios
-router.post('/anuncios', upload.array('fotos', 6), async (req, res) => {
+router.post('/anuncios', uploadMidia, async (req, res) => {
 
   try {
 
@@ -524,7 +566,9 @@ router.post('/anuncios', upload.array('fotos', 6), async (req, res) => {
       });
     }
 
-    const fotos = (req.files || []).map((f) => `/assets/uploads/${f.filename}`);
+    const arquivos = req.files || {};
+    const fotos = (arquivos.fotos || []).map((f) => `/assets/uploads/${f.filename}`);
+    const videos = (arquivos.videos || []).map((f) => `/assets/uploads/${f.filename}`);
 
     const tagsArray = tags
       ? (Array.isArray(tags) ? tags : String(tags).split(',').map((t) => t.trim()).filter(Boolean))
@@ -533,13 +577,14 @@ router.post('/anuncios', upload.array('fotos', 6), async (req, res) => {
     const statusFinal = status && String(status).trim() ? status : 'ativo';
 
     const info = await db.run(`
-      INSERT INTO anuncios (titulo, descricao, categoria_id, fotos, tags, id_comerciante, endereco, latitude, longitude, status)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO anuncios (titulo, descricao, categoria_id, fotos, videos, tags, id_comerciante, endereco, latitude, longitude, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       String(titulo).trim(),
       descricao || '',
       categoria_id || null,
       JSON.stringify(fotos),
+      JSON.stringify(videos),
       JSON.stringify(tagsArray),
       id_comerciante,
       endereco || null,
