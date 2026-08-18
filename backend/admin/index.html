@@ -106,6 +106,7 @@
     }
   </style>
 <base target="_blank">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -140,6 +141,7 @@
 
     <nav class="admin-nav">
       <button type="button" data-aba="anuncios" class="ativo">Anúncios</button>
+      <button type="button" data-aba="visualizacoes">Visualizações</button>
       <button type="button" data-aba="categorias">Categorias</button>
       <button type="button" data-aba="comerciantes">Comerciantes</button>
       <button type="button" data-aba="blog">Blog</button>
@@ -212,6 +214,31 @@
           </div>
         </div>
 
+      </section>
+
+      <!-- ABA VISUALIZAÇÕES -->
+      <section id="abaVisualizacoes" class="escondido">
+        <div class="card">
+          <h2>Visualizações de Anúncios</h2>
+          <p>Quantas vezes os anúncios foram visualizados pelos turistas, ao longo do tempo.</p>
+          <div class="campo" style="max-width:260px;">
+            <label for="filtroGranularidadeVisualizacoes">Agrupar por</label>
+            <select id="filtroGranularidadeVisualizacoes">
+              <option value="dia">Diário (últimos 30 dias)</option>
+              <option value="semana">Semanal (últimas 12 semanas)</option>
+              <option value="mes">Mensal (últimos 12 meses)</option>
+            </select>
+          </div>
+          <p style="margin-top:10px;"><strong id="totalVisualizacoesPeriodo">0</strong> visualizações no período selecionado.</p>
+          <div style="position:relative; height:320px; margin-top:10px;">
+            <canvas id="graficoVisualizacoes"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Anúncios Mais Visualizados</h2>
+          <p>Ranking dos 10 anúncios com mais visualizações no período selecionado acima.</p>
+          <div id="listaRankingVisualizacoes" class="tabela-container"><div class="vazio">Carregando...</div></div>
+        </div>
       </section>
 
       <!-- ABA CATEGORIAS -->
@@ -438,6 +465,7 @@
 
     const abas = {
       anuncios: document.getElementById('abaAnuncios'),
+      visualizacoes: document.getElementById('abaVisualizacoes'),
       categorias: document.getElementById('abaCategorias'),
       comerciantes: document.getElementById('abaComerciantes'),
       blog: document.getElementById('abaBlog')
@@ -520,10 +548,85 @@
       mostrar(telaDashboard);
       carregarAnunciosPendentes();
       carregarAnunciosTodos();
+      carregarVisualizacoes();
       carregarCategorias();
       carregarComerciantes();
       carregarBlog();
     }
+
+    /* ===== ABA VISUALIZAÇÕES ===== */
+    let graficoVisualizacoesChart = null;
+    const filtroGranularidadeVisualizacoes = document.getElementById('filtroGranularidadeVisualizacoes');
+
+    const LABEL_GRANULARIDADE = { dia: 'Dia', semana: 'Semana', mes: 'Mês' };
+
+    async function carregarVisualizacoes() {
+      const granularidade = filtroGranularidadeVisualizacoes ? filtroGranularidadeVisualizacoes.value : 'dia';
+      const containerRanking = document.getElementById('listaRankingVisualizacoes');
+      try {
+        const data = await apiGet('/admin/visualizacoes?granularidade=' + encodeURIComponent(granularidade));
+        renderGraficoVisualizacoes(data.serie || [], granularidade);
+        document.getElementById('totalVisualizacoesPeriodo').textContent = data.total_periodo || 0;
+        renderRankingVisualizacoes(data.ranking || []);
+      } catch (e) {
+        if (containerRanking) containerRanking.innerHTML = '<div class="vazio">Erro ao carregar visualizações.</div>';
+      }
+    }
+
+    function renderGraficoVisualizacoes(serie, granularidade) {
+      const canvas = document.getElementById('graficoVisualizacoes');
+      if (!canvas || typeof Chart === 'undefined') return;
+      const labels = serie.map(p => p.periodo);
+      const valores = serie.map(p => Number(p.total));
+
+      if (graficoVisualizacoesChart) { graficoVisualizacoesChart.destroy(); }
+      graficoVisualizacoesChart = new Chart(canvas.getContext('2d'), {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Visualizações por ' + (LABEL_GRANULARIDADE[granularidade] || 'período'),
+            data: valores,
+            borderColor: '#1F4E78',
+            backgroundColor: 'rgba(31, 78, 120, 0.12)',
+            tension: 0.25,
+            fill: true,
+            pointRadius: 3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    function renderRankingVisualizacoes(ranking) {
+      const container = document.getElementById('listaRankingVisualizacoes');
+      if (!container) return;
+      if (!ranking.length) { container.innerHTML = '<div class="vazio">Nenhuma visualização registrada nesse período ainda.</div>'; return; }
+      const linhas = ranking.map((item, idx) => `
+        <tr>
+          <td>${idx + 1}º</td>
+          <td>${escapeHtml(item.titulo || '')}</td>
+          <td>${escapeHtml(item.nome_comerciante || '')}</td>
+          <td>${item.total}</td>
+        </tr>
+      `).join('');
+      container.innerHTML = `
+        <table>
+          <thead><tr><th>#</th><th>Anúncio</th><th>Comerciante</th><th>Visualizações</th></tr></thead>
+          <tbody>${linhas}</tbody>
+        </table>
+      `;
+    }
+
+    if (filtroGranularidadeVisualizacoes) {
+      filtroGranularidadeVisualizacoes.addEventListener('change', carregarVisualizacoes);
+    }
+    /* ===== FIM ABA VISUALIZAÇÕES ===== */
 
     function fazerLogout() {
       token = '';
