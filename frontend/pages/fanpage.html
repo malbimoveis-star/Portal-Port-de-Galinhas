@@ -250,6 +250,17 @@
                 return;
         }
 
+    // Registra uma visualizacao pra cada anuncio exibido nesta fanpage
+    // (alimenta o grafico e o ranking de mais vistos no painel do admin).
+    // Best-effort: nao trava nem quebra a pagina se a chamada falhar.
+    if (anuncios.length) {
+      fetch(`${API}/api/anuncios/visualizacoes/lote`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: anuncios.map((a) => a.id) }),
+      }).catch(() => {});
+    }
+
     document.title = comerciante.nome + ' — Portal Porto de Galinhas';
     document.getElementById('nome').textContent = comerciante.nome;
     document.getElementById('subtitulo').textContent = [comerciante.categoria, comerciante.cidade].filter(Boolean).join(' · ');
