@@ -75,7 +75,7 @@
   .post-cabecalho span { display: block; font-size: .78em; color: #889; }
   .post-menu { color: #aab5bd; font-size: 1.2em; }
   .post-legenda { padding: 0 16px 12px; color: #33454f; font-size: .95em; font-weight: 600; white-space: pre-line; }
-  .post img.post-foto { width: 100%; max-height: 480px; object-fit: cover; display: block; }
+  .post img.post-foto, .post video.post-foto { width: 100%; max-height: 480px; object-fit: cover; display: block; background: #000; }
   .post-acoes { display: flex; gap: 4px; padding: 8px 16px; border-top: 1px solid #eef2f5; }
   .btn-curtir, .btn-comentar, .btn-compartilhar { background: none; border: none; cursor: pointer; color: #55707f; font-size: .88em; padding: 8px 10px; border-radius: 6px; font-weight: 600; flex: 1; }
   .btn-curtir:hover, .btn-comentar:hover, .btn-compartilhar:hover { background: #f2f5f8; }
@@ -330,15 +330,24 @@
 
     const posts = [];
     anuncios.forEach(a => {
-      const fotos = a.fotos && a.fotos.length ? a.fotos : [null];
-      fotos.forEach((foto, idx) => posts.push({ anuncio: a, foto, fotoKey: `${a.id}-${idx}` }));
+      const midias = [
+        ...(a.fotos || []).map((src) => ({ src, tipo: 'foto' })),
+        ...(a.videos || []).map((src) => ({ src, tipo: 'video' })),
+      ];
+      const lista = midias.length ? midias : [{ src: null, tipo: 'foto' }];
+      lista.forEach((midia, idx) => posts.push({ anuncio: a, midia, fotoKey: `${a.id}-${idx}` }));
     });
-    const postsLimitados = posts.slice(0, LIMITE_FOTOS);
+    const postsLimitados = posts.slice(0, LIMITE_FOTOS * 2);
 
-    feed.innerHTML = postsLimitados.map(({ anuncio, foto, fotoKey }) => {
+    feed.innerHTML = postsLimitados.map(({ anuncio, midia, fotoKey }) => {
       const avatarHtml = comerciante.logo
         ? `<img src="${escapeHtml(comerciante.logo)}" alt="">`
         : iniciais(comerciante.nome);
+      const midiaHtml = !midia.src
+        ? ''
+        : midia.tipo === 'video'
+          ? `<video class="post-foto" src="${escapeHtml(midia.src)}" controls playsinline preload="metadata"></video>`
+          : `<img class="post-foto" src="${escapeHtml(midia.src)}" alt="${escapeHtml(anuncio.titulo)}">`;
       return `
       <div class="post" data-foto-key="${fotoKey}" data-titulo="${escapeHtml(anuncio.titulo)}">
         <div class="post-cabecalho">
@@ -347,7 +356,7 @@
           <div class="post-menu">⋯</div>
         </div>
         <div class="post-legenda">${escapeHtml(anuncio.titulo)}${anuncio.descricao ? '\n' + escapeHtml(anuncio.descricao) : ''}</div>
-        ${foto ? `<img class="post-foto" src="${escapeHtml(foto)}" alt="${escapeHtml(anuncio.titulo)}">` : ''}
+        ${midiaHtml}
         <div class="contador-curtidas"><span class="txt-curtidas">0 curtidas</span></div>
         <div class="post-acoes">
           <button class="btn-curtir">❤️ Curtir</button>
