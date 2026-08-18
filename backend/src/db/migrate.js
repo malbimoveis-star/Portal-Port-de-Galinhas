@@ -374,7 +374,11 @@ async function migrate() {
       documento_tipo TEXT,
       documento_base64 TEXT,
       termos_aceitos_em TEXT,
-      termos_versao TEXT DEFAULT '1.0'
+      termos_versao TEXT DEFAULT '1.0',
+      email_confirmado INTEGER DEFAULT 0,
+      token_confirmacao_email TEXT,
+      token_confirmacao_expira_em TEXT,
+      perfil_completo INTEGER DEFAULT 0
     );
   `);
 
@@ -393,6 +397,10 @@ async function migrate() {
   await criarColunaAfiliado('cpf', 'TEXT');
   await criarColunaAfiliado('telefone', 'TEXT');
   await criarColunaAfiliado('chave_pix', 'TEXT');
+  await criarColunaAfiliado('email_confirmado', 'INTEGER DEFAULT 0');
+  await criarColunaAfiliado('token_confirmacao_email', 'TEXT');
+  await criarColunaAfiliado('token_confirmacao_expira_em', 'TEXT');
+  await criarColunaAfiliado('perfil_completo', 'INTEGER DEFAULT 0');
   await criarColunaAfiliado('documento_nome', 'TEXT');
   await criarColunaAfiliado('documento_tipo', 'TEXT');
   await criarColunaAfiliado('documento_base64', 'TEXT');
