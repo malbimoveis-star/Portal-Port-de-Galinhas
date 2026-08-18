@@ -55,6 +55,20 @@ function templateBoasVindas({ nome, linkConfirmacao }) {
                                           </div>`;
 }
 
+function templateBoasVindasAfiliado({ nome, linkConfirmacao }) {
+    return `
+      <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto;">
+          <h2 style="color:#0b5a7a;">Bem-vindo(a) ao Programa de Afiliados!</h2>
+              <p>Ola, ${nome},</p>
+                  <p>Recebemos seu cadastro como afiliado do Portal Porto de Galinhas. Para confirmar seu e-mail e continuar (dados pessoais, documento e aceite do Termo de Afiliado), clique no botao abaixo:</p>
+                      <p style="text-align:center; margin: 24px 0;">
+                            <a href="${linkConfirmacao}" style="background:#f5a623; color:#fff; padding:12px 24px; border-radius:8px; text-decoration:none; font-weight:bold;">Confirmar meu e-mail</a>
+                                </p>
+                                    <p style="font-size:.85em; color:#666;">Se o botao nao funcionar, copie e cole este link no navegador:<br>${linkConfirmacao}</p>
+                                        <p style="font-size:.85em; color:#666;">Este link expira em 24 horas.</p>
+                                          </div>`;
+}
+
 function templateRecuperacaoSenha({ nome, linkRedefinir }) {
     return `
       <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto;">
@@ -101,4 +115,4 @@ async function notificarAdmin({ titulo, mensagem, linkPainel }) {
     });
 }
 
-module.exports = { enviarEmail, templateBoasVindas, templateRecuperacaoSenha, notificarAdmin };
+module.exports = { enviarEmail, templateBoasVindas, templateBoasVindasAfiliado, templateRecuperacaoSenha, notificarAdmin };
