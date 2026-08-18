@@ -117,10 +117,10 @@
           return;
         }
         if (!data.afiliado.perfil_completo) {
-          window.location.href = 'completar-cadastro-afiliado.html';
+          window.location.href = '/completar-cadastro-afiliado';
           return;
         }
-        window.location.href = 'painel-afiliado.html';
+        window.location.href = '/painel-afiliado';
       } catch (err) {
         mostrarErro('Nao foi possivel conectar ao servidor. Verifique se o backend esta rodando.');
         console.error(err);
@@ -168,7 +168,7 @@
     if (!form) return;
 
     if (!getToken()) {
-      window.location.href = 'login-afiliado.html';
+      window.location.href = '/login-afiliado';
       return;
     }
 
@@ -177,12 +177,12 @@
         const resp = await fetch(`${API}/api/afiliados/me`, { headers: headersAuth() });
         if (resp.status === 401) {
           logout();
-          window.location.href = 'login-afiliado.html';
+          window.location.href = '/login-afiliado';
           return;
         }
         const data = await resp.json();
         if (data.afiliado && data.afiliado.perfil_completo) {
-          window.location.href = 'painel-afiliado.html';
+          window.location.href = '/painel-afiliado';
           return;
         }
         if (!data.afiliado || !data.afiliado.email_confirmado) {
@@ -246,7 +246,7 @@
           return;
         }
         salvarSessao(getToken(), data.afiliado);
-        window.location.href = 'painel-afiliado.html';
+        window.location.href = '/painel-afiliado';
       } catch (err) {
         mostrarErro('Nao foi possivel conectar ao servidor. Verifique se o backend esta rodando.');
         console.error(err);

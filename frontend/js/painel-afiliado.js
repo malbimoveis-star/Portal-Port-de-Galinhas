@@ -29,7 +29,7 @@
     const resp = await fetch(`${API}/api/afiliados/me`, { headers: headersAuth() });
     if (resp.status === 401) {
       auth.logout();
-      window.location.href = 'login-afiliado.html';
+      window.location.href = '/login-afiliado';
       return null;
     }
     return resp.json();
@@ -82,13 +82,13 @@
 
   document.addEventListener('DOMContentLoaded', async () => {
     if (!auth.getToken()) {
-      window.location.href = 'login-afiliado.html';
+      window.location.href = '/login-afiliado';
       return;
     }
 
     document.getElementById('btnSair').addEventListener('click', () => {
       auth.logout();
-      window.location.href = '../index.html';
+      window.location.href = '/';
     });
 
     document.getElementById('btnCopiarLink').addEventListener('click', async () => {
@@ -112,7 +112,7 @@
         // Cadastro ainda nao foi concluido (falta confirmar e-mail e/ou
         // enviar RG/CPF/documento/aceite do termo) - o painel completo so
         // libera depois disso.
-        window.location.href = 'completar-cadastro-afiliado.html';
+        window.location.href = '/completar-cadastro-afiliado';
         return;
       }
       renderStats(data);
