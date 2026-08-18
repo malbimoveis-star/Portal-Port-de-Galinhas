@@ -6,9 +6,9 @@
     "contato": "Contact",
     "sou_comerciante": "I am a Merchant",
     "sou_turista": "I am a Tourist",
-    "idioma": "Language"
+    "idioma": "Language",
+    "seja_afiliado": "Become an Affiliate"
   },
-
   "categorias": {
     "titulo": "Services & Tourism",
     "hoteis-pousadas": "Hotels & Inns",
@@ -21,7 +21,6 @@
     "jet-ski": "Jet Ski",
     "servicos-de-praia": "Beach Services"
   },
-
   "home": {
     "hero_titulo": "Discover the Best Experiences in Porto de Galinhas!",
     "destaques_titulo": "Premium Highlights for You",
@@ -31,7 +30,6 @@
     "btn_sou_turista": "I am a Tourist",
     "btn_cadastrar_negocio": "Register your business"
   },
-
   "comerciante_pagina": {
     "sobre": "About",
     "galeria": "Photo Gallery",
@@ -43,7 +41,6 @@
     "status_expirado": "This listing is currently unavailable.",
     "sem_whatsapp": "WhatsApp contact available only for active advertisers."
   },
-
   "painel": {
     "titulo": "Merchant Dashboard",
     "plano_atual": "Current Plan",
@@ -69,7 +66,6 @@
     "ja_tenho_conta": "I already have an account, I want to log in",
     "nao_tenho_conta": "I don't have an account, I want to register"
   },
-
   "planos": {
     "turista": "Tourist",
     "comerciante_basico": "Basic Merchant",
@@ -77,25 +73,21 @@
     "mes": "/month",
     "assinar": "Subscribe"
   },
-
   "rodape_mobile": {
     "cadastre_negocio": "Register your business",
-        "assine_ja": "Tourist"
+    "assine_ja": "Tourist"
   },
-
   "rodape": {
     "termos": "Terms of Use",
     "privacidade": "Privacy Policy",
     "suporte": "24h Support",
     "direitos": "All rights reserved"
   },
-
   "paginas_legais": {
     "termos_titulo": "Terms of Use",
     "privacidade_titulo": "Privacy Policy",
     "suporte_titulo": "Support"
   },
-
   "pagamento": {
     "sucesso_titulo": "Payment approved!",
     "sucesso_texto": "Your payment has been confirmed. Your plan is active.",
@@ -106,7 +98,6 @@
     "voltar_home": "Back to Home",
     "ir_painel": "Go to Dashboard"
   },
-
   "blog": {
     "titulo": "Blog",
     "subtitulo": "Discover news, tips and experiences in Porto de Galinhas.",

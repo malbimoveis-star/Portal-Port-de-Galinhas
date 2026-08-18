@@ -6,9 +6,9 @@
     "contato": "Contact",
     "sou_comerciante": "Je suis commerçant",
     "sou_turista": "Je suis touriste",
-    "idioma": "Langue"
+    "idioma": "Langue",
+    "seja_afiliado": "Devenez Affilie"
   },
-
   "categorias": {
     "titulo": "Services & Tourisme",
     "hoteis-pousadas": "Hôtels & Auberges",
@@ -21,7 +21,6 @@
     "jet-ski": "Jet Ski",
     "servicos-de-praia": "Services de plage"
   },
-
   "home": {
     "hero_titulo": "Découvrez les meilleures expériences de Porto de Galinhas !",
     "destaques_titulo": "Les meilleurs choix pour vous",
@@ -31,7 +30,6 @@
     "btn_sou_turista": "Je suis touriste",
     "btn_cadastrar_negocio": "Inscrivez votre entreprise"
   },
-
   "blog": {
     "titulo": "Blog",
     "subtitulo": "Découvrez les nouveautés, conseils et expériences à Porto de Galinhas.",
@@ -45,7 +43,6 @@
     "sem_capa": "Article",
     "ler_mais": "Lire plus"
   },
-
   "comerciante_pagina": {
     "sobre": "À propos",
     "galeria": "Galerie de photos",
@@ -57,7 +54,6 @@
     "status_expirado": "Cette annonce est actuellement indisponible.",
     "sem_whatsapp": "Le contact WhatsApp est disponible uniquement pour les annonceurs actifs."
   },
-
   "painel": {
     "titulo": "Tableau du commerçant",
     "plano_atual": "Plan actuel",
@@ -83,7 +79,6 @@
     "ja_tenho_conta": "J'ai déjà un compte, je veux me connecter",
     "nao_tenho_conta": "Je n'ai pas de compte, je veux m'inscrire"
   },
-
   "planos": {
     "turista": "Touriste",
     "comerciante_basico": "Commerçant Basique",
@@ -91,25 +86,21 @@
     "mes": "/mois",
     "assinar": "S'abonner"
   },
-
   "rodape_mobile": {
     "cadastre_negocio": "Inscrivez votre entreprise",
-        "assine_ja": "Touriste"
+    "assine_ja": "Touriste"
   },
-
   "rodape": {
     "termos": "Conditions d'utilisation",
     "privacidade": "Politique de confidentialité",
     "suporte": "Support 24h",
     "direitos": "Tous les droits réservés"
   },
-
   "paginas_legais": {
     "termos_titulo": "Conditions d'utilisation",
     "privacidade_titulo": "Politique de confidentialité",
     "suporte_titulo": "Support 24h"
   },
-
   "pagamento": {
     "sucesso_titulo": "Paiement approuvé !",
     "sucesso_texto": "Votre paiement a été confirmé. Votre plan est maintenant actif.",

@@ -6,9 +6,9 @@
     "contato": "Contato",
     "sou_comerciante": "Sou Comerciante",
     "sou_turista": "Sou Turista",
-    "idioma": "Idioma"
+    "idioma": "Idioma",
+    "seja_afiliado": "Seja um Afiliado"
   },
-
   "categorias": {
     "titulo": "Serviços & Turismo",
     "hoteis-pousadas": "Hotéis & Pousadas",
@@ -21,7 +21,6 @@
     "jet-ski": "Jet Ski",
     "servicos-de-praia": "Serviços de Praia"
   },
-
   "home": {
     "hero_titulo": "Descubra as Melhores Experiências de Porto de Galinhas!",
     "destaques_titulo": "Destaques Premium para Você",
@@ -31,7 +30,6 @@
     "btn_sou_turista": "Sou Turista",
     "btn_cadastrar_negocio": "Cadastre seu negócio"
   },
-
   "comerciante_pagina": {
     "sobre": "Sobre",
     "galeria": "Galeria de Fotos",
@@ -43,7 +41,6 @@
     "status_expirado": "Este anúncio está indisponível no momento.",
     "sem_whatsapp": "Contato via WhatsApp disponível apenas para anunciantes com plano ativo."
   },
-
   "painel": {
     "titulo": "Painel do Comerciante",
     "plano_atual": "Plano Atual",
@@ -69,7 +66,6 @@
     "ja_tenho_conta": "Já tenho conta, quero entrar",
     "nao_tenho_conta": "Não tenho conta, quero me cadastrar"
   },
-
   "planos": {
     "turista": "Turista",
     "comerciante_basico": "Comerciante Básico",
@@ -77,25 +73,21 @@
     "mes": "/mês",
     "assinar": "Assinar"
   },
-
   "rodape_mobile": {
     "cadastre_negocio": "Cadastre seu negócio",
-        "assine_ja": "Turista"
+    "assine_ja": "Turista"
   },
-
   "rodape": {
     "termos": "Termos de Uso",
     "privacidade": "Política de Privacidade",
     "suporte": "Suporte 24h",
     "direitos": "Todos os direitos reservados"
   },
-
   "paginas_legais": {
     "termos_titulo": "Termos de Uso",
     "privacidade_titulo": "Política de Privacidade",
     "suporte_titulo": "Suporte 24h"
   },
-
   "pagamento": {
     "sucesso_titulo": "Pagamento aprovado!",
     "sucesso_texto": "Seu pagamento foi confirmado. Seu plano já está ativo.",
@@ -106,7 +98,6 @@
     "voltar_home": "Voltar para a Home",
     "ir_painel": "Ir para o Painel"
   },
-
   "blog": {
     "titulo": "Blog",
     "subtitulo": "Descubra novidades, dicas e experiências em Porto de Galinhas.",
