@@ -647,6 +647,13 @@
         esconder(tabEditarCategoria);
         esconder(tabEditarBlog);
         if (abas[aba]) mostrar(abas[aba]);
+        // O grafico de visualizacoes e criado com Chart.js num <canvas> que
+        // fica dentro de uma aba escondida (display:none) no carregamento
+        // inicial do dashboard. Nesse momento o canvas tem largura/altura 0,
+        // entao o grafico "nasce" com tamanho zero e fica em branco mesmo
+        // depois que a aba e exibida. Recarregar (recriar) o grafico aqui,
+        // com a aba ja visivel e com dimensoes reais, resolve isso.
+        if (aba === 'visualizacoes') carregarVisualizacoes();
       });
     });
 
