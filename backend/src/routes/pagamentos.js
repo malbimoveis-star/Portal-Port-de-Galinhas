@@ -83,7 +83,11 @@ router.post('/checkout', async (req, res) => {
         // Checkout restrito a cartao de credito e Pix (vale para os 3 planos:
         // turista, comerciante_basico e comerciante_premium, pois todos
         // passam por esta mesma criacao de preferencia). Exclui boleto, cartao
-        // de debito, pre-pago, saldo em conta MP, moeda digital e voucher.
+        // de debito, pre-pago, moeda digital e voucher.
+        // OBS: "account_money" (saldo em conta do Mercado Pago) NAO pode ser
+        // excluido via excluded_payment_methods - a API do MP retorna erro
+        // "account_money cannot be excluded" e o checkout inteiro quebrava
+        // (erro 500). Por isso esse item foi removido da lista.
         payment_methods: {
           excluded_payment_types: [
             { id: 'ticket' },
@@ -92,9 +96,6 @@ router.post('/checkout', async (req, res) => {
             { id: 'prepaid_card' },
             { id: 'digital_currency' },
             { id: 'voucher_card' },
-          ],
-          excluded_payment_methods: [
-            { id: 'account_money' },
           ],
         },
       },
