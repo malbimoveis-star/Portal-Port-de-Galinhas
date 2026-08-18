@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const { seedSeNecessario } = require('./db/seed');
+const { garantirTuristaTeste } = require('./db/seedTuristaTeste');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -77,6 +78,7 @@ process.on('unhandledRejection', (err) => {
 // rodava direto no topo do arquivo sem precisar de await.
 async function start() {
   await seedSeNecessario();
+  await garantirTuristaTeste();
   app.listen(PORT, () => {
     console.log(`[server] Portal Porto de Galinhas rodando em http://localhost:${PORT}`);
   });
