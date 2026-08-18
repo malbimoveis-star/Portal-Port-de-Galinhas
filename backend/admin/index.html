@@ -64,6 +64,7 @@
     .badge--expirado { background: #e2e3e5; color: #383d41; }
     .badge--publicado { background: #d4edda; color: #155724; }
     .badge--rascunho { background: #fff3cd; color: #856404; }
+    .badge--bloqueado { background: #f8d7da; color: #721c24; }
 
     .acoes { display: flex; gap: 6px; flex-wrap: wrap; }
     .acoes .btn { padding: 6px 12px; font-size: 0.8rem; border-radius: 6px; }
@@ -151,6 +152,7 @@
       <button type="button" data-aba="visualizacoes">Visualizações</button>
       <button type="button" data-aba="categorias">Categorias</button>
       <button type="button" data-aba="comerciantes">Comerciantes</button>
+      <button type="button" data-aba="afiliados">Afiliados</button>
       <button type="button" data-aba="blog">Blog</button>
     </nav>
 
@@ -303,6 +305,15 @@
           <h2>Comerciantes Cadastrados</h2>
           <p>Lista de todos os comerciantes da plataforma.</p>
           <div id="listaComerciantes" class="tabela-container"><div class="vazio">Carregando...</div></div>
+        </div>
+      </section>
+
+      <!-- ABA AFILIADOS (Fase 3 do dashboard) -->
+      <section id="abaAfiliados" class="escondido">
+        <div class="card">
+          <h2>Afiliados</h2>
+          <p>Todos os afiliados cadastrados, com cliques, indicações e comissão (50% do plano do comerciante indicado). O pagamento é feito por fora do site; use "Fechar mês" para marcar as comissões pendentes de um afiliado como pagas depois de pagar.</p>
+          <div id="listaAfiliados" class="tabela-container"><div class="vazio">Carregando...</div></div>
         </div>
       </section>
 
@@ -500,6 +511,7 @@
       visualizacoes: document.getElementById('abaVisualizacoes'),
       categorias: document.getElementById('abaCategorias'),
       comerciantes: document.getElementById('abaComerciantes'),
+      afiliados: document.getElementById('abaAfiliados'),
       blog: document.getElementById('abaBlog')
     };
     const navButtons = document.querySelectorAll('.admin-nav button[data-aba]');
@@ -584,6 +596,7 @@
       carregarVisualizacoes();
       carregarCategorias();
       carregarComerciantes();
+      carregarAfiliados();
       carregarBlog();
     }
 
@@ -949,6 +962,110 @@
           });
         });
       } catch (e) { container.innerHTML = '<div class="vazio">Erro ao carregar comerciantes.</div>'; }
+    }
+
+    /* ===== AFILIADOS (Fase 3 do dashboard) ===== */
+
+    // Calcula o 5º dia útil (seg-sex, sem considerar feriados) do mês
+    // seguinte a mesReferencia ('AAAA-MM') - prazo de pagamento das
+    // comissões conforme o Termo de Aceite do afiliado.
+    function quintoDiaUtilProximoMes(mesReferencia) {
+      const partes = String(mesReferencia || '').split('-').map(Number);
+      const ano = partes[0], mes = partes[1];
+      let anoProx = ano, mesProx = mes + 1;
+      if (mesProx > 12) { mesProx = 1; anoProx++; }
+      const data = new Date(anoProx, mesProx - 1, 1);
+      let diasUteis = 0;
+      while (diasUteis < 5) {
+        const diaSemana = data.getDay();
+        if (diaSemana !== 0 && diaSemana !== 6) diasUteis++;
+        if (diasUteis === 5) break;
+        data.setDate(data.getDate() + 1);
+      }
+      return data.toLocaleDateString('pt-BR');
+    }
+
+    async function carregarAfiliados() {
+      const container = document.getElementById('listaAfiliados');
+      try {
+        const afiliados = await apiGet('/admin/afiliados');
+        if (!Array.isArray(afiliados) || afiliados.length === 0) {
+          container.innerHTML = '<div class="vazio">Nenhum afiliado cadastrado ainda.</div>';
+          return;
+        }
+        const linhas = afiliados.map(a => {
+          const statusClass = 'badge--' + (a.status || 'ativo');
+          const proximoStatus = a.status === 'bloqueado' ? 'ativo' : 'bloqueado';
+          const textoBotaoStatus = a.status === 'bloqueado' ? 'Desbloquear' : 'Bloquear';
+          const classeBotaoStatus = a.status === 'bloqueado' ? 'btn--secundario' : 'btn--perigo';
+          const botaoDocumento = a.tem_documento
+            ? '<button class="btn btn--secundario btn-ver-documento-afiliado" data-id="' + a.id + '">Ver documento</button>'
+            : '<span style="color:#c0392b;font-size:.85em;">Sem documento</span>';
+          const acoes = '<div class="acoes">' +
+            botaoDocumento +
+            '<button class="btn btn--secundario btn-fechar-mes-afiliado" data-id="' + a.id + '" data-nome="' + escapeHtml(a.nome) + '">Fechar mês</button>' +
+            '<button class="btn ' + classeBotaoStatus + ' btn-toggle-status-afiliado" data-id="' + a.id + '" data-status="' + proximoStatus + '">' + textoBotaoStatus + '</button>' +
+            '</div>';
+          const termosInfo = a.termos_aceitos_em
+            ? 'Termo v' + escapeHtml(a.termos_versao || '1.0') + ' aceito em ' + new Date(a.termos_aceitos_em).toLocaleDateString('pt-BR')
+            : 'Termo nao aceito';
+          return '<tr>' +
+            '<td><strong>' + escapeHtml(a.nome) + '</strong><div style="font-size:.8em;color:#888;">' + escapeHtml(a.email) + '</div><div style="font-size:.75em;color:#aaa;">' + termosInfo + '</div></td>' +
+            '<td><code>' + escapeHtml(a.codigo) + '</code></td>' +
+            '<td>' + escapeHtml(a.cpf || '-') + '</td>' +
+            '<td>' + escapeHtml(a.telefone || '-') + '</td>' +
+            '<td>' + (a.cliques || 0) + '</td>' +
+            '<td>' + (a.indicacoes_total || 0) + '</td>' +
+            '<td>R$ ' + Number(a.comissao_pendente || 0).toFixed(2) + '</td>' +
+            '<td>R$ ' + Number(a.comissao_paga || 0).toFixed(2) + '</td>' +
+            '<td><span class="badge ' + statusClass + '">' + (a.status || 'ativo') + '</span></td>' +
+            '<td>' + acoes + '</td>' +
+            '</tr>';
+        }).join('');
+        container.innerHTML = '<table><thead><tr><th>Afiliado</th><th>Código</th><th>CPF</th><th>Telefone</th><th>Cliques</th><th>Indicações</th><th>Comissão Pendente</th><th>Comissão Paga</th><th>Status</th><th>Ações</th></tr></thead><tbody>' + linhas + '</tbody></table>';
+
+        document.querySelectorAll('.btn-ver-documento-afiliado').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            try {
+              const r = await fetch(API_BASE + '/admin/afiliados/' + btn.dataset.id + '/documento', {
+                headers: token ? { 'Authorization': 'Bearer ' + token } : {},
+              });
+              if (!r.ok) { alert('Nao foi possivel carregar o documento.'); return; }
+              const blob = await r.blob();
+              window.open(URL.createObjectURL(blob), '_blank');
+            } catch (e) { alert('Erro ao abrir o documento.'); }
+          });
+        });
+
+        document.querySelectorAll('.btn-fechar-mes-afiliado').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const mesPadrao = new Date().toISOString().slice(0, 7);
+            const mes = prompt('Fechar comissões pendentes de "' + btn.dataset.nome + '" para qual mês (formato AAAA-MM)?', mesPadrao);
+            if (mes === null) return;
+            const prazo = quintoDiaUtilProximoMes(mes);
+            if (!confirm('Fechar o mês ' + mes + ' de "' + btn.dataset.nome + '"? Pelo termo de afiliado, o pagamento deve ser feito até ' + prazo + ' (5º dia útil do mês seguinte, sem contar feriados).')) return;
+            try {
+              const resultado = await apiPut('/admin/afiliados/' + btn.dataset.id + '/fechar-mes', { mes_referencia: mes });
+              alert((resultado.comissoes_pagas || 0) + ' comissão(ões) marcada(s) como paga(s) para ' + mes + '. Prazo de pagamento: ' + prazo + '.');
+              carregarAfiliados();
+            } catch (e) { alert(e.message || 'Erro ao fechar o mês.'); }
+          });
+        });
+
+        document.querySelectorAll('.btn-toggle-status-afiliado').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const novoStatus = btn.dataset.status;
+            const mensagemConfirmacao = novoStatus === 'bloqueado'
+              ? 'Bloquear este afiliado? O link de indicação dele para de funcionar.'
+              : 'Desbloquear este afiliado?';
+            if (!confirm(mensagemConfirmacao)) return;
+            try {
+              await apiPut('/admin/afiliados/' + btn.dataset.id + '/status', { status: novoStatus });
+              carregarAfiliados();
+            } catch (e) { alert(e.message || 'Erro ao atualizar status.'); }
+          });
+        });
+      } catch (e) { container.innerHTML = '<div class="vazio">Erro ao carregar afiliados.</div>'; }
     }
 
     /* ===== BLOG ===== */
