@@ -1014,6 +1014,73 @@ router.delete('/categorias/:id', async (req, res) => {
 
 
 // =========================================================
+// FASE 1 DO DASHBOARD - VISUALIZACOES DE ANUNCIOS
+// =========================================================
+//
+// GET /api/admin/visualizacoes?granularidade=dia|semana|mes
+//
+// Retorna uma serie temporal (pra grafico) e um ranking dos anuncios mais
+// vistos, ambos dentro da janela de tempo correspondente a granularidade
+// escolhida:
+//   - dia    -> ultimos 30 dias, um ponto por dia
+//   - semana -> ultimas 12 semanas, um ponto por semana
+//   - mes    -> ultimos 12 meses, um ponto por mes
+//
+// A tabela visualizacoes_anuncio guarda uma linha por visualizacao (sem
+// deduplicar por visitante), entao o numero e mais parecido com
+// "impressoes" do que "visitantes unicos" - suficiente pra fase 1.
+
+const GRANULARIDADES_VISUALIZACOES = {
+  dia: { unidadePostgres: 'day', diasDeJanela: 30 },
+  semana: { unidadePostgres: 'week', diasDeJanela: 84 },
+  mes: { unidadePostgres: 'month', diasDeJanela: 365 },
+};
+
+router.get('/visualizacoes', autenticarAdmin, async (req, res) => {
+  const granularidadeEscolhida = GRANULARIDADES_VISUALIZACOES[req.query.granularidade]
+    ? req.query.granularidade
+    : 'dia';
+  const { unidadePostgres, diasDeJanela } = GRANULARIDADES_VISUALIZACOES[granularidadeEscolhida];
+  const desde = new Date(Date.now() - diasDeJanela * 24 * 60 * 60 * 1000).toISOString();
+
+  try {
+    const serie = await db.all(
+      `SELECT to_char(date_trunc(?, criado_em::timestamptz), 'YYYY-MM-DD') AS periodo,
+              COUNT(*)::int AS total
+       FROM visualizacoes_anuncio
+       WHERE criado_em::timestamptz >= ?::timestamptz
+       GROUP BY 1
+       ORDER BY 1`,
+      [unidadePostgres, desde]
+    );
+
+    const ranking = await db.all(
+      `SELECT v.id_anuncio, a.titulo, c.nome AS nome_comerciante, COUNT(*)::int AS total
+       FROM visualizacoes_anuncio v
+       JOIN anuncios a ON a.id = v.id_anuncio
+       JOIN comerciantes c ON c.id = a.id_comerciante
+       WHERE v.criado_em::timestamptz >= ?::timestamptz
+       GROUP BY v.id_anuncio, a.titulo, c.nome
+       ORDER BY total DESC
+       LIMIT 10`,
+      [desde]
+    );
+
+    const totalPeriodo = serie.reduce((soma, item) => soma + Number(item.total), 0);
+
+    res.json({
+      granularidade: granularidadeEscolhida,
+      serie,
+      ranking,
+      total_periodo: totalPeriodo,
+    });
+  } catch (err) {
+    console.error('[ADMIN] Erro ao buscar visualizacoes:', err);
+    res.status(500).json({ erro: 'Erro ao buscar estatisticas de visualizacoes.' });
+  }
+});
+
+// =========================================================
 // EXPORTAR ROUTER
 // =========================================================
 

@@ -88,6 +88,38 @@ router.get('/comerciante/:id_comerciante', async (req, res) => {
       });
     });
 
+// POST /api/anuncios/visualizacoes/lote - registra uma visualizacao para
+// cada anuncio da lista (chamado pelo front-end quando a fanpage carrega os
+// anuncios de um comerciante, ja que hoje os anuncios sao exibidos juntos
+// como um feed, sem pagina individual por anuncio).
+// body: { ids: [1, 2, 3] }
+// Rota publica (sem autenticacao) - e so um contador de visualizacao, nao
+// expõe nem altera dado nenhum de negocio. IDs invalidos/inexistentes ou
+// de anuncios que nao estao 'ativo' sao ignorados silenciosamente.
+router.post('/visualizacoes/lote', async (req, res) => {
+  const { ids } = req.body;
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return res.status(400).json({ erro: 'Campo "ids" deve ser uma lista de IDs de anuncio.' });
+  }
+
+  // Limite de seguranca para evitar abuso (uma fanpage normal tem poucas
+  // dezenas de anuncios, nunca centenas).
+  const idsValidos = ids
+    .map((id) => Number(id))
+    .filter((id) => Number.isInteger(id) && id > 0)
+    .slice(0, 100);
+
+  let registradas = 0;
+  for (const idAnuncio of idsValidos) {
+    const anuncio = await db.get("SELECT id FROM anuncios WHERE id = ? AND status = 'ativo'", [idAnuncio]);
+    if (!anuncio) continue;
+    await db.run('INSERT INTO visualizacoes_anuncio (id_anuncio) VALUES (?)', [idAnuncio]);
+    registradas += 1;
+  }
+
+  res.json({ registradas });
+});
+
 router.get('/meus/lista', autenticar, async (req, res) => {
   const anuncios = await db.all('SELECT * FROM anuncios WHERE id_comerciante = ? ORDER BY criado_em DESC', [req.comerciante.id]);
   res.json(anuncios.map(parseAnuncio));
