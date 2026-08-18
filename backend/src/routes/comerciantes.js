@@ -24,7 +24,7 @@ function gerarTokenAleatorio() {
 }
 
 router.post('/cadastro', async (req, res) => {
-    const { nome, email, telefone, senha } = req.body;
+    const { nome, email, telefone, senha, codigo_afiliado } = req.body;
     if (!nome || !email || !senha) {
           return res.status(400).json({ erro: 'Campos "nome", "email" e "senha" sao obrigatorios.' });
     }
@@ -40,10 +40,21 @@ router.post('/cadastro', async (req, res) => {
               const tokenConfirmacao = gerarTokenAleatorio();
     const expiraConfirmacao = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
+              // Fase 3 do dashboard: se o cadastro veio de um link de indicacao
+              // (?ref=CODIGO capturado no front-end), liga esse comerciante ao
+              // afiliado correspondente para calcular a comissao quando ele pagar.
+              // Codigo invalido/inexistente e ignorado silenciosamente (nao bloqueia
+              // o cadastro).
+              let idAfiliadoReferenciador = null;
+              if (codigo_afiliado) {
+                    const afiliado = await db.get("SELECT id FROM afiliados WHERE codigo = ? AND status = 'ativo'", [codigo_afiliado]);
+                    if (afiliado) idAfiliadoReferenciador = afiliado.id;
+              }
+
               const info = await db.run(
-                    `INSERT INTO comerciantes (nome, email, telefone, senha_hash, plano, status, data_criacao, data_inicio_degustacao, token_confirmacao_email, token_confirmacao_expira_em)
-                         VALUES (?, ?, ?, ?, 'gratuito', 'degustacao', ?, ?, ?, ?)`,
-                    [nome, email, telefone || null, senha_hash, agora, agora, tokenConfirmacao, expiraConfirmacao]
+                    `INSERT INTO comerciantes (nome, email, telefone, senha_hash, plano, status, data_criacao, data_inicio_degustacao, token_confirmacao_email, token_confirmacao_expira_em, id_afiliado_referenciador)
+                         VALUES (?, ?, ?, ?, 'gratuito', 'degustacao', ?, ?, ?, ?, ?)`,
+                    [nome, email, telefone || null, senha_hash, agora, agora, tokenConfirmacao, expiraConfirmacao, idAfiliadoReferenciador]
                   );
 
               const comerciante = await db.get('SELECT * FROM comerciantes WHERE id = ?', [info.lastInsertRowid]);

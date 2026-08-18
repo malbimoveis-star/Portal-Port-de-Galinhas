@@ -148,6 +148,7 @@ router.post('/webhook', express.json(), async (req, res) => {
 
         if (statusInterno === 'aprovado' && pagamentoLocal.id_comerciante) {
           await ativarComerciante(pagamentoLocal.id_comerciante, pagamentoLocal.tipo_plano);
+          calcularComissaoAfiliado(pagamentoLocal).catch((err) => console.error('[webhook] falha ao calcular comissao de afiliado:', err.message));
         }
 
                                           if (statusInterno === 'aprovado' && pagamentoLocal.id_turista) {
@@ -184,6 +185,7 @@ router.post('/simular-aprovacao', autenticarAdmin, async (req, res) => {
 
   if (pagamento.id_comerciante) {
     await ativarComerciante(pagamento.id_comerciante, pagamento.tipo_plano);
+    calcularComissaoAfiliado(pagamento).catch((err) => console.error('[simular-aprovacao] falha ao calcular comissao de afiliado:', err.message));
   }
 
     if (pagamento.id_turista) {
@@ -207,6 +209,29 @@ async function notificarPagamentoAprovado(pagamento) {
     titulo: 'Pagamento aprovado',
     mensagem: `Um pagamento de <strong>R$ ${Number(pagamento.valor).toFixed(2)}</strong> (plano "${pagamento.tipo_plano}") foi aprovado para o ${quem}.`,
   });
+}
+
+const PERCENTUAL_COMISSAO_AFILIADO = 0.5; // 50% do valor pago pelo comerciante indicado
+
+// Fase 3 do dashboard: se o comerciante desse pagamento foi indicado por um
+// afiliado (id_afiliado_referenciador setado no cadastro via ?ref=CODIGO),
+// gera a comissao (50% do valor pago) para esse afiliado. Combinado com o
+// dono do portal: comissao e so sobre planos de comerciante (nao de
+// turista). mes_referencia (YYYY-MM) agrupa as comissoes para o fechamento
+// mensal feito manualmente pelo admin.
+async function calcularComissaoAfiliado(pagamento) {
+  if (!pagamento.id_comerciante) return;
+  const comerciante = await db.get('SELECT id_afiliado_referenciador FROM comerciantes WHERE id = ?', [pagamento.id_comerciante]);
+  if (!comerciante || !comerciante.id_afiliado_referenciador) return;
+
+  const valorComissao = Number(pagamento.valor) * PERCENTUAL_COMISSAO_AFILIADO;
+  const mesReferencia = new Date().toISOString().slice(0, 7);
+
+  await db.run(
+    `INSERT INTO comissoes_afiliado (id_afiliado, id_comerciante, id_pagamento, valor_comissao, mes_referencia, status)
+     VALUES (?, ?, ?, ?, ?, 'pendente')`,
+    [comerciante.id_afiliado_referenciador, pagamento.id_comerciante, pagamento.id, valorComissao, mesReferencia]
+  );
 }
 
 async function ativarComerciante(idComerciante, tipoPlano) {

@@ -1205,6 +1205,115 @@ router.get('/resumo', autenticarAdmin, async (req, res) => {
 });
 
 // =========================================================
+// FASE 3 DO DASHBOARD - SISTEMA DE AFILIADOS (admin)
+// =========================================================
+//
+// GET /api/admin/afiliados
+// Lista todos os afiliados com estatisticas agregadas (cliques, indicacoes,
+// comissao pendente/paga) para a nova aba "Afiliados" do painel.
+
+router.get('/afiliados', autenticarAdmin, async (req, res) => {
+  try {
+    const afiliados = await db.all(
+      `SELECT a.id, a.nome, a.email, a.codigo, a.status, a.cliques, a.criado_em,
+              a.rg, a.cpf, a.telefone, a.termos_aceitos_em, a.termos_versao,
+              (a.documento_base64 IS NOT NULL) AS tem_documento,
+              (SELECT COUNT(*)::int FROM comerciantes c WHERE c.id_afiliado_referenciador = a.id) AS indicacoes_total,
+              COALESCE((SELECT SUM(valor_comissao) FROM comissoes_afiliado co WHERE co.id_afiliado = a.id AND co.status = 'pendente'), 0)::float AS comissao_pendente,
+              COALESCE((SELECT SUM(valor_comissao) FROM comissoes_afiliado co WHERE co.id_afiliado = a.id AND co.status = 'pago'), 0)::float AS comissao_paga
+       FROM afiliados a
+       ORDER BY a.criado_em DESC`
+    );
+    res.json(afiliados);
+  } catch (err) {
+    console.error('[ADMIN] Erro ao listar afiliados:', err);
+    res.status(500).json({ erro: 'Erro ao listar afiliados.' });
+  }
+});
+
+// GET /api/admin/afiliados/:id/documento - devolve o documento (RG/CPF)
+// anexado no cadastro como arquivo binario, para o admin conferir a
+// identidade antes de liberar o pagamento das comissoes. Nao aparece na
+// listagem geral (que so tem um booleano "tem_documento") pra nao pesar o
+// payload da tabela.
+router.get('/afiliados/:id/documento', autenticarAdmin, async (req, res) => {
+  try {
+    const afiliado = await db.get(
+      'SELECT documento_base64, documento_tipo, documento_nome FROM afiliados WHERE id = ?',
+      [req.params.id]
+    );
+    if (!afiliado || !afiliado.documento_base64) {
+      return res.status(404).json({ erro: 'Documento nao encontrado.' });
+    }
+    const buffer = Buffer.from(afiliado.documento_base64, 'base64');
+    res.setHeader('Content-Type', afiliado.documento_tipo || 'application/octet-stream');
+    res.setHeader('Content-Disposition', `inline; filename="${afiliado.documento_nome || 'documento'}"`);
+    res.send(buffer);
+  } catch (err) {
+    console.error('[ADMIN] Erro ao buscar documento do afiliado:', err);
+    res.status(500).json({ erro: 'Erro ao buscar documento do afiliado.' });
+  }
+});
+
+// GET /api/admin/afiliados/:id/comissoes - extrato detalhado de um afiliado
+// (usado para conferir antes de fazer o fechamento do mes).
+router.get('/afiliados/:id/comissoes', autenticarAdmin, async (req, res) => {
+  try {
+    const comissoes = await db.all(
+      `SELECT co.id, co.valor_comissao, co.mes_referencia, co.status, co.criado_em, co.pago_em,
+              c.nome AS nome_comerciante
+       FROM comissoes_afiliado co
+       LEFT JOIN comerciantes c ON c.id = co.id_comerciante
+       WHERE co.id_afiliado = ?
+       ORDER BY co.criado_em DESC`,
+      [req.params.id]
+    );
+    res.json(comissoes);
+  } catch (err) {
+    console.error('[ADMIN] Erro ao buscar comissoes do afiliado:', err);
+    res.status(500).json({ erro: 'Erro ao buscar comissoes do afiliado.' });
+  }
+});
+
+// PUT /api/admin/afiliados/:id/fechar-mes - fechamento mensal: marca como
+// "pago" todas as comissoes pendentes de um afiliado num mes de referencia
+// (o admin paga por fora do site - Pix, transferencia - e confirma aqui).
+// body: { mes_referencia: 'YYYY-MM' } - se omitido, usa o mes atual.
+router.put('/afiliados/:id/fechar-mes', autenticarAdmin, async (req, res) => {
+  try {
+    const mesReferencia = req.body.mes_referencia || new Date().toISOString().slice(0, 7);
+    const agora = new Date().toISOString();
+
+    const resultado = await db.run(
+      `UPDATE comissoes_afiliado SET status = 'pago', pago_em = ?
+       WHERE id_afiliado = ? AND mes_referencia = ? AND status = 'pendente'`,
+      [agora, req.params.id, mesReferencia]
+    );
+
+    res.json({ sucesso: true, mes_referencia: mesReferencia, comissoes_pagas: resultado.changes || 0 });
+  } catch (err) {
+    console.error('[ADMIN] Erro ao fechar mes do afiliado:', err);
+    res.status(500).json({ erro: 'Erro ao fechar mes do afiliado.' });
+  }
+});
+
+// PUT /api/admin/afiliados/:id/status - bloquear/desbloquear um afiliado
+// (ex: uso indevido do link). body: { status: 'ativo' | 'bloqueado' }
+router.put('/afiliados/:id/status', autenticarAdmin, async (req, res) => {
+  const { status } = req.body;
+  if (!['ativo', 'bloqueado'].includes(status)) {
+    return res.status(400).json({ erro: 'Status invalido. Use "ativo" ou "bloqueado".' });
+  }
+  try {
+    await db.run('UPDATE afiliados SET status = ? WHERE id = ?', [status, req.params.id]);
+    res.json({ sucesso: true });
+  } catch (err) {
+    console.error('[ADMIN] Erro ao atualizar status do afiliado:', err);
+    res.status(500).json({ erro: 'Erro ao atualizar status do afiliado.' });
+  }
+});
+
+// =========================================================
 // EXPORTAR ROUTER
 // =========================================================
 
