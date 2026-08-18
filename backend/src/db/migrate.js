@@ -100,6 +100,11 @@ async function migrate() {
   await criarColuna('seguidores', 'INTEGER DEFAULT 0');
   await criarColuna('media_avaliacoes', 'REAL DEFAULT 5');
 
+  // Fase 3 do dashboard: liga o comerciante ao afiliado que o indicou (se
+  // veio de um link de indicacao). Populado no cadastro, usado para calcular
+  // comissao quando o pagamento desse comerciante for aprovado.
+  await criarColuna('id_afiliado_referenciador', 'INTEGER');
+
   await db.exec(`
     CREATE TABLE IF NOT EXISTS categorias (
 
@@ -342,6 +347,50 @@ async function migrate() {
     CREATE INDEX IF NOT EXISTS idx_visualizacoes_anuncio_criado_em
     ON visualizacoes_anuncio(criado_em);
   `);
+
+  // =========================================================
+  // FASE 3 DO DASHBOARD - SISTEMA DE AFILIADOS
+  // =========================================================
+  //
+  // afiliados: pessoas que divulgam o portal com um link proprio (codigo
+  // unico). Cadastro publico, fica ativo na hora (sem aprovacao previa).
+  // Donos de comercio ja cadastrados (comerciantes) nao podem virar
+  // afiliado - checado na rota de cadastro, nao aqui no schema.
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS afiliados (
+      id SERIAL PRIMARY KEY,
+      nome TEXT NOT NULL,
+      email TEXT NOT NULL UNIQUE,
+      senha_hash TEXT NOT NULL,
+      codigo TEXT NOT NULL UNIQUE,
+      status TEXT DEFAULT 'ativo',
+      cliques INTEGER DEFAULT 0,
+      criado_em TEXT DEFAULT NOW()::text
+    );
+  `);
+
+  // comissoes_afiliado: uma linha por comissao gerada (50% do valor pago
+  // pelo comerciante indicado). mes_referencia (formato YYYY-MM) agrupa as
+  // comissoes para o fechamento mensal - o admin marca como "pago" o mes
+  // inteiro de um afiliado de uma vez, depois de pagar por fora do site.
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS comissoes_afiliado (
+      id SERIAL PRIMARY KEY,
+      id_afiliado INTEGER NOT NULL,
+      id_comerciante INTEGER,
+      id_pagamento INTEGER,
+      valor_comissao REAL NOT NULL,
+      mes_referencia TEXT NOT NULL,
+      status TEXT DEFAULT 'pendente',
+      criado_em TEXT DEFAULT NOW()::text,
+      pago_em TEXT,
+      FOREIGN KEY(id_afiliado) REFERENCES afiliados(id) ON DELETE CASCADE
+    );
+  `);
+
+  await db.exec(`CREATE INDEX IF NOT EXISTS idx_comissoes_afiliado_id ON comissoes_afiliado(id_afiliado);`);
+  await db.exec(`CREATE INDEX IF NOT EXISTS idx_comissoes_afiliado_mes ON comissoes_afiliado(mes_referencia);`);
+  await db.exec(`CREATE INDEX IF NOT EXISTS idx_comerciantes_afiliado_referenciador ON comerciantes(id_afiliado_referenciador);`);
 
   console.log('[DB] Todas as migrations executadas com sucesso.');
 
