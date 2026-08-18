@@ -365,9 +365,37 @@ async function migrate() {
       codigo TEXT NOT NULL UNIQUE,
       status TEXT DEFAULT 'ativo',
       cliques INTEGER DEFAULT 0,
-      criado_em TEXT DEFAULT NOW()::text
+      criado_em TEXT DEFAULT NOW()::text,
+      rg TEXT,
+      cpf TEXT,
+      telefone TEXT,
+      documento_nome TEXT,
+      documento_tipo TEXT,
+      documento_base64 TEXT,
+      termos_aceitos_em TEXT,
+      termos_versao TEXT DEFAULT '1.0'
     );
   `);
+
+  // Colunas adicionadas depois da criacao inicial da tabela afiliados
+  // (cadastro completo com dados pessoais + termo de aceite + documento).
+  const colunasAfiliado = await colunasDaTabela('afiliados');
+
+  async function criarColunaAfiliado(nome, tipo) {
+    if (!colunasAfiliado.includes(nome)) {
+      await db.exec(`ALTER TABLE afiliados ADD COLUMN ${nome} ${tipo};`);
+      console.log('[DB] Coluna criada:', nome);
+    }
+  }
+
+  await criarColunaAfiliado('rg', 'TEXT');
+  await criarColunaAfiliado('cpf', 'TEXT');
+  await criarColunaAfiliado('telefone', 'TEXT');
+  await criarColunaAfiliado('documento_nome', 'TEXT');
+  await criarColunaAfiliado('documento_tipo', 'TEXT');
+  await criarColunaAfiliado('documento_base64', 'TEXT');
+  await criarColunaAfiliado('termos_aceitos_em', 'TEXT');
+  await criarColunaAfiliado("termos_versao", "TEXT DEFAULT '1.0'");
 
   // comissoes_afiliado: uma linha por comissao gerada (50% do valor pago
   // pelo comerciante indicado). mes_referencia (formato YYYY-MM) agrupa as
