@@ -54,6 +54,8 @@ app.get('/privacidade', (req, res) => res.sendFile(path.join(PAGES_DIR, 'privaci
 app.get('/termos', (req, res) => res.sendFile(path.join(PAGES_DIR, 'termos.html')));
 app.get('/suporte', (req, res) => res.sendFile(path.join(PAGES_DIR, 'suporte.html')));
 app.get('/cadastro-afiliado', (req, res) => res.sendFile(path.join(PAGES_DIR, 'cadastro-afiliado.html')));
+app.get('/confirmar-email-afiliado', (req, res) => res.sendFile(path.join(PAGES_DIR, 'confirmar-email-afiliado.html')));
+app.get('/completar-cadastro-afiliado', (req, res) => res.sendFile(path.join(PAGES_DIR, 'completar-cadastro-afiliado.html')));
 app.get('/login-afiliado', (req, res) => res.sendFile(path.join(PAGES_DIR, 'login-afiliado.html')));
 app.get('/painel-afiliado', (req, res) => res.sendFile(path.join(PAGES_DIR, 'painel-afiliado.html')));
 
