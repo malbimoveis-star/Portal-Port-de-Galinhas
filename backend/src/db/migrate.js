@@ -127,6 +127,8 @@ async function migrate() {
 
       fotos TEXT DEFAULT '[]',
 
+      videos TEXT DEFAULT '[]',
+
       tags TEXT DEFAULT '[]',
 
       id_comerciante INTEGER NOT NULL,
@@ -169,6 +171,7 @@ async function migrate() {
   await criarColunaAnuncio('latitude', 'REAL');
   await criarColunaAnuncio('longitude', 'REAL');
   await criarColunaAnuncio('status', "TEXT DEFAULT 'pendente'");
+  await criarColunaAnuncio('videos', "TEXT DEFAULT '[]'");
 
   await db.exec(`
     CREATE TABLE IF NOT EXISTS turistas (
