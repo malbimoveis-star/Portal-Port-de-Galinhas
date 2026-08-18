@@ -583,6 +583,32 @@ button {
   color: var(--azul-primario);
 }
 
+/* Tabela simples de extrato (ex: comissoes do afiliado) e mensagem de
+   estado vazio, reaproveitaveis em qualquer painel do site. */
+.vazio {
+  color: var(--cinza-texto, #666);
+  padding: 12px 0;
+  font-size: 0.9rem;
+}
+
+.tabela-simples {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.tabela-simples th,
+.tabela-simples td {
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 1px solid #e2e8ee;
+}
+
+.tabela-simples th {
+  color: var(--azul-escuro);
+  font-weight: 600;
+}
+
 .alerta {
   padding: 14px 18px;
   border-radius: 8px;
