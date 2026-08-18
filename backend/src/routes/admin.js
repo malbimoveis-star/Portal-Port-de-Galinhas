@@ -1081,6 +1081,130 @@ router.get('/visualizacoes', autenticarAdmin, async (req, res) => {
 });
 
 // =========================================================
+// FASE 2 DO DASHBOARD - RESUMO GERAL E NOTIFICACOES
+// =========================================================
+//
+// GET /api/admin/resumo
+//
+// Totais de cadastros, financeiro e engajamento para a tela inicial do
+// admin, mais uma lista de "notificacoes" (eventos recentes que podem
+// precisar de atencao: anuncios pendentes de aprovacao, novos comerciantes
+// cadastrados nas ultimas 24h e pagamentos aprovados nas ultimas 24h).
+
+router.get('/resumo', autenticarAdmin, async (req, res) => {
+  try {
+    const [
+      comerciantesTotal,
+      comerciantesAtivos,
+      comerciantesDegustacao,
+      comerciantesExpirados,
+      turistasTotal,
+      turistasAtivos,
+      anunciosTotal,
+      anunciosAtivos,
+      anunciosPendentesCount,
+      categoriasTotal,
+      receitaTotal,
+      receitaMesAtual,
+      pagamentosAprovadosTotal,
+      curtidasTotal,
+      comentariosTotal,
+      visualizacoesTotal,
+    ] = await Promise.all([
+      db.get('SELECT COUNT(*)::int AS total FROM comerciantes'),
+      db.get("SELECT COUNT(*)::int AS total FROM comerciantes WHERE status = 'ativo'"),
+      db.get("SELECT COUNT(*)::int AS total FROM comerciantes WHERE status = 'degustacao'"),
+      db.get("SELECT COUNT(*)::int AS total FROM comerciantes WHERE status = 'expirado'"),
+      db.get('SELECT COUNT(*)::int AS total FROM turistas'),
+      db.get("SELECT COUNT(*)::int AS total FROM turistas WHERE status = 'ativo'"),
+      db.get('SELECT COUNT(*)::int AS total FROM anuncios'),
+      db.get("SELECT COUNT(*)::int AS total FROM anuncios WHERE status = 'ativo'"),
+      db.get("SELECT COUNT(*)::int AS total FROM anuncios WHERE status = 'pendente'"),
+      db.get('SELECT COUNT(*)::int AS total FROM categorias'),
+      db.get("SELECT COALESCE(SUM(valor), 0)::float AS total FROM pagamentos WHERE status = 'aprovado'"),
+      db.get("SELECT COALESCE(SUM(valor), 0)::float AS total FROM pagamentos WHERE status = 'aprovado' AND data_pagamento::timestamptz >= date_trunc('month', now())"),
+      db.get("SELECT COUNT(*)::int AS total FROM pagamentos WHERE status = 'aprovado'"),
+      db.get('SELECT COALESCE(SUM(contagem), 0)::int AS total FROM foto_curtidas'),
+      db.get('SELECT COUNT(*)::int AS total FROM foto_comentarios'),
+      db.get('SELECT COUNT(*)::int AS total FROM visualizacoes_anuncio'),
+    ]);
+
+    const [anunciosPendentesLista, novosComerciantes, pagamentosRecentes] = await Promise.all([
+      db.all(
+        `SELECT a.id, a.titulo, c.nome AS nome_comerciante
+         FROM anuncios a
+         JOIN comerciantes c ON c.id = a.id_comerciante
+         WHERE a.status = 'pendente'
+         ORDER BY a.criado_em DESC
+         LIMIT 10`
+      ),
+      db.all(
+        `SELECT id, nome, email, data_criacao
+         FROM comerciantes
+         WHERE data_criacao::timestamptz >= now() - interval '24 hours'
+         ORDER BY data_criacao DESC
+         LIMIT 10`
+      ),
+      db.all(
+        `SELECT id, tipo_plano, valor, data_pagamento
+         FROM pagamentos
+         WHERE status = 'aprovado' AND data_pagamento::timestamptz >= now() - interval '24 hours'
+         ORDER BY data_pagamento DESC
+         LIMIT 10`
+      ),
+    ]);
+
+    const notificacoes = [
+      ...anunciosPendentesLista.map((a) => ({
+        tipo: 'anuncio_pendente',
+        texto: `Anúncio "${a.titulo}" de ${a.nome_comerciante} aguardando aprovação`,
+        data: null,
+      })),
+      ...novosComerciantes.map((c) => ({
+        tipo: 'novo_comerciante',
+        texto: `Novo comerciante cadastrado: ${c.nome} (${c.email})`,
+        data: c.data_criacao,
+      })),
+      ...pagamentosRecentes.map((p) => ({
+        tipo: 'pagamento_aprovado',
+        texto: `Pagamento aprovado: R$ ${Number(p.valor).toFixed(2)} (${p.tipo_plano})`,
+        data: p.data_pagamento,
+      })),
+    ];
+
+    res.json({
+      cadastros: {
+        comerciantes_total: comerciantesTotal.total,
+        comerciantes_ativos: comerciantesAtivos.total,
+        comerciantes_degustacao: comerciantesDegustacao.total,
+        comerciantes_expirados: comerciantesExpirados.total,
+        turistas_total: turistasTotal.total,
+        turistas_ativos: turistasAtivos.total,
+        anuncios_total: anunciosTotal.total,
+        anuncios_ativos: anunciosAtivos.total,
+        anuncios_pendentes: anunciosPendentesCount.total,
+        categorias_total: categoriasTotal.total,
+      },
+      financeiro: {
+        receita_total: receitaTotal.total,
+        receita_mes_atual: receitaMesAtual.total,
+        pagamentos_aprovados_total: pagamentosAprovadosTotal.total,
+        assinaturas_ativas: comerciantesAtivos.total + turistasAtivos.total,
+      },
+      engajamento: {
+        curtidas_total: curtidasTotal.total,
+        comentarios_total: comentariosTotal.total,
+        visualizacoes_total: visualizacoesTotal.total,
+      },
+      notificacoes,
+    });
+  } catch (err) {
+    console.error('[ADMIN] Erro ao buscar resumo geral:', err);
+    res.status(500).json({ erro: 'Erro ao buscar resumo geral.' });
+  }
+});
+
+// =========================================================
 // EXPORTAR ROUTER
 // =========================================================
 

@@ -7,7 +7,7 @@ const db = require('../db/connection');
 const { autenticar, gerarToken } = require('../middleware/auth');
 const { verificarEAtualizarStatus, calcularTempoRestanteDegustacao, comercianteVisivelPublicamente } = require('../utils/status');
 const { PLANOS } = require('../utils/planos');
-const { enviarEmail, templateBoasVindas, templateRecuperacaoSenha } = require('../utils/mailer');
+const { enviarEmail, templateBoasVindas, templateRecuperacaoSenha, notificarAdmin } = require('../utils/mailer');
 
 const router = express.Router();
 
@@ -55,6 +55,12 @@ router.post('/cadastro', async (req, res) => {
           assunto: 'Confirme seu cadastro no Portal Porto de Galinhas',
           html: templateBoasVindas({ nome, linkConfirmacao }),
     }).catch((err) => console.error('[comerciantes] falha ao enviar e-mail de boas-vindas:', err.message));
+
+              // Fase 2 do dashboard: avisa o admin por e-mail de todo novo cadastro.
+              notificarAdmin({
+                    titulo: 'Novo comerciante cadastrado',
+                    mensagem: `O comerciante <strong>${nome}</strong> (${email}) acabou de se cadastrar no portal.`,
+              }).catch((err) => console.error('[comerciantes] falha ao notificar admin sobre novo cadastro:', err.message));
 
               res.status(201).json({ comerciante: comercianteSemSenha(comerciante), token });
 });

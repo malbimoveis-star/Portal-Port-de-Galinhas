@@ -7,6 +7,7 @@ const upload = require('../middleware/upload');
 const { comercianteVisivelPublicamente } = require('../utils/status');
 const { identificarOpcional } = require('../middleware/authTurista');
 const { turistaAtivo } = require('../utils/turistaStatus');
+const { notificarAdmin } = require('../utils/mailer');
 
 const router = express.Router();
 
@@ -144,6 +145,15 @@ router.post('/', autenticar, uploadMidia, async (req, res) => {
   );
 
   const anuncio = await db.get('SELECT * FROM anuncios WHERE id = ?', [info.lastInsertRowid]);
+
+  // Fase 2 do dashboard: avisa o admin por e-mail que ha um novo anuncio
+  // aguardando aprovacao (todo anuncio novo comeca com status 'pendente').
+  const comercianteDoAnuncio = await db.get('SELECT nome FROM comerciantes WHERE id = ?', [req.comerciante.id]);
+  notificarAdmin({
+    titulo: 'Novo anuncio pendente de aprovacao',
+    mensagem: `O comerciante <strong>${(comercianteDoAnuncio && comercianteDoAnuncio.nome) || req.comerciante.id}</strong> enviou o anuncio "<strong>${titulo}</strong>" para revisao.`,
+  }).catch((err) => console.error('[anuncios] falha ao notificar admin sobre novo anuncio pendente:', err.message));
+
   res.status(201).json(parseAnuncio(anuncio));
 });
 

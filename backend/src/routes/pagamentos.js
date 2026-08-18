@@ -6,6 +6,7 @@ const db = require('../db/connection');
 const { autenticar } = require('../middleware/auth');
 const { autenticarAdmin } = require('../middleware/authAdmin');
 const { PLANOS, DIAS_DEGUSTACAO } = require('../utils/planos');
+const { notificarAdmin } = require('../utils/mailer');
 
 const router = express.Router();
 
@@ -152,6 +153,10 @@ router.post('/webhook', express.json(), async (req, res) => {
                                           if (statusInterno === 'aprovado' && pagamentoLocal.id_turista) {
                                                       await ativarTurista(pagamentoLocal.id_turista);
                                           }
+
+        if (statusInterno === 'aprovado') {
+          notificarPagamentoAprovado(pagamentoLocal).catch((err) => console.error('[webhook] falha ao notificar admin sobre pagamento aprovado:', err.message));
+        }
       }
     }
 
@@ -185,8 +190,24 @@ router.post('/simular-aprovacao', autenticarAdmin, async (req, res) => {
           await ativarTurista(pagamento.id_turista);
     }
 
+  notificarPagamentoAprovado(pagamento).catch((err) => console.error('[simular-aprovacao] falha ao notificar admin sobre pagamento aprovado:', err.message));
+
   res.json({ sucesso: true, mensagem: 'Pagamento simulado como aprovado.' });
 });
+
+// Fase 2 do dashboard: avisa o admin por e-mail sempre que um pagamento e
+// aprovado (seja pelo webhook real do Mercado Pago ou pelo endpoint de
+// simulacao usado em testes). Centralizado aqui para nao duplicar a
+// mensagem nos dois pontos de chamada.
+async function notificarPagamentoAprovado(pagamento) {
+  const quem = pagamento.id_comerciante
+    ? `comerciante #${pagamento.id_comerciante}`
+    : `turista #${pagamento.id_turista}`;
+  return notificarAdmin({
+    titulo: 'Pagamento aprovado',
+    mensagem: `Um pagamento de <strong>R$ ${Number(pagamento.valor).toFixed(2)}</strong> (plano "${pagamento.tipo_plano}") foi aprovado para o ${quem}.`,
+  });
+}
 
 async function ativarComerciante(idComerciante, tipoPlano) {
   const planoDb = tipoPlano === 'turista' ? 'turista' : tipoPlano.replace('comerciante_', '');
