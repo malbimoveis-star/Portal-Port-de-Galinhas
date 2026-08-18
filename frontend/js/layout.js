@@ -73,17 +73,34 @@
     const base = caminhoBase();
     return `
       <footer class="rodape">
-        <div class="rodape__links">
-          <a href="${base}pages/termos.html" data-i18n="rodape.termos">Termos de Uso</a>
-          <a href="${base}pages/privacidade.html" data-i18n="rodape.privacidade">Politica de Privacidade</a>
-          <a href="${base}pages/suporte.html" data-i18n="rodape.suporte">Suporte 24h</a>
-        </div>
-        <div class="rodape__contato">
-          contato@portalportodegalinhas.com.br &nbsp;|&nbsp; +55 (81) 99999-0000
-        </div>
-        <div class="rodape__social">
-          <a href="https://instagram.com" target="_blank" rel="noopener" aria-label="Instagram">📷</a>
-          <a href="https://facebook.com" target="_blank" rel="noopener" aria-label="Facebook">👍</a>
+        <div class="rodape__colunas">
+          <div class="rodape__coluna">
+            <h2 class="rodape__titulo" data-i18n="rodape.titulo_navegacao">Navegacao</h2>
+            <nav class="rodape__lista" aria-label="Navegacao do rodape">
+              <a href="${base}index.html" data-i18n="menu.home">Home</a>
+              <a href="${base}pages/blog.html" data-i18n="menu.blog">Blog</a>
+              <a href="${base}pages/como-funciona.html" data-i18n="menu.como_funciona">Como Funciona</a>
+              <a href="${base}pages/contato.html" data-i18n="menu.contato">Contato</a>
+              <a href="${base}pages/cadastro-comerciante.html" data-i18n="menu.sou_comerciante">Sou Comerciante</a>
+              <a href="${base}pages/planos-turista.html" data-i18n="menu.sou_turista">Sou Turista</a>
+              <a href="${base}pages/cadastro-afiliado.html" data-i18n="menu.seja_afiliado">Seja um Afiliado</a>
+            </nav>
+          </div>
+          <div class="rodape__coluna">
+            <h2 class="rodape__titulo" data-i18n="rodape.titulo_outros">Outros</h2>
+            <nav class="rodape__lista" aria-label="Links institucionais">
+              <a href="${base}pages/termos.html" data-i18n="rodape.termos">Termos de Uso</a>
+              <a href="${base}pages/privacidade.html" data-i18n="rodape.privacidade">Politica de Privacidade</a>
+              <a href="${base}pages/suporte.html" data-i18n="rodape.suporte">Suporte 24h</a>
+            </nav>
+            <div class="rodape__contato">
+              contato@portalportodegalinhas.com.br &nbsp;|&nbsp; +55 (81) 99999-0000
+            </div>
+            <div class="rodape__social">
+              <a href="https://instagram.com" target="_blank" rel="noopener" aria-label="Instagram">📷</a>
+              <a href="https://facebook.com" target="_blank" rel="noopener" aria-label="Facebook">👍</a>
+            </div>
+          </div>
         </div>
         <div class="rodape__copy">
           &copy; 2026 Portal Porto de Galinhas - <span data-i18n="rodape.direitos">Todos os direitos reservados</span>
