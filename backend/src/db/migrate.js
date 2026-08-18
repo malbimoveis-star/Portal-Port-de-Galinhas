@@ -319,6 +319,30 @@ async function migrate() {
     );
   `);
 
+  // Fase 1 do dashboard de metricas: registra cada visualizacao de anuncio
+  // (uma linha por visualizacao, sem deduplicar) para alimentar o grafico e
+  // o ranking de mais vistos no painel do admin.
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS visualizacoes_anuncio (
+      id SERIAL PRIMARY KEY,
+      id_anuncio INTEGER NOT NULL,
+      criado_em TEXT NOT NULL DEFAULT NOW()::text,
+      FOREIGN KEY(id_anuncio)
+      REFERENCES anuncios(id)
+      ON DELETE CASCADE
+    );
+  `);
+
+  await db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_visualizacoes_anuncio_id
+    ON visualizacoes_anuncio(id_anuncio);
+  `);
+
+  await db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_visualizacoes_anuncio_criado_em
+    ON visualizacoes_anuncio(criado_em);
+  `);
+
   console.log('[DB] Todas as migrations executadas com sucesso.');
 
 }
