@@ -369,6 +369,7 @@ async function migrate() {
       rg TEXT,
       cpf TEXT,
       telefone TEXT,
+      chave_pix TEXT,
       documento_nome TEXT,
       documento_tipo TEXT,
       documento_base64 TEXT,
@@ -391,6 +392,7 @@ async function migrate() {
   await criarColunaAfiliado('rg', 'TEXT');
   await criarColunaAfiliado('cpf', 'TEXT');
   await criarColunaAfiliado('telefone', 'TEXT');
+  await criarColunaAfiliado('chave_pix', 'TEXT');
   await criarColunaAfiliado('documento_nome', 'TEXT');
   await criarColunaAfiliado('documento_tipo', 'TEXT');
   await criarColunaAfiliado('documento_base64', 'TEXT');
