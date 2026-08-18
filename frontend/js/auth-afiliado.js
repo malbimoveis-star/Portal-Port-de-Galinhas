@@ -10,6 +10,13 @@
     el.style.display = 'block';
   }
 
+  function mostrarSucesso(mensagem) {
+    const el = document.getElementById('mensagemSucesso');
+    if (!el) return;
+    el.textContent = mensagem;
+    el.style.display = 'block';
+  }
+
   function salvarSessao(token, afiliado) {
     localStorage.setItem(CHAVE_TOKEN, token);
     localStorage.setItem(CHAVE_AFILIADO, JSON.stringify(afiliado));
@@ -32,6 +39,10 @@
     localStorage.removeItem(CHAVE_AFILIADO);
   }
 
+  function headersAuth() {
+    return { Authorization: `Bearer ${getToken()}` };
+  }
+
   function initToggleSenha() {
     document.querySelectorAll('.btn-toggle-senha').forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -41,6 +52,79 @@
         alvo.type = oculto ? 'text' : 'password';
         btn.setAttribute('aria-label', oculto ? 'Ocultar senha' : 'Mostrar senha');
       });
+    });
+  }
+
+  // ETAPA 1 - cadastro simples (nome/e-mail/senha), usado em
+  // cadastro-afiliado.html. Nao redireciona pro painel: o proximo passo e
+  // confirmar o e-mail (link enviado por e-mail) e so depois completar o
+  // cadastro numa pagina separada.
+  function initCadastro() {
+    const form = document.getElementById('formCadastro');
+    if (!form) return;
+    initToggleSenha();
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const nome = document.getElementById('campoNome').value.trim();
+      const email = document.getElementById('campoEmail').value.trim();
+      const senha = document.getElementById('campoSenha').value;
+
+      try {
+        const resp = await fetch(`${API}/api/afiliados/cadastro`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nome, email, senha }),
+        });
+        const data = await resp.json();
+        if (!resp.ok) {
+          mostrarErro(data.erro || 'Erro ao cadastrar.');
+          return;
+        }
+        salvarSessao(data.token, data.afiliado);
+        form.style.display = 'none';
+        mostrarSucesso(data.mensagem || 'Cadastro recebido! Verifique seu e-mail para confirmar e continuar.');
+      } catch (err) {
+        mostrarErro('Nao foi possivel conectar ao servidor. Verifique se o backend esta rodando.');
+        console.error(err);
+      }
+    });
+  }
+
+  function initLogin() {
+    const form = document.getElementById('formLogin');
+    if (!form) return;
+    initToggleSenha();
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('campoEmail').value.trim();
+      const senha = document.getElementById('campoSenha').value;
+
+      try {
+        const resp = await fetch(`${API}/api/afiliados/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, senha }),
+        });
+        const data = await resp.json();
+        if (!resp.ok) {
+          mostrarErro(data.erro || 'Credenciais invalidas.');
+          return;
+        }
+        salvarSessao(data.token, data.afiliado);
+
+        if (!data.afiliado.email_confirmado) {
+          mostrarErro('Confirme seu e-mail antes de continuar. Verifique sua caixa de entrada (e o spam) pelo link que enviamos no cadastro.');
+          return;
+        }
+        if (!data.afiliado.perfil_completo) {
+          window.location.href = 'completar-cadastro-afiliado.html';
+          return;
+        }
+        window.location.href = 'painel-afiliado.html';
+      } catch (err) {
+        mostrarErro('Nao foi possivel conectar ao servidor. Verifique se o backend esta rodando.');
+        console.error(err);
+      }
     });
   }
 
@@ -75,15 +159,45 @@
     return cpf === cpf.slice(0, 9) + String(d1) + String(d2);
   }
 
-  function initCadastro() {
-    const form = document.getElementById('formCadastro');
+  // ETAPA 2 - completar cadastro (RG/CPF/telefone/chave Pix/documento +
+  // aceite do Termo de Afiliado), usado em completar-cadastro-afiliado.html.
+  // So acessivel logado, e so funciona depois do e-mail confirmado (o
+  // backend tambem valida isso, aqui e so pra dar feedback melhor).
+  function initCompletarCadastro() {
+    const form = document.getElementById('formCompletarCadastro');
     if (!form) return;
-    initToggleSenha();
+
+    if (!getToken()) {
+      window.location.href = 'login-afiliado.html';
+      return;
+    }
+
+    (async () => {
+      try {
+        const resp = await fetch(`${API}/api/afiliados/me`, { headers: headersAuth() });
+        if (resp.status === 401) {
+          logout();
+          window.location.href = 'login-afiliado.html';
+          return;
+        }
+        const data = await resp.json();
+        if (data.afiliado && data.afiliado.perfil_completo) {
+          window.location.href = 'painel-afiliado.html';
+          return;
+        }
+        if (!data.afiliado || !data.afiliado.email_confirmado) {
+          const aviso = document.getElementById('mensagemAguardandoEmail');
+          if (aviso) aviso.style.display = 'block';
+          form.style.display = 'none';
+          return;
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    })();
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const nome = document.getElementById('campoNome').value.trim();
-      const email = document.getElementById('campoEmail').value.trim();
-      const senha = document.getElementById('campoSenha').value;
       const rg = document.getElementById('campoRg').value.trim();
       const cpf = document.getElementById('campoCpf').value.trim();
       const telefone = document.getElementById('campoTelefone').value.trim();
@@ -115,11 +229,11 @@
 
       try {
         const documento_base64 = await lerArquivoComoBase64(arquivo);
-        const resp = await fetch(`${API}/api/afiliados/cadastro`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        const resp = await fetch(`${API}/api/afiliados/completar-cadastro`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', ...headersAuth() },
           body: JSON.stringify({
-            nome, email, senha, rg, cpf, telefone, chave_pix,
+            rg, cpf, telefone, chave_pix,
             documento_base64,
             documento_nome: arquivo.name,
             documento_tipo: arquivo.type,
@@ -128,10 +242,10 @@
         });
         const data = await resp.json();
         if (!resp.ok) {
-          mostrarErro(data.erro || 'Erro ao cadastrar.');
+          mostrarErro(data.erro || 'Erro ao completar cadastro.');
           return;
         }
-        salvarSessao(data.token, data.afiliado);
+        salvarSessao(getToken(), data.afiliado);
         window.location.href = 'painel-afiliado.html';
       } catch (err) {
         mostrarErro('Nao foi possivel conectar ao servidor. Verifique se o backend esta rodando.');
@@ -140,34 +254,8 @@
     });
   }
 
-  function initLogin() {
-    const form = document.getElementById('formLogin');
-    if (!form) return;
-    initToggleSenha();
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('campoEmail').value.trim();
-      const senha = document.getElementById('campoSenha').value;
-
-      try {
-        const resp = await fetch(`${API}/api/afiliados/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, senha }),
-        });
-        const data = await resp.json();
-        if (!resp.ok) {
-          mostrarErro(data.erro || 'Credenciais invalidas.');
-          return;
-        }
-        salvarSessao(data.token, data.afiliado);
-        window.location.href = 'painel-afiliado.html';
-      } catch (err) {
-        mostrarErro('Nao foi possivel conectar ao servidor. Verifique se o backend esta rodando.');
-        console.error(err);
-      }
-    });
-  }
-
-  window.authAfiliado = { initCadastro, initLogin, getToken, getAfiliadoLocal, logout, salvarSessao, initToggleSenha };
+  window.authAfiliado = {
+    initCadastro, initLogin, initCompletarCadastro,
+    getToken, getAfiliadoLocal, logout, salvarSessao, initToggleSenha,
+  };
 })();

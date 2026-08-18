@@ -108,6 +108,13 @@
     try {
       const data = await carregarPainel();
       if (!data) return;
+      if (!data.afiliado || !data.afiliado.perfil_completo) {
+        // Cadastro ainda nao foi concluido (falta confirmar e-mail e/ou
+        // enviar RG/CPF/documento/aceite do termo) - o painel completo so
+        // libera depois disso.
+        window.location.href = 'completar-cadastro-afiliado.html';
+        return;
+      }
       renderStats(data);
       const comissoes = await carregarComissoes();
       renderComissoes(comissoes);
