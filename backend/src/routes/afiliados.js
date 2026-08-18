@@ -5,16 +5,21 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const db = require('../db/connection');
 const { autenticarAfiliado, gerarTokenAfiliado } = require('../middleware/authAfiliado');
-const { notificarAdmin } = require('../utils/mailer');
+const { notificarAdmin, enviarEmail, templateBoasVindasAfiliado } = require('../utils/mailer');
 
 const router = express.Router();
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+const VERSAO_TERMOS_AFILIADO = '1.0';
 
 function afiliadoSemSenha(a) {
   if (!a) return a;
-  const { senha_hash, documento_base64, ...resto } = a;
+  const { senha_hash, documento_base64, token_confirmacao_email, ...resto } = a;
   return resto;
+}
+
+function gerarTokenAleatorio() {
+  return crypto.randomBytes(32).toString('hex');
 }
 
 // Validacao de CPF (formato + digitos verificadores). Aceita com ou sem
@@ -67,32 +72,20 @@ function linkIndicacao(codigo) {
   return `${FRONTEND_URL.replace(/\/$/, '')}/?ref=${codigo}`;
 }
 
-// POST /api/afiliados/cadastro - cadastro publico de afiliado. Fica ativo na
-// hora (sem aprovacao previa). Donos de comercio ja cadastrados no portal
-// (comerciantes) nao podem virar afiliado.
-const VERSAO_TERMOS_AFILIADO = '1.0';
-
+// =========================================================
+// ETAPA 1 - CADASTRO SIMPLES (publico, exposto no menu do site)
+// =========================================================
+//
+// So pede nome/e-mail/senha. Nao coleta RG/CPF/telefone/chave Pix/documento
+// nem mostra o Termo de Afiliado aqui - isso fica pra depois da confirmacao
+// de e-mail, numa pagina separada (completar-cadastro-afiliado.html), pra
+// nao expor dado sensivel numa pagina publica comum do site. Fica ativo na
+// hora (sem aprovacao previa do admin), mas so tem o cadastro "completo"
+// (perfil_completo = 1) depois de passar pela etapa 2.
 router.post('/cadastro', async (req, res) => {
-  const {
-    nome, email, senha, rg, cpf, telefone, chave_pix,
-    documento_base64, documento_nome, documento_tipo,
-    aceite_termos,
-  } = req.body;
-
-  if (!nome || !email || !senha || !rg || !cpf || !telefone || !chave_pix) {
-    return res.status(400).json({ erro: 'Campos "nome", "email", "senha", "rg", "cpf", "telefone" e "chave_pix" sao obrigatorios.' });
-  }
-
-  if (!cpfValido(cpf)) {
-    return res.status(400).json({ erro: 'CPF invalido. Confira o numero digitado.' });
-  }
-
-  if (!documento_base64 || !documento_nome) {
-    return res.status(400).json({ erro: 'E obrigatorio anexar uma foto ou PDF do seu documento (RG ou CPF).' });
-  }
-
-  if (aceite_termos !== true) {
-    return res.status(400).json({ erro: 'E preciso ler e aceitar o Termo de Afiliado para concluir o cadastro.' });
+  const { nome, email, senha } = req.body;
+  if (!nome || !email || !senha) {
+    return res.status(400).json({ erro: 'Campos "nome", "email" e "senha" sao obrigatorios.' });
   }
 
   const jaEhComerciante = await db.get('SELECT id FROM comerciantes WHERE email = ?', [email]);
@@ -105,36 +98,59 @@ router.post('/cadastro', async (req, res) => {
     return res.status(409).json({ erro: 'Ja existe um afiliado cadastrado com este e-mail.' });
   }
 
-  const cpfExistente = await db.get('SELECT id FROM afiliados WHERE cpf = ?', [String(cpf).replace(/\D/g, '')]);
-  if (cpfExistente) {
-    return res.status(409).json({ erro: 'Ja existe um afiliado cadastrado com este CPF.' });
-  }
-
   const senha_hash = await bcrypt.hash(senha, 10);
   const codigo = await gerarCodigoUnico(nome);
-  const agora = new Date().toISOString();
+  const tokenConfirmacao = gerarTokenAleatorio();
+  const expiraConfirmacao = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
   const info = await db.run(
-    `INSERT INTO afiliados
-       (nome, email, senha_hash, codigo, status, rg, cpf, telefone, chave_pix, documento_nome, documento_tipo, documento_base64, termos_aceitos_em, termos_versao)
-     VALUES (?, ?, ?, ?, 'ativo', ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [
-      nome, email, senha_hash, codigo,
-      String(rg).trim(), String(cpf).replace(/\D/g, ''), String(telefone).trim(), String(chave_pix).trim(),
-      documento_nome, documento_tipo || null, documento_base64,
-      agora, VERSAO_TERMOS_AFILIADO,
-    ]
+    `INSERT INTO afiliados (nome, email, senha_hash, codigo, status, email_confirmado, perfil_completo, token_confirmacao_email, token_confirmacao_expira_em)
+     VALUES (?, ?, ?, ?, 'ativo', 0, 0, ?, ?)`,
+    [nome, email, senha_hash, codigo, tokenConfirmacao, expiraConfirmacao]
   );
 
   const afiliado = await db.get('SELECT * FROM afiliados WHERE id = ?', [info.lastInsertRowid]);
   const token = gerarTokenAfiliado(afiliado);
 
+  const linkConfirmacao = `${FRONTEND_URL.replace(/\/$/, '')}/pages/confirmar-email-afiliado.html?token=${tokenConfirmacao}`;
+  enviarEmail({
+    para: email,
+    assunto: 'Confirme seu cadastro no Programa de Afiliados',
+    html: templateBoasVindasAfiliado({ nome, linkConfirmacao }),
+  }).catch((err) => console.error('[afiliados] falha ao enviar e-mail de confirmacao:', err.message));
+
   notificarAdmin({
-    titulo: 'Novo afiliado cadastrado',
-    mensagem: `<strong>${nome}</strong> (${email}) se cadastrou como afiliado. Codigo de indicacao: <strong>${codigo}</strong>. Documento anexado - confira na aba Afiliados do painel.`,
+    titulo: 'Novo afiliado cadastrado (aguardando confirmacao)',
+    mensagem: `<strong>${nome}</strong> (${email}) iniciou o cadastro de afiliado. Falta confirmar o e-mail e completar os dados (RG/CPF/documento/termo). Codigo de indicacao: <strong>${codigo}</strong>.`,
   }).catch((err) => console.error('[afiliados] falha ao notificar admin sobre novo afiliado:', err.message));
 
-  res.status(201).json({ afiliado: afiliadoSemSenha(afiliado), token, link_indicacao: linkIndicacao(codigo) });
+  res.status(201).json({
+    afiliado: afiliadoSemSenha(afiliado),
+    token,
+    mensagem: 'Cadastro recebido! Verifique seu e-mail para confirmar e continuar o cadastro.',
+  });
+});
+
+// GET /api/afiliados/confirmar-email/:token - link clicado a partir do
+// e-mail de confirmacao. Rota publica (o token e a prova de posse do
+// e-mail).
+router.get('/confirmar-email/:token', async (req, res) => {
+  const { token } = req.params;
+  const afiliado = await db.get('SELECT * FROM afiliados WHERE token_confirmacao_email = ?', [token]);
+
+  if (!afiliado) {
+    return res.status(400).json({ erro: 'Link de confirmacao invalido.' });
+  }
+  if (afiliado.token_confirmacao_expira_em && new Date(afiliado.token_confirmacao_expira_em) < new Date()) {
+    return res.status(400).json({ erro: 'Link de confirmacao expirado. Faca login para continuar.' });
+  }
+
+  await db.run(
+    'UPDATE afiliados SET email_confirmado = 1, token_confirmacao_email = NULL, token_confirmacao_expira_em = NULL WHERE id = ?',
+    [afiliado.id]
+  );
+
+  res.json({ sucesso: true, mensagem: 'E-mail confirmado com sucesso! Agora complete seu cadastro.' });
 });
 
 // POST /api/afiliados/login
@@ -176,8 +192,81 @@ router.post('/registrar-clique', async (req, res) => {
   res.json({ ok: true });
 });
 
+// =========================================================
+// ETAPA 2 - COMPLETAR CADASTRO (autenticado, pagina separada)
+// =========================================================
+//
+// PUT /api/afiliados/completar-cadastro
+// So funciona depois do e-mail confirmado. Recebe RG, CPF, telefone, chave
+// Pix, o documento de identidade e o aceite do Termo de Afiliado. Ao
+// concluir, marca perfil_completo = 1 - e so a partir dai que o painel do
+// afiliado libera normalmente (o front-end redireciona pra ca enquanto
+// isso nao acontecer).
+router.put('/completar-cadastro', autenticarAfiliado, async (req, res) => {
+  const {
+    rg, cpf, telefone, chave_pix,
+    documento_base64, documento_nome, documento_tipo,
+    aceite_termos,
+  } = req.body;
+
+  const afiliado = await db.get('SELECT * FROM afiliados WHERE id = ?', [req.afiliado.id]);
+  if (!afiliado) return res.status(404).json({ erro: 'Afiliado nao encontrado.' });
+
+  if (!afiliado.email_confirmado) {
+    return res.status(400).json({ erro: 'Confirme seu e-mail antes de completar o cadastro. Verifique sua caixa de entrada.' });
+  }
+
+  if (!rg || !cpf || !telefone || !chave_pix) {
+    return res.status(400).json({ erro: 'Campos "rg", "cpf", "telefone" e "chave_pix" sao obrigatorios.' });
+  }
+
+  if (!cpfValido(cpf)) {
+    return res.status(400).json({ erro: 'CPF invalido. Confira o numero digitado.' });
+  }
+
+  if (!documento_base64 || !documento_nome) {
+    return res.status(400).json({ erro: 'E obrigatorio anexar uma foto ou PDF do seu documento (RG ou CPF).' });
+  }
+
+  if (aceite_termos !== true) {
+    return res.status(400).json({ erro: 'E preciso ler e aceitar o Termo de Afiliado para concluir o cadastro.' });
+  }
+
+  const cpfLimpo = String(cpf).replace(/\D/g, '');
+  const cpfExistente = await db.get('SELECT id FROM afiliados WHERE cpf = ? AND id != ?', [cpfLimpo, afiliado.id]);
+  if (cpfExistente) {
+    return res.status(409).json({ erro: 'Ja existe um afiliado cadastrado com este CPF.' });
+  }
+
+  const agora = new Date().toISOString();
+
+  await db.run(
+    `UPDATE afiliados SET
+       rg = ?, cpf = ?, telefone = ?, chave_pix = ?,
+       documento_nome = ?, documento_tipo = ?, documento_base64 = ?,
+       termos_aceitos_em = ?, termos_versao = ?, perfil_completo = 1
+     WHERE id = ?`,
+    [
+      String(rg).trim(), cpfLimpo, String(telefone).trim(), String(chave_pix).trim(),
+      documento_nome, documento_tipo || null, documento_base64,
+      agora, VERSAO_TERMOS_AFILIADO, afiliado.id,
+    ]
+  );
+
+  const atualizado = await db.get('SELECT * FROM afiliados WHERE id = ?', [afiliado.id]);
+
+  notificarAdmin({
+    titulo: 'Afiliado completou o cadastro',
+    mensagem: `<strong>${afiliado.nome}</strong> (${afiliado.email}) confirmou o e-mail e completou o cadastro (CPF, documento e Termo de Afiliado aceitos). Confira na aba Afiliados do painel.`,
+  }).catch((err) => console.error('[afiliados] falha ao notificar admin sobre perfil completo:', err.message));
+
+  res.json({ afiliado: afiliadoSemSenha(atualizado), link_indicacao: linkIndicacao(atualizado.codigo) });
+});
+
 // GET /api/afiliados/me - dados do afiliado logado + estatisticas (cliques,
-// indicacoes, comissao pendente/paga) para o painel dele.
+// indicacoes, comissao pendente/paga) para o painel dele. Inclui
+// email_confirmado/perfil_completo pro front-end decidir se redireciona
+// para a confirmacao de e-mail ou para completar-cadastro-afiliado.html.
 router.get('/me', autenticarAfiliado, async (req, res) => {
   const afiliado = await db.get('SELECT * FROM afiliados WHERE id = ?', [req.afiliado.id]);
   if (!afiliado) return res.status(404).json({ erro: 'Afiliado nao encontrado.' });

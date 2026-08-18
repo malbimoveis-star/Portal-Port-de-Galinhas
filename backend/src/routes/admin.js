@@ -1217,6 +1217,7 @@ router.get('/afiliados', autenticarAdmin, async (req, res) => {
     const afiliados = await db.all(
       `SELECT a.id, a.nome, a.email, a.codigo, a.status, a.cliques, a.criado_em,
               a.rg, a.cpf, a.telefone, a.chave_pix, a.termos_aceitos_em, a.termos_versao,
+              a.email_confirmado, a.perfil_completo,
               (a.documento_base64 IS NOT NULL) AS tem_documento,
               (SELECT COUNT(*)::int FROM comerciantes c WHERE c.id_afiliado_referenciador = a.id) AS indicacoes_total,
               COALESCE((SELECT SUM(valor_comissao) FROM comissoes_afiliado co WHERE co.id_afiliado = a.id AND co.status = 'pendente'), 0)::float AS comissao_pendente,
