@@ -69,4 +69,36 @@ function templateRecuperacaoSenha({ nome, linkRedefinir }) {
                                           </div>`;
 }
 
-module.exports = { enviarEmail, templateBoasVindas, templateRecuperacaoSenha };
+function templateNotificacaoAdmin({ titulo, mensagem, linkPainel }) {
+    return `
+      <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto;">
+          <h2 style="color:#0b5a7a;">${titulo}</h2>
+              <p>${mensagem}</p>
+                  <p style="text-align:center; margin: 24px 0;">
+                        <a href="${linkPainel}" style="background:#0f3460; color:#fff; padding:12px 24px; border-radius:8px; text-decoration:none; font-weight:bold;">Abrir painel administrativo</a>
+                            </p>
+                                <p style="font-size:.85em; color:#666;">Este e um aviso automatico do Portal Porto de Galinhas. Voce pode desativar esses avisos removendo a variavel ADMIN_EMAIL nas configuracoes do servidor.</p>
+                                  </div>`;
+}
+
+// Fase 2 do dashboard: notifica o dono do portal por e-mail quando algo
+// relevante acontece (novo comerciante cadastrado, anuncio pendente de
+// aprovacao, pagamento aprovado). Destinatario: ADMIN_EMAIL, ou EMAIL_USER
+// como fallback (a mesma conta que envia os e-mails, caso ADMIN_EMAIL nao
+// esteja configurado). Assim como enviarEmail(), nunca lanca erro.
+const ADMIN_NOTIFICACAO_EMAIL = process.env.ADMIN_EMAIL || EMAIL_USER;
+
+async function notificarAdmin({ titulo, mensagem, linkPainel }) {
+    if (!ADMIN_NOTIFICACAO_EMAIL) {
+          console.warn('[mailer] ADMIN_EMAIL/EMAIL_USER nao configurados - notificacao de admin nao enviada:', titulo);
+          return { simulado: true };
+    }
+    const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3000';
+    return enviarEmail({
+          para: ADMIN_NOTIFICACAO_EMAIL,
+          assunto: `[Portal Porto de Galinhas] ${titulo}`,
+          html: templateNotificacaoAdmin({ titulo, mensagem, linkPainel: linkPainel || `${BACKEND_URL}/admin/` }),
+    });
+}
+
+module.exports = { enviarEmail, templateBoasVindas, templateRecuperacaoSenha, notificarAdmin };
