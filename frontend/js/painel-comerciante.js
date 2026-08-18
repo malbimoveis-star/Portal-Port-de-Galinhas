@@ -143,7 +143,19 @@
       formData.append('tags', document.getElementById('campoTags').value);
 
       const fotosInput = document.getElementById('campoFotos');
+      const videosInput = document.getElementById('campoVideos');
+
+      if (fotosInput.files.length > 25) {
+        alert('Voce pode enviar no maximo 25 fotos por anuncio.');
+        return;
+      }
+      if (videosInput.files.length > 25) {
+        alert('Voce pode enviar no maximo 25 videos por anuncio.');
+        return;
+      }
+
       Array.from(fotosInput.files).forEach((file) => formData.append('fotos', file));
+      Array.from(videosInput.files).forEach((file) => formData.append('videos', file));
 
       const url = id ? `${API}/api/anuncios/${id}` : `${API}/api/anuncios`;
       const method = id ? 'PUT' : 'POST';
