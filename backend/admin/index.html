@@ -1005,6 +1005,7 @@
             botaoDocumento +
             '<button class="btn btn--secundario btn-fechar-mes-afiliado" data-id="' + a.id + '" data-nome="' + escapeHtml(a.nome) + '">Fechar mês</button>' +
             '<button class="btn ' + classeBotaoStatus + ' btn-toggle-status-afiliado" data-id="' + a.id + '" data-status="' + proximoStatus + '">' + textoBotaoStatus + '</button>' +
+            '<button class="btn btn--perigo btn-excluir-afiliado" data-id="' + a.id + '" data-nome="' + escapeHtml(a.nome) + '" data-pendente="' + Number(a.comissao_pendente || 0) + '">Excluir</button>' +
             '</div>';
           const termosInfo = a.termos_aceitos_em
             ? 'Termo v' + escapeHtml(a.termos_versao || '1.0') + ' aceito em ' + new Date(a.termos_aceitos_em).toLocaleDateString('pt-BR')
@@ -1014,6 +1015,7 @@
             '<td><code>' + escapeHtml(a.codigo) + '</code></td>' +
             '<td>' + escapeHtml(a.cpf || '-') + '</td>' +
             '<td>' + escapeHtml(a.telefone || '-') + '</td>' +
+            '<td>' + escapeHtml(a.chave_pix || '-') + '</td>' +
             '<td>' + (a.cliques || 0) + '</td>' +
             '<td>' + (a.indicacoes_total || 0) + '</td>' +
             '<td>R$ ' + Number(a.comissao_pendente || 0).toFixed(2) + '</td>' +
@@ -1022,7 +1024,7 @@
             '<td>' + acoes + '</td>' +
             '</tr>';
         }).join('');
-        container.innerHTML = '<table><thead><tr><th>Afiliado</th><th>Código</th><th>CPF</th><th>Telefone</th><th>Cliques</th><th>Indicações</th><th>Comissão Pendente</th><th>Comissão Paga</th><th>Status</th><th>Ações</th></tr></thead><tbody>' + linhas + '</tbody></table>';
+        container.innerHTML = '<table><thead><tr><th>Afiliado</th><th>Código</th><th>CPF</th><th>Telefone</th><th>Chave Pix</th><th>Cliques</th><th>Indicações</th><th>Comissão Pendente</th><th>Comissão Paga</th><th>Status</th><th>Ações</th></tr></thead><tbody>' + linhas + '</tbody></table>';
 
         document.querySelectorAll('.btn-ver-documento-afiliado').forEach(btn => {
           btn.addEventListener('click', async () => {
@@ -1063,6 +1065,21 @@
               await apiPut('/admin/afiliados/' + btn.dataset.id + '/status', { status: novoStatus });
               carregarAfiliados();
             } catch (e) { alert(e.message || 'Erro ao atualizar status.'); }
+          });
+        });
+
+        document.querySelectorAll('.btn-excluir-afiliado').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const pendente = Number(btn.dataset.pendente || 0);
+            let mensagem = 'Excluir o afiliado "' + btn.dataset.nome + '"? Essa ação não pode ser desfeita e apaga também o histórico de comissões dele.';
+            if (pendente > 0) {
+              mensagem = 'Atenção: esse afiliado tem R$ ' + pendente.toFixed(2) + ' de comissão PENDENTE. ' + mensagem;
+            }
+            if (!confirm(mensagem)) return;
+            try {
+              await apiDelete('/admin/afiliados/' + btn.dataset.id);
+              carregarAfiliados();
+            } catch (e) { alert(e.message || 'Erro ao excluir afiliado.'); }
           });
         });
       } catch (e) { container.innerHTML = '<div class="vazio">Erro ao carregar afiliados.</div>'; }
