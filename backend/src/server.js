@@ -13,7 +13,9 @@ const PAGES_DIR = path.join(FRONTEND_DIR, 'pages');
 const ASSETS_DIR = path.join(__dirname, '..', '..', 'assets');
 const ADMIN_DIR = path.join(__dirname, '..', 'admin');
 
-app.use(express.json());
+// Limite maior que o padrao (100kb) porque o cadastro de afiliado envia o
+// documento de identidade (RG/CPF) como base64 dentro do JSON.
+app.use(express.json({ limit: '8mb' }));
 
 app.use(express.static(FRONTEND_DIR));
 app.use('/assets', express.static(ASSETS_DIR));
@@ -29,6 +31,7 @@ app.use('/api/blog', require('./routes/blogRoutes'));
 app.use('/api/interacoes', require('./routes/interacoes'));
 app.use('/api/contato', require('./routes/contato'));
 app.use('/api/turistas', require('./routes/turistas'));
+app.use('/api/afiliados', require('./routes/afiliados'));
 
 app.get('/', (req, res) => res.sendFile(path.join(FRONTEND_DIR, 'index.html')));
 app.get('/contato', (req, res) => res.sendFile(path.join(PAGES_DIR, 'contato.html')));
@@ -50,6 +53,9 @@ app.get('/pagamento-erro', (req, res) => res.sendFile(path.join(PAGES_DIR, 'paga
 app.get('/privacidade', (req, res) => res.sendFile(path.join(PAGES_DIR, 'privacidade.html')));
 app.get('/termos', (req, res) => res.sendFile(path.join(PAGES_DIR, 'termos.html')));
 app.get('/suporte', (req, res) => res.sendFile(path.join(PAGES_DIR, 'suporte.html')));
+app.get('/cadastro-afiliado', (req, res) => res.sendFile(path.join(PAGES_DIR, 'cadastro-afiliado.html')));
+app.get('/login-afiliado', (req, res) => res.sendFile(path.join(PAGES_DIR, 'login-afiliado.html')));
+app.get('/painel-afiliado', (req, res) => res.sendFile(path.join(PAGES_DIR, 'painel-afiliado.html')));
 
 app.use('/api', (req, res) => {
   res.status(404).json({ erro: 'Rota da API nao encontrada.' });
