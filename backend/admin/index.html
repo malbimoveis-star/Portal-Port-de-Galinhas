@@ -389,10 +389,20 @@
           <h2>Editar anúncio</h2>
           <p>Edite os dados do anúncio selecionado.</p>
           <input type="hidden" id="editarAnuncioId" value="">
+          <input type="hidden" id="editarAnuncioComercianteId" value="">
           <p id="erroEditarAnuncio" class="erro"></p>
           <div class="blog-form">
             <div class="campo"><label for="editarAnuncioTitulo">Título do anúncio</label><input type="text" id="editarAnuncioTitulo" placeholder="Digite o título do anúncio"></div>
             <div class="campo"><label for="editarAnuncioDescricao">Descrição</label><textarea id="editarAnuncioDescricao" rows="6" placeholder="Digite a descrição do anúncio"></textarea></div>
+            <div class="campo">
+              <label for="editarAnuncioCategoria">Categoria</label>
+              <select id="editarAnuncioCategoria"><option value="">Carregando...</option></select>
+            </div>
+            <div class="campo">
+              <label>Fotos e vídeos enviados pelo comerciante</label>
+              <div id="editarAnuncioMidiaPreview" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;"><span style="color:#889;font-size:.85em;">Carregando...</span></div>
+              <p style="font-size:.8em;color:#889;margin-top:4px;">Confira se as imagens/vídeos estão dentro das diretrizes do site antes de aprovar.</p>
+            </div>
             <div class="campo"><label for="editarAnuncioTelefone">Telefone</label><input type="text" id="editarAnuncioTelefone" placeholder="Digite o telefone"></div>
             <div class="campo"><label for="editarAnuncioEndereco">Endereço</label><input type="text" id="editarAnuncioEndereco" placeholder="Digite o endereço"></div>
             <div class="campo"><label for="editarAnuncioLatitude">Latitude</label><input type="text" id="editarAnuncioLatitude" placeholder="Ex.: -8.5069"></div>
@@ -404,6 +414,14 @@
                 <option value="ativo">Ativo</option>
                 <option value="rejeitado">Rejeitado</option>
               </select>
+            </div>
+            <div class="campo">
+              <label for="editarAnuncioTipoPlano">Tipo de anúncio (plano do comerciante)</label>
+              <select id="editarAnuncioTipoPlano">
+                <option value="basico">Comum (Básico)</option>
+                <option value="premium">Premium</option>
+              </select>
+              <p style="font-size:.8em;color:#889;margin-top:4px;">Define manualmente se este comerciante aparece com destaque Premium no site, independente do plano pago por ele.</p>
             </div>
             <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:15px;">
               <button type="button" id="btnSalvarEdicaoAnuncio" class="btn btn--principal">Salvar alterações</button>
@@ -567,6 +585,13 @@
       if (!r.ok) { let m = 'Erro ' + r.status; try { const e = await r.json(); if (e.erro) m = e.erro; } catch(x){} throw new Error(m); }
       return r.json();
     }
+    // Envia FormData (multipart) - usado quando ha upload de arquivos (fotos/videos).
+    // Sem Content-Type manual: o navegador define o boundary do multipart sozinho.
+    async function apiPostForm(path, formData) {
+      const r = await fetch(API_BASE + path, { method: 'POST', headers: token ? { 'Authorization': 'Bearer ' + token } : {}, body: formData });
+      if (!r.ok) { let m = 'Erro ' + r.status; try { const e = await r.json(); if (e.erro) m = e.erro; } catch(x){} throw new Error(m); }
+      return r.json();
+    }
 
     async function fazerLogin() {
       mostrarErro(erroLogin, '');
@@ -598,6 +623,7 @@
       carregarComerciantes();
       carregarAfiliados();
       carregarBlog();
+      carregarSelectsNovoAnuncio();
     }
 
     /* ===== ABA RESUMO GERAL (Fase 2 do dashboard) ===== */
@@ -830,6 +856,36 @@
       });
     }
 
+    // Preenche o select de categoria da tela de edicao de anuncio, marcando
+    // a categoria atual do anuncio como selecionada.
+    async function popularCategoriaEdicaoAnuncio(categoriaIdAtual) {
+      const select = document.getElementById('editarAnuncioCategoria');
+      try {
+        const data = await apiGet('/categorias');
+        const categorias = data.categorias || data || [];
+        select.innerHTML = '<option value="">Sem categoria</option>' +
+          categorias.map(c => '<option value="' + c.id + '">' + escapeHtml(c.nome) + '</option>').join('');
+        select.value = categoriaIdAtual != null ? String(categoriaIdAtual) : '';
+      } catch (e) {
+        select.innerHTML = '<option value="">Erro ao carregar categorias</option>';
+      }
+    }
+
+    // Mostra as fotos/videos que o comerciante enviou nesse anuncio, para o
+    // admin conferir se estao dentro das diretrizes do site antes de aprovar.
+    function renderizarMidiaEdicaoAnuncio(anuncio) {
+      const container = document.getElementById('editarAnuncioMidiaPreview');
+      const fotos = Array.isArray(anuncio.fotos) ? anuncio.fotos : [];
+      const videos = Array.isArray(anuncio.videos) ? anuncio.videos : [];
+      if (fotos.length === 0 && videos.length === 0) {
+        container.innerHTML = '<span style="color:#889;font-size:.85em;">Nenhuma foto ou video enviado por este comerciante.</span>';
+        return;
+      }
+      const imgsHtml = fotos.map(src => '<a href="' + escapeHtml(src) + '" target="_blank" rel="noopener"><img src="' + escapeHtml(src) + '" style="width:96px;height:96px;object-fit:cover;border-radius:6px;border:1px solid #ddd;"></a>').join('');
+      const videosHtml = videos.map(src => '<a href="' + escapeHtml(src) + '" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;width:96px;height:96px;border-radius:6px;border:1px solid #ddd;background:#f0f0f0;font-size:.8em;color:#556;">🎬 Video</a>').join('');
+      container.innerHTML = imgsHtml + videosHtml;
+    }
+
     async function abrirEdicaoAnuncio(id) {
       mostrarErro(document.getElementById('erroEditarAnuncio'), '');
       try {
@@ -838,6 +894,7 @@
         const anuncio = anuncios.find(a => String(a.id) === String(id));
         if (!anuncio) { alert('Anúncio não encontrado.'); return; }
         document.getElementById('editarAnuncioId').value = anuncio.id;
+        document.getElementById('editarAnuncioComercianteId').value = anuncio.id_comerciante || '';
         document.getElementById('editarAnuncioTitulo').value = anuncio.titulo || '';
         document.getElementById('editarAnuncioDescricao').value = anuncio.descricao || '';
         document.getElementById('editarAnuncioTelefone').value = anuncio.telefone || '';
@@ -845,6 +902,19 @@
         document.getElementById('editarAnuncioLatitude').value = anuncio.latitude || '';
         document.getElementById('editarAnuncioLongitude').value = anuncio.longitude || '';
         document.getElementById('editarAnuncioStatus').value = anuncio.status || 'pendente';
+        renderizarMidiaEdicaoAnuncio(anuncio);
+        popularCategoriaEdicaoAnuncio(anuncio.categoria_id);
+
+        const selectPlano = document.getElementById('editarAnuncioTipoPlano');
+        selectPlano.value = 'basico';
+        if (anuncio.id_comerciante) {
+          try {
+            const resp = await apiGet('/comerciantes/' + anuncio.id_comerciante);
+            const comerciante = resp.comerciante || resp;
+            selectPlano.value = comerciante && comerciante.plano === 'premium' ? 'premium' : 'basico';
+          } catch (e) { /* mantem 'basico' selecionado se nao conseguir carregar o comerciante */ }
+        }
+
         Object.values(abas).forEach(a => esconder(a));
         esconder(tabEditarCategoria);
         esconder(tabEditarBlog);
@@ -855,9 +925,11 @@
 
     document.getElementById('btnSalvarEdicaoAnuncio').addEventListener('click', async () => {
       const id = document.getElementById('editarAnuncioId').value;
+      const idComerciante = document.getElementById('editarAnuncioComercianteId').value;
       const body = {
         titulo: document.getElementById('editarAnuncioTitulo').value,
         descricao: document.getElementById('editarAnuncioDescricao').value,
+        categoria_id: document.getElementById('editarAnuncioCategoria').value || null,
         telefone: document.getElementById('editarAnuncioTelefone').value,
         endereco: document.getElementById('editarAnuncioEndereco').value,
         latitude: document.getElementById('editarAnuncioLatitude').value,
@@ -866,10 +938,24 @@
       };
       try {
         await apiPut('/admin/anuncios/' + id, body);
+        // Tipo de anuncio (Comum/Premium) e uma propriedade do COMERCIANTE, nao
+        // do anuncio - por isso e salvo com uma chamada separada para
+        // /admin/comerciantes/:id. Esse override manual funciona mesmo que o
+        // comerciante nao tenha pago nenhum plano (uso comercial/demonstracao).
+        if (idComerciante) {
+          const planoSelecionado = document.getElementById('editarAnuncioTipoPlano').value;
+          try {
+            await apiPut('/admin/comerciantes/' + idComerciante, { plano: planoSelecionado });
+          } catch (e) {
+            mostrarErro(document.getElementById('erroEditarAnuncio'), 'Anúncio salvo, mas houve erro ao atualizar o tipo (Comum/Premium): ' + (e.message || ''));
+            return;
+          }
+        }
         esconder(tabEditarAnuncio);
         mostrar(abas.anuncios);
         carregarAnunciosTodos();
         carregarAnunciosPendentes();
+        carregarComerciantes();
       } catch (e) { mostrarErro(document.getElementById('erroEditarAnuncio'), 'Erro ao salvar alterações.'); }
     });
 
@@ -947,9 +1033,10 @@
         if (coms.length === 0) { container.innerHTML = '<div class="vazio">Nenhum comerciante cadastrado.</div>'; return; }
         const linhas = coms.map(c => {
           const statusClass = 'badge--' + (c.status || 'ativo');
-          return '<tr><td>' + c.id + '</td><td><strong>' + escapeHtml(c.nome || '—') + '</strong></td><td>' + escapeHtml(c.email || '—') + '</td><td>' + escapeHtml(c.telefone || '—') + '</td><td><span class="badge ' + statusClass + '">' + (c.status || 'ativo') + '</span></td><td><button class="btn btn--secundario btn-editar-foto-com" data-id="' + c.id + '" data-logo="' + escapeHtml(c.logo || '') + '">Editar Foto</button></td></tr>';
+          const planoTexto = c.plano === 'premium' ? 'Premium' : (c.plano === 'basico' ? 'Básico' : 'Gratuito');
+          return '<tr><td>' + c.id + '</td><td><strong>' + escapeHtml(c.nome || '—') + '</strong></td><td>' + escapeHtml(c.email || '—') + '</td><td>' + escapeHtml(c.telefone || '—') + '</td><td><span class="badge ' + statusClass + '">' + (c.status || 'ativo') + '</span></td><td>' + escapeHtml(planoTexto) + '</td><td><button class="btn btn--secundario btn-editar-foto-com" data-id="' + c.id + '" data-logo="' + escapeHtml(c.logo || '') + '">Editar Foto</button></td></tr>';
         }).join('');
-        container.innerHTML = '<table><thead><tr><th>ID</th><th>Nome</th><th>E-mail</th><th>Telefone</th><th>Status</th><th>Ações</th></tr></thead><tbody>' + linhas + '</tbody></table>';
+        container.innerHTML = '<table><thead><tr><th>ID</th><th>Nome</th><th>E-mail</th><th>Telefone</th><th>Status</th><th>Plano</th><th>Ações</th></tr></thead><tbody>' + linhas + '</tbody></table>';
         document.querySelectorAll('.btn-editar-foto-com').forEach(btn => {
           btn.addEventListener('click', async () => {
             const logo = prompt('URL da foto do comerciante (ex.: /assets/comerciantes/passeio-lancha.jpg):', btn.dataset.logo || '');
@@ -963,6 +1050,71 @@
         });
       } catch (e) { container.innerHTML = '<div class="vazio">Erro ao carregar comerciantes.</div>'; }
     }
+
+    /* ===== NOVO ANÚNCIO (criacao manual pelo admin) ===== */
+
+    // Popula os selects de Comerciante e Categoria do card "Novo Anúncio".
+    // Antes ficavam travados em "Carregando..." para sempre porque nada os
+    // preenchia - o formulario inteiro estava sem nenhuma logica por tras.
+    async function carregarSelectsNovoAnuncio() {
+      const selectComerciante = document.getElementById('novoAnuncioComerciante');
+      const selectCategoria = document.getElementById('novoAnuncioCategoria');
+      try {
+        const dataComs = await apiGet('/comerciantes');
+        const coms = dataComs.comerciantes || dataComs || [];
+        selectComerciante.innerHTML = coms.length
+          ? '<option value="">Selecione um comerciante</option>' + coms.map(c => '<option value="' + c.id + '">#' + c.id + ' - ' + escapeHtml(c.nome || c.email || '—') + '</option>').join('')
+          : '<option value="">Nenhum comerciante cadastrado</option>';
+      } catch (e) {
+        selectComerciante.innerHTML = '<option value="">Erro ao carregar comerciantes</option>';
+      }
+      try {
+        const dataCats = await apiGet('/categorias');
+        const cats = dataCats.categorias || dataCats || [];
+        selectCategoria.innerHTML = '<option value="">Sem categoria</option>' + cats.map(c => '<option value="' + c.id + '">' + escapeHtml(c.nome) + '</option>').join('');
+      } catch (e) {
+        selectCategoria.innerHTML = '<option value="">Erro ao carregar categorias</option>';
+      }
+    }
+
+    document.getElementById('btnCriarAnuncio').addEventListener('click', async () => {
+      const erroEl = document.getElementById('erroNovoAnuncio');
+      mostrarErro(erroEl, '');
+      const idComerciante = document.getElementById('novoAnuncioComerciante').value;
+      const titulo = document.getElementById('novoAnuncioTitulo').value.trim();
+      if (!idComerciante) { mostrarErro(erroEl, 'Selecione um comerciante.'); return; }
+      if (!titulo) { mostrarErro(erroEl, 'Digite o título do anúncio.'); return; }
+
+      const fd = new FormData();
+      fd.append('id_comerciante', idComerciante);
+      fd.append('titulo', titulo);
+      fd.append('descricao', document.getElementById('novoAnuncioDescricao').value);
+      fd.append('categoria_id', document.getElementById('novoAnuncioCategoria').value);
+      fd.append('tags', document.getElementById('novoAnuncioTags').value);
+      fd.append('endereco', document.getElementById('novoAnuncioEndereco').value);
+      fd.append('latitude', document.getElementById('novoAnuncioLatitude').value);
+      fd.append('longitude', document.getElementById('novoAnuncioLongitude').value);
+      fd.append('status', document.getElementById('novoAnuncioStatus').value);
+      const arquivos = document.getElementById('novoAnuncioFotos').files;
+      for (let i = 0; i < arquivos.length; i++) fd.append('fotos', arquivos[i]);
+
+      try {
+        await apiPostForm('/admin/anuncios', fd);
+        document.getElementById('novoAnuncioComerciante').value = '';
+        document.getElementById('novoAnuncioTitulo').value = '';
+        document.getElementById('novoAnuncioDescricao').value = '';
+        document.getElementById('novoAnuncioCategoria').value = '';
+        document.getElementById('novoAnuncioTags').value = '';
+        document.getElementById('novoAnuncioEndereco').value = '';
+        document.getElementById('novoAnuncioLatitude').value = '';
+        document.getElementById('novoAnuncioLongitude').value = '';
+        document.getElementById('novoAnuncioFotos').value = '';
+        document.getElementById('novoAnuncioStatus').value = 'ativo';
+        alert('Anúncio criado com sucesso!');
+        carregarAnunciosPendentes();
+        carregarAnunciosTodos();
+      } catch (e) { mostrarErro(erroEl, e.message || 'Erro ao criar anúncio.'); }
+    });
 
     /* ===== AFILIADOS (Fase 3 do dashboard) ===== */
 
