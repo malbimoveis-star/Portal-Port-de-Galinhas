@@ -1096,12 +1096,27 @@ router.get('/visualizacoes', autenticarAdmin, async (req, res) => {
       [desde]
     );
 
+    // Visualizacoes agrupadas por comerciante, so do mes corrente (calendario,
+    // nao a janela da granularidade escolhida acima) - responde "quantas
+    // pessoas entraram no anuncio de cada comerciante este mes", pedido
+    // separado do ranking por anuncio.
+    const porComerciante = await db.all(
+      `SELECT c.id AS id_comerciante, c.nome AS nome_comerciante, COUNT(*)::int AS total
+       FROM visualizacoes_anuncio v
+       JOIN anuncios a ON a.id = v.id_anuncio
+       JOIN comerciantes c ON c.id = a.id_comerciante
+       WHERE v.criado_em::timestamptz >= date_trunc('month', now())
+       GROUP BY c.id, c.nome
+       ORDER BY total DESC`
+    );
+
     const totalPeriodo = serie.reduce((soma, item) => soma + Number(item.total), 0);
 
     res.json({
       granularidade: granularidadeEscolhida,
       serie,
       ranking,
+      por_comerciante_mes_atual: porComerciante,
       total_periodo: totalPeriodo,
     });
   } catch (err) {
@@ -1360,6 +1375,227 @@ router.delete('/afiliados/:id', autenticarAdmin, async (req, res) => {
   } catch (err) {
     console.error('[ADMIN] Erro ao excluir afiliado:', err);
     res.status(500).json({ erro: 'Erro ao excluir afiliado.' });
+  }
+});
+
+// =========================================================
+// FASE 4 DO DASHBOARD - EXPORTACAO DE DADOS (CSV/PDF)
+// =========================================================
+//
+// GET /api/admin/export/:tipo
+// Retorna os dados de uma das listas do painel (anuncios, comerciantes,
+// pagamentos, afiliados) ja no formato tabular (colunas + linhas), com
+// valores formatados para leitura humana. O painel usa essa mesma resposta
+// tanto para montar o CSV quanto o PDF no navegador, sem duplicar a logica
+// de formatacao em dois lugares.
+
+const TIPOS_EXPORTACAO_VALIDOS = [
+  'anuncios',
+  'comerciantes',
+  'pagamentos',
+  'afiliados',
+  'visualizacoes_anuncio',
+  'visualizacoes_comerciante',
+];
+
+function formatarDataExportacao(valor) {
+  if (!valor) return '';
+  const data = new Date(valor);
+  if (Number.isNaN(data.getTime())) return String(valor);
+  return data.toLocaleString('pt-BR');
+}
+
+router.get('/export/:tipo', async (req, res) => {
+  try {
+    const { tipo } = req.params;
+
+    if (!TIPOS_EXPORTACAO_VALIDOS.includes(tipo)) {
+      return res.status(400).json({ erro: 'Tipo de exportacao invalido.' });
+    }
+
+    let colunas = [];
+    let linhas = [];
+
+    if (tipo === 'anuncios') {
+      colunas = ['ID', 'Titulo', 'Categoria', 'Comerciante', 'Status', 'Criado em'];
+
+      const registros = await db.all(`
+        SELECT a.id, a.titulo, a.status, a.criado_em,
+               cat.nome AS categoria_nome,
+               c.nome AS comerciante_nome
+        FROM anuncios a
+        LEFT JOIN categorias cat ON cat.id = a.categoria_id
+        LEFT JOIN comerciantes c ON c.id = a.id_comerciante
+        ORDER BY a.id DESC
+      `);
+
+      linhas = registros.map((r) => [
+        r.id,
+        r.titulo || '',
+        r.categoria_nome || 'Sem categoria',
+        r.comerciante_nome || '',
+        r.status || '',
+        formatarDataExportacao(r.criado_em),
+      ]);
+
+    } else if (tipo === 'comerciantes') {
+      colunas = ['ID', 'Nome', 'Email', 'Telefone', 'Plano', 'Status', 'Cadastro', 'Expiracao'];
+
+      const registros = await db.all(`
+        SELECT id, nome, email, telefone, plano, status, data_criacao, data_expiracao
+        FROM comerciantes
+        ORDER BY id DESC
+      `);
+
+      linhas = registros.map((r) => [
+        r.id,
+        r.nome || '',
+        r.email || '',
+        r.telefone || '',
+        r.plano || '',
+        r.status || '',
+        formatarDataExportacao(r.data_criacao),
+        formatarDataExportacao(r.data_expiracao),
+      ]);
+
+    } else if (tipo === 'pagamentos') {
+      colunas = ['ID', 'Comerciante', 'Plano', 'Valor (R$)', 'Status', 'Data'];
+
+      const registros = await db.all(`
+        SELECT p.id, p.tipo_plano, p.valor, p.status, p.data_pagamento,
+               c.nome AS comerciante_nome
+        FROM pagamentos p
+        LEFT JOIN comerciantes c ON c.id = p.id_comerciante
+        ORDER BY p.id DESC
+      `);
+
+      linhas = registros.map((r) => [
+        r.id,
+        r.comerciante_nome || '',
+        r.tipo_plano || '',
+        r.valor != null ? Number(r.valor).toFixed(2) : '0.00',
+        r.status || '',
+        formatarDataExportacao(r.data_pagamento),
+      ]);
+
+    } else if (tipo === 'afiliados') {
+      // Cliques = quantas pessoas visualizaram/entraram pelo link do afiliado.
+      // Indicacoes = quantas dessas pessoas viraram comerciante cadastrado
+      // atraves do link (conversao). Ambos pedidos separadamente pelo admin.
+      colunas = [
+        'ID', 'Nome', 'Email', 'Codigo', 'Status',
+        'Cliques (entradas pelo link)', 'Indicacoes convertidas',
+        'Comissao pendente (R$)', 'Comissao paga (R$)', 'Cadastro',
+      ];
+
+      const registros = await db.all(`
+        SELECT a.id, a.nome, a.email, a.codigo, a.status, a.cliques, a.criado_em,
+               (SELECT COUNT(*)::int FROM comerciantes c WHERE c.id_afiliado_referenciador = a.id) AS indicacoes_total,
+               COALESCE((SELECT SUM(valor_comissao) FROM comissoes_afiliado co WHERE co.id_afiliado = a.id AND co.status = 'pendente'), 0)::float AS comissao_pendente,
+               COALESCE((SELECT SUM(valor_comissao) FROM comissoes_afiliado co WHERE co.id_afiliado = a.id AND co.status = 'pago'), 0)::float AS comissao_paga
+        FROM afiliados a
+        ORDER BY a.id DESC
+      `);
+
+      linhas = registros.map((r) => [
+        r.id,
+        r.nome || '',
+        r.email || '',
+        r.codigo || '',
+        r.status || '',
+        r.cliques || 0,
+        r.indicacoes_total || 0,
+        Number(r.comissao_pendente || 0).toFixed(2),
+        Number(r.comissao_paga || 0).toFixed(2),
+        formatarDataExportacao(r.criado_em),
+      ]);
+
+    } else if (tipo === 'visualizacoes_anuncio') {
+      // Ranking completo (nao limitado a 10 como a tela) de visualizacoes
+      // por anuncio, na janela padrao de 30 dias.
+      colunas = ['ID Anuncio', 'Titulo', 'Comerciante', 'Visualizacoes (ultimos 30 dias)'];
+
+      const registros = await db.all(`
+        SELECT v.id_anuncio, a.titulo, c.nome AS nome_comerciante, COUNT(*)::int AS total
+        FROM visualizacoes_anuncio v
+        JOIN anuncios a ON a.id = v.id_anuncio
+        JOIN comerciantes c ON c.id = a.id_comerciante
+        WHERE v.criado_em::timestamptz >= now() - interval '30 days'
+        GROUP BY v.id_anuncio, a.titulo, c.nome
+        ORDER BY total DESC
+      `);
+
+      linhas = registros.map((r) => [r.id_anuncio, r.titulo || '', r.nome_comerciante || '', r.total]);
+
+    } else if (tipo === 'visualizacoes_comerciante') {
+      // Visualizacoes agrupadas por comerciante, so do mes corrente - "quantas
+      // pessoas entraram no anuncio de cada comerciante este mes".
+      colunas = ['ID Comerciante', 'Comerciante', 'Visualizacoes (mes atual)'];
+
+      const registros = await db.all(`
+        SELECT c.id AS id_comerciante, c.nome AS nome_comerciante, COUNT(*)::int AS total
+        FROM visualizacoes_anuncio v
+        JOIN anuncios a ON a.id = v.id_anuncio
+        JOIN comerciantes c ON c.id = a.id_comerciante
+        WHERE v.criado_em::timestamptz >= date_trunc('month', now())
+        GROUP BY c.id, c.nome
+        ORDER BY total DESC
+      `);
+
+      linhas = registros.map((r) => [r.id_comerciante, r.nome_comerciante || '', r.total]);
+    }
+
+    res.json({ tipo, colunas, linhas, gerado_em: new Date().toISOString() });
+
+  } catch (err) {
+    console.error('[ADMIN] Erro ao exportar dados:', err);
+    res.status(500).json({ erro: 'Erro ao exportar dados.' });
+  }
+});
+
+// GET /api/admin/export/afiliado/:id
+// Extrato de indicacoes/comissoes de UM afiliado especifico - "quantas
+// pessoas ele conseguiu indicar" - usado pelo botao "Exportar indicações"
+// na propria linha do afiliado na tabela.
+router.get('/export/afiliado/:id', async (req, res) => {
+  try {
+    const afiliado = await db.get('SELECT id, nome FROM afiliados WHERE id = ?', [req.params.id]);
+    if (!afiliado) {
+      return res.status(404).json({ erro: 'Afiliado nao encontrado.' });
+    }
+
+    const colunas = ['Comerciante indicado', 'Plano', 'Valor da comissao (R$)', 'Mes de referencia', 'Status', 'Indicado em'];
+
+    const registros = await db.all(
+      `SELECT co.valor_comissao, co.mes_referencia, co.status, co.criado_em,
+              c.nome AS nome_comerciante, c.plano
+       FROM comissoes_afiliado co
+       LEFT JOIN comerciantes c ON c.id = co.id_comerciante
+       WHERE co.id_afiliado = ?
+       ORDER BY co.criado_em DESC`,
+      [req.params.id]
+    );
+
+    const linhas = registros.map((r) => [
+      r.nome_comerciante || '',
+      r.plano || '',
+      Number(r.valor_comissao || 0).toFixed(2),
+      r.mes_referencia || '',
+      r.status || '',
+      formatarDataExportacao(r.criado_em),
+    ]);
+
+    res.json({
+      tipo: 'afiliado_indicacoes',
+      afiliado: afiliado.nome,
+      colunas,
+      linhas,
+      gerado_em: new Date().toISOString(),
+    });
+
+  } catch (err) {
+    console.error('[ADMIN] Erro ao exportar indicacoes do afiliado:', err);
+    res.status(500).json({ erro: 'Erro ao exportar indicacoes do afiliado.' });
   }
 });
 
