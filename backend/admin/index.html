@@ -114,6 +114,8 @@
   </style>
 <base target="_blank">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
 
@@ -153,6 +155,7 @@
       <button type="button" data-aba="categorias">Categorias</button>
       <button type="button" data-aba="comerciantes">Comerciantes</button>
       <button type="button" data-aba="afiliados">Afiliados</button>
+      <button type="button" data-aba="pagamentos">Pagamentos</button>
       <button type="button" data-aba="blog">Blog</button>
     </nav>
 
@@ -160,22 +163,47 @@
 
       <!-- ABA RESUMO GERAL (Fase 2 do dashboard) -->
       <section id="abaResumo">
-        <div class="card">
+        <div class="card" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+          <div>
+            <h2 style="margin-bottom:2px;">Personalizar Dashboard</h2>
+            <p style="margin:0;">Escolha quais painéis aparecem no Resumo Geral.</p>
+          </div>
+          <button type="button" id="btnTogglePersonalizarDashboard" class="btn btn--secundario" style="font-size:0.85rem;">Personalizar</button>
+        </div>
+        <div class="card escondido" id="painelPersonalizarDashboard">
+          <div class="campo" style="display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" id="chkCardNotificacoes" style="width:auto;">
+            <label for="chkCardNotificacoes" style="margin:0;">Notificações Recentes</label>
+          </div>
+          <div class="campo" style="display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" id="chkCardCadastros" style="width:auto;">
+            <label for="chkCardCadastros" style="margin:0;">Cadastros</label>
+          </div>
+          <div class="campo" style="display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" id="chkCardFinanceiro" style="width:auto;">
+            <label for="chkCardFinanceiro" style="margin:0;">Financeiro</label>
+          </div>
+          <div class="campo" style="display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" id="chkCardEngajamento" style="width:auto;">
+            <label for="chkCardEngajamento" style="margin:0;">Engajamento</label>
+          </div>
+        </div>
+        <div class="card" id="cardResumoNotificacoes">
           <h2>Notificações Recentes</h2>
           <p>Anúncios aguardando aprovação, novos comerciantes cadastrados e pagamentos aprovados nas últimas 24 horas.</p>
           <div id="listaNotificacoesAdmin" class="tabela-container"><div class="vazio">Carregando...</div></div>
         </div>
-        <div class="card">
+        <div class="card" id="cardResumoCadastros">
           <h2>Cadastros</h2>
           <p>Total de contas e anúncios no portal.</p>
           <div id="gridResumoCadastros" class="resumo-grid"><div class="vazio">Carregando...</div></div>
         </div>
-        <div class="card">
+        <div class="card" id="cardResumoFinanceiro">
           <h2>Financeiro</h2>
           <p>Receita e assinaturas ativas.</p>
           <div id="gridResumoFinanceiro" class="resumo-grid"><div class="vazio">Carregando...</div></div>
         </div>
-        <div class="card">
+        <div class="card" id="cardResumoEngajamento">
           <h2>Engajamento</h2>
           <p>Curtidas, comentários e visualizações de anúncios.</p>
           <div id="gridResumoEngajamento" class="resumo-grid"><div class="vazio">Carregando...</div></div>
@@ -192,6 +220,10 @@
         <div class="card">
           <h2>Todos os Anúncios</h2>
           <p>Gerencie todos os anúncios cadastrados na plataforma.</p>
+          <div class="wp-toolbar" style="margin-bottom:10px;">
+            <button type="button" onclick="exportarDados('anuncios','csv')" class="btn btn--secundario">Exportar CSV</button>
+            <button type="button" onclick="exportarDados('anuncios','pdf')" class="btn btn--secundario">Exportar PDF</button>
+          </div>
           <div id="listaAnunciosTodos" class="tabela-container"><div class="vazio">Carregando...</div></div>
         </div>
         <div class="card">
@@ -268,8 +300,21 @@
         </div>
         <div class="card">
           <h2>Anúncios Mais Visualizados</h2>
-          <p>Ranking dos 10 anúncios com mais visualizações no período selecionado acima.</p>
+          <p>Ranking dos 10 anúncios com mais visualizações no período selecionado acima. A exportação traz a lista completa dos últimos 30 dias, não só o top 10.</p>
+          <div class="wp-toolbar" style="margin-bottom:10px;">
+            <button type="button" onclick="exportarDados('visualizacoes_anuncio','csv')" class="btn btn--secundario">Exportar CSV</button>
+            <button type="button" onclick="exportarDados('visualizacoes_anuncio','pdf')" class="btn btn--secundario">Exportar PDF</button>
+          </div>
           <div id="listaRankingVisualizacoes" class="tabela-container"><div class="vazio">Carregando...</div></div>
+        </div>
+        <div class="card">
+          <h2>Visualizações por Comerciante (mês atual)</h2>
+          <p>Quantas visualizações cada comerciante recebeu nos anúncios dele, somando o mês corrente inteiro.</p>
+          <div class="wp-toolbar" style="margin-bottom:10px;">
+            <button type="button" onclick="exportarDados('visualizacoes_comerciante','csv')" class="btn btn--secundario">Exportar CSV</button>
+            <button type="button" onclick="exportarDados('visualizacoes_comerciante','pdf')" class="btn btn--secundario">Exportar PDF</button>
+          </div>
+          <div id="listaVisualizacoesPorComerciante" class="tabela-container"><div class="vazio">Carregando...</div></div>
         </div>
       </section>
 
@@ -303,6 +348,10 @@
         <div class="card">
           <h2>Comerciantes Cadastrados</h2>
           <p>Lista de todos os comerciantes da plataforma.</p>
+          <div class="wp-toolbar" style="margin-bottom:10px;">
+            <button type="button" onclick="exportarDados('comerciantes','csv')" class="btn btn--secundario">Exportar CSV</button>
+            <button type="button" onclick="exportarDados('comerciantes','pdf')" class="btn btn--secundario">Exportar PDF</button>
+          </div>
           <div id="listaComerciantes" class="tabela-container"><div class="vazio">Carregando...</div></div>
         </div>
       </section>
@@ -311,8 +360,25 @@
       <section id="abaAfiliados" class="escondido">
         <div class="card">
           <h2>Afiliados</h2>
-          <p>Todos os afiliados cadastrados, com cliques, indicações e comissão (50% do plano do comerciante indicado). O pagamento é feito por fora do site; use "Fechar mês" para marcar as comissões pendentes de um afiliado como pagas depois de pagar.</p>
+          <p>Todos os afiliados cadastrados, com cliques, indicações e comissão (50% do plano do comerciante indicado). O pagamento é feito por fora do site; use "Fechar mês" para marcar as comissões pendentes de um afiliado como pagas depois de pagar. A coluna "Exportar" na tabela baixa, por afiliado, a lista de quem ele indicou.</p>
+          <div class="wp-toolbar" style="margin-bottom:10px;">
+            <button type="button" onclick="exportarDados('afiliados','csv')" class="btn btn--secundario">Exportar CSV</button>
+            <button type="button" onclick="exportarDados('afiliados','pdf')" class="btn btn--secundario">Exportar PDF</button>
+          </div>
           <div id="listaAfiliados" class="tabela-container"><div class="vazio">Carregando...</div></div>
+        </div>
+      </section>
+
+      <!-- ABA PAGAMENTOS (Fase 4 do dashboard) -->
+      <section id="abaPagamentos" class="escondido">
+        <div class="card">
+          <h2>Pagamentos</h2>
+          <p>Histórico de pagamentos processados na plataforma.</p>
+          <div class="wp-toolbar" style="margin-bottom:10px;">
+            <button type="button" onclick="exportarDados('pagamentos','csv')" class="btn btn--secundario">Exportar CSV</button>
+            <button type="button" onclick="exportarDados('pagamentos','pdf')" class="btn btn--secundario">Exportar PDF</button>
+          </div>
+          <div id="listaPagamentos" class="tabela-container"><div class="vazio">Carregando...</div></div>
         </div>
       </section>
 
@@ -529,6 +595,7 @@
       categorias: document.getElementById('abaCategorias'),
       comerciantes: document.getElementById('abaComerciantes'),
       afiliados: document.getElementById('abaAfiliados'),
+      pagamentos: document.getElementById('abaPagamentos'),
       blog: document.getElementById('abaBlog')
     };
     const navButtons = document.querySelectorAll('.admin-nav button[data-aba]');
@@ -592,6 +659,134 @@
       return r.json();
     }
 
+    /* =========================================================
+       FASE 4 DO DASHBOARD - EXPORTACAO DE DADOS (CSV/PDF)
+       =========================================================
+       Cada setor do painel (Anúncios, Comerciantes, Pagamentos, Afiliados,
+       Visualizações) tem seus próprios botões "Exportar CSV"/"Exportar PDF"
+       que baixam SÓ os dados daquele setor - não existe uma exportação
+       geral que junte tudo. O backend devolve os dados já formatados em
+       colunas + linhas (ver GET /admin/export/:tipo), e aqui a gente só
+       decide se monta um CSV ou um PDF com esses mesmos dados.
+       ========================================================= */
+
+    function baixarArquivo(nomeArquivo, conteudo, tipoMime) {
+      const blob = new Blob([conteudo], { type: tipoMime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = nomeArquivo;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function paraCsv(colunas, linhas) {
+      const escapar = (valor) => {
+        const texto = String(valor === null || valor === undefined ? '' : valor);
+        if (/[",;\n]/.test(texto)) {
+          return '"' + texto.replace(/"/g, '""') + '"';
+        }
+        return texto;
+      };
+      const cabecalho = colunas.map(escapar).join(';');
+      const corpo = linhas.map(linha => linha.map(escapar).join(';')).join('\n');
+      // ﻿ (BOM) no início: sem isso o Excel abre acentos quebrados.
+      return '﻿' + cabecalho + '\n' + corpo;
+    }
+
+    function gerarPdfTabela(titulo, colunas, linhas) {
+      if (!window.jspdf || typeof window.jspdf.jsPDF !== 'function') {
+        alert('Biblioteca de PDF ainda não carregou. Tente novamente em alguns segundos.');
+        return null;
+      }
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'landscape' });
+      doc.setFontSize(14);
+      doc.text('Portal Porto de Galinhas - ' + titulo, 14, 15);
+      doc.setFontSize(9);
+      doc.text('Gerado em ' + new Date().toLocaleString('pt-BR'), 14, 21);
+      doc.autoTable({
+        head: [colunas],
+        body: linhas,
+        startY: 26,
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [31, 78, 120] },
+      });
+      return doc;
+    }
+
+    const NOMES_EXPORTACAO = {
+      anuncios: 'Anúncios',
+      comerciantes: 'Comerciantes',
+      pagamentos: 'Pagamentos',
+      afiliados: 'Afiliados',
+      visualizacoes_anuncio: 'Visualizações por Anúncio',
+      visualizacoes_comerciante: 'Visualizações por Comerciante',
+    };
+
+    async function exportarDados(tipo, formato) {
+      try {
+        const dados = await apiGet('/admin/export/' + tipo);
+        const titulo = NOMES_EXPORTACAO[tipo] || tipo;
+        const dataHoje = new Date().toISOString().slice(0, 10);
+        const nomeBase = tipo.replace(/_/g, '-');
+
+        if (!dados.linhas || dados.linhas.length === 0) {
+          alert('Não há dados para exportar em "' + titulo + '" ainda.');
+          return;
+        }
+
+        if (formato === 'csv') {
+          const csv = paraCsv(dados.colunas, dados.linhas);
+          baixarArquivo(nomeBase + '-' + dataHoje + '.csv', csv, 'text/csv;charset=utf-8;');
+        } else if (formato === 'pdf') {
+          const doc = gerarPdfTabela(titulo, dados.colunas, dados.linhas);
+          if (doc) doc.save(nomeBase + '-' + dataHoje + '.pdf');
+        }
+      } catch (e) {
+        alert(e.message || 'Erro ao exportar dados.');
+      }
+    }
+
+    async function exportarIndicacoesAfiliado(idAfiliado, nomeAfiliado) {
+      try {
+        const dados = await apiGet('/admin/export/afiliado/' + idAfiliado);
+        if (!dados.linhas || dados.linhas.length === 0) {
+          alert('"' + nomeAfiliado + '" ainda não indicou nenhum comerciante.');
+          return;
+        }
+        const csv = paraCsv(dados.colunas, dados.linhas);
+        const dataHoje = new Date().toISOString().slice(0, 10);
+        const nomeArquivo = 'indicacoes-' + nomeAfiliado.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + dataHoje + '.csv';
+        baixarArquivo(nomeArquivo, csv, 'text/csv;charset=utf-8;');
+      } catch (e) {
+        alert(e.message || 'Erro ao exportar indicações do afiliado.');
+      }
+    }
+
+    // ABA PAGAMENTOS - reaproveita o mesmo endpoint de exportação (colunas +
+    // linhas já formatadas) pra montar a tabela na tela, já que essa aba não
+    // tem ações de editar/excluir - é só consulta e exportação.
+    async function carregarPagamentos() {
+      const container = document.getElementById('listaPagamentos');
+      try {
+        const dados = await apiGet('/admin/export/pagamentos');
+        if (!dados.linhas || dados.linhas.length === 0) {
+          container.innerHTML = '<div class="vazio">Nenhum pagamento registrado ainda.</div>';
+          return;
+        }
+        const cabecalho = dados.colunas.map(c => '<th>' + escapeHtml(c) + '</th>').join('');
+        const linhas = dados.linhas.map(linha =>
+          '<tr>' + linha.map(v => '<td>' + escapeHtml(String(v === null || v === undefined ? '' : v)) + '</td>').join('') + '</tr>'
+        ).join('');
+        container.innerHTML = '<table><thead><tr>' + cabecalho + '</tr></thead><tbody>' + linhas + '</tbody></table>';
+      } catch (e) {
+        container.innerHTML = '<div class="vazio">Erro ao carregar pagamentos.</div>';
+      }
+    }
+
     async function fazerLogin() {
       mostrarErro(erroLogin, '');
       const usuario = loginUsuario.value.trim();
@@ -621,6 +816,7 @@
       carregarCategorias();
       carregarComerciantes();
       carregarAfiliados();
+      carregarPagamentos();
       carregarBlog();
       carregarSelectsNovoAnuncio();
     }
@@ -690,6 +886,60 @@
         if (elNotif) elNotif.innerHTML = '<div class="vazio">Erro ao carregar resumo geral.</div>';
       }
     }
+
+    // Personalizar Dashboard: o admin escolhe quais dos 4 painéis do Resumo
+    // Geral ficam visíveis. Preferência salva no navegador (localStorage),
+    // já que é um painel de uso individual do admin.
+    const CHAVE_PREFERENCIA_DASHBOARD = 'admin_dashboard_cards_visiveis';
+    const CARDS_DASHBOARD = [
+      { chave: 'notificacoes', checkboxId: 'chkCardNotificacoes', cardId: 'cardResumoNotificacoes' },
+      { chave: 'cadastros', checkboxId: 'chkCardCadastros', cardId: 'cardResumoCadastros' },
+      { chave: 'financeiro', checkboxId: 'chkCardFinanceiro', cardId: 'cardResumoFinanceiro' },
+      { chave: 'engajamento', checkboxId: 'chkCardEngajamento', cardId: 'cardResumoEngajamento' },
+    ];
+
+    function lerPreferenciaDashboard() {
+      try {
+        const salvo = JSON.parse(localStorage.getItem(CHAVE_PREFERENCIA_DASHBOARD) || '{}');
+        return salvo && typeof salvo === 'object' ? salvo : {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function aplicarPreferenciaDashboard() {
+      const preferencia = lerPreferenciaDashboard();
+      CARDS_DASHBOARD.forEach(({ chave, checkboxId, cardId }) => {
+        const visivel = preferencia[chave] !== false; // padrao: visivel
+        const checkbox = document.getElementById(checkboxId);
+        const card = document.getElementById(cardId);
+        if (checkbox) checkbox.checked = visivel;
+        if (card) card.style.display = visivel ? '' : 'none';
+      });
+    }
+
+    function salvarPreferenciaDashboard() {
+      const preferencia = {};
+      CARDS_DASHBOARD.forEach(({ chave, checkboxId }) => {
+        const checkbox = document.getElementById(checkboxId);
+        preferencia[chave] = checkbox ? checkbox.checked : true;
+      });
+      localStorage.setItem(CHAVE_PREFERENCIA_DASHBOARD, JSON.stringify(preferencia));
+      aplicarPreferenciaDashboard();
+    }
+
+    const btnTogglePersonalizarDashboard = document.getElementById('btnTogglePersonalizarDashboard');
+    const painelPersonalizarDashboard = document.getElementById('painelPersonalizarDashboard');
+    if (btnTogglePersonalizarDashboard && painelPersonalizarDashboard) {
+      btnTogglePersonalizarDashboard.addEventListener('click', () => {
+        painelPersonalizarDashboard.classList.toggle('escondido');
+      });
+    }
+    CARDS_DASHBOARD.forEach(({ checkboxId }) => {
+      const checkbox = document.getElementById(checkboxId);
+      if (checkbox) checkbox.addEventListener('change', salvarPreferenciaDashboard);
+    });
+    aplicarPreferenciaDashboard();
     /* ===== FIM ABA RESUMO GERAL ===== */
 
     /* ===== ABA VISUALIZAÇÕES ===== */
@@ -706,9 +956,28 @@
         renderGraficoVisualizacoes(data.serie || [], granularidade);
         document.getElementById('totalVisualizacoesPeriodo').textContent = data.total_periodo || 0;
         renderRankingVisualizacoes(data.ranking || []);
+        renderVisualizacoesPorComerciante(data.por_comerciante_mes_atual || []);
       } catch (e) {
         if (containerRanking) containerRanking.innerHTML = '<div class="vazio">Erro ao carregar visualizações.</div>';
       }
+    }
+
+    function renderVisualizacoesPorComerciante(lista) {
+      const container = document.getElementById('listaVisualizacoesPorComerciante');
+      if (!container) return;
+      if (!lista.length) { container.innerHTML = '<div class="vazio">Nenhuma visualização registrada este mês ainda.</div>'; return; }
+      const linhas = lista.map((item) => `
+        <tr>
+          <td>${escapeHtml(item.nome_comerciante || '')}</td>
+          <td>${item.total}</td>
+        </tr>
+      `).join('');
+      container.innerHTML = `
+        <table>
+          <thead><tr><th>Comerciante</th><th>Visualizações (mês atual)</th></tr></thead>
+          <tbody>${linhas}</tbody>
+        </table>
+      `;
     }
 
     function renderGraficoVisualizacoes(serie, granularidade) {
@@ -793,6 +1062,7 @@
         // com a aba ja visivel e com dimensoes reais, resolve isso.
         if (aba === 'visualizacoes') carregarVisualizacoes();
         if (aba === 'resumo') carregarResumoGeral();
+        if (aba === 'pagamentos') carregarPagamentos();
       });
     });
 
@@ -1154,6 +1424,7 @@
             : '<span style="color:#c0392b;font-size:.85em;">Sem documento</span>';
           const acoes = '<div class="acoes">' +
             botaoDocumento +
+            '<button class="btn btn--secundario" onclick="exportarIndicacoesAfiliado(' + a.id + ', \'' + escapeHtml(a.nome).replace(/'/g, "\\'") + '\')">Exportar indicações</button>' +
             '<button class="btn btn--secundario btn-fechar-mes-afiliado" data-id="' + a.id + '" data-nome="' + escapeHtml(a.nome) + '">Fechar mês</button>' +
             '<button class="btn ' + classeBotaoStatus + ' btn-toggle-status-afiliado" data-id="' + a.id + '" data-status="' + proximoStatus + '">' + textoBotaoStatus + '</button>' +
             '<button class="btn btn--perigo btn-excluir-afiliado" data-id="' + a.id + '" data-nome="' + escapeHtml(a.nome) + '" data-pendente="' + Number(a.comissao_pendente || 0) + '">Excluir</button>' +
