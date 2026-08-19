@@ -430,6 +430,25 @@ async function migrate() {
   await db.exec(`CREATE INDEX IF NOT EXISTS idx_comissoes_afiliado_mes ON comissoes_afiliado(mes_referencia);`);
   await db.exec(`CREATE INDEX IF NOT EXISTS idx_comerciantes_afiliado_referenciador ON comerciantes(id_afiliado_referenciador);`);
 
+  // administradores: guarda a senha do admin do painel no banco (com hash),
+  // em vez de so na variavel de ambiente ADMIN_PASS, para permitir o fluxo
+  // de "esqueci a senha" (token de recuperacao + e-mail), igual ja existe
+  // para comerciante/afiliado. O registro padrao e' criado/preenchido por
+  // garantirAdministradorPadrao() (backend/src/db/seedAdmin.js) a cada boot,
+  // usando ADMIN_USER/ADMIN_PASS/ADMIN_RECOVERY_EMAIL como valores iniciais
+  // - login continua funcionando com as mesmas credenciais de sempre.
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS administradores (
+      id SERIAL PRIMARY KEY,
+      usuario TEXT NOT NULL UNIQUE,
+      email TEXT,
+      senha_hash TEXT NOT NULL,
+      token_recuperacao_senha TEXT,
+      token_recuperacao_expira_em TEXT,
+      criado_em TEXT DEFAULT NOW()::text
+    );
+  `);
+
   console.log('[DB] Todas as migrations executadas com sucesso.');
 
 }
