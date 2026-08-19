@@ -815,11 +815,29 @@ router.post('/categorias', async (req, res) => {
 
 
 // PUT /api/admin/comerciantes/:id
+// Planos e status validos que o admin pode atribuir manualmente a um
+// comerciante (independente de pagamento real) - usado pelo override de
+// "Tipo de anuncio: Comum ou Premium" no painel.
+const PLANOS_VALIDOS_ADMIN = ['gratuito', 'basico', 'premium'];
+const STATUS_VALIDOS_ADMIN = ['degustacao', 'ativo', 'expirado'];
+
 router.put('/comerciantes/:id', async (req, res) => {
 
   try {
 
-    const { logo, banner } = req.body;
+    const { logo, banner, plano, status } = req.body;
+
+    if (plano !== undefined && !PLANOS_VALIDOS_ADMIN.includes(plano)) {
+      return res.status(400).json({
+        erro: 'Plano invalido. Use: gratuito, basico ou premium.'
+      });
+    }
+
+    if (status !== undefined && !STATUS_VALIDOS_ADMIN.includes(status)) {
+      return res.status(400).json({
+        erro: 'Status invalido. Use: degustacao, ativo ou expirado.'
+      });
+    }
 
     const comerciante = await db.get('SELECT * FROM comerciantes WHERE id = ?', [req.params.id]);
 
@@ -829,9 +847,21 @@ router.put('/comerciantes/:id', async (req, res) => {
       });
     }
 
-    await db.run('UPDATE comerciantes SET logo = ?, banner = ? WHERE id = ?', [
+    // Override manual do admin: ao atribuir um plano pago (basico/premium)
+    // sem informar um status explicito, ativa o comerciante automaticamente
+    // (mesmo efeito de ativarComerciante() no fluxo de pagamento real, so
+    // que sem exigir pagamento) - e assim que o anuncio/comerciante passa a
+    // aparecer com o selo Premium no site imediatamente.
+    let statusFinal = status !== undefined ? status : comerciante.status;
+    if (plano !== undefined && (plano === 'basico' || plano === 'premium') && status === undefined) {
+      statusFinal = 'ativo';
+    }
+
+    await db.run('UPDATE comerciantes SET logo = ?, banner = ?, plano = ?, status = ? WHERE id = ?', [
       logo !== undefined ? logo : comerciante.logo,
       banner !== undefined ? banner : comerciante.banner,
+      plano !== undefined ? plano : comerciante.plano,
+      statusFinal,
       req.params.id
     ]);
 
