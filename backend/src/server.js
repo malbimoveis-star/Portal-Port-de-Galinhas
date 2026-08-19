@@ -4,6 +4,7 @@ const express = require('express');
 const path = require('path');
 const { seedSeNecessario } = require('./db/seed');
 const { garantirTuristaTeste } = require('./db/seedTuristaTeste');
+const { garantirAdministradorPadrao } = require('./db/seedAdmin');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -87,6 +88,7 @@ process.on('unhandledRejection', (err) => {
 async function start() {
   await seedSeNecessario();
   await garantirTuristaTeste();
+  await garantirAdministradorPadrao();
   app.listen(PORT, () => {
     console.log(`[server] Portal Porto de Galinhas rodando em http://localhost:${PORT}`);
   });
