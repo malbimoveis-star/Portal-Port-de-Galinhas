@@ -131,7 +131,10 @@
       </div>
       <div class="campo">
         <label for="loginSenha">Senha</label>
-        <input type="password" id="loginSenha" placeholder="••••••">
+        <div style="position:relative;">
+          <input type="password" id="loginSenha" placeholder="••••••" style="width:100%; padding-right:40px; box-sizing:border-box;">
+          <button type="button" id="btnMostrarSenha" aria-label="Mostrar senha" style="position:absolute; right:6px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:1.1rem; line-height:1; padding:4px;">👁️</button>
+        </div>
       </div>
       <button type="button" id="btnEntrar" class="btn btn--principal" style="width:100%;">Entrar</button>
     </div>
@@ -1623,6 +1626,16 @@
     btnEntrar.addEventListener('click', fazerLogin);
     loginSenha.addEventListener('keydown', e => { if (e.key === 'Enter') fazerLogin(); });
     btnSair.addEventListener('click', fazerLogout);
+
+    const btnMostrarSenha = document.getElementById('btnMostrarSenha');
+    if (btnMostrarSenha && loginSenha) {
+      btnMostrarSenha.addEventListener('click', () => {
+        const visivel = loginSenha.type === 'text';
+        loginSenha.type = visivel ? 'password' : 'text';
+        btnMostrarSenha.textContent = visivel ? '👁️' : '🙈';
+        btnMostrarSenha.setAttribute('aria-label', visivel ? 'Mostrar senha' : 'Ocultar senha');
+      });
+    }
 
     if (token) { mostrarDashboard(); } else { mostrar(telaLogin); esconder(telaDashboard); }
   })();
