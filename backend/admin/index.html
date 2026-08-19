@@ -726,7 +726,10 @@
       visualizacoes_comerciante: 'Visualizações por Comerciante',
     };
 
-    async function exportarDados(tipo, formato) {
+    // Atribuidas em window: chamadas via onclick="" inline no HTML, que roda
+    // no escopo global - fora da IIFE que envolve todo este script (mesmo
+    // motivo pelo qual wpFormat, acima, tambem e definida em window).
+    window.exportarDados = async function exportarDados(tipo, formato) {
       try {
         const dados = await apiGet('/admin/export/' + tipo);
         const titulo = NOMES_EXPORTACAO[tipo] || tipo;
@@ -750,7 +753,7 @@
       }
     }
 
-    async function exportarIndicacoesAfiliado(idAfiliado, nomeAfiliado) {
+    window.exportarIndicacoesAfiliado = async function exportarIndicacoesAfiliado(idAfiliado, nomeAfiliado) {
       try {
         const dados = await apiGet('/admin/export/afiliado/' + idAfiliado);
         if (!dados.linhas || dados.linhas.length === 0) {
