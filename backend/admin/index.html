@@ -1644,10 +1644,12 @@
     const btnEsqueciSenha = document.getElementById('btnEsqueciSenha');
     const msgEsqueciSenha = document.getElementById('msgEsqueciSenha');
     if (btnEsqueciSenha) {
-      btnEsqueciSenha.addEventListener('click', async () => {
-        if (!confirm('Enviar um link de redefinição de senha para o e-mail de recuperação cadastrado do admin?')) return;
+      const textoPadrao = btnEsqueciSenha.textContent;
+      let aguardandoConfirmacao = false;
+      let timeoutConfirmacao = null;
+
+      async function enviarPedidoRecuperacao() {
         btnEsqueciSenha.disabled = true;
-        const textoOriginal = btnEsqueciSenha.textContent;
         btnEsqueciSenha.textContent = 'Enviando...';
         try {
           const usuario = (loginUsuario.value || '').trim() || undefined;
@@ -1663,8 +1665,29 @@
           mostrarErro(erroLogin, 'Não foi possível solicitar a redefinição agora. Tente novamente.');
         } finally {
           btnEsqueciSenha.disabled = false;
-          btnEsqueciSenha.textContent = textoOriginal;
+          btnEsqueciSenha.textContent = textoPadrao;
         }
+      }
+
+      // Sem confirm() nativo (trava a aba em automações e é feio no painel):
+      // o primeiro clique pede confirmação inline no próprio botão, e o
+      // segundo clique (em ate 4s) efetivamente envia o pedido.
+      btnEsqueciSenha.addEventListener('click', () => {
+        if (!aguardandoConfirmacao) {
+          aguardandoConfirmacao = true;
+          btnEsqueciSenha.textContent = 'Confirmar envio do link?';
+          msgEsqueciSenha.textContent = 'Clique novamente para confirmar o envio para o e-mail de recuperação cadastrado.';
+          msgEsqueciSenha.style.display = 'block';
+          timeoutConfirmacao = setTimeout(() => {
+            aguardandoConfirmacao = false;
+            btnEsqueciSenha.textContent = textoPadrao;
+            msgEsqueciSenha.style.display = 'none';
+          }, 4000);
+          return;
+        }
+        clearTimeout(timeoutConfirmacao);
+        aguardandoConfirmacao = false;
+        enviarPedidoRecuperacao();
       });
     }
 
