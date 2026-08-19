@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redefinir senha — Painel Administrativo</title>
+  <link rel="icon" href="/assets/icons/logo-tucano.svg">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #f5f7fa; color: #1a1a2e; line-height: 1.6; min-height: 100vh; }
+
+    #tela { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+    .card { background: #fff; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); padding: 40px; width: 100%; max-width: 420px; }
+    .card h1 { font-size: 1.5rem; margin-bottom: 8px; color: #0f3460; }
+    .card p { color: #666; margin-bottom: 24px; font-size: 0.95rem; }
+
+    .campo { margin-bottom: 16px; }
+    .campo label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: #444; }
+    .campo input { width: 100%; padding: 12px 14px; border: 1.5px solid #dde1e7; border-radius: 10px; font-size: 1rem; transition: border-color 0.2s, box-shadow 0.2s; }
+    .campo input:focus { outline: none; border-color: #e94560; box-shadow: 0 0 0 3px rgba(233,69,96,0.1); }
+
+    .campo-senha-wrapper { position: relative; }
+    .campo-senha-wrapper input { padding-right: 44px; }
+    .btn-toggle-senha { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1.1rem; line-height: 1; padding: 4px; }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 20px; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: transform 0.15s, opacity 0.15s; width: 100%; }
+    .btn:hover { transform: translateY(-1px); opacity: 0.9; }
+    .btn--principal { background: linear-gradient(135deg, #e94560, #c73e54); color: #fff; }
+
+    .erro { color: #dc3545; font-size: 0.9rem; margin-bottom: 16px; padding: 10px 14px; background: #fff6f7; border-left: 3px solid #dc3545; border-radius: 6px; display: none; }
+    .sucesso { color: #1c7a3d; font-size: 0.9rem; margin-bottom: 16px; padding: 10px 14px; background: #f0fbf3; border-left: 3px solid #28a745; border-radius: 6px; display: none; }
+
+    .voltar { display: block; text-align: center; margin-top: 16px; color: #0f3460; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+
+  <div id="tela">
+    <div class="card">
+      <h1>Redefinir senha</h1>
+      <p>Painel Administrativo — Portal Porto de Galinhas</p>
+
+      <div id="mensagemErro" class="erro"></div>
+      <div id="mensagemSucesso" class="sucesso"></div>
+
+      <form id="formRedefinir">
+        <div class="campo">
+          <label for="campoSenha">Nova senha</label>
+          <div class="campo-senha-wrapper">
+            <input type="password" id="campoSenha" required minlength="6">
+            <button type="button" class="btn-toggle-senha" data-alvo="campoSenha" aria-label="Mostrar senha">👁️</button>
+          </div>
+        </div>
+        <div class="campo">
+          <label for="campoSenhaConfirma">Confirmar nova senha</label>
+          <div class="campo-senha-wrapper">
+            <input type="password" id="campoSenhaConfirma" required minlength="6">
+            <button type="button" class="btn-toggle-senha" data-alvo="campoSenhaConfirma" aria-label="Mostrar senha">👁️</button>
+          </div>
+        </div>
+        <button type="submit" class="btn btn--principal">Redefinir senha</button>
+      </form>
+
+      <a href="/admin/" class="voltar">Voltar para o login</a>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      document.querySelectorAll('.btn-toggle-senha').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const alvo = document.getElementById(btn.dataset.alvo);
+          if (!alvo) return;
+          const oculto = alvo.type === 'password';
+          alvo.type = oculto ? 'text' : 'password';
+          btn.textContent = oculto ? '🙈' : '👁️';
+          btn.setAttribute('aria-label', oculto ? 'Ocultar senha' : 'Mostrar senha');
+        });
+      });
+
+      const form = document.getElementById('formRedefinir');
+      const erroEl = document.getElementById('mensagemErro');
+      const sucessoEl = document.getElementById('mensagemSucesso');
+      const params = new URLSearchParams(location.search);
+      const token = params.get('token');
+
+      if (!token) {
+        erroEl.textContent = 'Link inválido: token de redefinição ausente.';
+        erroEl.style.display = 'block';
+        form.style.display = 'none';
+        return;
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        erroEl.style.display = 'none';
+        sucessoEl.style.display = 'none';
+
+        const senha = document.getElementById('campoSenha').value;
+        const senhaConfirma = document.getElementById('campoSenhaConfirma').value;
+
+        if (senha !== senhaConfirma) {
+          erroEl.textContent = 'As senhas não coincidem.';
+          erroEl.style.display = 'block';
+          return;
+        }
+
+        try {
+          const resp = await fetch('/api/login/redefinir-senha', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token, novaSenha: senha }),
+          });
+          const data = await resp.json();
+          if (!resp.ok) {
+            erroEl.textContent = data.erro || 'Não foi possível redefinir a senha.';
+            erroEl.style.display = 'block';
+            return;
+          }
+          sucessoEl.textContent = data.mensagem || 'Senha redefinida com sucesso.';
+          sucessoEl.style.display = 'block';
+          form.style.display = 'none';
+        } catch (err) {
+          erroEl.textContent = 'Não foi possível conectar ao servidor.';
+          erroEl.style.display = 'block';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

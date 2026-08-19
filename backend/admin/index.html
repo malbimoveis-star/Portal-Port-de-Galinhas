@@ -137,6 +137,10 @@
         </div>
       </div>
       <button type="button" id="btnEntrar" class="btn btn--principal" style="width:100%;">Entrar</button>
+      <p id="msgEsqueciSenha" style="margin-top:14px; font-size:0.85rem; color:#1c7a3d; display:none;"></p>
+      <p style="text-align:center; margin-top:14px;">
+        <button type="button" id="btnEsqueciSenha" style="background:none; border:none; color:#0f3460; font-size:0.85rem; cursor:pointer; text-decoration:underline; padding:0;">Esqueci a senha</button>
+      </p>
     </div>
   </div>
 
@@ -1634,6 +1638,33 @@
         loginSenha.type = visivel ? 'password' : 'text';
         btnMostrarSenha.textContent = visivel ? '👁️' : '🙈';
         btnMostrarSenha.setAttribute('aria-label', visivel ? 'Mostrar senha' : 'Ocultar senha');
+      });
+    }
+
+    const btnEsqueciSenha = document.getElementById('btnEsqueciSenha');
+    const msgEsqueciSenha = document.getElementById('msgEsqueciSenha');
+    if (btnEsqueciSenha) {
+      btnEsqueciSenha.addEventListener('click', async () => {
+        if (!confirm('Enviar um link de redefinição de senha para o e-mail de recuperação cadastrado do admin?')) return;
+        btnEsqueciSenha.disabled = true;
+        const textoOriginal = btnEsqueciSenha.textContent;
+        btnEsqueciSenha.textContent = 'Enviando...';
+        try {
+          const usuario = (loginUsuario.value || '').trim() || undefined;
+          const resp = await fetch(API_BASE + '/login/esqueci-senha', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ usuario }),
+          });
+          const data = await resp.json();
+          msgEsqueciSenha.textContent = data.mensagem || 'Se este usuário existir, um link foi enviado para o e-mail de recuperação.';
+          msgEsqueciSenha.style.display = 'block';
+        } catch (e) {
+          mostrarErro(erroLogin, 'Não foi possível solicitar a redefinição agora. Tente novamente.');
+        } finally {
+          btnEsqueciSenha.disabled = false;
+          btnEsqueciSenha.textContent = textoOriginal;
+        }
       });
     }
 
