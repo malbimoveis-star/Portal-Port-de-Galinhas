@@ -825,7 +825,16 @@ router.put('/comerciantes/:id', async (req, res) => {
 
   try {
 
-    const { logo, banner, plano, status } = req.body;
+    // Alem do override de plano/status, esta rota agora tambem aceita editar a
+    // ficha completa do comerciante (nome, telefone, categoria, cidade,
+    // endereco, descricao, site, latitude, longitude) - usada pela tela "Ver
+    // Cadastro" do admin, que mostra tudo que o comerciante preencheu para
+    // conferencia antes de aprovar/liberar a conta.
+    const {
+      logo, banner, plano, status,
+      nome, telefone, categoria, cidade, endereco, descricao, site,
+      latitude, longitude
+    } = req.body;
 
     if (plano !== undefined && !PLANOS_VALIDOS_ADMIN.includes(plano)) {
       return res.status(400).json({
@@ -836,6 +845,12 @@ router.put('/comerciantes/:id', async (req, res) => {
     if (status !== undefined && !STATUS_VALIDOS_ADMIN.includes(status)) {
       return res.status(400).json({
         erro: 'Status invalido. Use: degustacao, ativo ou expirado.'
+      });
+    }
+
+    if (nome !== undefined && !String(nome).trim()) {
+      return res.status(400).json({
+        erro: 'Campo "nome" nao pode ficar vazio.'
       });
     }
 
@@ -857,11 +872,26 @@ router.put('/comerciantes/:id', async (req, res) => {
       statusFinal = 'ativo';
     }
 
-    await db.run('UPDATE comerciantes SET logo = ?, banner = ?, plano = ?, status = ? WHERE id = ?', [
+    await db.run(`
+      UPDATE comerciantes SET
+        logo = ?, banner = ?, plano = ?, status = ?,
+        nome = ?, telefone = ?, categoria = ?, cidade = ?, endereco = ?, descricao = ?, site = ?,
+        latitude = ?, longitude = ?
+      WHERE id = ?
+    `, [
       logo !== undefined ? logo : comerciante.logo,
       banner !== undefined ? banner : comerciante.banner,
       plano !== undefined ? plano : comerciante.plano,
       statusFinal,
+      nome !== undefined ? String(nome).trim() : comerciante.nome,
+      telefone !== undefined ? telefone : comerciante.telefone,
+      categoria !== undefined ? categoria : comerciante.categoria,
+      cidade !== undefined ? cidade : comerciante.cidade,
+      endereco !== undefined ? endereco : comerciante.endereco,
+      descricao !== undefined ? descricao : comerciante.descricao,
+      site !== undefined ? site : comerciante.site,
+      latitude !== undefined ? (latitude === '' ? null : latitude) : comerciante.latitude,
+      longitude !== undefined ? (longitude === '' ? null : longitude) : comerciante.longitude,
       req.params.id
     ]);
 
