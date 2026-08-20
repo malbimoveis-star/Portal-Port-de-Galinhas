@@ -104,6 +104,16 @@
     .escondido { display: none !important; }
     .vazio { text-align: center; padding: 40px 20px; color: #888; }
 
+    /* ===== MODAL "EDITAR FOTO" (upload com preview, sem link) ===== */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(15,52,96,0.55); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 1000; }
+    .modal-caixa { background: #fff; border-radius: 14px; padding: 24px; width: 100%; max-width: 420px; box-shadow: 0 12px 40px rgba(0,0,0,0.25); }
+    .modal-caixa h3 { margin-top: 0; color: #0f3460; }
+    .modal-caixa p { color: #666; font-size: 0.9rem; }
+    .foto-preview-caixa { margin-top: 14px; border: 1.5px dashed #c5c5c5; border-radius: 10px; padding: 12px; text-align: center; background: #f7f9fc; }
+    .foto-preview-caixa img { max-width: 100%; max-height: 220px; border-radius: 8px; object-fit: cover; display: block; margin: 0 auto; }
+    .foto-preview-vazio { color: #999; font-size: 0.85rem; padding: 24px 0; }
+    .modal-acoes { display: flex; gap: 8px; justify-content: flex-end; margin-top: 18px; }
+
     @media (max-width: 640px) {
       .login-card { padding: 24px; }
       .admin-conteudo { padding: 16px; }
@@ -362,6 +372,23 @@
           <div id="listaComerciantes" class="tabela-container"><div class="vazio">Carregando...</div></div>
         </div>
       </section>
+
+      <!-- MODAL: EDITAR FOTO DO COMERCIANTE (upload de arquivo com preview, sem link) -->
+      <div id="modalFotoComerciante" class="modal-overlay escondido">
+        <div class="modal-caixa">
+          <h3>Foto do comerciante</h3>
+          <p>Escolha uma imagem (JPEG, PNG, WEBP ou GIF) do seu computador. Ela será exibida abaixo antes de você aprovar.</p>
+          <input type="file" id="inputFotoComerciante" accept="image/jpeg,image/png,image/webp,image/gif">
+          <div class="foto-preview-caixa" id="fotoPreviewCaixa">
+            <div class="foto-preview-vazio">Nenhuma imagem selecionada.</div>
+          </div>
+          <div class="erro" id="erroFotoComerciante"></div>
+          <div class="modal-acoes">
+            <button type="button" class="btn btn--secundario" id="btnCancelarFotoComerciante">Cancelar</button>
+            <button type="button" class="btn btn--principal" id="btnAprovarFotoComerciante" disabled>Aprovar e salvar</button>
+          </div>
+        </div>
+      </div>
 
       <!-- ABA AFILIADOS (Fase 3 do dashboard) -->
       <section id="abaAfiliados" class="escondido">
@@ -662,6 +689,12 @@
     // Sem Content-Type manual: o navegador define o boundary do multipart sozinho.
     async function apiPostForm(path, formData) {
       const r = await fetch(API_BASE + path, { method: 'POST', headers: token ? { 'Authorization': 'Bearer ' + token } : {}, body: formData });
+      if (!r.ok) { let m = 'Erro ' + r.status; try { const e = await r.json(); if (e.erro) m = e.erro; } catch(x){} throw new Error(m); }
+      return r.json();
+    }
+    // Mesma ideia do apiPostForm, mas em PUT - usado pelo upload de foto do comerciante.
+    async function apiPutForm(path, formData) {
+      const r = await fetch(API_BASE + path, { method: 'PUT', headers: token ? { 'Authorization': 'Bearer ' + token } : {}, body: formData });
       if (!r.ok) { let m = 'Erro ' + r.status; try { const e = await r.json(); if (e.erro) m = e.erro; } catch(x){} throw new Error(m); }
       return r.json();
     }
@@ -1317,18 +1350,89 @@
         }).join('');
         container.innerHTML = '<table><thead><tr><th>ID</th><th>Nome</th><th>E-mail</th><th>Telefone</th><th>Status</th><th>Plano</th><th>Ações</th></tr></thead><tbody>' + linhas + '</tbody></table>';
         document.querySelectorAll('.btn-editar-foto-com').forEach(btn => {
-          btn.addEventListener('click', async () => {
-            const logo = prompt('URL da foto do comerciante (ex.: /assets/comerciantes/passeio-lancha.jpg):', btn.dataset.logo || '');
-            if (logo === null) return;
-            try {
-              await apiPut('/admin/comerciantes/' + btn.dataset.id, { logo });
-              alert('Foto atualizada com sucesso!');
-              carregarComerciantes();
-            } catch (e) { alert(e.message || 'Erro ao atualizar foto.'); }
-          });
+          btn.addEventListener('click', () => abrirModalFotoComerciante(btn.dataset.id));
         });
       } catch (e) { container.innerHTML = '<div class="vazio">Erro ao carregar comerciantes.</div>'; }
     }
+
+    /* ===== MODAL "EDITAR FOTO" DO COMERCIANTE (upload real, com preview e aprovacao) =====
+       Antes o admin colava uma URL de imagem num prompt() nativo - sem ver a foto antes
+       de salvar. Agora ele escolhe um arquivo do computador, ve a previa na tela e so
+       entao aprova; so a partir da aprovacao o arquivo e enviado (multipart) pro backend,
+       que guarda o JPEG/PNG/WEBP/GIF em /assets/uploads e grava o caminho como logo. */
+    const modalFotoComerciante = document.getElementById('modalFotoComerciante');
+    const inputFotoComerciante = document.getElementById('inputFotoComerciante');
+    const fotoPreviewCaixa = document.getElementById('fotoPreviewCaixa');
+    const erroFotoComerciante = document.getElementById('erroFotoComerciante');
+    const btnAprovarFotoComerciante = document.getElementById('btnAprovarFotoComerciante');
+    const btnCancelarFotoComerciante = document.getElementById('btnCancelarFotoComerciante');
+    let comercianteFotoAlvoId = null;
+    let arquivoFotoSelecionado = null;
+
+    function abrirModalFotoComerciante(id) {
+      comercianteFotoAlvoId = id;
+      arquivoFotoSelecionado = null;
+      inputFotoComerciante.value = '';
+      fotoPreviewCaixa.innerHTML = '<div class="foto-preview-vazio">Nenhuma imagem selecionada.</div>';
+      mostrarErro(erroFotoComerciante, '');
+      btnAprovarFotoComerciante.disabled = true;
+      btnAprovarFotoComerciante.textContent = 'Aprovar e salvar';
+      mostrar(modalFotoComerciante);
+    }
+
+    function fecharModalFotoComerciante() {
+      esconder(modalFotoComerciante);
+      comercianteFotoAlvoId = null;
+      arquivoFotoSelecionado = null;
+    }
+
+    inputFotoComerciante.addEventListener('change', () => {
+      const arquivo = inputFotoComerciante.files && inputFotoComerciante.files[0];
+      mostrarErro(erroFotoComerciante, '');
+      if (!arquivo) {
+        arquivoFotoSelecionado = null;
+        fotoPreviewCaixa.innerHTML = '<div class="foto-preview-vazio">Nenhuma imagem selecionada.</div>';
+        btnAprovarFotoComerciante.disabled = true;
+        return;
+      }
+      if (!/^image\//.test(arquivo.type)) {
+        mostrarErro(erroFotoComerciante, 'Selecione um arquivo de imagem (JPEG, PNG, WEBP ou GIF).');
+        arquivoFotoSelecionado = null;
+        btnAprovarFotoComerciante.disabled = true;
+        return;
+      }
+      arquivoFotoSelecionado = arquivo;
+      const leitor = new FileReader();
+      leitor.onload = (ev) => {
+        fotoPreviewCaixa.innerHTML = '<img src="' + ev.target.result + '" alt="Previa da foto">';
+      };
+      leitor.readAsDataURL(arquivo);
+      btnAprovarFotoComerciante.disabled = false;
+    });
+
+    btnCancelarFotoComerciante.addEventListener('click', fecharModalFotoComerciante);
+    modalFotoComerciante.addEventListener('click', (ev) => {
+      if (ev.target === modalFotoComerciante) fecharModalFotoComerciante();
+    });
+
+    btnAprovarFotoComerciante.addEventListener('click', async () => {
+      if (!arquivoFotoSelecionado || !comercianteFotoAlvoId) return;
+      btnAprovarFotoComerciante.disabled = true;
+      btnAprovarFotoComerciante.textContent = 'Enviando...';
+      mostrarErro(erroFotoComerciante, '');
+      try {
+        const formData = new FormData();
+        formData.append('foto', arquivoFotoSelecionado);
+        await apiPutForm('/admin/comerciantes/' + comercianteFotoAlvoId + '/foto', formData);
+        fecharModalFotoComerciante();
+        alert('Foto atualizada com sucesso!');
+        carregarComerciantes();
+      } catch (e) {
+        mostrarErro(erroFotoComerciante, e.message || 'Erro ao enviar a foto.');
+        btnAprovarFotoComerciante.disabled = false;
+        btnAprovarFotoComerciante.textContent = 'Aprovar e salvar';
+      }
+    });
 
     /* ===== NOVO ANÚNCIO (criacao manual pelo admin) ===== */
 
