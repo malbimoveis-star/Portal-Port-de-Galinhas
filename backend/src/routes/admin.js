@@ -879,6 +879,47 @@ router.put('/comerciantes/:id', async (req, res) => {
 });
 
 
+// PUT /api/admin/comerciantes/:id/foto
+// Upload real do arquivo (multipart/form-data, campo "foto") - substitui o fluxo
+// antigo em que o admin colava uma URL de imagem num prompt(). O arquivo e salvo
+// em /assets/uploads (mesmo destino/validacao das fotos de anuncio) e o caminho
+// resultante vira o "logo" do comerciante.
+router.put('/comerciantes/:id/foto', upload.single('foto'), async (req, res) => {
+
+  try {
+
+    if (!req.file) {
+      return res.status(400).json({
+        erro: 'Nenhuma imagem enviada. Envie um arquivo no campo "foto".'
+      });
+    }
+
+    const comerciante = await db.get('SELECT * FROM comerciantes WHERE id = ?', [req.params.id]);
+
+    if (!comerciante) {
+      return res.status(404).json({
+        erro: 'Comerciante nao encontrado.'
+      });
+    }
+
+    const logo = `/assets/uploads/${req.file.filename}`;
+
+    await db.run('UPDATE comerciantes SET logo = ? WHERE id = ?', [logo, req.params.id]);
+
+    const atualizado = await db.get('SELECT * FROM comerciantes WHERE id = ?', [req.params.id]);
+
+    return res.json(atualizado);
+
+  } catch (err) {
+    console.error('[ADMIN] Erro ao enviar foto do comerciante:', err);
+    return res.status(500).json({
+      erro: 'Erro ao enviar foto do comerciante.'
+    });
+  }
+
+});
+
+
 router.put('/categorias/:id', async (req, res) => {
 
   try {
