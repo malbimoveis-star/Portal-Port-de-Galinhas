@@ -530,6 +530,61 @@
         </div>
       </section>
 
+      <!-- FICHA COMPLETA DO COMERCIANTE (ver + editar cadastro e ver anuncios) -->
+      <section id="tabFichaComerciante" class="escondido">
+        <div class="card">
+          <h2>Ficha do comerciante</h2>
+          <p>Confira e corrija os dados que o comerciante preencheu no cadastro, e veja os anúncios publicados por ele.</p>
+          <input type="hidden" id="fichaComercianteId" value="">
+          <p id="erroFichaComerciante" class="erro"></p>
+
+          <div class="blog-form">
+            <div class="campo">
+              <label>Foto atual</label>
+              <div id="fichaComercianteFotoAtual" style="margin-top:6px;"></div>
+              <p style="font-size:.8em;color:#889;margin-top:4px;">Para trocar a foto, use o botão "Editar Foto" na lista de comerciantes.</p>
+            </div>
+            <div class="campo"><label>E-mail (cadastro)</label><input type="text" id="fichaComercianteEmail" disabled></div>
+            <div class="campo"><label>Cadastrado em</label><input type="text" id="fichaComercianteDataCriacao" disabled></div>
+            <div class="campo"><label for="fichaComercianteNome">Nome do negócio</label><input type="text" id="fichaComercianteNome" placeholder="Nome do negócio"></div>
+            <div class="campo"><label for="fichaComercianteTelefone">Telefone</label><input type="text" id="fichaComercianteTelefone" placeholder="Telefone de contato"></div>
+            <div class="campo"><label for="fichaComercianteCategoria">Categoria</label><input type="text" id="fichaComercianteCategoria" placeholder="Ex.: Restaurante, Pousada, Passeio..."></div>
+            <div class="campo"><label for="fichaComercianteCidade">Cidade</label><input type="text" id="fichaComercianteCidade" placeholder="Cidade"></div>
+            <div class="campo"><label for="fichaComercianteEndereco">Endereço</label><input type="text" id="fichaComercianteEndereco" placeholder="Endereço completo"></div>
+            <div class="campo"><label for="fichaComercianteDescricao">Descrição (o que o comerciante escreveu)</label><textarea id="fichaComercianteDescricao" rows="6" placeholder="Descrição do negócio"></textarea></div>
+            <div class="campo"><label for="fichaComercianteSite">Site / rede social</label><input type="text" id="fichaComercianteSite" placeholder="https://..."></div>
+            <div class="campo"><label for="fichaComercianteLatitude">Latitude</label><input type="text" id="fichaComercianteLatitude" placeholder="Ex.: -8.5069"></div>
+            <div class="campo"><label for="fichaComercianteLongitude">Longitude</label><input type="text" id="fichaComercianteLongitude" placeholder="Ex.: -35.0068"></div>
+            <div class="campo">
+              <label for="fichaComerciantePlano">Plano</label>
+              <select id="fichaComerciantePlano">
+                <option value="gratuito">Gratuito</option>
+                <option value="basico">Básico</option>
+                <option value="premium">Premium</option>
+              </select>
+            </div>
+            <div class="campo">
+              <label for="fichaComercianteStatus">Status da conta</label>
+              <select id="fichaComercianteStatus">
+                <option value="degustacao">Degustação</option>
+                <option value="ativo">Ativo</option>
+                <option value="expirado">Expirado</option>
+              </select>
+            </div>
+
+            <div class="campo">
+              <label>Anúncios publicados por este comerciante</label>
+              <div id="fichaComercianteAnuncios" class="tabela-container"><div class="vazio">Carregando...</div></div>
+            </div>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:15px;">
+              <button type="button" id="btnSalvarFichaComerciante" class="btn btn--principal">Salvar alterações</button>
+              <button type="button" id="btnCancelarFichaComerciante" class="btn btn--secundario">Cancelar</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- EDITAR CATEGORIA -->
       <section id="tabEditarCategoria" class="escondido">
         <div class="card">
@@ -636,6 +691,7 @@
     const tabEditarAnuncio = document.getElementById('tabEditarAnuncio');
     const tabEditarCategoria = document.getElementById('tabEditarCategoria');
     const tabEditarBlog = document.getElementById('tabEditarBlog');
+    const tabFichaComerciante = document.getElementById('tabFichaComerciante');
 
     function mostrarErro(el, msg) { el.textContent = msg || ''; }
     function esconder(el) { el.classList.add('escondido'); }
@@ -1096,6 +1152,7 @@
         esconder(tabEditarAnuncio);
         esconder(tabEditarCategoria);
         esconder(tabEditarBlog);
+        esconder(tabFichaComerciante);
         if (abas[aba]) mostrar(abas[aba]);
         // O grafico de visualizacoes e criado com Chart.js num <canvas> que
         // fica dentro de uma aba escondida (display:none) no carregamento
@@ -1230,6 +1287,7 @@
         Object.values(abas).forEach(a => esconder(a));
         esconder(tabEditarCategoria);
         esconder(tabEditarBlog);
+        esconder(tabFichaComerciante);
         mostrar(tabEditarAnuncio);
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } catch (e) { alert('Erro ao carregar anúncio para edição.'); }
@@ -1293,6 +1351,7 @@
             Object.values(abas).forEach(a => esconder(a));
             esconder(tabEditarAnuncio);
             esconder(tabEditarBlog);
+            esconder(tabFichaComerciante);
             mostrar(tabEditarCategoria);
             window.scrollTo({ top: 0, behavior: 'smooth' });
           });
@@ -1346,11 +1405,15 @@
         const linhas = coms.map(c => {
           const statusClass = 'badge--' + (c.status || 'ativo');
           const planoTexto = c.plano === 'premium' ? 'Premium' : (c.plano === 'basico' ? 'Básico' : 'Gratuito');
-          return '<tr><td>' + c.id + '</td><td><strong>' + escapeHtml(c.nome || '—') + '</strong></td><td>' + escapeHtml(c.email || '—') + '</td><td>' + escapeHtml(c.telefone || '—') + '</td><td><span class="badge ' + statusClass + '">' + (c.status || 'ativo') + '</span></td><td>' + escapeHtml(planoTexto) + '</td><td><button class="btn btn--secundario btn-editar-foto-com" data-id="' + c.id + '" data-logo="' + escapeHtml(c.logo || '') + '">Editar Foto</button></td></tr>';
+          const acoes = '<div class="acoes"><button class="btn btn--secundario btn-ver-ficha-com" data-id="' + c.id + '">Ver Cadastro</button><button class="btn btn--secundario btn-editar-foto-com" data-id="' + c.id + '" data-logo="' + escapeHtml(c.logo || '') + '">Editar Foto</button></div>';
+          return '<tr><td>' + c.id + '</td><td><strong>' + escapeHtml(c.nome || '—') + '</strong></td><td>' + escapeHtml(c.email || '—') + '</td><td>' + escapeHtml(c.telefone || '—') + '</td><td><span class="badge ' + statusClass + '">' + (c.status || 'ativo') + '</span></td><td>' + escapeHtml(planoTexto) + '</td><td>' + acoes + '</td></tr>';
         }).join('');
         container.innerHTML = '<table><thead><tr><th>ID</th><th>Nome</th><th>E-mail</th><th>Telefone</th><th>Status</th><th>Plano</th><th>Ações</th></tr></thead><tbody>' + linhas + '</tbody></table>';
         document.querySelectorAll('.btn-editar-foto-com').forEach(btn => {
           btn.addEventListener('click', () => abrirModalFotoComerciante(btn.dataset.id));
+        });
+        document.querySelectorAll('.btn-ver-ficha-com').forEach(btn => {
+          btn.addEventListener('click', () => abrirFichaComerciante(btn.dataset.id));
         });
       } catch (e) { container.innerHTML = '<div class="vazio">Erro ao carregar comerciantes.</div>'; }
     }
@@ -1432,6 +1495,108 @@
         btnAprovarFotoComerciante.disabled = false;
         btnAprovarFotoComerciante.textContent = 'Aprovar e salvar';
       }
+    });
+
+    /* ===== FICHA COMPLETA DO COMERCIANTE (ver + editar cadastro e anuncios) =====
+       Antes so dava pra editar a foto ou mexer no plano/status por dentro da tela
+       de um anuncio. Agora "Ver Cadastro" abre uma ficha com tudo que o proprio
+       comerciante preencheu (nome, telefone, categoria, cidade, endereco,
+       descricao, site, latitude/longitude) mais a lista dos anuncios publicados
+       por ele, pra o admin conferir se esta tudo certo antes de aprovar/liberar. */
+
+    function renderAnunciosDaFicha(anuncios) {
+      const container = document.getElementById('fichaComercianteAnuncios');
+      if (!anuncios.length) {
+        container.innerHTML = '<div class="vazio">Nenhum anúncio publicado por este comerciante ainda.</div>';
+        return;
+      }
+      const linhas = anuncios.map(a => {
+        const statusClass = 'badge--' + (a.status || 'pendente');
+        const fotos = Array.isArray(a.fotos) ? a.fotos.length : 0;
+        return '<tr><td>' + a.id + '</td><td><strong>' + escapeHtml(a.titulo || '—') + '</strong></td><td><span class="badge ' + statusClass + '">' + (a.status || 'pendente') + '</span></td><td>' + fotos + ' foto(s)</td><td><button class="btn btn--secundario btn-ver-anuncio-ficha" data-id="' + a.id + '">Editar</button></td></tr>';
+      }).join('');
+      container.innerHTML = '<table><thead><tr><th>ID</th><th>Título</th><th>Status</th><th>Mídia</th><th>Ações</th></tr></thead><tbody>' + linhas + '</tbody></table>';
+      document.querySelectorAll('.btn-ver-anuncio-ficha').forEach(btn => {
+        btn.addEventListener('click', () => abrirEdicaoAnuncio(btn.dataset.id));
+      });
+    }
+
+    async function abrirFichaComerciante(id) {
+      mostrarErro(document.getElementById('erroFichaComerciante'), '');
+      Object.values(abas).forEach(a => esconder(a));
+      esconder(tabEditarAnuncio);
+      esconder(tabEditarCategoria);
+      esconder(tabEditarBlog);
+      mostrar(tabFichaComerciante);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      document.getElementById('fichaComercianteId').value = id;
+      document.getElementById('fichaComercianteFotoAtual').innerHTML = 'Carregando...';
+      document.getElementById('fichaComercianteAnuncios').innerHTML = '<div class="vazio">Carregando...</div>';
+
+      try {
+        const resp = await apiGet('/comerciantes/' + id);
+        const c = resp.comerciante || resp;
+
+        document.getElementById('fichaComercianteEmail').value = c.email || '';
+        document.getElementById('fichaComercianteDataCriacao').value = c.data_criacao ? new Date(c.data_criacao).toLocaleString('pt-BR') : '—';
+        document.getElementById('fichaComercianteNome').value = c.nome || '';
+        document.getElementById('fichaComercianteTelefone').value = c.telefone || '';
+        document.getElementById('fichaComercianteCategoria').value = c.categoria || '';
+        document.getElementById('fichaComercianteCidade').value = c.cidade || '';
+        document.getElementById('fichaComercianteEndereco').value = c.endereco || '';
+        document.getElementById('fichaComercianteDescricao').value = c.descricao || '';
+        document.getElementById('fichaComercianteSite').value = c.site || '';
+        document.getElementById('fichaComercianteLatitude').value = c.latitude != null ? c.latitude : '';
+        document.getElementById('fichaComercianteLongitude').value = c.longitude != null ? c.longitude : '';
+        document.getElementById('fichaComerciantePlano').value = c.plano || 'gratuito';
+        document.getElementById('fichaComercianteStatus').value = c.status || 'degustacao';
+
+        document.getElementById('fichaComercianteFotoAtual').innerHTML = c.logo
+          ? '<img class="blog-capa-preview" src="' + escapeHtml(c.logo) + '" alt="Foto do comerciante">'
+          : '<span style="color:#889;font-size:.85em;">Nenhuma foto cadastrada.</span>';
+      } catch (e) {
+        mostrarErro(document.getElementById('erroFichaComerciante'), 'Erro ao carregar dados do comerciante.');
+      }
+
+      try {
+        const dataAnuncios = await apiGet('/admin/anuncios/todos');
+        const todos = dataAnuncios.anuncios || dataAnuncios || [];
+        const doComerciante = todos.filter(a => String(a.id_comerciante) === String(id));
+        renderAnunciosDaFicha(doComerciante);
+      } catch (e) {
+        document.getElementById('fichaComercianteAnuncios').innerHTML = '<div class="vazio">Erro ao carregar anúncios deste comerciante.</div>';
+      }
+    }
+
+    document.getElementById('btnSalvarFichaComerciante').addEventListener('click', async () => {
+      const id = document.getElementById('fichaComercianteId').value;
+      const body = {
+        nome: document.getElementById('fichaComercianteNome').value,
+        telefone: document.getElementById('fichaComercianteTelefone').value,
+        categoria: document.getElementById('fichaComercianteCategoria').value,
+        cidade: document.getElementById('fichaComercianteCidade').value,
+        endereco: document.getElementById('fichaComercianteEndereco').value,
+        descricao: document.getElementById('fichaComercianteDescricao').value,
+        site: document.getElementById('fichaComercianteSite').value,
+        latitude: document.getElementById('fichaComercianteLatitude').value,
+        longitude: document.getElementById('fichaComercianteLongitude').value,
+        plano: document.getElementById('fichaComerciantePlano').value,
+        status: document.getElementById('fichaComercianteStatus').value,
+      };
+      try {
+        await apiPut('/admin/comerciantes/' + id, body);
+        esconder(tabFichaComerciante);
+        mostrar(abas.comerciantes);
+        carregarComerciantes();
+      } catch (e) {
+        mostrarErro(document.getElementById('erroFichaComerciante'), e.message || 'Erro ao salvar alterações.');
+      }
+    });
+
+    document.getElementById('btnCancelarFichaComerciante').addEventListener('click', () => {
+      esconder(tabFichaComerciante);
+      mostrar(abas.comerciantes);
     });
 
     /* ===== NOVO ANÚNCIO (criacao manual pelo admin) ===== */
@@ -1691,6 +1856,7 @@
         Object.values(abas).forEach(a => esconder(a));
         esconder(tabEditarAnuncio);
         esconder(tabEditarCategoria);
+        esconder(tabFichaComerciante);
         mostrar(tabEditarBlog);
         window.scrollTo({ top: 0, behavior: 'smooth' });
         setTimeout(() => {
