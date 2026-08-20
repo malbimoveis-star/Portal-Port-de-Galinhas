@@ -114,6 +114,15 @@
     .foto-preview-vazio { color: #999; font-size: 0.85rem; padding: 24px 0; }
     .modal-acoes { display: flex; gap: 8px; justify-content: flex-end; margin-top: 18px; }
 
+/* ===== MODAL "IMAGEM AMPLIADA" (zoom ao clicar na foto) ===== */
+.modal-imagem-overlay { position: fixed; inset: 0; background: rgba(15,52,96,0.75); display: flex; align-items: center; justify-content: center; padding: 24px; z-index: 1100; cursor: zoom-out; }
+.modal-imagem-caixa { position: relative; max-width: 50vw; max-height: 85vh; }
+.modal-imagem-caixa img { max-width: 50vw; max-height: 85vh; border-radius: 10px; display: block; box-shadow: 0 12px 40px rgba(0,0,0,0.5); cursor: default; }
+.modal-imagem-fechar { position: absolute; top: -18px; right: -18px; width: 34px; height: 34px; border-radius: 50%; background: #fff; border: none; font-size: 1.1rem; color: #0f3460; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+@media (max-width: 640px) {
+  .modal-imagem-caixa, .modal-imagem-caixa img { max-width: 92vw; max-height: 80vh; }
+}
+
     @media (max-width: 640px) {
       .login-card { padding: 24px; }
       .admin-conteudo { padding: 16px; }
@@ -389,6 +398,14 @@
           </div>
         </div>
       </div>
+
+<!-- MODAL: IMAGEM AMPLIADA (zoom ao clicar em uma foto) -->
+<div id="modalImagemAmpliada" class="modal-imagem-overlay escondido" onclick="if(event.target===this){fecharImagemAmpliada();}">
+  <div class="modal-imagem-caixa">
+    <button type="button" class="modal-imagem-fechar" onclick="fecharImagemAmpliada()" aria-label="Fechar">✕</button>
+    <img id="imgAmpliada" src="" alt="Foto ampliada">
+  </div>
+</div>
 
       <!-- ABA AFILIADOS (Fase 3 do dashboard) -->
       <section id="abaAfiliados" class="escondido">
@@ -696,6 +713,23 @@
     function mostrarErro(el, msg) { el.textContent = msg || ''; }
     function esconder(el) { el.classList.add('escondido'); }
     function mostrar(el) { el.classList.remove('escondido'); }
+
+/* ===== IMAGEM AMPLIADA (zoom ao clicar em uma foto) ===== */
+window.abrirImagemAmpliada = function(url) {
+  if (!url) return;
+  const modal = document.getElementById('modalImagemAmpliada');
+  const img = document.getElementById('imgAmpliada');
+  if (!modal || !img) return;
+  img.src = url;
+  mostrar(modal);
+};
+window.fecharImagemAmpliada = function() {
+  const modal = document.getElementById('modalImagemAmpliada');
+  if (modal) esconder(modal);
+};
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') window.fecharImagemAmpliada();
+});
 
     /* ===== EDITOR WYSIWYG — FUNÇÕES GLOBAIS ===== */
     window.wpFormat = function(editorId, command, value) {
@@ -1553,7 +1587,7 @@
         document.getElementById('fichaComercianteStatus').value = c.status || 'degustacao';
 
         document.getElementById('fichaComercianteFotoAtual').innerHTML = c.logo
-          ? '<img class="blog-capa-preview" src="' + escapeHtml(c.logo) + '" alt="Foto do comerciante">'
+          ? '<img class="blog-capa-preview" src="' + escapeHtml(c.logo) + '" alt="Foto do comerciante" style="cursor:pointer;" title="Clique para ampliar" onclick="abrirImagemAmpliada(this.src)">'
           : '<span style="color:#889;font-size:.85em;">Nenhuma foto cadastrada.</span>';
       } catch (e) {
         mostrarErro(document.getElementById('erroFichaComerciante'), 'Erro ao carregar dados do comerciante.');
