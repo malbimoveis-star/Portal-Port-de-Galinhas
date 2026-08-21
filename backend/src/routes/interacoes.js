@@ -14,8 +14,13 @@ router.get('/:fotoKey', async (req, res) => {
   if (!fotoValida(fotoKey)) return res.status(400).json({ erro: 'Identificador de foto invalido.' });
 
   const curtida = await db.get('SELECT contagem FROM foto_curtidas WHERE foto_key = ?', [fotoKey]);
+  const naoGostei = await db.get('SELECT contagem FROM foto_nao_gostei WHERE foto_key = ?', [fotoKey]);
   const comentarios = await db.all('SELECT id, nome, texto, criado_em FROM foto_comentarios WHERE foto_key = ? ORDER BY criado_em ASC', [fotoKey]);
-  res.json({ curtidas: curtida ? curtida.contagem : 0, comentarios });
+  res.json({
+    curtidas: curtida ? curtida.contagem : 0,
+    naoGostei: naoGostei ? naoGostei.contagem : 0,
+    comentarios,
+  });
 });
 
 router.post('/:fotoKey/curtir', async (req, res) => {
@@ -44,6 +49,33 @@ router.post('/:fotoKey/descurtir', async (req, res) => {
   `, [fotoKey]);
   const atual = await db.get('SELECT contagem FROM foto_curtidas WHERE foto_key = ?', [fotoKey]);
   res.json({ curtidas: atual.contagem });
+});
+
+// Fase 4: reacao "nao gostei" ao lado do curtir (nao substitui, convive com
+// ele - pedido explicito do cliente). Mesmo padrao de contador simples via
+// UPSERT usado em curtir/descurtir.
+router.post('/:fotoKey/nao-gostei', async (req, res) => {
+  const { fotoKey } = req.params;
+  if (!fotoValida(fotoKey)) return res.status(400).json({ erro: 'Identificador de foto invalido.' });
+
+  await db.run(`
+    INSERT INTO foto_nao_gostei (foto_key, contagem) VALUES (?, 1)
+    ON CONFLICT(foto_key) DO UPDATE SET contagem = contagem + 1
+  `, [fotoKey]);
+  const atual = await db.get('SELECT contagem FROM foto_nao_gostei WHERE foto_key = ?', [fotoKey]);
+  res.json({ naoGostei: atual.contagem });
+});
+
+router.post('/:fotoKey/desfazer-nao-gostei', async (req, res) => {
+  const { fotoKey } = req.params;
+  if (!fotoValida(fotoKey)) return res.status(400).json({ erro: 'Identificador de foto invalido.' });
+
+  await db.run(`
+    INSERT INTO foto_nao_gostei (foto_key, contagem) VALUES (?, 0)
+    ON CONFLICT(foto_key) DO UPDATE SET contagem = GREATEST(contagem - 1, 0)
+  `, [fotoKey]);
+  const atual = await db.get('SELECT contagem FROM foto_nao_gostei WHERE foto_key = ?', [fotoKey]);
+  res.json({ naoGostei: atual.contagem });
 });
 
 router.post('/:fotoKey/comentarios', async (req, res) => {
