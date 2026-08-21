@@ -193,6 +193,24 @@
     </div>
   </div>
 
+  <div id="modalCrop" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:1000; align-items:center; justify-content:center; padding:20px;">
+    <div style="background:#fff; border-radius:10px; padding:20px; max-width:480px; width:100%;">
+      <h3 id="tituloCrop" style="margin-top:0;">Ajustar imagem</h3>
+      <p style="color:#667b87; font-size:.85em; margin-top:-8px;">Arraste a imagem para posicionar e use o controle abaixo para dar zoom. Isso mostra exatamente como vai ficar na sua fanpage.</p>
+      <div id="cropViewport" style="position:relative; overflow:hidden; margin:0 auto; background:#000; cursor:grab; touch-action:none;">
+        <img id="cropImg" src="" alt="" draggable="false" style="position:absolute; left:0; top:0; transform-origin:0 0; user-select:none; pointer-events:none;" />
+      </div>
+      <div style="display:flex; align-items:center; gap:10px; margin-top:14px;">
+        <span style="font-size:.85em; color:#667b87; white-space:nowrap;">🔍 Zoom</span>
+        <input type="range" id="cropZoom" min="100" max="300" value="100" style="flex:1;" />
+      </div>
+      <div style="display:flex; gap:10px; margin-top:16px;">
+        <button type="button" class="btn btn--laranja" id="btnCropAplicar" style="flex:1;">Aplicar</button>
+        <button type="button" class="btn btn--outline" id="btnCropCancelar" style="flex:1; color:#333; border-color:#ccc;">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
   <div id="layout-rodape"></div>
 
   <script src="../js/config.js"></script>
