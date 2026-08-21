@@ -320,6 +320,17 @@ async function migrate() {
     );
   `);
 
+  // Fase 4 da reformulacao de cadastro/fanpage: reacao "nao gostei" ao lado do
+  // "curtir" que ja existia (pedido explicito do cliente - ele quer os dois
+  // convivendo, nao um substituindo o outro). Mesmo formato da tabela de
+  // curtidas pra reaproveitar o mesmo padrao de contador por foto_key.
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS foto_nao_gostei (
+      foto_key TEXT PRIMARY KEY,
+      contagem INTEGER NOT NULL DEFAULT 0
+    );
+  `);
+
   await db.exec(`
     CREATE TABLE IF NOT EXISTS foto_comentarios (
       id SERIAL PRIMARY KEY,
