@@ -35,7 +35,7 @@
 
     <div class="tabs">
       <button class="ativo" data-tab="anuncios" data-i18n="painel.meus_anuncios">Meus Anuncios</button>
-      <button data-tab="localizacao">Localizacao</button>
+      <button data-tab="perfil">Perfil do Negocio</button>
       <button data-tab="planos" data-i18n="painel.renovar_plano">Renovar plano</button>
     </div>
 
@@ -78,38 +78,101 @@
       <div id="listaMeusAnuncios"></div>
     </div>
 
-    <div id="tabLocalizacao" style="display:none;">
-      <div class="card">
-        <h2>Localizacao do seu negocio</h2>
-        <p style="color:#667b87; font-size:.9em; margin-top:-8px;">
-          Essas informacoes aparecem na sua fanpage para os turistas saberem onde voce fica.
-        </p>
-        <form id="formLocalizacao">
-          <div class="form-grupo">
-            <label>Cidade / Bairro</label>
-            <input type="text" id="campoCidade" placeholder="Porto de Galinhas, Ipojuca - PE" />
+    <div id="tabPerfil" style="display:none;">
+      <div class="card" style="padding:0; overflow:hidden;">
+
+        <div style="position:relative;">
+          <div id="previewCapaWrapper" style="width:100%; aspect-ratio:4/1; background:#e7edf0; overflow:hidden; position:relative;">
+            <img id="previewCapa" src="" alt="Capa da fanpage" style="width:100%; height:100%; object-fit:cover; display:none;" />
+            <div id="previewCapaVazio" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#9aa7ae; font-size:.9em;">Sem capa ainda</div>
+            <button type="button" id="btnAlterarCapa" class="btn btn--outline" style="position:absolute; right:12px; bottom:12px; background:#fff; color:#333; border-color:#ccc;">Alterar capa</button>
+            <input type="file" id="inputCapa" accept="image/*" style="display:none;" />
           </div>
-          <div class="form-grupo">
-            <label>Endereco completo</label>
-            <input type="text" id="campoEndereco" placeholder="Rua, numero, ponto de referencia" />
-          </div>
-          <div class="grid-2-colunas">
-            <div class="form-grupo">
-              <label>Latitude</label>
-              <input type="text" inputmode="decimal" id="campoLatitude" placeholder="-8.5083" />
-            </div>
-            <div class="form-grupo">
-              <label>Longitude</label>
-              <input type="text" inputmode="decimal" id="campoLongitude" placeholder="-35.0067" />
+
+          <div style="position:relative; padding: 0 20px;">
+            <div style="position:relative; width:110px; margin-top:-55px;">
+              <div id="previewLogoWrapper" style="width:110px; height:110px; border-radius:50%; border:4px solid #fff; background:#e7edf0; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,.15);">
+                <img id="previewLogo" src="" alt="Foto de perfil" style="width:100%; height:100%; object-fit:cover; display:none;" />
+              </div>
+              <button type="button" id="btnAlterarLogo" class="btn btn--laranja" title="Alterar foto de perfil" style="position:absolute; bottom:0; right:0; width:32px; height:32px; padding:0; border-radius:50%; font-size:.85em; line-height:1;">&#128247;</button>
+              <input type="file" id="inputLogo" accept="image/*" style="display:none;" />
             </div>
           </div>
-          <p style="color:#7c8a94; font-size:.82em; margin-top:-6px; line-height:1.5;">
-            Nao sabe suas coordenadas? <a href="https://www.google.com/maps" target="_blank" rel="noopener" style="color:var(--azul-primario); font-weight:600;">Abra o Google Maps</a>,
-            encontre seu endereco, toque e segure no local exato ate aparecer um marcador vermelho, depois copie os dois numeros que aparecem na busca e cole aqui (Latitude primeiro, Longitude depois).
+        </div>
+
+        <div style="padding:20px;">
+          <p id="mensagemFoto" style="display:none; margin:0 0 14px; font-weight:600;"></p>
+
+          <h2 style="margin-top:0;">Perfil do Negocio</h2>
+          <p style="color:#667b87; font-size:.9em; margin-top:-8px;">
+            Essas informacoes aparecem no topo da sua fanpage, no mesmo lugar onde os turistas veem sua capa, sua foto e o "sobre" do seu negocio.
           </p>
-          <button type="submit" class="btn btn--laranja" style="width:100%;">Salvar localizacao</button>
-          <p id="mensagemLocalizacao" style="display:none; margin-top:10px; text-align:center; font-weight:600;"></p>
-        </form>
+
+          <form id="formPerfil">
+            <div class="form-grupo">
+              <label>Nome do negocio</label>
+              <input type="text" id="campoNomeNegocio" placeholder="Ex: Pousada Vista Mar" />
+            </div>
+            <div class="form-grupo">
+              <label>Categoria</label>
+              <select id="campoCategoriaPerfil"></select>
+            </div>
+            <div class="form-grupo">
+              <label>Sobre (bio)</label>
+              <textarea id="campoSobre" rows="4" placeholder="Conte pra quem visita sua pagina o que o seu negocio oferece."></textarea>
+            </div>
+            <div class="grid-2-colunas">
+              <div class="form-grupo">
+                <label>Telefone / WhatsApp</label>
+                <input type="text" id="campoTelefonePerfil" placeholder="(81) 90000-0000" />
+              </div>
+              <div class="form-grupo">
+                <label>Site (opcional)</label>
+                <input type="text" id="campoSite" placeholder="https://" />
+              </div>
+            </div>
+            <div class="grid-2-colunas">
+              <div class="form-grupo">
+                <label>Abre as</label>
+                <input type="time" id="campoHorarioAbertura" />
+              </div>
+              <div class="form-grupo">
+                <label>Fecha as</label>
+                <input type="time" id="campoHorarioFechamento" />
+              </div>
+            </div>
+
+            <h3 style="margin-bottom:0;">Localizacao</h3>
+            <p style="color:#667b87; font-size:.9em; margin-top:2px;">
+              Essas informacoes aparecem na sua fanpage para os turistas saberem onde voce fica.
+            </p>
+            <div class="form-grupo">
+              <label>Cidade / Bairro</label>
+              <input type="text" id="campoCidade" placeholder="Porto de Galinhas, Ipojuca - PE" />
+            </div>
+            <div class="form-grupo">
+              <label>Endereco completo</label>
+              <input type="text" id="campoEndereco" placeholder="Rua, numero, ponto de referencia" />
+            </div>
+            <div class="grid-2-colunas">
+              <div class="form-grupo">
+                <label>Latitude</label>
+                <input type="text" inputmode="decimal" id="campoLatitude" placeholder="-8.5083" />
+              </div>
+              <div class="form-grupo">
+                <label>Longitude</label>
+                <input type="text" inputmode="decimal" id="campoLongitude" placeholder="-35.0067" />
+              </div>
+            </div>
+            <p style="color:#7c8a94; font-size:.82em; margin-top:-6px; line-height:1.5;">
+              Nao sabe suas coordenadas? <a href="https://www.google.com/maps" target="_blank" rel="noopener" style="color:var(--azul-primario); font-weight:600;">Abra o Google Maps</a>,
+              encontre seu endereco, toque e segure no local exato ate aparecer um marcador vermelho, depois copie os dois numeros que aparecem na busca e cole aqui (Latitude primeiro, Longitude depois).
+            </p>
+
+            <button type="submit" class="btn btn--laranja" style="width:100%;">Salvar perfil</button>
+            <p id="mensagemPerfil" style="display:none; margin-top:10px; text-align:center; font-weight:600;"></p>
+          </form>
+        </div>
       </div>
     </div>
 

@@ -167,6 +167,7 @@
       <div class="card">
         <h3>Fale com este comerciante</h3>
         <div class="linha-info" id="linhaTelefoneContato" style="display:none"><span class="icone">📞</span><div><strong>Telefone / WhatsApp</strong><span id="txtTelefoneContato"></span></div></div>
+        <div class="linha-info" id="linhaHorarioContato" style="display:none"><span class="icone">🕒</span><div><strong>Horário</strong><span id="txtHorarioContato"></span></div></div>
         <div class="linha-info" id="linhaSiteContato" style="display:none"><span class="icone">🌐</span><div><strong>Site</strong><span id="txtSiteContato"></span></div></div>
         <div class="linha-info" id="linhaEnderecoContato" style="display:none"><span class="icone">🏠</span><div><strong>Endereço</strong><span id="txtEnderecoContato"></span></div></div>
         <p class="aviso-contato" id="avisoContato2" style="display:none">
@@ -314,6 +315,11 @@
     } else {
       document.getElementById('avisoContato').style.display = 'block';
       document.getElementById('avisoContato2').style.display = 'block';
+    }
+
+    if (comerciante.horario_abertura && comerciante.horario_fechamento) {
+      document.getElementById('linhaHorarioContato').style.display = 'flex';
+      document.getElementById('txtHorarioContato').textContent = `${comerciante.horario_abertura} às ${comerciante.horario_fechamento}`;
     }
 
     if (comerciante.site) {
