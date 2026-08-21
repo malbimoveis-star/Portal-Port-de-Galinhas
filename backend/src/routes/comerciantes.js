@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const db = require('../db/connection');
 const { autenticar, gerarToken } = require('../middleware/auth');
+const upload = require('../middleware/upload');
 const { verificarEAtualizarStatus, calcularTempoRestanteDegustacao, comercianteVisivelPublicamente } = require('../utils/status');
 const { PLANOS } = require('../utils/planos');
 const { enviarEmail, templateBoasVindas, templateRecuperacaoSenha, notificarAdmin } = require('../utils/mailer');
@@ -189,13 +190,15 @@ router.put('/me', autenticar, async (req, res) => {
 
              const {
                    nome, telefone, categoria, cidade, endereco, descricao,
-                   logo, banner, site, latitude, longitude
+                   logo, banner, site, latitude, longitude,
+                   horario_abertura, horario_fechamento
              } = req.body;
 
              await db.run(`
                  UPDATE comerciantes SET
                        nome = ?, telefone = ?, categoria = ?, cidade = ?, endereco = ?, descricao = ?,
-                             logo = ?, banner = ?, site = ?, latitude = ?, longitude = ?
+                             logo = ?, banner = ?, site = ?, latitude = ?, longitude = ?,
+                             horario_abertura = ?, horario_fechamento = ?
                                  WHERE id = ?
                                    `, [
                    nome || comerciante.nome,
@@ -209,10 +212,45 @@ router.put('/me', autenticar, async (req, res) => {
                    site !== undefined ? site : comerciante.site,
                    latitude !== undefined ? latitude : comerciante.latitude,
                    longitude !== undefined ? longitude : comerciante.longitude,
+                   horario_abertura !== undefined ? horario_abertura : comerciante.horario_abertura,
+                   horario_fechamento !== undefined ? horario_fechamento : comerciante.horario_fechamento,
                    comerciante.id
                  ]);
 
              const atualizado = await db.get('SELECT * FROM comerciantes WHERE id = ?', [comerciante.id]);
+    res.json({ comerciante: comercianteSemSenha(atualizado) });
+});
+
+// PUT /api/comerciantes/me/foto
+// Upload self-service da foto de perfil (logo). Equivalente ao endpoint que
+// so o admin tinha (PUT /api/admin/comerciantes/:id/foto), agora liberado
+// para o proprio comerciante autenticado editar sem depender do admin.
+router.put('/me/foto', autenticar, upload.single('foto'), async (req, res) => {
+    if (!req.file) {
+          return res.status(400).json({ erro: 'Nenhuma imagem enviada. Envie um arquivo no campo "foto".' });
+    }
+
+             const logo = `/assets/uploads/${req.file.filename}`;
+    await db.run('UPDATE comerciantes SET logo = ? WHERE id = ?', [logo, req.comerciante.id]);
+
+             const atualizado = await db.get('SELECT * FROM comerciantes WHERE id = ?', [req.comerciante.id]);
+    res.json({ comerciante: comercianteSemSenha(atualizado) });
+});
+
+// PUT /api/comerciantes/me/banner
+// Upload self-service da capa (banner) da fanpage. Nao existia nenhuma
+// versao deste endpoint antes (nem para admin) - a capa so podia ser
+// definida manualmente no banco. Reaproveita o mesmo middleware de upload
+// (mesma pasta/validacao das fotos de anuncio).
+router.put('/me/banner', autenticar, upload.single('banner'), async (req, res) => {
+    if (!req.file) {
+          return res.status(400).json({ erro: 'Nenhuma imagem enviada. Envie um arquivo no campo "banner".' });
+    }
+
+             const banner = `/assets/uploads/${req.file.filename}`;
+    await db.run('UPDATE comerciantes SET banner = ? WHERE id = ?', [banner, req.comerciante.id]);
+
+             const atualizado = await db.get('SELECT * FROM comerciantes WHERE id = ?', [req.comerciante.id]);
     res.json({ comerciante: comercianteSemSenha(atualizado) });
 });
 
