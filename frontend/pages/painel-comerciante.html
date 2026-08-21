@@ -41,16 +41,28 @@
 
     <div id="tabAnuncios">
       <div class="card">
-        <h2 data-i18n="painel.novo_anuncio">Novo Anuncio</h2>
+        <h2>Criar Publicacao</h2>
+        <p style="color:#667b87; font-size:.9em; margin-top:-8px;">
+          Isso cria uma publicacao no feed da sua fanpage, como um post do Facebook. Nao e a mesma coisa que o "Sobre" do seu negocio — aquilo fica na aba <strong>Perfil do Negocio</strong>.
+        </p>
         <form id="formAnuncio">
           <input type="hidden" id="anuncioId" />
+
+          <div class="form-grupo">
+            <label>O que voce quer publicar?</label>
+            <div style="display:flex; gap:10px;">
+              <button type="button" class="btn-tipo-midia" data-tipo-midia="foto" id="btnTipoFoto" style="flex:1; padding:10px; border-radius:8px; border:2px solid var(--azul-primario); background:var(--azul-primario); color:#fff; font-weight:600; cursor:pointer;">📷 Foto</button>
+              <button type="button" class="btn-tipo-midia" data-tipo-midia="video" id="btnTipoVideo" style="flex:1; padding:10px; border-radius:8px; border:2px solid #ccc; background:#fff; color:#333; font-weight:600; cursor:pointer;">🎥 Video</button>
+            </div>
+          </div>
+
           <div class="form-grupo">
             <label data-i18n="painel.titulo">Titulo</label>
             <input type="text" id="campoTitulo" required />
           </div>
           <div class="form-grupo">
-            <label>Descricao</label>
-            <textarea id="campoDescricao"></textarea>
+            <label>Legenda desta publicacao</label>
+            <textarea id="campoDescricao" placeholder="Escreva a legenda que vai aparecer junto com a foto ou video no feed da sua fanpage."></textarea>
           </div>
           <div class="form-grupo">
             <label>Categoria</label>
@@ -60,11 +72,11 @@
             <label>Tags (separadas por virgula)</label>
             <input type="text" id="campoTags" placeholder="passeio, aventura, familia" />
           </div>
-          <div class="form-grupo">
+          <div class="form-grupo" id="grupoCampoFotos">
             <label>Fotos (ate 25)</label>
             <input type="file" id="campoFotos" multiple accept="image/*" />
           </div>
-          <div class="form-grupo">
+          <div class="form-grupo" id="grupoCampoVideos" style="display:none;">
             <label>Videos (ate 25)</label>
             <input type="file" id="campoVideos" multiple accept="video/*" />
           </div>
