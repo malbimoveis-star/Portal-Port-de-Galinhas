@@ -77,10 +77,11 @@
   .post-legenda { padding: 0 16px 12px; color: #33454f; font-size: .95em; font-weight: 600; white-space: pre-line; }
   .post img.post-foto, .post video.post-foto { width: 100%; max-height: 480px; object-fit: cover; display: block; background: #000; }
   .post-acoes { display: flex; gap: 4px; padding: 8px 16px; border-top: 1px solid #eef2f5; }
-  .btn-curtir, .btn-comentar, .btn-compartilhar { background: none; border: none; cursor: pointer; color: #55707f; font-size: .88em; padding: 8px 10px; border-radius: 6px; font-weight: 600; flex: 1; }
-  .btn-curtir:hover, .btn-comentar:hover, .btn-compartilhar:hover { background: #f2f5f8; }
+  .btn-curtir, .btn-nao-gostei, .btn-comentar, .btn-compartilhar { background: none; border: none; cursor: pointer; color: #55707f; font-size: .88em; padding: 8px 10px; border-radius: 6px; font-weight: 600; flex: 1; }
+  .btn-curtir:hover, .btn-nao-gostei:hover, .btn-comentar:hover, .btn-compartilhar:hover { background: #f2f5f8; }
   .btn-curtir.curtido { color: #d64545; }
-  .contador-curtidas { padding: 8px 16px 0; font-size: .82em; color: #55707f; }
+  .btn-nao-gostei.marcado { color: #55707f; background: #e4e9ec; }
+  .contador-curtidas { padding: 8px 16px 0; font-size: .82em; color: #55707f; display: flex; gap: 12px; }
   .comentarios { padding: 6px 16px 14px; border-top: 1px solid #eef2f5; margin-top: 6px; }
   .comentario { font-size: .88em; margin-bottom: 8px; }
   .comentario strong { color: #1c2b36; }
@@ -210,6 +211,13 @@
   function jaCurtiu(fotoKey) { return localStorage.getItem(`curtiu_${fotoKey}`) === '1'; }
   function marcarCurtido(fotoKey, curtiu) {
     if (curtiu) localStorage.setItem(`curtiu_${fotoKey}`, '1'); else localStorage.removeItem(`curtiu_${fotoKey}`);
+  }
+  // Fase 4: "nao gostei" convive com o curtir (nao substitui), mas um visitante
+  // nao marca os dois ao mesmo tempo no mesmo post - mesma logica de toggle
+  // por localStorage usada no curtir.
+  function jaNaoGostei(fotoKey) { return localStorage.getItem(`naoGostei_${fotoKey}`) === '1'; }
+  function marcarNaoGostei(fotoKey, marcado) {
+    if (marcado) localStorage.setItem(`naoGostei_${fotoKey}`, '1'); else localStorage.removeItem(`naoGostei_${fotoKey}`);
   }
 
   function tempoRelativo(dataIso) {
@@ -374,9 +382,10 @@
         </div>
         <div class="post-legenda">${escapeHtml(anuncio.titulo)}${anuncio.descricao ? '\n' + escapeHtml(anuncio.descricao) : ''}</div>
         ${midiaHtml}
-        <div class="contador-curtidas"><span class="txt-curtidas">0 curtidas</span></div>
+        <div class="contador-curtidas"><span class="txt-curtidas">0 curtidas</span><span class="txt-nao-gostei">0 não gostei</span></div>
         <div class="post-acoes">
           <button class="btn-curtir">❤️ Curtir</button>
+          <button class="btn-nao-gostei">👎 Não gostei</button>
           <button class="btn-comentar">💬 Comentar</button>
           <button class="btn-compartilhar">↗️ Compartilhar</button>
         </div>
@@ -398,18 +407,52 @@
   async function carregarInteracoes(postEl) {
     const fotoKey = postEl.dataset.fotoKey;
     const data = await fetch(`${API}/api/interacoes/${fotoKey}`).then(r => r.json());
-    atualizarCurtidas(postEl, data.curtidas);
+    let curtidasAtual = data.curtidas;
+    let naoGosteiAtual = data.naoGostei;
+    atualizarCurtidas(postEl, curtidasAtual, naoGosteiAtual);
     renderComentarios(postEl, data.comentarios);
 
     const btnCurtir = postEl.querySelector('.btn-curtir');
+    const btnNaoGostei = postEl.querySelector('.btn-nao-gostei');
     if (jaCurtiu(fotoKey)) btnCurtir.classList.add('curtido');
+    if (jaNaoGostei(fotoKey)) btnNaoGostei.classList.add('marcado');
+
+    // Curtir e "nao gostei" convivem no mesmo post (pedido do cliente: os dois
+    // ao mesmo tempo, um nao substitui o outro), mas sao mutuamente exclusivos
+    // por visitante - marcar um desfaz o outro automaticamente, como reacoes
+    // do Facebook.
     btnCurtir.addEventListener('click', async () => {
       const curtiuAgora = !jaCurtiu(fotoKey);
       const rota = curtiuAgora ? 'curtir' : 'descurtir';
       const resp = await fetch(`${API}/api/interacoes/${fotoKey}/${rota}`, { method: 'POST' }).then(r => r.json());
       marcarCurtido(fotoKey, curtiuAgora);
       btnCurtir.classList.toggle('curtido', curtiuAgora);
-      atualizarCurtidas(postEl, resp.curtidas);
+      curtidasAtual = resp.curtidas;
+
+      if (curtiuAgora && jaNaoGostei(fotoKey)) {
+        const respNg = await fetch(`${API}/api/interacoes/${fotoKey}/desfazer-nao-gostei`, { method: 'POST' }).then(r => r.json());
+        marcarNaoGostei(fotoKey, false);
+        btnNaoGostei.classList.remove('marcado');
+        naoGosteiAtual = respNg.naoGostei;
+      }
+      atualizarCurtidas(postEl, curtidasAtual, naoGosteiAtual);
+    });
+
+    btnNaoGostei.addEventListener('click', async () => {
+      const marcarAgora = !jaNaoGostei(fotoKey);
+      const rota = marcarAgora ? 'nao-gostei' : 'desfazer-nao-gostei';
+      const resp = await fetch(`${API}/api/interacoes/${fotoKey}/${rota}`, { method: 'POST' }).then(r => r.json());
+      marcarNaoGostei(fotoKey, marcarAgora);
+      btnNaoGostei.classList.toggle('marcado', marcarAgora);
+      naoGosteiAtual = resp.naoGostei;
+
+      if (marcarAgora && jaCurtiu(fotoKey)) {
+        const respCur = await fetch(`${API}/api/interacoes/${fotoKey}/descurtir`, { method: 'POST' }).then(r => r.json());
+        marcarCurtido(fotoKey, false);
+        btnCurtir.classList.remove('curtido');
+        curtidasAtual = respCur.curtidas;
+      }
+      atualizarCurtidas(postEl, curtidasAtual, naoGosteiAtual);
     });
 
     const btnComentar = postEl.querySelector('.btn-comentar');
@@ -442,8 +485,10 @@
     });
   }
 
-  function atualizarCurtidas(postEl, total) {
-    postEl.querySelector('.txt-curtidas').textContent = `${total} curtida${total === 1 ? '' : 's'}`;
+  function atualizarCurtidas(postEl, totalCurtidas, totalNaoGostei) {
+    postEl.querySelector('.txt-curtidas').textContent = `${totalCurtidas} curtida${totalCurtidas === 1 ? '' : 's'}`;
+    const txtNaoGostei = postEl.querySelector('.txt-nao-gostei');
+    if (txtNaoGostei) txtNaoGostei.textContent = `${totalNaoGostei || 0} não gostei`;
   }
 
   function renderComentarios(postEl, comentarios) {
