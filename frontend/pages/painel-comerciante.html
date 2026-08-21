@@ -6,6 +6,8 @@
   <title>Painel do Comerciante - Portal Porto de Galinhas</title>
   <link rel="icon" href="../assets/icons/logo-tucano.svg" />
   <link rel="stylesheet" href="../css/styles.css" />
+  <!-- Fase 5: mapa clicavel para latitude/longitude (Leaflet + tiles OpenStreetMap, sem chave de API) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 <body>
   <div id="layout-header"></div>
@@ -166,7 +168,11 @@
               <label>Endereco completo</label>
               <input type="text" id="campoEndereco" placeholder="Rua, numero, ponto de referencia" />
             </div>
-            <div class="grid-2-colunas">
+            <p style="color:#667b87; font-size:.85em; margin-top:8px; margin-bottom:6px;">
+              Clique no mapa exatamente no local do seu negocio para marcar a localizacao (ou arraste o marcador depois de clicar). As coordenadas abaixo sao preenchidas automaticamente.
+            </p>
+            <div id="mapaLocalizacao" style="height:260px; border-radius:8px; overflow:hidden; border:1px solid #dde5e8;"></div>
+            <div class="grid-2-colunas" style="margin-top:10px;">
               <div class="form-grupo">
                 <label>Latitude</label>
                 <input type="text" inputmode="decimal" id="campoLatitude" placeholder="-8.5083" />
@@ -177,8 +183,7 @@
               </div>
             </div>
             <p style="color:#7c8a94; font-size:.82em; margin-top:-6px; line-height:1.5;">
-              Nao sabe suas coordenadas? <a href="https://www.google.com/maps" target="_blank" rel="noopener" style="color:var(--azul-primario); font-weight:600;">Abra o Google Maps</a>,
-              encontre seu endereco, toque e segure no local exato ate aparecer um marcador vermelho, depois copie os dois numeros que aparecem na busca e cole aqui (Latitude primeiro, Longitude depois).
+              Prefere digitar direto? Tambem pode colar aqui os numeros do Google Maps (toque e segure no local exato ate aparecer um marcador vermelho e copie a Latitude e a Longitude que aparecem na busca) — o mapa acima se atualiza sozinho.
             </p>
 
             <button type="submit" class="btn btn--laranja" style="width:100%;">Salvar perfil</button>
@@ -213,6 +218,8 @@
 
   <div id="layout-rodape"></div>
 
+  <!-- Fase 5: biblioteca do mapa clicavel (sem chave de API, tiles do OpenStreetMap) -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="../js/config.js"></script>
   <script src="../js/i18n.js"></script>
   <script src="../js/layout.js"></script>
