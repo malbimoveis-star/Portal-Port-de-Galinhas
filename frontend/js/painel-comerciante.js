@@ -122,51 +122,203 @@
     });
   }
 
+  // Fase 2: envia o resultado ja recortado (um Blob vindo do canvas do
+  // cropper) em vez do arquivo original - o usuario ja escolheu exatamente
+  // qual parte da imagem quer mostrar, entao o servidor recebe a imagem
+  // pronta no formato certo (4:1 pra capa, quadrada pra logo).
+  async function enviarImagemRecortada(blob, botao, idImg, idVazio, endpoint, campoArquivo) {
+    const msg = document.getElementById('mensagemFoto');
+    const formData = new FormData();
+    formData.append(campoArquivo, blob, campoArquivo === 'foto' ? 'foto-perfil.jpg' : 'capa.jpg');
+
+    botao.disabled = true;
+    const textoOriginal = botao.textContent;
+    botao.textContent = 'Enviando...';
+
+    try {
+      const resp = await fetch(`${API}${endpoint}`, {
+        method: 'PUT',
+        headers: headersAuth(),
+        body: formData,
+      });
+      const data = await resp.json();
+
+      msg.style.display = 'block';
+      if (resp.ok) {
+        atualizarPreviewImagem(idImg, idVazio, campoArquivo === 'foto' ? data.comerciante.logo : data.comerciante.banner);
+        msg.textContent = 'Imagem atualizada com sucesso!';
+        msg.style.color = 'var(--verde-escuro)';
+      } else {
+        msg.textContent = data.erro || 'Erro ao enviar imagem. Tente novamente.';
+        msg.style.color = '#a12a2a';
+      }
+      setTimeout(() => { msg.style.display = 'none'; }, 4000);
+    } catch (err) {
+      console.error(err);
+      msg.style.display = 'block';
+      msg.textContent = 'Erro ao enviar imagem. Verifique sua conexao.';
+      msg.style.color = '#a12a2a';
+    } finally {
+      botao.disabled = false;
+      botao.textContent = textoOriginal;
+    }
+  }
+
   function initUploadFoto(idBotao, idInput, idImg, idVazio, endpoint, campoArquivo) {
     const botao = document.getElementById(idBotao);
     const input = document.getElementById(idInput);
-    const msg = document.getElementById('mensagemFoto');
+    const tipo = campoArquivo === 'foto' ? 'logo' : 'capa';
 
     botao.addEventListener('click', () => input.click());
 
-    input.addEventListener('change', async () => {
+    input.addEventListener('change', () => {
       if (!input.files || !input.files[0]) return;
+      const arquivo = input.files[0];
 
-      const formData = new FormData();
-      formData.append(campoArquivo, input.files[0]);
-
-      botao.disabled = true;
-      const textoOriginal = botao.textContent;
-      botao.textContent = 'Enviando...';
-
-      try {
-        const resp = await fetch(`${API}${endpoint}`, {
-          method: 'PUT',
-          headers: headersAuth(),
-          body: formData,
-        });
-        const data = await resp.json();
-
-        msg.style.display = 'block';
-        if (resp.ok) {
-          atualizarPreviewImagem(idImg, idVazio, campoArquivo === 'foto' ? data.comerciante.logo : data.comerciante.banner);
-          msg.textContent = 'Imagem atualizada com sucesso!';
-          msg.style.color = 'var(--verde-escuro)';
-        } else {
-          msg.textContent = data.erro || 'Erro ao enviar imagem. Tente novamente.';
-          msg.style.color = '#a12a2a';
-        }
-        setTimeout(() => { msg.style.display = 'none'; }, 4000);
-      } catch (err) {
-        console.error(err);
-        msg.style.display = 'block';
-        msg.textContent = 'Erro ao enviar imagem. Verifique sua conexao.';
-        msg.style.color = '#a12a2a';
-      } finally {
-        botao.disabled = false;
-        botao.textContent = textoOriginal;
+      abrirCropModal(arquivo, tipo, async (blob) => {
+        await enviarImagemRecortada(blob, botao, idImg, idVazio, endpoint, campoArquivo);
         input.value = '';
-      }
+      }, () => { input.value = ''; });
+    });
+  }
+
+  // ===== Fase 2: cropper de capa/logo (arrastar + zoom antes de enviar) =====
+  // Sem biblioteca externa: a imagem fica posicionada de forma absoluta
+  // dentro de uma janela com overflow:hidden (o "viewport"), o usuario
+  // arrasta e ajusta o zoom, e no "Aplicar" desenhamos so a regiao visivel
+  // num canvas do tamanho final (1600x400 pra capa, 800x800 pra logo).
+  const cropState = {
+    naturalW: 0, naturalH: 0, viewportW: 0, viewportH: 0,
+    scale: 1, minScale: 1, offsetX: 0, offsetY: 0,
+    arrastando: false, inicioX: 0, inicioY: 0, inicioOffsetX: 0, inicioOffsetY: 0,
+    tipo: 'capa', onConfirm: null, onCancel: null,
+  };
+
+  function abrirCropModal(arquivo, tipo, onConfirm, onCancel) {
+    const modal = document.getElementById('modalCrop');
+    const viewport = document.getElementById('cropViewport');
+    const img = document.getElementById('cropImg');
+    const zoom = document.getElementById('cropZoom');
+    const titulo = document.getElementById('tituloCrop');
+
+    cropState.tipo = tipo;
+    cropState.onConfirm = onConfirm;
+    cropState.onCancel = onCancel;
+
+    const larguraDisponivel = Math.min(440, window.innerWidth - 80);
+    if (tipo === 'capa') {
+      cropState.viewportW = larguraDisponivel;
+      cropState.viewportH = Math.round(larguraDisponivel / 4);
+      viewport.style.borderRadius = '8px';
+      titulo.textContent = 'Ajustar capa';
+    } else {
+      cropState.viewportW = Math.min(260, larguraDisponivel);
+      cropState.viewportH = cropState.viewportW;
+      viewport.style.borderRadius = '50%';
+      titulo.textContent = 'Ajustar foto de perfil';
+    }
+    viewport.style.width = cropState.viewportW + 'px';
+    viewport.style.height = cropState.viewportH + 'px';
+
+    const leitor = new FileReader();
+    leitor.onload = () => {
+      img.src = leitor.result;
+      img.onload = () => {
+        cropState.naturalW = img.naturalWidth;
+        cropState.naturalH = img.naturalHeight;
+        cropState.minScale = Math.max(cropState.viewportW / cropState.naturalW, cropState.viewportH / cropState.naturalH);
+        cropState.scale = cropState.minScale;
+        cropState.offsetX = (cropState.viewportW - cropState.naturalW * cropState.scale) / 2;
+        cropState.offsetY = (cropState.viewportH - cropState.naturalH * cropState.scale) / 2;
+        zoom.value = 100;
+        renderizarCrop();
+        modal.style.display = 'flex';
+      };
+    };
+    leitor.readAsDataURL(arquivo);
+  }
+
+  function clampOffsetsCrop() {
+    const largImg = cropState.naturalW * cropState.scale;
+    const altImg = cropState.naturalH * cropState.scale;
+    const minX = Math.min(0, cropState.viewportW - largImg);
+    const minY = Math.min(0, cropState.viewportH - altImg);
+    cropState.offsetX = Math.min(0, Math.max(minX, cropState.offsetX));
+    cropState.offsetY = Math.min(0, Math.max(minY, cropState.offsetY));
+  }
+
+  function renderizarCrop() {
+    const img = document.getElementById('cropImg');
+    img.style.width = (cropState.naturalW * cropState.scale) + 'px';
+    img.style.height = (cropState.naturalH * cropState.scale) + 'px';
+    img.style.transform = `translate(${cropState.offsetX}px, ${cropState.offsetY}px)`;
+  }
+
+  function fecharCropModal() {
+    document.getElementById('modalCrop').style.display = 'none';
+  }
+
+  function initCropModal() {
+    const modal = document.getElementById('modalCrop');
+    const viewport = document.getElementById('cropViewport');
+    const zoom = document.getElementById('cropZoom');
+
+    viewport.addEventListener('pointerdown', (e) => {
+      cropState.arrastando = true;
+      cropState.inicioX = e.clientX;
+      cropState.inicioY = e.clientY;
+      cropState.inicioOffsetX = cropState.offsetX;
+      cropState.inicioOffsetY = cropState.offsetY;
+      viewport.setPointerCapture(e.pointerId);
+      viewport.style.cursor = 'grabbing';
+    });
+    viewport.addEventListener('pointermove', (e) => {
+      if (!cropState.arrastando) return;
+      cropState.offsetX = cropState.inicioOffsetX + (e.clientX - cropState.inicioX);
+      cropState.offsetY = cropState.inicioOffsetY + (e.clientY - cropState.inicioY);
+      clampOffsetsCrop();
+      renderizarCrop();
+    });
+    const pararArrasto = () => { cropState.arrastando = false; viewport.style.cursor = 'grab'; };
+    viewport.addEventListener('pointerup', pararArrasto);
+    viewport.addEventListener('pointerleave', pararArrasto);
+
+    zoom.addEventListener('input', () => {
+      const centroX = cropState.viewportW / 2;
+      const centroY = cropState.viewportH / 2;
+      // Mantem o ponto central do viewport fixo na imagem ao mudar o zoom,
+      // em vez de reancorar no canto (0,0), que faria a imagem "pular".
+      const pontoImgX = (centroX - cropState.offsetX) / cropState.scale;
+      const pontoImgY = (centroY - cropState.offsetY) / cropState.scale;
+      cropState.scale = cropState.minScale * (zoom.value / 100);
+      cropState.offsetX = centroX - pontoImgX * cropState.scale;
+      cropState.offsetY = centroY - pontoImgY * cropState.scale;
+      clampOffsetsCrop();
+      renderizarCrop();
+    });
+
+    document.getElementById('btnCropCancelar').addEventListener('click', () => {
+      fecharCropModal();
+      if (cropState.onCancel) cropState.onCancel();
+    });
+
+    document.getElementById('btnCropAplicar').addEventListener('click', () => {
+      const outW = cropState.tipo === 'capa' ? 1600 : 800;
+      const outH = cropState.tipo === 'capa' ? 400 : 800;
+      const canvas = document.createElement('canvas');
+      canvas.width = outW;
+      canvas.height = outH;
+      const ctx = canvas.getContext('2d');
+      const sx = -cropState.offsetX / cropState.scale;
+      const sy = -cropState.offsetY / cropState.scale;
+      const sw = cropState.viewportW / cropState.scale;
+      const sh = cropState.viewportH / cropState.scale;
+      ctx.drawImage(document.getElementById('cropImg'), sx, sy, sw, sh, 0, 0, outW, outH);
+
+      canvas.toBlob((blob) => {
+        fecharCropModal();
+        if (cropState.onConfirm && blob) cropState.onConfirm(blob);
+      }, 'image/jpeg', 0.9);
     });
   }
 
@@ -385,6 +537,7 @@
     preencherPerfil(data.comerciante);
     initFormPerfil();
     await carregarCategoriasPerfil();
+    initCropModal();
     initUploadsPerfil();
     await carregarCategorias();
     await carregarMeusAnuncios();
