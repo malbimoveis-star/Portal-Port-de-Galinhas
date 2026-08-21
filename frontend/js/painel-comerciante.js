@@ -221,7 +221,47 @@
     document.getElementById('campoDescricao').value = anuncio.descricao || '';
     document.getElementById('campoCategoria').value = anuncio.categoria_id || '';
     document.getElementById('campoTags').value = (anuncio.tags || []).join(', ');
+    // Publicacoes existentes de video (sem fotos) reabrem no modo Video, o resto
+    // reabre no modo Foto - so afeta qual campo de upload fica visivel, o
+    // conteudo ja enviado nao muda so por reabrir o formulario.
+    const temVideo = (anuncio.videos || []).length > 0 && (anuncio.fotos || []).length === 0;
+    setTipoMidia(temVideo ? 'video' : 'foto');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Alterna entre "Foto" e "Video" no composer de publicacoes (estilo Facebook:
+  // voce escolhe o tipo de midia antes de postar). So o campo de upload
+  // correspondente fica visivel, e o outro e limpo pra nao mandar arquivo do
+  // tipo errado junto por engano.
+  function setTipoMidia(tipo) {
+    const btnFoto = document.getElementById('btnTipoFoto');
+    const btnVideo = document.getElementById('btnTipoVideo');
+    const grupoFotos = document.getElementById('grupoCampoFotos');
+    const grupoVideos = document.getElementById('grupoCampoVideos');
+    const campoFotos = document.getElementById('campoFotos');
+    const campoVideos = document.getElementById('campoVideos');
+
+    const ativo = { border: '2px solid var(--azul-primario)', background: 'var(--azul-primario)', color: '#fff' };
+    const inativo = { border: '2px solid #ccc', background: '#fff', color: '#333' };
+
+    if (tipo === 'video') {
+      Object.assign(btnVideo.style, ativo);
+      Object.assign(btnFoto.style, inativo);
+      grupoVideos.style.display = 'block';
+      grupoFotos.style.display = 'none';
+      campoFotos.value = '';
+    } else {
+      Object.assign(btnFoto.style, ativo);
+      Object.assign(btnVideo.style, inativo);
+      grupoFotos.style.display = 'block';
+      grupoVideos.style.display = 'none';
+      campoVideos.value = '';
+    }
+  }
+
+  function initTipoMidia() {
+    document.getElementById('btnTipoFoto').addEventListener('click', () => setTipoMidia('foto'));
+    document.getElementById('btnTipoVideo').addEventListener('click', () => setTipoMidia('video'));
   }
 
   async function excluirAnuncio(id) {
@@ -263,12 +303,14 @@
 
       form.reset();
       document.getElementById('anuncioId').value = '';
+      setTipoMidia('foto');
       carregarMeusAnuncios();
     });
 
     document.getElementById('btnCancelarEdicao').addEventListener('click', () => {
       form.reset();
       document.getElementById('anuncioId').value = '';
+      setTipoMidia('foto');
     });
   }
 
@@ -346,6 +388,7 @@
     initUploadsPerfil();
     await carregarCategorias();
     await carregarMeusAnuncios();
+    initTipoMidia();
     initFormAnuncio();
     initTabs();
     await carregarPlanos(data.comerciante.id);
