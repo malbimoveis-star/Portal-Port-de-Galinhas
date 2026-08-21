@@ -39,18 +39,60 @@
     }
   }
 
-  function preencherLocalizacao(comerciante) {
+  function preencherPerfil(comerciante) {
+    document.getElementById('campoNomeNegocio').value = comerciante.nome || '';
+    document.getElementById('campoSobre').value = comerciante.descricao || '';
+    document.getElementById('campoTelefonePerfil').value = comerciante.telefone || '';
+    document.getElementById('campoSite').value = comerciante.site || '';
+    document.getElementById('campoHorarioAbertura').value = comerciante.horario_abertura || '';
+    document.getElementById('campoHorarioFechamento').value = comerciante.horario_fechamento || '';
+
     document.getElementById('campoCidade').value = comerciante.cidade || '';
     document.getElementById('campoEndereco').value = comerciante.endereco || '';
     document.getElementById('campoLatitude').value = comerciante.latitude != null ? comerciante.latitude : '';
     document.getElementById('campoLongitude').value = comerciante.longitude != null ? comerciante.longitude : '';
+
+    const selectCategoria = document.getElementById('campoCategoriaPerfil');
+    if (comerciante.categoria) selectCategoria.value = comerciante.categoria;
+
+    atualizarPreviewImagem('previewCapa', 'previewCapaVazio', comerciante.banner);
+    atualizarPreviewImagem('previewLogo', null, comerciante.logo);
   }
 
-  function initFormLocalizacao() {
-    const form = document.getElementById('formLocalizacao');
+  function atualizarPreviewImagem(idImg, idVazio, src) {
+    const img = document.getElementById(idImg);
+    const vazio = idVazio ? document.getElementById(idVazio) : null;
+    if (src) {
+      img.src = src;
+      img.style.display = 'block';
+      if (vazio) vazio.style.display = 'none';
+    } else {
+      img.style.display = 'none';
+      if (vazio) vazio.style.display = 'flex';
+    }
+  }
+
+  async function carregarCategoriasPerfil() {
+    const select = document.getElementById('campoCategoriaPerfil');
+    const resp = await fetch(`${API}/api/categorias`);
+    const categorias = await resp.json();
+    select.innerHTML = '<option value="">Selecione uma categoria</option>' +
+      categorias.map((c) => `<option value="${c.nome}">${c.nome}</option>`).join('');
+  }
+
+  function initFormPerfil() {
+    const form = document.getElementById('formPerfil');
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const msg = document.getElementById('mensagemLocalizacao');
+      const msg = document.getElementById('mensagemPerfil');
+
+      const nome = document.getElementById('campoNomeNegocio').value.trim();
+      const categoria = document.getElementById('campoCategoriaPerfil').value;
+      const descricao = document.getElementById('campoSobre').value.trim();
+      const telefone = document.getElementById('campoTelefonePerfil').value.trim();
+      const site = document.getElementById('campoSite').value.trim();
+      const horario_abertura = document.getElementById('campoHorarioAbertura').value;
+      const horario_fechamento = document.getElementById('campoHorarioFechamento').value;
       const cidade = document.getElementById('campoCidade').value.trim();
       const endereco = document.getElementById('campoEndereco').value.trim();
       const latStr = document.getElementById('campoLatitude').value.trim();
@@ -61,12 +103,16 @@
       const resp = await fetch(`${API}/api/comerciantes/me`, {
         method: 'PUT',
         headers: Object.assign({ 'Content-Type': 'application/json' }, headersAuth()),
-        body: JSON.stringify({ cidade, endereco, latitude, longitude }),
+        body: JSON.stringify({
+          nome, categoria, descricao, telefone, site,
+          horario_abertura, horario_fechamento,
+          cidade, endereco, latitude, longitude,
+        }),
       });
 
       msg.style.display = 'block';
       if (resp.ok) {
-        msg.textContent = 'Localizacao salva com sucesso!';
+        msg.textContent = 'Perfil salvo com sucesso!';
         msg.style.color = 'var(--verde-escuro)';
       } else {
         msg.textContent = 'Erro ao salvar. Tente novamente.';
@@ -74,6 +120,59 @@
       }
       setTimeout(() => { msg.style.display = 'none'; }, 4000);
     });
+  }
+
+  function initUploadFoto(idBotao, idInput, idImg, idVazio, endpoint, campoArquivo) {
+    const botao = document.getElementById(idBotao);
+    const input = document.getElementById(idInput);
+    const msg = document.getElementById('mensagemFoto');
+
+    botao.addEventListener('click', () => input.click());
+
+    input.addEventListener('change', async () => {
+      if (!input.files || !input.files[0]) return;
+
+      const formData = new FormData();
+      formData.append(campoArquivo, input.files[0]);
+
+      botao.disabled = true;
+      const textoOriginal = botao.textContent;
+      botao.textContent = 'Enviando...';
+
+      try {
+        const resp = await fetch(`${API}${endpoint}`, {
+          method: 'PUT',
+          headers: headersAuth(),
+          body: formData,
+        });
+        const data = await resp.json();
+
+        msg.style.display = 'block';
+        if (resp.ok) {
+          atualizarPreviewImagem(idImg, idVazio, campoArquivo === 'foto' ? data.comerciante.logo : data.comerciante.banner);
+          msg.textContent = 'Imagem atualizada com sucesso!';
+          msg.style.color = 'var(--verde-escuro)';
+        } else {
+          msg.textContent = data.erro || 'Erro ao enviar imagem. Tente novamente.';
+          msg.style.color = '#a12a2a';
+        }
+        setTimeout(() => { msg.style.display = 'none'; }, 4000);
+      } catch (err) {
+        console.error(err);
+        msg.style.display = 'block';
+        msg.textContent = 'Erro ao enviar imagem. Verifique sua conexao.';
+        msg.style.color = '#a12a2a';
+      } finally {
+        botao.disabled = false;
+        botao.textContent = textoOriginal;
+        input.value = '';
+      }
+    });
+  }
+
+  function initUploadsPerfil() {
+    initUploadFoto('btnAlterarCapa', 'inputCapa', 'previewCapa', 'previewCapaVazio', '/api/comerciantes/me/banner', 'banner');
+    initUploadFoto('btnAlterarLogo', 'inputLogo', 'previewLogo', null, '/api/comerciantes/me/foto', 'foto');
   }
 
   async function carregarCategorias() {
@@ -180,7 +279,7 @@
         btn.classList.add('ativo');
         const tab = btn.dataset.tab;
         document.getElementById('tabAnuncios').style.display = tab === 'anuncios' ? 'block' : 'none';
-        document.getElementById('tabLocalizacao').style.display = tab === 'localizacao' ? 'block' : 'none';
+        document.getElementById('tabPerfil').style.display = tab === 'perfil' ? 'block' : 'none';
         document.getElementById('tabPlanos').style.display = tab === 'planos' ? 'block' : 'none';
       });
     });
@@ -241,8 +340,10 @@
     if (!data) return;
 
     renderStats(data);
-    preencherLocalizacao(data.comerciante);
-    initFormLocalizacao();
+    preencherPerfil(data.comerciante);
+    initFormPerfil();
+    await carregarCategoriasPerfil();
+    initUploadsPerfil();
     await carregarCategorias();
     await carregarMeusAnuncios();
     initFormAnuncio();
