@@ -72,6 +72,85 @@
     }
   }
 
+  // Fase 5: mapa clicavel para marcar a localizacao do negocio, no lugar de
+  // exigir que o comerciante digite latitude/longitude manualmente (o campo
+  // continua existindo, pro caso de quem prefere colar as coordenadas do
+  // Google Maps direto - as duas formas ficam sincronizadas).
+  const COORDS_PADRAO_PORTO_DE_GALINHAS = [-8.5083, -35.0067];
+  let mapaLocalizacao = null;
+  let marcadorLocalizacao = null;
+
+  function coordenadaValida(valor) {
+    return typeof valor === 'number' && !Number.isNaN(valor);
+  }
+
+  function lerCoordenadasDosCampos() {
+    const lat = parseFloat((document.getElementById('campoLatitude').value || '').trim().replace(',', '.'));
+    const lon = parseFloat((document.getElementById('campoLongitude').value || '').trim().replace(',', '.'));
+    return { lat, lon };
+  }
+
+  function marcarLocalizacao(lat, lon, opts) {
+    document.getElementById('campoLatitude').value = lat.toFixed(6);
+    document.getElementById('campoLongitude').value = lon.toFixed(6);
+
+    if (!mapaLocalizacao) return;
+
+    if (marcadorLocalizacao) {
+      marcadorLocalizacao.setLatLng([lat, lon]);
+    } else {
+      marcadorLocalizacao = L.marker([lat, lon], { draggable: true }).addTo(mapaLocalizacao);
+      marcadorLocalizacao.on('dragend', () => {
+        const pos = marcadorLocalizacao.getLatLng();
+        marcarLocalizacao(pos.lat, pos.lng);
+      });
+    }
+
+    if (opts && opts.centralizar) {
+      mapaLocalizacao.setView([lat, lon], Math.max(mapaLocalizacao.getZoom(), 15));
+    }
+  }
+
+  // Chamada de forma preguicosa (so na primeira vez que a aba "Perfil do
+  // Negocio" e aberta) porque o Leaflet precisa que o container do mapa ja
+  // esteja visivel (com largura/altura reais) pra desenhar os tiles direito.
+  function initMapaLocalizacao() {
+    if (mapaLocalizacao || typeof L === 'undefined') return;
+
+    const { lat, lon } = lerCoordenadasDosCampos();
+    const temCoordenadas = coordenadaValida(lat) && coordenadaValida(lon);
+    const centroInicial = temCoordenadas ? [lat, lon] : COORDS_PADRAO_PORTO_DE_GALINHAS;
+
+    mapaLocalizacao = L.map('mapaLocalizacao').setView(centroInicial, temCoordenadas ? 16 : 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>',
+      maxZoom: 19,
+    }).addTo(mapaLocalizacao);
+
+    if (temCoordenadas) {
+      marcarLocalizacao(lat, lon);
+    }
+
+    mapaLocalizacao.on('click', (e) => {
+      marcarLocalizacao(e.latlng.lat, e.latlng.lng);
+    });
+  }
+
+  // Mantem o mapa sincronizado quando o comerciante prefere colar as
+  // coordenadas direto do Google Maps em vez de clicar.
+  function initSincroniaCamposLocalizacao() {
+    ['campoLatitude', 'campoLongitude'].forEach((id) => {
+      document.getElementById(id).addEventListener('change', () => {
+        if (!mapaLocalizacao) return;
+        const { lat, lon } = lerCoordenadasDosCampos();
+        if (coordenadaValida(lat) && coordenadaValida(lon)) {
+          marcarLocalizacao(lat, lon, { centralizar: true });
+        }
+      });
+    });
+  }
+
   async function carregarCategoriasPerfil() {
     const select = document.getElementById('campoCategoriaPerfil');
     const resp = await fetch(`${API}/api/categorias`);
@@ -475,6 +554,15 @@
         document.getElementById('tabAnuncios').style.display = tab === 'anuncios' ? 'block' : 'none';
         document.getElementById('tabPerfil').style.display = tab === 'perfil' ? 'block' : 'none';
         document.getElementById('tabPlanos').style.display = tab === 'planos' ? 'block' : 'none';
+
+        // O mapa so pode ser criado/redimensionado com o container ja
+        // visivel - por isso o pequeno atraso, so na aba Perfil.
+        if (tab === 'perfil') {
+          setTimeout(() => {
+            initMapaLocalizacao();
+            if (mapaLocalizacao) mapaLocalizacao.invalidateSize();
+          }, 50);
+        }
       });
     });
   }
@@ -536,6 +624,7 @@
     renderStats(data);
     preencherPerfil(data.comerciante);
     initFormPerfil();
+    initSincroniaCamposLocalizacao();
     await carregarCategoriasPerfil();
     initCropModal();
     initUploadsPerfil();
