@@ -96,6 +96,12 @@ async function migrate() {
   await criarColuna('latitude', 'REAL');
   await criarColuna('longitude', 'REAL');
 
+  // Fase 1 da reformulacao "Perfil do Negocio" (estilo Facebook Pages):
+  // horario simples de funcionamento, um unico par abre/fecha (sem grade
+  // semanal) - decisao explicita do cliente para manter o cadastro simples.
+  await criarColuna('horario_abertura', "TEXT DEFAULT ''");
+  await criarColuna('horario_fechamento', "TEXT DEFAULT ''");
+
   await criarColuna('curtidas', 'INTEGER DEFAULT 0');
   await criarColuna('seguidores', 'INTEGER DEFAULT 0');
   await criarColuna('media_avaliacoes', 'REAL DEFAULT 5');
